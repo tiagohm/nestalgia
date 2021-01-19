@@ -1,0 +1,11 @@
+package br.tiagohm.nestalgia.core
+
+enum class VsSystemType {
+    DEFAULT,
+    RBI_BASEBALL_PROTECTION,
+    TKO_BOXING_PROTECTION,
+    SUPER_XEVIOUS_PROTECTION,
+    ICE_CLIMBER_PROTECTION,
+    VS_DUAL_SYSTEM,
+    RAID_ON_BUNGELING_BAY_PROTECTION,
+}

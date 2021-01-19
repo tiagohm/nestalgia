@@ -1,0 +1,50 @@
+package br.tiagohm.nestalgia.core
+
+enum class GameInputType {
+    UNSPECIFIED,
+    STANDARD_CONTROLLERS,
+    FOUR_SCORE,
+    FOUR_PLAYER_ADAPTER,
+    VS_SYSTEM,
+    VS_SYSTEM_SWAPPED,
+    VS_SYSTEM_SWAP_AB,
+    VS_ZAPPER,
+    ZAPPER,
+    TWO_ZAPPERS,
+    BANDAI_HYPER_SHOT,
+    POWER_PAD_SIDE_A,
+    POWER_PAD_SIDE_B,
+    FAMILY_TRAINER_SIDE_A,
+    FAMILY_TRAINER_SIDE_B,
+    ARKANOID_CONTROLLER_NES,
+    ARKANOID_CONTROLLER_FAMICOM,
+    DOUBLE_ARKANOID_CONTROLLER,
+    KONAMI_HYPER_SHOT,
+    PACHINKO_CONTROLLER,
+    EXCITING_BOXING,
+    JISSEN_MAHJONG,
+    PARTY_TAP,
+    OEKA_KIDS_TABLET,
+    BARCODE_BATTLER,
+    MIRACLE_PIANO, // Not Supported yet
+    POKKUN_MOGURAA, // Not Supported yet
+    TOP_RIDER, // Not Supported yet
+    DOUBLE_FISTED, // Not Supported yet
+    FAMICOM3D_SYSTEM, // Not Supported yet
+    DOREMIKKO_KEYBOARD, // Not Supported yet
+    ROB, // Not Supported yet
+    FAMICOM_DATA_RECORDER,
+    TURBO_FILE,
+    BATTLE_BOX,
+    FAMILY_BASIC_KEYBOARD,
+    PEC586KEYBOARD, // Not Supported yet
+    BIT79KEYBOARD, // Not Supported yet
+    SUBOR_KEYBOARD,
+    SUBOR_KEYBOARD_MOUSE_1,
+    SUBOR_KEYBOARD_MOUSE_2,
+    SNES_MOUSE,
+    GENERIC_MULTICART, // Not Supported yet
+    SNES_CONTROLLERS,
+    RACERMATE_BICYCLE, // Not Supported yet
+    UFORCE, // Not supported yet
+}

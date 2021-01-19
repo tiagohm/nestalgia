@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Nestalgia</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous" />
+
+    <link rel="icon" type="image/png" href="logo.png" />
+
+    <style>
+        * {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .grid span.badge {
+            min-width: 29px;
+            text-align: center;
+        }
+
+        .grid span {
+            display: inline-block;
+            margin: 0px;
+        }
+
+        .badge-success {
+            background-color: #5cb85c;
+        }
+
+        .badge-default {
+            background-color: #636c72;
+        }
+
+        .badge-warning {
+            background-color: #f0ad4e;
+        }
+
+        .badge-danger {
+            background-color: #d9534f;
+        }
+
+        .yet {
+            opacity: 0.60;
+        }
+
+        .unknown {
+            opacity: 0.80;
+        }
+
+        .unused {
+            opacity: 0.20;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: .25em .4em;
+            font-size: 75%;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: .25rem;
+        }
+
+        .badge a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .unif span.badge {
+            width: 95px;
+            text-align: center;
+            margin-right: 1px;
+            font-size: 70%;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .light {
+            font-weight: 300
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header" class="container-fluid">
+        <div class="row mt-4">
+            <div class="col-sm-12 text-center bold" style="font-size: 18pt;">
+                NESTALGIA
+            </div>
+            <div class="col-sm-12 text-center text-small">
+                NES and Famicom Emulator
+            </div>
+            <div class="col-sm-12 text-center mt-4">
+                <img src="logo.png" />
+            </div>
+        </div>
+    </div>
+
+    <div id="about" class="container">
+        <div class="row mt-4">
+            <div class="col-sm-12 bold">
+                <p>About</p>
+            </div>
+            <div class="col-sm-12 text-justify light">
+                Nestalgia is a WIP cross-platform and high-accuracy NES/Famicom emulator built in Kotlin.
+                It's being ported from discontinued <a target="_blank" href="https://github.com/SourMesen/Mesen">Mesen</a>
+                NES/Famicom emulator built in C++ and C#.
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-sm-12 bold">
+                <p>Features</p>
+            </div>
+            <div class="col-sm-12 light">
+                <ul>
+                    <li>High Accuracy</li>
+                    <li>High Compatibility: Over 290 mappers supported</li>
+                    <li>NES, Famicom, Famicom Disk System, Dendy, VS System, NSF and NSFe emulation is supported</li>
+                    <li>Save States, Battery, Overclocking and Cheat Codes</li>
+                    <li>Audio, Video, Controller and Emulation config support</li>
+                    <li>Zapper is supported</li>
+                    <li>Fullscreen and Screenshot support</li>
+                    <li>Gamepad Support</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-sm-12 text-center">
+                <img src="1.png" style="width: 400px; height: 400px" />
+                <img src="2.png" style="width: 400px; height: 400px" />
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-sm-12 bold">
+                <p>Download</p>
+            </div>
+
+            <div class="col-sm-12 light">
+                <a target="_blank" href="https://raw.githubusercontent.com/tiagohm/nestalgia/master/desktop/nestalgia.jar">
+                    DESKTOP
+                </a>
+            </div>
+            <div class="col-sm-12 light mt-4">
+                <p>
+                    Before running, check if you have Java 8 or newer installed. Linux users will need to set
+                    execute permissions on the JAR.
+                </p>
+            </div>
+
+            <div class="col-sm-12 light mt-4">
+                <a target="_blank" href="">
+                    ANDROID
+                </a>
+            </div>
+            <div class="col-sm-12 light mt-4">
+                <p>
+                    Coming soon...
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="mappers" class="container">
+        <div class="row mt-4">
+            <div class="col-sm-12 bold">
+                <p>Supported Mappers</p>
+            </div>
+            <div class="col-lg-7 col-md-12 mb-4 text-center">
+                <div class="grid">
+                    <h5>iNES</h5>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <span class="badge badge-success"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_000">000</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_001">001</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_002">002</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_003">003</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_004">004</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_005">005</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_006">006</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_007">007</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_008">008</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_009">009</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_010">010</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_011">011</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_012">012</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_013">013</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_014">014</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_015">015</a></span>
+                        </div>
+                        <div class="col-lg-12">
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_016">016</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_017">017</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_018">018</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_019">019</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_020">020</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_021">021</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_022">022</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_023">023</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_024">024</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_025">025</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_026">026</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_027">027</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_028">028</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_029">029</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_030">030</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_031">031</a></span>
+                        </div>
+                        <div class="col-lg-12">
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_032">032</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_033">033</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_034">034</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_035">035</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_036">036</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_037">037</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_038">038</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_039">039</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_040">040</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_041">041</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_042">042</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_043">043</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_044">044</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_045">045</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_046">046</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_047">047</a></span>
+                        </div>
+                        <div class="col-lg-12">
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_048">048</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_049">049</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_050">050</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_051">051</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_052">052</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_053">053</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_054">054</a></span>
+                            <span class="unknown badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_055">055</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_056">056</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_057">057</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_058">058</a></span>
+                            <span class="unknown badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_059">059</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_060">060</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_061">061</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_062">062</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_063">063</a></span>
+                        </div>
+                        <div class="col-lg-12">
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_064">064</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_065">065</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_066">066</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_067">067</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_068">068</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_069">069</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_070">070</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_071">071</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_072">072</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_073">073</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_074">074</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_075">075</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_076">076</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_077">077</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_078">078</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_079">079</a></span>
+                        </div>
+                        <div class="col-lg-12">
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_080">080</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_081">081</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_082">082</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_083">083</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_084">084</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_085">085</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_086">086</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_087">087</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_088">088</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_089">089</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_090">090</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_091">091</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_092">092</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_093">093</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_094">094</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_095">095</a></span>
+                        </div>
+                        <div class="col-lg-12">
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_096">096</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_097">097</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_098">098</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_099">099</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_100">100</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_101">101</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_102">102</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_103">103</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_104">104</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_105">105</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_106">106</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_107">107</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_108">108</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_109">109</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_110">110</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_111">111</a></span>
+                        </div>
+                        <div class="col-lg-12">
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_112">112</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_113">113</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_114">114</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_115">115</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_116">116</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_117">117</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_118">118</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_119">119</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_120">120</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_121">121</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_122">122</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_123">123</a></span>
+                            <span class="badge badge-warning"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_124">124</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_125">125</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_126">126</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_127">127</a></span>
+                        </div>
+                        <div class="col-lg-12">
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_128">128</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_129">129</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_130">130</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_131">131</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_132">132</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_133">133</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_134">134</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_135">135</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_136">136</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_137">137</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_138">138</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_139">139</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_140">140</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_141">141</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_142">142</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_143">143</a></span>
+                        </div>
+                        <div class="col-lg-12">
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_144">144</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_145">145</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_146">146</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_147">147</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_148">148</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_149">149</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_150">150</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_151">151</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_152">152</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_153">153</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_154">154</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_155">155</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_156">156</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_157">157</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_158">158</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_159">159</a></span>
+                        </div>
+                        <div class="col-lg-12">
+                            <span class="unknown badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_160">160</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_161">161</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_162">162</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_163">163</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_164">164</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_165">165</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_166">166</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_167">167</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_168">168</a></span>
+                            <span class="unknown badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_169">169</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_170">170</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_171">171</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_172">172</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_173">173</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_174">174</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_175">175</a></span>
+                        </div>
+                        <div class="col-lg-12">
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_176">176</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_177">177</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_178">178</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_179">179</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_180">180</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_181">181</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_182">182</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_183">183</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_184">184</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_185">185</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_186">186</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_187">187</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_188">188</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_189">189</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_190">190</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_191">191</a></span>
+                        </div>
+                        <div class="col-lg-12">
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_192">192</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_193">193</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_194">194</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_195">195</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_196">196</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_197">197</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_198">198</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_199">199</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_200">200</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_201">201</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_202">202</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_203">203</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_204">204</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_205">205</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_206">206</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_207">207</a></span>
+                        </div>
+                        <div class="col-lg-12">
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_208">208</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_209">209</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_210">210</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_211">211</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_212">212</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_213">213</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_214">214</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_215">215</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_216">216</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_217">217</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_218">218</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_219">219</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_220">220</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_221">221</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_222">222</a></span>
+                            <span class="unknown badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_223">223</a></span>
+                        </div>
+                        <div class="col-lg-12">
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_224">224</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_225">225</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_226">226</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_227">227</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_228">228</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_229">229</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_230">230</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_231">231</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_232">232</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_233">233</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_234">234</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_235">235</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_236">236</a></span>
+                            <span class="unknown badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_237">237</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_238">238</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_239">239</a></span>
+                        </div>
+                        <div class="col-lg-12">
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_240">240</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_241">241</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_242">242</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_243">243</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_244">244</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_245">245</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_246">246</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_247">247</a></span>
+                            <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_248">248</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_249">249</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_250">250</a></span>
+                            <span class="unknown badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_251">251</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_252">252</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_253">253</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_254">254</a></span>
+                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_255">255</a></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid col-lg-5 col-md-12" style="font-size: small;">
+                <h5>Legend</h5>
+                <div><span class="badge badge-success">0</span> Supported mapper</div>
+                <div><span class="badge badge-success yet">0</span> Supported mapper (but not implemented yet)</div>
+                <div><span class="badge badge-danger">0</span> Unsupported Mapper (Licensed games)</div>
+                <div><span class="badge badge-warning">0</span> Unsupported Mapper (Bootlegs)</div>
+                <div><span class="badge badge-default unknown">0</span> Unknown Mapper (no known games)</div>
+                <div><span class="badge badge-default unused">0</span> Unused Mapper</div>
+                <br>
+                <h5>Stats</h5>
+                <div><span class="badge badge-success">295</span> mappers supported</div>
+                <div><span class="badge badge-warning">15</span> mappers unsupported (Bootlegs)</div>
+            </div>
+
+        </div>
+
+        <div class="row mt-1 mb-1">
+            <div class="unif col-xs-12 text-center">
+                <h5>UNIF</h5>
+                <span class="badge badge-warning" title="BMC-10-24-C-A1">BMC-10-24-C-A1</span>
+                <span class="badge badge-success yet" title="BMC-11160">BMC-11160</span>
+                <span class="badge badge-success yet" title="BMC-12-IN-1">BMC-12-IN-1</span>
+                <span class="badge badge-warning" title="BMC-13in1JY110">BMC-13in1JY110</span>
+                <span class="badge badge-success yet" title="BMC-190in1">BMC-190in1</span>
+                <span class="badge badge-success yet" title="BMC-411120-C">BMC-411120-C</span>
+                <span class="badge badge-success yet" title="BMC-60311C">BMC-60311C</span>
+                <span class="badge badge-success yet" title="BMC-64in1NoRepeat">BMC-64in1NoRepeat</span>
+                <span class="badge badge-success yet" title="BMC-70in1">BMC-70in1</span>
+                <span class="badge badge-success yet" title="BMC-70in1B">BMC-70in1B</span>
+                <span class="badge badge-success yet" title="BMC-8-IN-1">BMC-8-IN-1</span>
+                <span class="badge badge-success yet" title="BMC-80013-B">BMC-80013-B</span>
+                <span class="badge badge-warning" title="BMC-81-01-31-C">BMC-81-01-31-C</span>
+                <span class="badge badge-success yet" title="BMC-810544-C-A1">BMC-810544-C-A1</span>
+                <span class="badge badge-success yet" title="BMC-8157">BMC-8157</span>
+                <span class="badge badge-success yet" title="BMC-830118C">BMC-830118C</span>
+                <span class="badge badge-success yet" title="BMC-A65AS">BMC-A65AS</span>
+                <span class="badge badge-success yet" title="BMC-BS-5">BMC-BS-5</span>
+                <span class="badge badge-success yet" title="BMC-D1038">BMC-D1038</span>
+                <span class="badge badge-success yet" title="BMC-F-15">BMC-F-15</span>
+                <span class="badge badge-success yet" title="BMC-F15">BMC-F15</span>
+                <span class="badge badge-success yet" title="BMC-FK23C">BMC-FK23C</span>
+                <span class="badge badge-success yet" title="BMC-FK23CA">BMC-FK23CA</span>
+                <span class="badge badge-success yet" title="BMC-G-146">BMC-G-146</span>
+                <span class="badge badge-success yet" title="BMC-GS-2004">BMC-GS-2004</span>
+                <span class="badge badge-success yet" title="BMC-GS-2013">BMC-GS-2013</span>
+                <span class="badge badge-success yet" title="BMC-Ghostbusters63in1">BMC-Ghostbusters63in1</span>
+                <span class="badge badge-success yet" title="BMC-HP898F">BMC-HP898F</span>
+                <span class="badge badge-success yet" title="BMC-HPxx">BMC-HPxx</span>
+                <span class="badge badge-success yet" title="BMC-NTD-03">BMC-NTD-03</span>
+                <span class="badge badge-success yet" title="BMC-NovelDiamond9999999in1">BMC-NovelDiamond9999999in1</span>
+                <span class="badge badge-success yet" title="BMC-Super24in1SC03">BMC-Super24in1SC03</span>
+                <span class="badge badge-warning" title="BMC-T-227-1">BMC-T-227-1</span>
+                <span class="badge badge-success yet" title="BMC-T-262">BMC-T-262</span>
+                <span class="badge badge-success yet" title="BMC-WS">BMC-WS</span>
+                <span class="badge badge-success yet" title="BTL-MARIO1-MALEE2">BTL-MARIO1-MALEE2</span>
+                <span class="badge badge-success yet" title="DREAMTECH01">DREAMTECH01</span>
+                <span class="badge badge-success yet" title="KS7031">KS7031</span>
+                <span class="badge badge-warning" title="LE05">LE05</span>
+                <span class="badge badge-warning" title="LH53">LH53</span>
+                <span class="badge badge-success yet" title="SSS-NROM-256">SSS-NROM-256</span>
+                <span class="badge badge-success yet" title="UNL-158B">UNL-158B</span>
+                <span class="badge badge-warning" title="UNL-3D-BLOCK">UNL-3D-BLOCK</span>
+                <span class="badge badge-success yet" title="UNL-43272">UNL-43272</span>
+                <span class="badge badge-success yet" title="UNL-8237A">UNL-8237A</span>
+                <span class="badge badge-success yet" title="UNL-AC08">UNL-AC08</span>
+                <span class="badge badge-success yet" title="UNL-AX5705">UNL-AX5705</span>
+                <span class="badge badge-success yet" title="UNL-BB">UNL-BB</span>
+                <span class="badge badge-success yet" title="UNL-CC-21">UNL-CC-21</span>
+                <span class="badge badge-success yet" title="UNL-CITYFIGHT">UNL-CITYFIGHT</span>
+                <span class="badge badge-success yet" title="UNL-Coolboy">UNL-Coolboy</span>
+                <span class="badge badge-success yet" title="UNL-DANCE2000">UNL-DANCE2000</span>
+                <span class="badge badge-success yet" title="UNL-DRAGONFIGHTER">UNL-DRAGONFIGHTER</span>
+                <span class="badge badge-success yet" title="UNL-DRIPGAME">UNL-DRIPGAME</span>
+                <span class="badge badge-success yet" title="UNL-EDU2000">UNL-EDU2000</span>
+                <span class="badge badge-success yet" title="UNL-EH8813A">UNL-EH8813A</span>
+                <span class="badge badge-success yet" title="UNL-KOF97">UNL-KOF97</span>
+                <span class="badge badge-warning" title="UNL-KS7010">UNL-KS7010</span>
+                <span class="badge badge-success yet" title="UNL-KS7012">UNL-KS7012</span>
+                <span class="badge badge-success yet" title="UNL-KS7013B">UNL-KS7013B</span>
+                <span class="badge badge-success yet" title="UNL-KS7016">UNL-KS7016</span>
+                <span class="badge badge-success yet" title="UNL-KS7017">UNL-KS7017</span>
+                <span class="badge badge-warning" title="UNL-KS7030">UNL-KS7030</span>
+                <span class="badge badge-success yet" title="UNL-KS7037">UNL-KS7037</span>
+                <span class="badge badge-success yet" title="UNL-KS7057">UNL-KS7057</span>
+                <span class="badge badge-success yet" title="UNL-LH10">UNL-LH10</span>
+                <span class="badge badge-success yet" title="UNL-MALISB">UNL-MALISB</span>
+                <span class="badge badge-warning" title="UNL-OneBus">UNL-OneBus</span>
+                <span class="badge badge-warning" title="UNL-PEC-586">UNL-PEC-586</span>
+                <span class="badge badge-success yet" title="UNL-RT-01">UNL-RT-01</span>
+                <span class="badge badge-success yet" title="UNL-SA-9602B">UNL-SA-9602B</span>
+                <span class="badge badge-warning" title="UNL-SB-2000">UNL-SB-2000</span>
+                <span class="badge badge-success yet" title="UNL-SHERO">UNL-SHERO</span>
+                <span class="badge badge-success yet" title="UNL-SMB2J">UNL-SMB2J</span>
+                <span class="badge badge-success yet" title="UNL-T-230">UNL-T-230</span>
+                <span class="badge badge-success yet" title="UNL-TC-U01-1.5M">UNL-TC-U01-1.5M</span>
+                <span class="badge badge-success yet" title="UNL-TF1201">UNL-TF1201</span>
+                <span class="badge badge-warning" title="UNL-Transformer">UNL-Transformer</span>
+                <span class="badge badge-success yet" title="UNL-VRC7">UNL-VRC7</span>
+                <span class="badge badge-success yet" title="UNL-YOKO">UNL-YOKO</span>
+                <span class="badge badge-warning" title="WAIXING-FS005">WAIXING-FS005</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="gamepad" class="container">
+        <div class="row mt-4">
+            <div class="col-sm-12 bold">
+                <p>Gamepad Support</p>
+            </div>
+            <div class="col-sm-12 text-justify light">
+                <ul>
+                    <li>The first detected gamepad will be used as Standard Controller 1, and the second will be Standard Controller 2.</li>
+                    <li>Y Button will take a screenshot</li>
+                    <li>X Button will save the game's state</li>
+                    <li>LB/RB restore the previous/next saved game's state</li>
+                    <li>Left thumbstick can be used as D-Pad</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

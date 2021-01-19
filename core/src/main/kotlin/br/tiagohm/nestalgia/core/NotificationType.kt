@@ -1,0 +1,20 @@
+package br.tiagohm.nestalgia.core
+
+enum class NotificationType {
+    GAME_LOADED,
+    GAME_RESET,
+    GAME_PAUSED,
+    GAME_RESUMED,
+    GAME_STOPPED,
+    CHEAT_ADDED,
+    CHEAT_REMOVED,
+    CONFIG_CHANGED,
+    EMULATION_STOPPED,
+    BEFORE_EMULATION_STOP,
+    VS_DUAL_SYSTEM_STARTED,
+    VS_DUAL_SYSTEM_STOPPED,
+    GAME_INIT_COMPLETED,
+    DEBUG_BREAK,
+    DEBUG_CONTINUE,
+    ERROR,
+}
