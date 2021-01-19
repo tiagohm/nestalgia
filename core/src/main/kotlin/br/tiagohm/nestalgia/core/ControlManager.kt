@@ -133,6 +133,7 @@ open class ControlManager(
     fun createExpansionDevice(type: ExpansionPortDevice, console: Console): ControlDevice? {
         return when (type) {
             ExpansionPortDevice.ZAPPER -> Zapper(console, ControlDevice.EXP_DEVICE_PORT)
+            ExpansionPortDevice.ASCII_TURBO_FILE -> AsciiTurboFile(console)
             else -> null
         }
     }
@@ -231,6 +232,7 @@ open class ControlManager(
         val consoleType = console.settings.consoleType
         val hasFourScore = console.settings.checkFlag(EmulationFlag.HAS_FOUR_SCORE)
         val useNes101Hvc101Behavior = console.settings.checkFlag(EmulationFlag.USE_NES_101_HVC_101_BEHAVIOR)
+        val asciiTurboFileSlot = console.settings.asciiTurboFileSlot
         val controllerTypes = Array(4) { console.settings.getControllerType(it) }
 
         s.write("region", region)
@@ -238,6 +240,7 @@ open class ControlManager(
         s.write("consoleType", consoleType)
         s.write("hasFourScore", hasFourScore)
         s.write("useNes101Hvc101Behavior", useNes101Hvc101Behavior)
+        s.write("asciiTurboFileSlot", asciiTurboFileSlot)
         s.write("controllerTypes", controllerTypes)
         s.write("lagCounter", lagCounter)
         s.write("pollCounter", pollCounter)
@@ -251,6 +254,7 @@ open class ControlManager(
         console.settings.consoleType = s.readEnum("consoleType") ?: ConsoleType.NES
         val hasFourScore = s.readBoolean("hasFourScore") ?: false
         val useNes101Hvc101Behavior = s.readBoolean("useNes101Hvc101Behavior") ?: false
+        console.settings.asciiTurboFileSlot = s.readInt("asciiTurboFileSlot") ?: 0
         val controllerTypes = s.readEnumArray<ControllerType>("controllerTypes")
         lagCounter = s.readUInt("lagCounter") ?: 0U
         pollCounter = s.readUInt("pollCounter") ?: 0U
