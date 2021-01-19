@@ -19,6 +19,7 @@ class ControllerConfig(
     private var hasFourScore = settings.checkFlag(EmulationFlag.HAS_FOUR_SCORE)
     private var zapperDetectionRadius = settings.zapperDetectionRadius.copyOf()
     private var autoConfigureInput = settings.checkFlag(EmulationFlag.AUTO_CONFIGURE_INPUT)
+    private var asciiTurboSlot = settings.asciiTurboFileSlot
 
     val isFourScoreAttached: Boolean
         get() {
@@ -214,11 +215,13 @@ class ControllerConfig(
                     button(
                         "Settings",
                         row, 2,
-                        isEnabled = expansionDevice == ExpansionPortDevice.ZAPPER,
+                        isEnabled = expansionDevice == ExpansionPortDevice.ZAPPER ||
+                                expansionDevice == ExpansionPortDevice.ASCII_TURBO_FILE,
                         fill = Fill.HORIZONTAL,
                         onClick = {
                             when (expansionDevice) {
                                 ExpansionPortDevice.ZAPPER -> showZapperConfig(ControlDevice.EXP_DEVICE_PORT)
+                                ExpansionPortDevice.ASCII_TURBO_FILE -> showAsciiTurboFileConfig()
                                 else -> {
                                 }
                             }
@@ -247,6 +250,12 @@ class ControllerConfig(
     private fun showZapperConfig(port: Int) {
         ZapperConfig.show(port, zapperDetectionRadius[port]) {
             zapperDetectionRadius[port] = it
+        }
+    }
+
+    private fun showAsciiTurboFileConfig() {
+        AsciiTurboFileConfig.show(asciiTurboSlot) {
+            asciiTurboSlot = it
         }
     }
 
@@ -285,6 +294,7 @@ class ControllerConfig(
         }
 
         zapperDetectionRadius.copyInto(settings.zapperDetectionRadius)
+        settings.asciiTurboFileSlot = asciiTurboSlot
 
         onSave()
 
@@ -298,6 +308,7 @@ class ControllerConfig(
             ExpansionPortDevice.NONE,
             ExpansionPortDevice.ZAPPER,
             ExpansionPortDevice.FOUR_PLAYER_ADAPTER,
+            ExpansionPortDevice.ASCII_TURBO_FILE,
         )
 
         fun show(emulator: Emulator, onSave: () -> Unit) {

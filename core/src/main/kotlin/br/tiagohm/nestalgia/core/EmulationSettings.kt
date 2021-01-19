@@ -12,6 +12,10 @@ class EmulationSettings : Snapshotable {
     @JvmField
     val zapperDetectionRadius = IntArray(ControlDevice.PORT_COUNT)
 
+    // Ascii Turbo File II
+    @JvmField
+    var asciiTurboFileSlot = 0
+
     // Console
     @JvmField
     var region = Region.AUTO
@@ -96,6 +100,7 @@ class EmulationSettings : Snapshotable {
     override fun saveState(s: Snapshot) {
         s.write("flags", flags)
         s.write("zapperDetectionRadius", zapperDetectionRadius)
+        s.write("asciiTurboFileSlot", asciiTurboFileSlot)
         s.write("region", region)
         s.write("ramPowerOnState", ramPowerOnState)
         s.write("dipSwitches", dipSwitches)
@@ -125,6 +130,7 @@ class EmulationSettings : Snapshotable {
         isNeedAudioSettingsUpdate = s.readBoolean("isNeedAudioSettingsUpdate") ?: false
         flags = s.readULong("flags") ?: 0UL
         s.readIntArray("zapperDetectionRadius")?.copyInto(zapperDetectionRadius)
+        asciiTurboFileSlot = s.readInt("asciiTurboFileSlot") ?: 0
         region = s.readEnum("region") ?: Region.AUTO
         ramPowerOnState = s.readEnum("ramPowerOnState") ?: RamPowerOnState.ALL_ZEROS
         dipSwitches = s.readInt("dipSwitches") ?: 0
