@@ -988,6 +988,7 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
         fun fromId(romData: RomData): Mapper {
             return when (val id = romData.info.mapperId) {
                 0 -> NROM()
+                1 -> MMC1()
                 else -> {
                     System.err.println("${romData.info.name} has unsupported mapper $id")
                     throw IOException("Unsupported mapper $id")
