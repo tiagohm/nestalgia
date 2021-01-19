@@ -105,7 +105,7 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
     lateinit var data: RomData
         private set
 
-    val info: RomInfo
+    inline val info: RomInfo
         get() = data.info
 
     val name: String
@@ -130,8 +130,8 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
     protected var nametableRam = UByteArray(0)
         private set
 
-    private var hasChrBattery: Boolean = false
-    private var privateHasBusConflicts: Boolean = false
+    private var hasChrBattery = false
+    private var privateHasBusConflicts = false
 
     private val prgMemoryAccess = Array(0x100) { MemoryAccessType.NO_ACCESS }
     private val prgPages = Array(0x100) { Pointer.NULL }
@@ -283,6 +283,10 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
             BusConflictType.NO -> false
         }
 
+        if (privateHasBusConflicts) {
+            System.err.println("Bus conflicts enabled")
+        }
+
         saveRam = UByteArray(privateSaveRamSize.toInt())
         workRam = UByteArray(privateWorkRamSize.toInt())
 
@@ -335,12 +339,17 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
 
         mirroringType = romData.info.mirroring
 
+        val info = data.info.copy(
+            hasChrRam = hasChrRam,
+            busConflict = if (privateHasBusConflicts) BusConflictType.YES else BusConflictType.NO
+        )
+
+        this.data = romData.copy(info = info)
+
         init()
         init(romData)
 
         loadBattery()
-
-        this.data = romData.copy(info = info.copy(hasChrRam = hasChrRam))
     }
 
     override fun getMemoryRanges(ranges: MemoryRanges) {
@@ -389,7 +398,7 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
 
     override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
         if (isWriteRegisterAddr[addr.toInt()]) {
-            if (hasBusConflicts) {
+            if (privateHasBusConflicts) {
                 val hi = addr.hiByte.toInt()
                 val lo = addr.loByte.toInt()
                 writeRegister(addr, value and prgPages[hi][lo])
