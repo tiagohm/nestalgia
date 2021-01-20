@@ -37,13 +37,13 @@ class VsSystem : Mapper() {
                 setCpuMemoryMapping(
                     startAddr,
                     endAddr,
-                    if (hasBattery) Pointer.sram(saveRam) else Pointer.wram(workRam),
+                    if (hasBattery) Pointer(saveRam) else Pointer(workRam),
                     if (bit.toUInt() != 0U) MemoryAccessType.READ_WRITE else MemoryAccessType.NO_ACCESS
                 )
                 mapper.setCpuMemoryMapping(
                     startAddr,
                     endAddr,
-                    if (hasBattery) Pointer.sram(saveRam) else Pointer.wram(workRam),
+                    if (hasBattery) Pointer(saveRam) else Pointer(workRam),
                     if (bit.toUInt() != 0U) MemoryAccessType.NO_ACCESS else MemoryAccessType.READ_WRITE
                 )
             }

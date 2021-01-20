@@ -2,13 +2,12 @@ package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
 @ExperimentalUnsignedTypes
-open class Pointer protected constructor(
-    val type: MemoryType?,
+open class Pointer(
     val data: UByteArray,
     val offset: Int = 0,
 ) {
 
-    constructor(pointer: Pointer, offset: Int = 0) : this(pointer.type, pointer.data, pointer.offset + offset)
+    constructor(pointer: Pointer, offset: Int = 0) : this(pointer.data, pointer.offset + offset)
 
     val size = data.size
 
@@ -39,18 +38,6 @@ open class Pointer protected constructor(
     }
 
     companion object {
-        val NULL = Pointer(null, UByteArray(0), 0)
-
-        fun rom(data: UByteArray, offset: Int = 0) = Pointer(PrgMemoryType.ROM, data, offset)
-
-        fun sram(data: UByteArray, offset: Int = 0) = Pointer(PrgMemoryType.SRAM, data, offset)
-
-        fun wram(data: UByteArray, offset: Int = 0) = Pointer(PrgMemoryType.WRAM, data, offset)
-
-        fun nametable(data: UByteArray, offset: Int = 0) = Pointer(ChrMemoryType.NAMETABLE_RAM, data, offset)
-
-        fun chrRam(data: UByteArray, offset: Int = 0) = Pointer(ChrMemoryType.RAM, data, offset)
-
-        fun chrRom(data: UByteArray, offset: Int = 0) = Pointer(ChrMemoryType.ROM, data, offset)
+        val NULL = Pointer(UByteArray(0), 0)
     }
 }

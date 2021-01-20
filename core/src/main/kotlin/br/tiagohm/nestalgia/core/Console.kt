@@ -143,7 +143,7 @@ class Console(
     }
 
     fun initialize(rom: ByteArray, name: String, forPowerCycle: Boolean = false): Boolean {
-        val (newMapper, romData) = try {
+        val (newMapper, data) = try {
             Mapper.initialize(this, rom, name)
         } catch (e: IOException) {
             notificationManager.sendNotification(NotificationType.ERROR, e.message)
@@ -167,8 +167,8 @@ class Console(
 
         batteryManager.initialize()
 
-        if (newMapper != null && romData != null) {
-            val isDifferentGame = mapper == null || mapper!!.info.hash.prgChrCrc32 != romData.info.hash.prgChrCrc32
+        if (newMapper != null && data != null) {
+            val isDifferentGame = mapper == null || mapper!!.info.hash.prgChrCrc32 != data.info.hash.prgChrCrc32
 
             if (mapper != null) {
                 // Send notification only if a game was already running and
@@ -185,7 +185,7 @@ class Console(
             apu = Apu(this)
 
             mapper!!.console = this
-            mapper!!.initialize(romData)
+            mapper!!.initialize(data)
 
             if (previousMapper != null && !isDifferentGame && forPowerCycle) {
                 mapper!!.copyPrgChrRom(previousMapper)

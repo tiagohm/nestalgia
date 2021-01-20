@@ -148,7 +148,7 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
     override fun dispose() {
     }
 
-    open fun init(romData: RomData) {
+    open fun init(data: RomData) {
     }
 
     override fun reset(softReset: Boolean) {
@@ -240,25 +240,25 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
 
     fun getNametable(nametableIndex: Int): Pointer {
         if (nametableIndex in 0 until NAMETABLE_COUNT) {
-            return Pointer.nametable(nametableRam, nametableIndex * NAMETABLE_SIZE)
+            return Pointer(nametableRam, nametableIndex * NAMETABLE_SIZE)
         } else {
             throw IllegalArgumentException("Invalid nametable index")
         }
     }
 
-    fun initialize(romData: RomData) {
-        this.data = romData
+    fun initialize(data: RomData) {
+        this.data = data
 
-        privateSaveRamSize = if (romData.saveRamSize == -1 || isForceSaveRamSize) {
+        privateSaveRamSize = if (data.saveRamSize == -1 || isForceSaveRamSize) {
             saveRamSize
         } else {
-            romData.saveRamSize.toUInt()
+            data.saveRamSize.toUInt()
         }
 
-        privateWorkRamSize = if (romData.workRamSize == -1 || isForceWorkRamSize) {
+        privateWorkRamSize = if (data.workRamSize == -1 || isForceWorkRamSize) {
             workRamSize
         } else {
-            romData.workRamSize.toUInt()
+            data.workRamSize.toUInt()
         }
 
         isReadRegisterAddr.fill(false)
@@ -266,18 +266,18 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
 
         addRegisterRange(registerStartAddress, registerEndAddress, MemoryOperation.ANY)
 
-        privatePrgSize = romData.prgRom.size.toUInt()
-        privateChrRomSize = romData.chrRom.size.toUInt()
+        privatePrgSize = data.prgRom.size.toUInt()
+        privateChrRomSize = data.chrRom.size.toUInt()
 
         prgRom = UByteArray(privatePrgSize.toInt())
         chrRom = UByteArray(privateChrRomSize.toInt())
 
-        romData.prgRom.copyInto(prgRom)
-        romData.chrRom.copyInto(chrRom)
+        data.prgRom.copyInto(prgRom)
+        data.chrRom.copyInto(chrRom)
 
-        hasChrBattery = romData.saveChrRamSize > 0 || isForceChrBattery
+        hasChrBattery = data.saveChrRamSize > 0 || isForceChrBattery
 
-        privateHasBusConflicts = when (romData.info.busConflict) {
+        privateHasBusConflicts = when (data.info.busConflict) {
             BusConflictType.DEFAULT -> hasBusConflicts
             BusConflictType.YES -> true
             BusConflictType.NO -> false
@@ -313,13 +313,13 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
             privateChrRomSize == 0U -> {
                 // Assume there is CHR RAM if no CHR ROM exists
                 onlyChrRam = true
-                initializeChrRam(romData.chrRamSize)
+                initializeChrRam(data.chrRamSize)
                 // Map CHR RAM to 0x0000-0x1FFF by default when no CHR ROM exists
                 setPpuMemoryMapping(0x0000U, 0x1FFFU, 0U, ChrMemoryType.RAM)
                 privateChrRomSize = privateChrRamSize
             }
-            romData.chrRamSize >= 0 -> {
-                initializeChrRam(romData.chrRamSize)
+            data.chrRamSize >= 0 -> {
+                initializeChrRam(data.chrRamSize)
             }
             chrRamSize > 0U -> {
                 initializeChrRam()
@@ -328,26 +328,26 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
 
         if (info.hasTreiner) {
             if (privateWorkRamSize >= 0x2000U) {
-                System.arraycopy(romData.treinerData, 0, workRam, 0x1000, 512)
-                romData.treinerData.copyInto(workRam, 0x1000, 0, 512)
+                System.arraycopy(data.treinerData, 0, workRam, 0x1000, 512)
+                data.treinerData.copyInto(workRam, 0x1000, 0, 512)
             } else if (privateSaveRamSize >= 0x2000U) {
-                romData.treinerData.copyInto(saveRam, 0x1000, 0, 512)
+                data.treinerData.copyInto(saveRam, 0x1000, 0, 512)
             }
         }
 
         setupDefaultWorkRam()
 
-        mirroringType = romData.info.mirroring
+        mirroringType = data.info.mirroring
 
         val info = data.info.copy(
             hasChrRam = hasChrRam,
             busConflict = if (privateHasBusConflicts) BusConflictType.YES else BusConflictType.NO
         )
 
-        this.data = romData.copy(info = info)
+        this.data = data.copy(info = info)
 
         init()
-        init(romData)
+        init(data)
 
         loadBattery()
     }
@@ -540,15 +540,9 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
         accessType: MemoryAccessType,
     ) {
         val sourceMemory = when (type) {
-            PrgMemoryType.ROM -> {
-                Pointer.rom(prgRom)
-            }
-            PrgMemoryType.SRAM -> {
-                Pointer.sram(saveRam)
-            }
-            else -> {
-                Pointer.wram(workRam)
-            }
+            PrgMemoryType.ROM -> Pointer(prgRom)
+            PrgMemoryType.SRAM -> Pointer(saveRam)
+            else -> Pointer(workRam)
         }
 
         val firstSlot = start.toInt() shr 8
@@ -702,18 +696,12 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
         when (sourceType) {
             ChrMemoryType.DEFAULT -> {
                 sourceMemory =
-                    if (onlyChrRam) Pointer.chrRam(chrRam) else Pointer.chrRom(chrRom)
+                    if (onlyChrRam) Pointer(chrRam) else Pointer(chrRom)
                 sourceType = if (onlyChrRam) ChrMemoryType.RAM else ChrMemoryType.ROM
             }
-            ChrMemoryType.ROM -> {
-                sourceMemory = Pointer.chrRom(chrRom)
-            }
-            ChrMemoryType.RAM -> {
-                sourceMemory = Pointer.chrRam(chrRam)
-            }
-            else -> {
-                sourceMemory = Pointer.nametable(nametableRam)
-            }
+            ChrMemoryType.ROM -> sourceMemory = Pointer(chrRom)
+            ChrMemoryType.RAM -> sourceMemory = Pointer(chrRam)
+            else -> sourceMemory = Pointer(nametableRam)
         }
 
         val firstSlot = start.toInt() shr 8
@@ -974,33 +962,33 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
         fun initialize(console: Console, rom: ByteArray, name: String): Pair<Mapper?, RomData?> {
             val loader = RomLoader()
 
-            val romData = try {
+            val data = try {
                 loader.load(rom, name)
             } catch (e: Exception) {
                 System.err.println(e.message)
                 return null to null
             }
 
-            if ((romData.info.isInDatabase || romData.info.isNes20Header) && romData.info.inputType != GameInputType.UNSPECIFIED) {
+            if ((data.info.isInDatabase || data.info.isNes20Header) && data.info.inputType != GameInputType.UNSPECIFIED) {
                 if (console.settings.checkFlag(EmulationFlag.AUTO_CONFIGURE_INPUT)) {
-                    console.settings.initializeInputDevices(romData.info.inputType, romData.info.system)
+                    console.settings.initializeInputDevices(data.info.inputType, data.info.system)
                 }
-            } else if (romData.info.isInDatabase) {
-                val system = romData.info.system
+            } else if (data.info.isInDatabase) {
+                val system = data.info.system
                 val isFamicom = (system == GameSystem.FAMICOM || system == GameSystem.FDS || system == GameSystem.DENDY)
                 console.settings.consoleType = if (isFamicom) ConsoleType.FAMICOM else ConsoleType.NES
             }
 
-            return Pair(fromId(romData), romData)
+            return Pair(fromId(data), data)
         }
 
-        fun fromId(romData: RomData): Mapper {
-            return when (val id = romData.info.mapperId) {
+        fun fromId(data: RomData): Mapper {
+            return when (val id = data.info.mapperId) {
                 0 -> NROM()
                 1 -> MMC1()
                 2 -> UNROM()
                 else -> {
-                    System.err.println("${romData.info.name} has unsupported mapper $id")
+                    System.err.println("${data.info.name} has unsupported mapper $id")
                     throw IOException("Unsupported mapper $id")
                 }
             }
