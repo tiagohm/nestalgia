@@ -132,9 +132,7 @@ data class NesHeader(
                     }
                 }
                 RomHeaderVersion.INES -> {
-                    // TODO: Ver se trocar UNKNOWN por NTSC afeta algo
-                    // if (byte9.bit0) GameSystem.PAL else GameSystem.UNKNOWN
-                    if (byte9.bit0) GameSystem.PAL else GameSystem.NTSC
+                    if (byte9.bit0) GameSystem.PAL else GameSystem.UNKNOWN
                 }
                 else -> {
                     GameSystem.UNKNOWN
