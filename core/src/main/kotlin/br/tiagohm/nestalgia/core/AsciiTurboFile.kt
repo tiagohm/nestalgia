@@ -73,6 +73,31 @@ class AsciiTurboFile(console: Console) :
         lastWrite = value
     }
 
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("position", position)
+        s.write("lastWrite", lastWrite)
+        s.write("slot", slot)
+        s.write("data0", data[0])
+        s.write("data1", data[1])
+        s.write("data2", data[2])
+        s.write("data3", data[3])
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        position = s.readInt("position") ?: position
+        lastWrite = s.readUByte("lastWrite") ?: lastWrite
+        slot = s.readInt("slot") ?: slot
+        console.settings.asciiTurboFileSlot = slot
+        s.readUByteArray("data0")?.copyInto(data[0])
+        s.readUByteArray("data1")?.copyInto(data[1])
+        s.readUByteArray("data2")?.copyInto(data[2])
+        s.readUByteArray("data3")?.copyInto(data[3])
+    }
+
     companion object {
         const val FILE_SIZE = 0x2000
         const val SLOT_COUNT = 4

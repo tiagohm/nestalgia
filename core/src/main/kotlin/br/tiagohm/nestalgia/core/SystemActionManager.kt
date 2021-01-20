@@ -1,16 +1,10 @@
 package br.tiagohm.nestalgia.core
 
 @ExperimentalUnsignedTypes
-open class SystemActionManager(console: Console) :
-    ControlDevice(console, CONSOLE_INPUT_PORT),
-    Buttonable<SystemActionManager.Buttons> {
+open class SystemActionManager(console: Console) : ControlDevice(console, CONSOLE_INPUT_PORT) {
+
     private var isNeedReset: Boolean = false
     private var isNeedPowerCycle: Boolean = false
-
-    enum class Buttons(override val bit: Int) : Button {
-        RESET(0),
-        POWER(1),
-    }
 
     override fun reset(softReset: Boolean) {
         if (!isNeedReset) {
@@ -20,34 +14,22 @@ open class SystemActionManager(console: Console) :
 
     override fun onAfterSetState() {
         if (isNeedReset) {
-            buttonDown(Buttons.RESET)
+            setBit(SystemActionButton.RESET)
         }
+
         if (isNeedPowerCycle) {
-            buttonDown(Buttons.POWER)
+            setBit(SystemActionButton.POWER)
         }
-    }
-
-    @Synchronized
-    override fun buttonDown(button: Buttons) {
-        setBit(button.bit)
-    }
-
-    @Synchronized
-    override fun buttonUp(button: Buttons) {
-        clearBit(button.bit)
-    }
-
-    override fun isPressed(button: Buttons): Boolean {
-        return isPressed(button.bit)
     }
 
     fun processSystemActions() {
-        if (isPressed(Buttons.RESET)) {
+        if (isPressed(SystemActionButton.RESET)) {
             isNeedReset = false
             console.resetComponents(true)
             console.controlManager.updateInputState()
         }
-        if (isPressed(Buttons.POWER)) {
+
+        if (isPressed(SystemActionButton.POWER)) {
             console.powerCycle()
         }
     }

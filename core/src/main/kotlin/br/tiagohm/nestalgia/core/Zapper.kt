@@ -4,13 +4,7 @@ package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
 @ExperimentalUnsignedTypes
-class Zapper(console: Console, port: Int) :
-    ControlDevice(console, port),
-    Buttonable<Zapper.Buttons> {
-
-    enum class Buttons(override val bit: Int) : Button {
-        FIRE(0)
-    }
+class Zapper(console: Console, port: Int) : ControlDevice(console, port) {
 
     var x = 0
 
@@ -20,7 +14,7 @@ class Zapper(console: Console, port: Int) :
         if (console.keyManager == null) return
 
         if (console.settings.isInputEnabled && console.keyManager!!.isMouseButtonPressed(MouseButton.LEFT)) {
-            buttonDown(Buttons.FIRE)
+            setBit(ZapperButton.FIRE)
         }
 
         if (console.keyManager!!.isMouseButtonPressed(MouseButton.RIGHT)) {
@@ -32,25 +26,12 @@ class Zapper(console: Console, port: Int) :
         }
     }
 
-    @Synchronized
-    override fun buttonDown(button: Buttons) {
-        setBit(button.bit)
-    }
-
-    @Synchronized
-    override fun buttonUp(button: Buttons) {
-        clearBit(button.bit)
-    }
-
-    override fun isPressed(button: Buttons): Boolean {
-        return isPressed(button.bit)
-    }
-
     override fun read(addr: UShort, type: MemoryOperationType): UByte {
         var output: UByte = 0U
 
         if ((isExpansionDevice && addr.toUInt() == 0x4017U) || isCurrentPort(addr)) {
-            output = ((if (isLight()) 0x00U else 0x08U) or (if (isPressed(Buttons.FIRE)) 0x10U else 0x00U)).toUByte()
+            output = ((if (isLight()) 0x00U else 0x08U) or
+                    (if (isPressed(ZapperButton.FIRE)) 0x10U else 0x00U)).toUByte()
         }
 
         return output
@@ -59,6 +40,20 @@ class Zapper(console: Console, port: Int) :
     fun isLight() = isLight(x, y, console.settings.zapperDetectionRadius[port], console.ppu)
 
     override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
+    }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("x", x)
+        s.write("y", y)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        x = s.readInt("x") ?: x
+        y = s.readInt("y") ?: y
     }
 
     companion object {

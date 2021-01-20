@@ -37,4 +37,18 @@ class FourScore(console: Console) : ControlDevice(console, EXP_DEVICE_PORT) {
     override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
         strobeOnWrite(value)
     }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("signature4016", signature4016)
+        s.write("signature4017", signature4017)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        signature4016 = s.readUInt("signature4016") ?: 0U
+        signature4017 = s.readUInt("signature4017") ?: 0U
+    }
 }

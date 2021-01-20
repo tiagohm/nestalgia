@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.ui.dialogs
 
 import br.tiagohm.nestalgia.core.KeyManager
 import br.tiagohm.nestalgia.core.KeyMapping
-import br.tiagohm.nestalgia.core.StandardController
+import br.tiagohm.nestalgia.core.StandardControllerButton
 import br.tiagohm.nestalgia.ui.*
 import javax.swing.JPanel
 
@@ -15,14 +15,14 @@ class StandardControllerConfig(
 ) :
     Dialog("Standard Controller Settings - Port $port") {
 
-    private var up = keyMapping.getKey(StandardController.Buttons.UP)
-    private var right = keyMapping.getKey(StandardController.Buttons.RIGHT)
-    private var left = keyMapping.getKey(StandardController.Buttons.LEFT)
-    private var down = keyMapping.getKey(StandardController.Buttons.DOWN)
-    private var select = keyMapping.getKey(StandardController.Buttons.SELECT)
-    private var start = keyMapping.getKey(StandardController.Buttons.START)
-    private var a = keyMapping.getKey(StandardController.Buttons.A)
-    private var b = keyMapping.getKey(StandardController.Buttons.B)
+    private var up = keyMapping.getKey(StandardControllerButton.UP)
+    private var right = keyMapping.getKey(StandardControllerButton.RIGHT)
+    private var left = keyMapping.getKey(StandardControllerButton.LEFT)
+    private var down = keyMapping.getKey(StandardControllerButton.DOWN)
+    private var select = keyMapping.getKey(StandardControllerButton.SELECT)
+    private var start = keyMapping.getKey(StandardControllerButton.START)
+    private var a = keyMapping.getKey(StandardControllerButton.A)
+    private var b = keyMapping.getKey(StandardControllerButton.B)
 
     override val body: JPanel
         get() {
@@ -156,14 +156,14 @@ class StandardControllerConfig(
     }
 
     private fun reset() {
-        up = keyMapping.getKey(StandardController.Buttons.UP)
-        right = keyMapping.getKey(StandardController.Buttons.RIGHT)
-        left = keyMapping.getKey(StandardController.Buttons.LEFT)
-        down = keyMapping.getKey(StandardController.Buttons.DOWN)
-        select = keyMapping.getKey(StandardController.Buttons.SELECT)
-        start = keyMapping.getKey(StandardController.Buttons.START)
-        a = keyMapping.getKey(StandardController.Buttons.A)
-        b = keyMapping.getKey(StandardController.Buttons.B)
+        up = keyMapping.getKey(StandardControllerButton.UP)
+        right = keyMapping.getKey(StandardControllerButton.RIGHT)
+        left = keyMapping.getKey(StandardControllerButton.LEFT)
+        down = keyMapping.getKey(StandardControllerButton.DOWN)
+        select = keyMapping.getKey(StandardControllerButton.SELECT)
+        start = keyMapping.getKey(StandardControllerButton.START)
+        a = keyMapping.getKey(StandardControllerButton.A)
+        b = keyMapping.getKey(StandardControllerButton.B)
         updateView()
     }
 

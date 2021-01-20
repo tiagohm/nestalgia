@@ -244,6 +244,10 @@ open class ControlManager(
         s.write("controllerTypes", controllerTypes)
         s.write("lagCounter", lagCounter)
         s.write("pollCounter", pollCounter)
+
+        for (i in controlDevices.indices) {
+            s.write("controlDevice$i", controlDevices[i])
+        }
     }
 
     override fun restoreState(s: Snapshot) {
@@ -266,5 +270,9 @@ open class ControlManager(
 
         if (useNes101Hvc101Behavior) console.settings.setFlag(EmulationFlag.USE_NES_101_HVC_101_BEHAVIOR)
         else console.settings.clearFlag(EmulationFlag.USE_NES_101_HVC_101_BEHAVIOR)
+
+        for (i in controlDevices.indices) {
+            s.readSnapshot("controlDevice$i")?.let { controlDevices[i].restoreState(it) }
+        }
     }
 }

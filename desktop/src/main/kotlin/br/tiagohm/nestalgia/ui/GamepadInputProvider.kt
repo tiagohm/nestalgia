@@ -80,15 +80,15 @@ class GamepadInputProvider(
                     val ly = controller.getAxisState(ControllerAxis.LEFTY)
 
                     if (lx > 0.7f) {
-                        state[StandardController.Buttons.RIGHT.bit] = true
+                        state[StandardControllerButton.RIGHT.bit] = true
                     } else if (lx < -0.7f) {
-                        state[StandardController.Buttons.LEFT.bit] = true
+                        state[StandardControllerButton.LEFT.bit] = true
                     }
 
                     if (ly > 0.7f) {
-                        state[StandardController.Buttons.UP.bit] = true
+                        state[StandardControllerButton.UP.bit] = true
                     } else if (ly < -0.7f) {
-                        state[StandardController.Buttons.DOWN.bit] = true
+                        state[StandardControllerButton.DOWN.bit] = true
                     }
                 }
 
@@ -105,9 +105,9 @@ class GamepadInputProvider(
         return if (device is StandardController) {
             for (button in STANDARD_CONTROLLER_BUTTONS) {
                 if (standardControllerButtonState[device.port][button.bit]) {
-                    device.buttonDown(button)
+                    device.setBit(button)
                 } else {
-                    device.buttonUp(button)
+                    device.clearBit(button)
                 }
             }
             true
@@ -125,16 +125,16 @@ class GamepadInputProvider(
 
     companion object {
         private val JAMEPAD_BUTTONS = ControllerButton.values()
-        private val STANDARD_CONTROLLER_BUTTONS = StandardController.Buttons.values()
+        private val STANDARD_CONTROLLER_BUTTONS = StandardControllerButton.values()
         private val MAP_JAMEPAD_TO_NES = mapOf(
-            ControllerButton.A to StandardController.Buttons.A,
-            ControllerButton.B to StandardController.Buttons.B,
-            ControllerButton.DPAD_DOWN to StandardController.Buttons.DOWN,
-            ControllerButton.DPAD_UP to StandardController.Buttons.UP,
-            ControllerButton.DPAD_RIGHT to StandardController.Buttons.RIGHT,
-            ControllerButton.DPAD_LEFT to StandardController.Buttons.LEFT,
-            ControllerButton.BACK to StandardController.Buttons.SELECT,
-            ControllerButton.START to StandardController.Buttons.START,
+            ControllerButton.A to StandardControllerButton.A,
+            ControllerButton.B to StandardControllerButton.B,
+            ControllerButton.DPAD_DOWN to StandardControllerButton.DOWN,
+            ControllerButton.DPAD_UP to StandardControllerButton.UP,
+            ControllerButton.DPAD_RIGHT to StandardControllerButton.RIGHT,
+            ControllerButton.DPAD_LEFT to StandardControllerButton.LEFT,
+            ControllerButton.BACK to StandardControllerButton.SELECT,
+            ControllerButton.START to StandardControllerButton.START,
         )
     }
 }

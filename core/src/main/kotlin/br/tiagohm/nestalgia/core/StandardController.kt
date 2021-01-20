@@ -4,25 +4,11 @@ package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
 @ExperimentalUnsignedTypes
-open class StandardController(console: Console, port: Int) :
-    ControlDevice(console, port),
-    Buttonable<StandardController.Buttons> {
-
-    enum class Buttons(override val bit: Int) : Button {
-        UP(0),
-        DOWN(1),
-        LEFT(2),
-        RIGHT(3),
-        START(4),
-        SELECT(5),
-        B(6),
-        A(7),
-        MICROPHONE(8),
-    }
+open class StandardController(console: Console, port: Int) : ControlDevice(console, port) {
 
     private val keys = console.settings.getControllerKeys(port)
 
-    val microphoneEnabled = port == 1 && console.settings.consoleType == ConsoleType.FAMICOM
+    private var microphoneEnabled = port == 1 && console.settings.consoleType == ConsoleType.FAMICOM
     // val turboSpeed = keys.turboSpeed
     // val turboFreq = (1 shl (4 - turboSpeed)) and 0xFF
 
@@ -30,45 +16,31 @@ open class StandardController(console: Console, port: Int) :
 
     protected inline val value: UByte
         get() {
-            return ((if (isPressed(Buttons.A)) 0x01U else 0x00U) or
-                    (if (isPressed(Buttons.B)) 0x02U else 0x00U) or
-                    (if (isPressed(Buttons.SELECT)) 0x04U else 0x00U) or
-                    (if (isPressed(Buttons.START)) 0x08U else 0x00U) or
-                    (if (isPressed(Buttons.UP)) 0x10U else 0x00U) or
-                    (if (isPressed(Buttons.DOWN)) 0x20U else 0x00U) or
-                    (if (isPressed(Buttons.LEFT)) 0x40U else 0x00U) or
-                    (if (isPressed(Buttons.RIGHT)) 0x80U else 0x00U)).toUByte()
+            return ((if (isPressed(StandardControllerButton.A)) 0x01U else 0x00U) or
+                    (if (isPressed(StandardControllerButton.B)) 0x02U else 0x00U) or
+                    (if (isPressed(StandardControllerButton.SELECT)) 0x04U else 0x00U) or
+                    (if (isPressed(StandardControllerButton.START)) 0x08U else 0x00U) or
+                    (if (isPressed(StandardControllerButton.UP)) 0x10U else 0x00U) or
+                    (if (isPressed(StandardControllerButton.DOWN)) 0x20U else 0x00U) or
+                    (if (isPressed(StandardControllerButton.LEFT)) 0x40U else 0x00U) or
+                    (if (isPressed(StandardControllerButton.RIGHT)) 0x80U else 0x00U)).toUByte()
         }
 
     // inline val isTurboOn: Boolean
     //    get() = (console.frameCount % turboFreq) < (turboFreq / 2)
 
-    inline val isMicrophoneEnabled: Boolean
+    private inline val isMicrophoneEnabled: Boolean
         get() = microphoneEnabled && console.frameCount % 3 == 0
 
-    @Synchronized
-    override fun buttonDown(button: Buttons) {
-        setBit(button.bit)
-    }
-
-    @Synchronized
-    override fun buttonUp(button: Buttons) {
-        clearBit(button.bit)
-    }
-
-    override fun isPressed(button: Buttons): Boolean {
-        return isPressed(button.bit)
-    }
-
     override fun setStateFromInput() {
-        setPressedStateFromKeys(Buttons.A)
-        setPressedStateFromKeys(Buttons.B)
-        setPressedStateFromKeys(Buttons.START)
-        setPressedStateFromKeys(Buttons.SELECT)
-        setPressedStateFromKeys(Buttons.UP)
-        setPressedStateFromKeys(Buttons.DOWN)
-        setPressedStateFromKeys(Buttons.LEFT)
-        setPressedStateFromKeys(Buttons.RIGHT)
+        setPressedStateFromKeys(StandardControllerButton.A)
+        setPressedStateFromKeys(StandardControllerButton.B)
+        setPressedStateFromKeys(StandardControllerButton.START)
+        setPressedStateFromKeys(StandardControllerButton.SELECT)
+        setPressedStateFromKeys(StandardControllerButton.UP)
+        setPressedStateFromKeys(StandardControllerButton.DOWN)
+        setPressedStateFromKeys(StandardControllerButton.LEFT)
+        setPressedStateFromKeys(StandardControllerButton.RIGHT)
 
         // if (isTurboOn) {
         //     setPressedStateFromKeys(Buttons.A)
@@ -76,18 +48,18 @@ open class StandardController(console: Console, port: Int) :
         // }
 
         if (isMicrophoneEnabled) {
-            setPressedStateFromKeys(Buttons.MICROPHONE)
+            setPressedStateFromKeys(StandardControllerButton.MICROPHONE)
         }
 
         if (!console.settings.checkFlag(EmulationFlag.ALLOW_INVALID_INPUT)) {
             // If both U+D or L+R are pressed at the same time, act as if neither is pressed
-            if (isPressed(Buttons.UP) && isPressed(Buttons.DOWN)) {
-                buttonDown(Buttons.UP)
-                buttonDown(Buttons.DOWN)
+            if (isPressed(StandardControllerButton.UP) && isPressed(StandardControllerButton.DOWN)) {
+                setBit(StandardControllerButton.UP)
+                setBit(StandardControllerButton.DOWN)
             }
-            if (isPressed(Buttons.LEFT) && isPressed(Buttons.RIGHT)) {
-                buttonDown(Buttons.LEFT)
-                buttonDown(Buttons.RIGHT)
+            if (isPressed(StandardControllerButton.LEFT) && isPressed(StandardControllerButton.RIGHT)) {
+                setBit(StandardControllerButton.LEFT)
+                setBit(StandardControllerButton.RIGHT)
             }
         }
     }
@@ -139,7 +111,7 @@ open class StandardController(console: Console, port: Int) :
             stateBuffer = stateBuffer or 0x80000000U
         }
 
-        if (addr.toUInt() == 0x4016U && isPressed(Buttons.MICROPHONE)) {
+        if (addr.toUInt() == 0x4016U && isPressed(StandardControllerButton.MICROPHONE)) {
             output = output or 0x04U
         }
 
@@ -148,5 +120,19 @@ open class StandardController(console: Console, port: Int) :
 
     override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
         strobeOnWrite(value)
+    }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("stateBuffer", stateBuffer)
+        s.write("microphoneEnabled", microphoneEnabled)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        stateBuffer = s.readUInt("stateBuffer") ?: 0U
+        microphoneEnabled = s.readBoolean("microphoneEnabled") ?: false
     }
 }

@@ -6,7 +6,8 @@ abstract class ControlDevice(
     val console: Console,
     val port: Int,
 ) : Memory,
-    Resetable {
+    Resetable,
+    Snapshotable {
 
     protected var strobe = false
 
@@ -40,12 +41,20 @@ abstract class ControlDevice(
     }
 
     inline fun clearState() {
-        state.state.fill(0U)
+        state.clear()
+    }
+
+    protected inline fun isPressed(button: Button): Boolean {
+        return isPressed(button.bit)
     }
 
     protected inline fun isPressed(bit: Int): Boolean {
         val bitMask = 1 shl (bit % 8)
         return (state.state[bit / 8].toInt() and bitMask) != 0
+    }
+
+    fun setBit(button: Button) {
+        setBit(button.bit)
     }
 
     protected inline fun setBit(bit: Int) {
@@ -55,11 +64,19 @@ abstract class ControlDevice(
         state.state[byteIndex] = (value or bitMask).toUByte()
     }
 
+    fun clearBit(button: Button) {
+        clearBit(button.bit)
+    }
+
     protected inline fun clearBit(bit: Int) {
         val bitMask = 1 shl (bit % 8)
         val byteIndex = bit / 8
         val value = state.state[byteIndex].toInt()
         state.state[byteIndex] = (value and bitMask.inv()).toUByte()
+    }
+
+    fun invertBit(button: Button) {
+        invertBit(button.bit)
     }
 
     protected inline fun invertBit(bit: Int) {
@@ -77,7 +94,7 @@ abstract class ControlDevice(
             (!console.settings.isKeyboardMode || keyCode >= 0x200 || isKeyboard) &&
             console.keyManager!!.isKeyPressed(keyCode)
         ) {
-            setBit(button.bit)
+            setBit(button)
         }
     }
 
@@ -85,6 +102,18 @@ abstract class ControlDevice(
     }
 
     open fun onAfterSetState() {
+    }
+
+    override fun saveState(s: Snapshot) {
+        s.write("strobe", strobe)
+        s.write("state", state.state)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        s.load()
+
+        strobe = s.readBoolean("strobe") ?: false
+        s.readUByteArray("state")?.copyInto(state.state)
     }
 
     companion object {

@@ -15,15 +15,15 @@ class KeyMapping(
 
     fun getKey(button: Button): Int {
         return when (button) {
-            StandardController.Buttons.UP -> up
-            StandardController.Buttons.DOWN -> down
-            StandardController.Buttons.LEFT -> left
-            StandardController.Buttons.RIGHT -> right
-            StandardController.Buttons.START -> start
-            StandardController.Buttons.SELECT -> select
-            StandardController.Buttons.B -> b
-            StandardController.Buttons.A -> a
-            StandardController.Buttons.MICROPHONE -> microphone
+            StandardControllerButton.UP -> up
+            StandardControllerButton.DOWN -> down
+            StandardControllerButton.LEFT -> left
+            StandardControllerButton.RIGHT -> right
+            StandardControllerButton.START -> start
+            StandardControllerButton.SELECT -> select
+            StandardControllerButton.B -> b
+            StandardControllerButton.A -> a
+            StandardControllerButton.MICROPHONE -> microphone
             else -> 0
         }
     }
