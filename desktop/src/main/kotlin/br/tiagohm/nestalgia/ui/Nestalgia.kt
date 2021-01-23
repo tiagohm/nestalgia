@@ -297,6 +297,7 @@ class Nestalgia(
 
                         Maintainer: Tiago Melo <tiago.henrique.cco@gmail.com>
                         GitHub: https://github.com/tiagohm/nestalgia
+                        Website: https://tiagohm.github.io/nestalgia
 
                         This program is free software licensed under the GPL version 3, and comes with
                         NO WARRANTY of any kind. (but if something is broken, please report it).
@@ -645,7 +646,7 @@ class Nestalgia(
         }
 
         const val MAX_SLOTS = 30
-        const val VERSION_NAME = "0.2.0"
+        const val VERSION_NAME = "0.3.0"
         const val BATCH_TEST_TIMEOUT = 15000L
     }
 }
