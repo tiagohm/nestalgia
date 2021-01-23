@@ -14,7 +14,7 @@ object FdsLoader {
             throw IOException("BIOS is empty")
         }
 
-        val crc32 = CRC32().let { it.update(rom); it.value }
+        val crc32 = rom.crc32()
         val md5 = rom.md5()
         val sha1 = rom.sha1()
         val sha256 = rom.sha256()
