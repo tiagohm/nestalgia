@@ -815,12 +815,12 @@ abstract class Mapper :
     }
 
     fun selectPrgPage4x(slot: UShort, page: UShort, memoryType: PrgMemoryType = PrgMemoryType.ROM) {
-        selectPrgPage2x(slot, page, memoryType)
+        selectPrgPage2x((slot * 2U).toUShort(), page, memoryType)
         selectPrgPage2x((slot * 2U + 1U).toUShort(), (page + 2U).toUShort(), memoryType)
     }
 
     fun selectPrgPage2x(slot: UShort, page: UShort, memoryType: PrgMemoryType = PrgMemoryType.ROM) {
-        selectPrgPage(slot, page, memoryType)
+        selectPrgPage((slot * 2U).toUShort(), page, memoryType)
         selectPrgPage((slot * 2U + 1U).toUShort(), (page + 1U).toUShort(), memoryType)
     }
 
@@ -849,12 +849,12 @@ abstract class Mapper :
     }
 
     fun selectChrPage4x(slot: UShort, page: UShort, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
-        selectChrPage2x(slot, page, memoryType)
+        selectChrPage2x((slot * 2U).toUShort(), page, memoryType)
         selectChrPage2x((slot * 2U + 1U).toUShort(), (page + 2U).toUShort(), memoryType)
     }
 
     fun selectChrPage2x(slot: UShort, page: UShort, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
-        selectChrPage(slot, page, memoryType)
+        selectChrPage((slot * 2U).toUShort(), page, memoryType)
         selectChrPage((slot * 2U + 1U).toUShort(), (page + 1U).toUShort(), memoryType)
     }
 
