@@ -1,7 +1,6 @@
 package br.tiagohm.nestalgia.core
 
 import java.io.IOException
-import java.util.zip.CRC32
 
 // https://wiki.nesdev.com/w/index.php/FDS_file_format
 // https://wiki.nesdev.com/w/index.php/FDS_disk_format
