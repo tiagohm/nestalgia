@@ -1,7 +1,6 @@
 package br.tiagohm.nestalgia.core
 
 import java.io.IOException
-import java.util.zip.CRC32
 
 @ExperimentalUnsignedTypes
 object INesLoader {
@@ -45,7 +44,7 @@ object INesLoader {
             UByteArray(0)
         }
 
-        val romCrc32 = CRC32().let { it.update(rom, offset, rom.size - offset); it.value }
+        val romCrc32 = rom.crc32(offset until rom.size)
         val romMd5 = rom.md5(offset until rom.size)
         val romSha1 = rom.sha1(offset until rom.size)
         val romSha256 = rom.sha256(offset until rom.size)
@@ -71,7 +70,7 @@ object INesLoader {
         }
 
         val prgRom = UByteArray(prgSize.toInt()) { i -> rom[offset + i].toUByte() }
-        val prgCrc32 = CRC32().let { it.update(rom, offset, prgSize.toInt()); it.value }
+        val prgCrc32 = rom.crc32(offset until offset + prgSize.toInt())
         val prgMd5 = rom.md5(offset until offset + prgSize.toInt())
         val prgSha1 = rom.sha1(offset until offset + prgSize.toInt())
         val prgSha256 = rom.sha256(offset until offset + prgSize.toInt())
@@ -79,7 +78,7 @@ object INesLoader {
         offset += prgSize.toInt()
 
         val chrRom = UByteArray(chrSize.toInt()) { i -> rom[offset + i].toUByte() }
-        val chrCrc32 = CRC32().let { it.update(rom, offset, chrSize.toInt()); it.value }
+        val chrCrc32 = rom.crc32(offset until offset + chrSize.toInt())
         val chrMd5 = rom.md5(offset until offset + chrSize.toInt())
         val chrSha1 = rom.sha1(offset until offset + chrSize.toInt())
         val chrSha256 = rom.sha256(offset until offset + chrSize.toInt())

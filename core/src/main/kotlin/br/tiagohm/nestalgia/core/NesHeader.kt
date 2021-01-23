@@ -61,15 +61,9 @@ data class NesHeader(
     val mirroringType: MirroringType
         get() {
             return when {
-                byte6.bit3 -> {
-                    MirroringType.FOUR_SCREENS
-                }
-                byte6.bit0 -> {
-                    MirroringType.VERTICAL
-                }
-                else -> {
-                    MirroringType.HORIZONTAL
-                }
+                byte6.bit3 -> MirroringType.FOUR_SCREENS
+                byte6.bit0 -> MirroringType.VERTICAL
+                else -> MirroringType.HORIZONTAL
             }
         }
 

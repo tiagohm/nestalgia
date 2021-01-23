@@ -1,0 +1,13 @@
+package br.tiagohm.nestalgia.core
+
+import java.io.IOException
+
+@ExperimentalUnsignedTypes
+object HeaderlessLoader {
+
+    fun load(rom: ByteArray, name: String, bios: ByteArray): RomData {
+        val crc = rom.crc32()
+        val header = GameDatabase.get(crc)?.nesHeader ?: throw IOException("Invalid rom file")
+        return INesLoader.load(rom, name, header)
+    }
+}

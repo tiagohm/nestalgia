@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.core
 
 import java.io.IOException
+import kotlin.math.log
 
 @ExperimentalUnsignedTypes
 data class GameInfo(
@@ -47,6 +48,68 @@ data class GameInfo(
             chrRamSize = if (isValid || chrRamSize > 0) chrRamSize else data.chrRamSize,
             workRamSize = if (isValid || workRamSize > 0) workRamSize else data.workRamSize,
             saveRamSize = if (isValid || saveRamSize > 0) saveRamSize else data.saveRamSize,
+        )
+    }
+
+    val nesHeader: NesHeader by lazy {
+        val prgCount: UByte
+        val chrCount: UByte
+        var byte6 = ((mapperId and 0x0F) shl 4).toUByte()
+        var byte7 = (mapperId and 0xF0).toUByte()
+        val byte8 = (((subMapperId and 0x0F) shl 4) or ((mapperId and 0xF00) shr 8)).toUByte()
+        var byte9: UByte = 0U
+        var byte10: UByte = 0U
+        var byte11: UByte = 0U
+        val byte12: UByte = if (system == GameSystem.PAL) 0x01U else 0x00U
+        val byte13: UByte = 0U // VS PPU variant
+
+        if (prgRomSize > 4096 * 1024) {
+            val prgSize = prgRomSize / 0x4000
+            prgCount = prgSize.toUByte()
+            byte9 = byte9 or ((prgSize and 0xF00) shr 8).toUByte()
+        } else {
+            prgCount = (prgRomSize / 0x4000).toUByte()
+        }
+
+        if (chrRomSize > 2048 * 1024) {
+            val chrSize = chrRomSize / 0x2000
+            chrCount = chrSize.toUByte()
+            byte9 = byte9 or ((chrSize and 0xF00) shr 4).toUByte()
+        } else {
+            chrCount = (chrRomSize / 0x2000).toUByte()
+        }
+
+        if (hasBattery) byte6 = byte6 or 0x02U
+
+        if (mirroring == MirroringType.VERTICAL) byte6 = byte6 or 0x01U
+
+        if (system == GameSystem.PLAY_CHOICE) {
+            byte7 = byte7 or 0x02U
+        } else if (system === GameSystem.VS_SYSTEM) {
+            byte7 = byte7 or 0x01U
+        }
+
+        // Don't set this, otherwise the header will be used over the game DB data
+        // byte7 = byte7 or 0x08U // NES 2.0 marker
+
+        if (saveRamSize > 0) byte10 = byte10 or ((log(saveRamSize.toDouble(), 2.0).toInt() - 6) shl 4).toUByte()
+
+        if (workRamSize > 0) byte10 = byte10 or (log(workRamSize.toDouble(), 2.0).toInt() - 6).toUByte()
+
+        if (chrRamSize > 0) byte11 = byte11 or (log(chrRamSize.toDouble(), 2.0).toInt() - 6).toUByte()
+
+        NesHeader(
+            "NES\u001A",
+            prgCount,
+            chrCount,
+            byte6,
+            byte7,
+            byte8,
+            byte9,
+            byte10,
+            byte11,
+            byte12,
+            byte13,
         )
     }
 
