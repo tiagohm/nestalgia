@@ -4,7 +4,7 @@ package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
 @ExperimentalUnsignedTypes
-class Txc22211a : Mapper() {
+open class Txc22211a : Mapper() {
 
     override val prgPageSize = 0x8000U
 
@@ -16,7 +16,7 @@ class Txc22211a : Mapper() {
 
     override val allowRegisterRead = true
 
-    private val txChip = TxcChip(false)
+    protected val txChip = TxcChip(false)
 
     override fun init() {
         addRegisterRange(0x4020U, 0x5FFFU, MemoryOperation.ANY)
@@ -26,7 +26,7 @@ class Txc22211a : Mapper() {
         selectChrPage(0U, 0U)
     }
 
-    private inline fun updateState() {
+    protected open fun updateState() {
         selectPrgPage(0U, if (txChip.output.bit2) 0x01U else 0x00U)
         selectChrPage(0U, (txChip.output and 0x03U).toUShort())
     }
