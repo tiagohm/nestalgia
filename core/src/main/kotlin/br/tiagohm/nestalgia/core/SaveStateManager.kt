@@ -32,7 +32,7 @@ class SaveStateManager(val console: Console) : Resetable {
             VERSION,
             console.mapper!!.info.mapperId,
             console.mapper!!.info.subMapperId,
-            console.mapper!!.info.hash.prgChrCrc32,
+            console.mapper!!.info.hash.crc32,
             data,
         )
 
@@ -66,7 +66,7 @@ class SaveStateManager(val console: Console) : Resetable {
             throw IOException("Mismatch mapper ID: ${state.mapperId}")
         }
 
-        if (console.mapper!!.info.hash.prgChrCrc32 != state.hash) {
+        if (console.mapper!!.info.hash.crc32 != state.hash) {
             throw IOException(String.format("Mismatch ROM hash: %08X", state.hash))
         }
 

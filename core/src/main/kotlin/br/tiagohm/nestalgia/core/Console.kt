@@ -173,7 +173,7 @@ class Console(
         batteryManager.initialize()
 
         if (newMapper != null && data != null) {
-            val isDifferentGame = mapper == null || mapper!!.info.hash.prgChrCrc32 != data.info.hash.prgChrCrc32
+            val isDifferentGame = mapper == null || mapper!!.info.hash.crc32 != data.info.hash.crc32
 
             if (mapper != null) {
                 // Send notification only if a game was already running and

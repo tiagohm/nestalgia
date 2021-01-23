@@ -14,7 +14,10 @@ object FdsLoader {
             throw IOException("BIOS is empty")
         }
 
-        val romCrc = CRC32().let { it.update(rom); it.value }
+        val crc32 = CRC32().let { it.update(rom); it.value }
+        val md5 = rom.md5()
+        val sha1 = rom.sha1()
+        val sha256 = rom.sha256()
 
         val info = RomInfo(
             name,
@@ -22,7 +25,7 @@ object FdsLoader {
             mapperId = Mapper.FDS_MAPPER_ID,
             mirroring = MirroringType.VERTICAL,
             system = GameSystem.FDS,
-            hash = HashInfo(romCrc, romCrc)
+            hash = HashInfo(crc32 = crc32, md5 = md5, sha1 = sha1, sha256 = sha256)
         )
 
         return RomData(

@@ -10,8 +10,6 @@ object INesLoader {
         var dataSize = rom.size.toUInt()
         var offset = 0
 
-        val romCrc = CRC32().let { it.update(rom); it.value }
-
         val header = if (preloadedHeader != null) {
             preloadedHeader
         } else {
@@ -47,9 +45,12 @@ object INesLoader {
             UByteArray(0)
         }
 
-        val prgChrRomCrc = CRC32().let { it.update(rom, offset, rom.size - offset); it.value }
+        val romCrc32 = CRC32().let { it.update(rom, offset, rom.size - offset); it.value }
+        val romMd5 = rom.md5(offset until rom.size)
+        val romSha1 = rom.sha1(offset until rom.size)
+        val romSha256 = rom.sha256(offset until rom.size)
 
-        val db = GameDatabase.get(prgChrRomCrc)
+        val db = GameDatabase.get(romCrc32)
         val prgSize: UInt
         val chrSize: UInt
 
@@ -69,25 +70,33 @@ object INesLoader {
             System.err.println("WARNING: File is larger than excepted")
         }
 
-        System.err.println(String.format("Game CRC: %08X", prgChrRomCrc))
-
         val prgRom = UByteArray(prgSize.toInt()) { i -> rom[offset + i].toUByte() }
-        val prgCrc = CRC32().let { it.update(rom, offset, prgSize.toInt()); it.value }
-        System.err.println(String.format("Game PRG CRC: %08X", prgCrc))
+        val prgCrc32 = CRC32().let { it.update(rom, offset, prgSize.toInt()); it.value }
+        val prgMd5 = rom.md5(offset until offset + prgSize.toInt())
+        val prgSha1 = rom.sha1(offset until offset + prgSize.toInt())
+        val prgSha256 = rom.sha256(offset until offset + prgSize.toInt())
 
         offset += prgSize.toInt()
 
         val chrRom = UByteArray(chrSize.toInt()) { i -> rom[offset + i].toUByte() }
-        val chrCrc = CRC32().let { it.update(rom, offset, chrSize.toInt()); it.value }
-        System.err.println(String.format("Game CHR CRC: %08X", chrCrc))
+        val chrCrc32 = CRC32().let { it.update(rom, offset, chrSize.toInt()); it.value }
+        val chrMd5 = rom.md5(offset until offset + chrSize.toInt())
+        val chrSha1 = rom.sha1(offset until offset + chrSize.toInt())
+        val chrSha256 = rom.sha256(offset until offset + chrSize.toInt())
 
         val hash = HashInfo(
-            romCrc,
-            prgCrc,
-            chrCrc,
-            prgChrRomCrc,
-            "",
-            "",
+            prgCrc32,
+            prgMd5,
+            prgSha1,
+            prgSha256,
+            chrCrc32,
+            chrMd5,
+            chrSha1,
+            chrSha256,
+            romCrc32,
+            romMd5,
+            romSha1,
+            romSha256,
         )
 
         val info = RomInfo(
