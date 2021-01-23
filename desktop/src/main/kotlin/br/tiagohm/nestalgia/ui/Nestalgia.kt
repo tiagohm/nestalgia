@@ -321,7 +321,7 @@ class Nestalgia(
         slots.clear()
         slot = -1
 
-        val name = emulator.info.name
+        val name = emulator.info.hash.sha1
         val saveDir = System.getProperty("app.saveDir")
 
         for (i in 0 until MAX_SLOTS) {
@@ -520,7 +520,7 @@ class Nestalgia(
 
     private fun saveState() {
         if (emulator.isRunning) {
-            val name = emulator.info.name
+            val name = emulator.info.hash.sha1
             val saveDir = System.getProperty("app.saveDir")
             var slot = findAvailableSlot()
 
