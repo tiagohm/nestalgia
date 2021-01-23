@@ -766,7 +766,7 @@ abstract class Mapper :
         }
     }
 
-    private fun addRegisterRange(start: UShort, end: UShort, operation: MemoryOperation) {
+    protected fun addRegisterRange(start: UShort, end: UShort, operation: MemoryOperation) {
         for (i in start..end) {
             if (operation.isRead) {
                 isReadRegisterAddr[i.toInt()] = true
@@ -777,7 +777,7 @@ abstract class Mapper :
         }
     }
 
-    private fun removeRegisterRange(start: UShort, end: UShort, operation: MemoryOperation) {
+    protected fun removeRegisterRange(start: UShort, end: UShort, operation: MemoryOperation) {
         for (i in start..end) {
             if (operation.isRead) {
                 isReadRegisterAddr[i.toInt()] = false
@@ -986,6 +986,7 @@ abstract class Mapper :
                 0 -> NROM()
                 1 -> MMC1()
                 2 -> UNROM()
+                36 -> Txc22000()
                 FDS_MAPPER_ID -> Fds()
                 else -> {
                     System.err.println("${data.info.name} has unsupported mapper $id")
