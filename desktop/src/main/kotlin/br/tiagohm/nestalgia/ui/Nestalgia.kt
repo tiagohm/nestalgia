@@ -430,6 +430,8 @@ class Nestalgia(
 
         dialog.isVisible = true
 
+        batchTestThread?.interrupt()
+
         dialog.files?.let {
             batchRoms.clear()
             batchRoms.addAll(it)
