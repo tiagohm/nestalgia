@@ -2,6 +2,7 @@ package br.tiagohm.nestalgia.core
 
 @ExperimentalUnsignedTypes
 interface Memory {
+
     fun read(addr: UShort, type: MemoryOperationType = MemoryOperationType.READ): UByte
 
     fun write(addr: UShort, value: UByte, type: MemoryOperationType = MemoryOperationType.WRITE)

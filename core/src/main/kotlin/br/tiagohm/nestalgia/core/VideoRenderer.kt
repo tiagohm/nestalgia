@@ -51,7 +51,7 @@ class VideoRenderer(val console: Console) : Disposable {
     }
 
     @Synchronized
-    fun updateFrame(frame: UIntArray, width: Int, height: Int) {
+    fun updateFrame(frame: IntArray, width: Int, height: Int) {
         if (rendereres.isNotEmpty()) {
             rendereres.forEach { it.updateFrame(frame, width, height) }
             waitForRender.release()

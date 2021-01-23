@@ -5,7 +5,7 @@ package br.tiagohm.nestalgia.core
 open class Pointer(
     val data: UByteArray,
     val offset: Int = 0,
-) {
+) : Memory {
 
     constructor(pointer: Pointer, offset: Int = 0) : this(pointer.data, pointer.offset + offset)
 
@@ -13,10 +13,24 @@ open class Pointer(
 
     val isEmpty = data.isEmpty()
 
+    val isNotEmpty = !isEmpty
+
+    inline operator fun contains(index: Int) = offset + index >= 0 && offset + index < data.size
+
     inline operator fun get(index: Int): UByte = data[offset + index]
 
     inline operator fun set(index: Int, value: UByte) {
         data[offset + index] = value
+    }
+
+    inline fun slice(range: IntRange) = data.sliceArray(offset + range.first..offset + range.last)
+
+    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
+        this[addr.toInt()] = value
+    }
+
+    override fun read(addr: UShort, type: MemoryOperationType): UByte {
+        return this[addr.toInt()]
     }
 
     override fun equals(other: Any?): Boolean {

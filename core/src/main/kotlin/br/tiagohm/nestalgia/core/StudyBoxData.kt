@@ -1,9 +1,9 @@
 package br.tiagohm.nestalgia.core
 
 data class StudyBoxData(
-    val fileName: String,
-    val audioFile: ByteArray,
-    val pages: Array<PageInfo>,
+    val fileName: String = "",
+    val audioFile: ByteArray = ByteArray(0),
+    val pages: Array<PageInfo> = emptyArray(),
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -23,5 +23,9 @@ data class StudyBoxData(
         result = 31 * result + audioFile.contentHashCode()
         result = 31 * result + pages.contentHashCode()
         return result
+    }
+
+    companion object {
+        val EMPTY = StudyBoxData()
     }
 }

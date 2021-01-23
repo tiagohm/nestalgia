@@ -18,19 +18,19 @@ data class NesHeader(
 	Byte 12 	Unused 				Unused 								TV system
 	Byte 13 	Unused 				Unused 								Vs. PPU variant
 	*/
-    val nes: String,
-    val prgCount: UByte,
-    val chrCount: UByte,
-    val byte6: UByte,
-    val byte7: UByte,
-    val byte8: UByte,
-    val byte9: UByte,
-    val byte10: UByte,
-    val byte11: UByte,
-    val byte12: UByte,
-    val byte13: UByte,
-    val byte14: UByte,
-    val byte15: UByte,
+    val nes: String = "",
+    val prgCount: UByte = 0U,
+    val chrCount: UByte = 0U,
+    val byte6: UByte = 0U,
+    val byte7: UByte = 0U,
+    val byte8: UByte = 0U,
+    val byte9: UByte = 0U,
+    val byte10: UByte = 0U,
+    val byte11: UByte = 0U,
+    val byte12: UByte = 0U,
+    val byte13: UByte = 0U,
+    val byte14: UByte = 0U,
+    val byte15: UByte = 0U,
 ) {
 
     val hasBattery: Boolean
@@ -242,4 +242,8 @@ data class NesHeader(
                 -1
             }
         }
+
+    companion object {
+        val EMPTY = NesHeader()
+    }
 }

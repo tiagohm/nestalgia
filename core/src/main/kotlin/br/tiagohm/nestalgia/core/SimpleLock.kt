@@ -9,6 +9,7 @@ class SimpleLock {
     private val lockCount = AtomicInteger(0)
     private var holderId = Thread.currentThread().id
 
+    @Suppress("ControlFlowWithEmptyBody")
     fun acquire() {
         if (lockCount.get() == 0 || holderId != Thread.currentThread().id) {
             while (lock.getAndSet(true));

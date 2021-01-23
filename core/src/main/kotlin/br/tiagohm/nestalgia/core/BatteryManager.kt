@@ -13,16 +13,22 @@ class BatteryManager(val console: Console) {
         isSaveEnabled = true
     }
 
-    fun loadBattery(name: String, length: Int): UByteArray {
-        val data = UByteArray(length)
+    fun loadBattery(name: String, length: Int = -1): UByteArray {
         val batteryName = "${console.mapper!!.name}$name"
 
         try {
             if (provider != null) {
-                val batteryData = provider!!.loadBattery(batteryName)
+                return if (length >= 0) {
+                    val data = UByteArray(length)
+                    val batteryData = provider!!.loadBattery(batteryName)
 
-                for (i in 0 until min(data.size, batteryData.size)) {
-                    data[i] = batteryData[i]
+                    for (i in 0 until min(data.size, batteryData.size)) {
+                        data[i] = batteryData[i]
+                    }
+
+                    data
+                } else {
+                    provider!!.loadBattery(batteryName)
                 }
             }
         } catch (e: Exception) {
@@ -32,7 +38,7 @@ class BatteryManager(val console: Console) {
             )
         }
 
-        return data
+        return UByteArray(0)
     }
 
     fun saveBattery(name: String, data: UByteArray) {

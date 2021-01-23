@@ -23,6 +23,7 @@ data class GameInfo(
     val vsType: VsSystemType,
     val vsPpuModel: PpuModel
 ) {
+
     fun update(data: RomData, forHeaderlessRom: Boolean): RomData {
         // Boards marked as UNK should only be used for headerless roms (since their data is unverified)
         if (!forHeaderlessRom && board == "UNK") return data

@@ -6,8 +6,10 @@ package br.tiagohm.nestalgia.core
 @ExperimentalUnsignedTypes
 class Zapper(console: Console, port: Int) : ControlDevice(console, port) {
 
+    @JvmField
     var x = 0
 
+    @JvmField
     var y = 0
 
     override fun setStateFromInput() {

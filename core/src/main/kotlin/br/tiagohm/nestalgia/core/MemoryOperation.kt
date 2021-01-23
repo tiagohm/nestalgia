@@ -1,13 +1,7 @@
 package br.tiagohm.nestalgia.core
 
-enum class MemoryOperation {
-    READ,
-    WRITE,
-    ANY;
-
-    val isRead: Boolean
-        get() = this == READ || this == ANY
-
-    val isWrite: Boolean
-        get() = this == WRITE || this == ANY
+enum class MemoryOperation(val isRead: Boolean, val isWrite: Boolean) {
+    READ(true, false),
+    WRITE(false, true),
+    ANY(true, true),
 }

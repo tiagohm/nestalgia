@@ -1,5 +1,6 @@
 package br.tiagohm.nestalgia.core
 
+@Suppress("NOTHING_TO_INLINE")
 @ExperimentalUnsignedTypes
 data class TileInfo(
     var lowByte: UByte = 0U,
@@ -9,7 +10,7 @@ data class TileInfo(
     var offsetY: UByte = 0U,
 ) : Snapshotable {
 
-    fun copyFrom(tile: TileInfo) {
+    inline fun copyFrom(tile: TileInfo) {
         lowByte = tile.lowByte
         highByte = tile.highByte
         paletteOffset = tile.paletteOffset

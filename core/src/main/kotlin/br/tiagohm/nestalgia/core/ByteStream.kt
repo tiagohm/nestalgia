@@ -9,13 +9,11 @@ import java.nio.charset.Charset
 @ExperimentalUnsignedTypes
 inline class ByteStream(val buffer: Buffer = Buffer()) {
 
-    val size: Int
+    inline val size: Int
         get() = buffer.size.toInt()
 
-    val bytes: ByteArray
-        get() {
-            return (stream as ByteArrayOutputStream).toByteArray()
-        }
+    inline val bytes: ByteArray
+        get() = (stream as ByteArrayOutputStream).toByteArray()
 
     val stream: OutputStream
         get() {

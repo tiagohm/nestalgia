@@ -4,7 +4,7 @@ import java.util.*
 
 object CheatDatabase {
 
-    val entries = ArrayList<CheatInfo>(16384)
+    private val entries = ArrayList<CheatInfo>(16384)
 
     fun getByGame(crc: Long): List<CheatInfo> {
         return entries.filter { it.crc == crc }
@@ -18,4 +18,6 @@ object CheatDatabase {
 
         System.err.println("${entries.size} cheats loaded in the database!!!")
     }
+
+    const val CHEAT_DB_FILENAME = "CheatDB.csv"
 }

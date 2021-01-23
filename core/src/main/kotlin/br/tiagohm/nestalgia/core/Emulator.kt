@@ -4,7 +4,7 @@ import kotlin.concurrent.thread
 
 @Suppress("NOTHING_TO_INLINE")
 @ExperimentalUnsignedTypes
-class Emulator(
+open class Emulator(
     val console: Console,
     val audio: AudioDevice,
     val video: RenderingDevice,
@@ -35,11 +35,10 @@ class Emulator(
     }
 
     override fun processNotification(type: NotificationType, vararg data: Any?) {
-        // nada
     }
 
-    fun load(rom: ByteArray, name: String): Boolean {
-        return if (console.initialize(rom, name, true)) {
+    fun load(rom: ByteArray, name: String, fdsBios: ByteArray = ByteArray(0)): Boolean {
+        return if (console.initialize(rom, name, true, fdsBios)) {
             if (emuThread == null) {
                 emuThread = thread(true, name = "Emulation", block = console::run)
             }
@@ -58,7 +57,7 @@ class Emulator(
         }
     }
 
-    val isPaused: Boolean
+    inline val isPaused: Boolean
         get() = isRunning && settings.checkFlag(EmulationFlag.PAUSED)
 
     fun resume() {
@@ -108,37 +107,64 @@ class Emulator(
         console.saveStateManager.restoreState(data)
     }
 
-    val isVsSystem: Boolean
+    inline val isVsSystem: Boolean
         get() = console.isVsSystem
 
-    val isDualSystem: Boolean
+    inline val isFds: Boolean
+        get() = console.isFds
+
+    inline val isNsf: Boolean
+        get() = console.isNsf
+
+    inline val isDualSystem: Boolean
         get() = console.isDualSystem
 
-    fun insertCoin(port: Int) {
-        val sam = console.systemActionManager
+    val vsSystemActionManager: VsSystemActionManager?
+        get() = if (!console.isRunning) null else console.systemActionManager as? VsSystemActionManager
 
-        if (sam is VsSystemActionManager) {
-            sam.insertCoin(port)
-        }
+    val fdsSystemActionManager: FdsSystemActionManager?
+        get() = if (!console.isRunning) null else console.systemActionManager as? FdsSystemActionManager
+
+    fun getControllerKey(port: Int) = console.settings.getControllerKeys(port)
+
+    fun getControllerType(port: Int) = console.settings.getControllerType(port)
+
+    fun <T : ControlDevice> getControlDevice(port: Int): T? = console.controlManager.getControlDevice(port) as? T
+
+    fun insertCoin(port: Int) {
+        vsSystemActionManager?.insertCoin(port)
     }
 
-    val dipSwitchCount: Int
+    val fdsSideCount: Int
+        get() = fdsSystemActionManager?.sideCount ?: 0
+
+    fun insertDisk(diskNumber: Int) {
+        fdsSystemActionManager?.insertDisk(diskNumber)
+    }
+
+    fun switchDiskSide() {
+        fdsSystemActionManager?.switchDiskSide()
+    }
+
+    fun ejectDisk() {
+        fdsSystemActionManager?.ejectDisk()
+    }
+
+    inline val dipSwitchCount: Int
         get() = console.dipSwitchCount
 
-    val info: RomInfo
+    inline val info: RomInfo
         get() = console.mapper!!.info
 
     fun debugRunFrame(count: Int = 1) {
         if (isRunning) {
-            val extraScanlines = settings.extraScanlinesAfterNmi + settings.extraScanlinesBeforeNmi
-            val cycleCount = ((if (settings.region == Region.NTSC) 262 else 312) + extraScanlines) * 341
-            console.debugger.ppuStep(count * cycleCount)
+            console.debugger.frameStep(count)
         }
     }
 
     fun debugRunScanline(count: Int = 1) {
         if (isRunning) {
-            console.debugger.ppuStep(count * 341)
+            console.debugger.scanlineStep(count)
         }
     }
 

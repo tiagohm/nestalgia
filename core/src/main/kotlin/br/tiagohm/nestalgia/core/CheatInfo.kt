@@ -12,6 +12,7 @@ data class CheatInfo(
     val isRelativeAddress: Boolean,
     val description: String,
 ) {
+
     override fun toString() = description
 
     companion object {

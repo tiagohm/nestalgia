@@ -9,7 +9,7 @@ class VsControlManager(
     InputProvider {
 
     private var protectionCounter = 0U
-    private lateinit var vsSystemType: VsSystemType
+    private var vsSystemType = VsSystemType.DEFAULT
     private var prgChrSelectBit: UByte = 0U
     private var slaveMasterBit: UByte = 0U
     private var refreshState = false
@@ -81,9 +81,7 @@ class VsControlManager(
         }
     }
 
-    override fun getOpenBusMask(port: UByte): UByte {
-        return 0x00U
-    }
+    override fun getOpenBusMask(port: UByte): UByte = 0x00U
 
     private fun updateSlaveMasterBit(bit: UByte) {
         val dualConsole = console.dualConsole

@@ -4,7 +4,10 @@ import java.util.*
 
 @ExperimentalUnsignedTypes
 object GameDatabase {
-    val entries = HashMap<Long, GameInfo>(8192)
+
+    private val entries = HashMap<Long, GameInfo>(8192)
+
+    fun get(crc: Long) = entries[crc]
 
     fun load(data: List<String>) {
         for (line in data) {
@@ -15,4 +18,6 @@ object GameDatabase {
 
         System.err.println("${entries.size} games loaded in the database!!!")
     }
+
+    const val NES_DB_FILENAME = "NesDB.csv"
 }
