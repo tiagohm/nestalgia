@@ -10,10 +10,12 @@ class TxcChip(val isJv001: Boolean) :
     private var inverter: UByte = 0U
     private var staging: UByte = 0U
     private var increase = false
-    private var invert = isJv001
 
     private val mask: UByte = if (isJv001) 0x0FU else 0x07U
     private val maskInv = mask.inv()
+
+    var invert = isJv001
+        private set
 
     var y = false
         private set
