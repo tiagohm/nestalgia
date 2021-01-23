@@ -990,6 +990,7 @@ abstract class Mapper :
                 132 -> Txc22211a()
                 172 -> Txc22211b()
                 173 -> Txc22211c()
+                190 -> MagicKidGooGoo()
                 FDS_MAPPER_ID -> Fds()
                 else -> {
                     System.err.println("${data.info.name} has unsupported mapper $id")
