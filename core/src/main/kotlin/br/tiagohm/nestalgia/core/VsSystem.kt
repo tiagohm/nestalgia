@@ -40,6 +40,7 @@ class VsSystem : Mapper() {
                     if (hasBattery) Pointer(saveRam) else Pointer(workRam),
                     if (bit.toUInt() != 0U) MemoryAccessType.READ_WRITE else MemoryAccessType.NO_ACCESS
                 )
+
                 mapper.setCpuMemoryMapping(
                     startAddr,
                     endAddr,

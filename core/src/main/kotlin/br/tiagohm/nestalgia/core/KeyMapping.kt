@@ -1,5 +1,6 @@
 package br.tiagohm.nestalgia.core
 
+@Suppress("NOTHING_TO_INLINE")
 @ExperimentalUnsignedTypes
 class KeyMapping(
     val a: Int,
@@ -13,7 +14,7 @@ class KeyMapping(
     val microphone: Int = 0,
 ) {
 
-    fun getKey(button: Button): Int {
+    inline fun getKey(button: Button): Int {
         return when (button) {
             StandardControllerButton.UP -> up
             StandardControllerButton.DOWN -> down
@@ -77,7 +78,7 @@ class KeyMapping(
     companion object {
         val NONE = KeyMapping(0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-        fun load(s: Snapshot): KeyMapping {
+        inline fun load(s: Snapshot): KeyMapping {
             return KeyMapping(
                 s.readInt("a") ?: 0,
                 s.readInt("b") ?: 0,

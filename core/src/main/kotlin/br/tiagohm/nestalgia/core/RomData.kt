@@ -7,14 +7,13 @@ data class RomData(
     val saveChrRamSize: Int = -1,
     val saveRamSize: Int = -1,
     val workRamSize: Int = -1,
-    val prgRom: UByteArray,
-    val chrRom: UByteArray,
-    val treinerData: UByteArray,
-    val fdsDiskData: List<UByteArray>?,
-    val fdsDiskHeaders: List<UByteArray>?,
-    val studyBox: StudyBoxData?,
-    val bytes: ByteArray,
-    val biosMissing: Boolean,
+    val prgRom: UByteArray = UByteArray(0),
+    val chrRom: UByteArray = UByteArray(0),
+    val treinerData: UByteArray = UByteArray(0),
+    val studyBox: StudyBoxData = StudyBoxData.EMPTY,
+    val bytes: ByteArray = ByteArray(0),
+    val biosMissing: Boolean = false,
+    val fdsBios: ByteArray = ByteArray(0),
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -31,8 +30,6 @@ data class RomData(
         if (!prgRom.contentEquals(other.prgRom)) return false
         if (!chrRom.contentEquals(other.chrRom)) return false
         if (!treinerData.contentEquals(other.treinerData)) return false
-        if (fdsDiskData != other.fdsDiskData) return false
-        if (fdsDiskHeaders != other.fdsDiskHeaders) return false
         if (studyBox != other.studyBox) return false
         if (!bytes.contentEquals(other.bytes)) return false
         if (biosMissing != other.biosMissing) return false
@@ -46,14 +43,13 @@ data class RomData(
         result = 31 * result + saveChrRamSize
         result = 31 * result + saveRamSize
         result = 31 * result + workRamSize
-        result = 31 * result + prgRom.hashCode()
-        result = 31 * result + chrRom.hashCode()
-        result = 31 * result + treinerData.hashCode()
-        result = 31 * result + (fdsDiskData?.hashCode() ?: 0)
-        result = 31 * result + (fdsDiskHeaders?.hashCode() ?: 0)
-        result = 31 * result + (studyBox?.hashCode() ?: 0)
-        result = 31 * result + bytes.hashCode()
+        result = 31 * result + prgRom.contentHashCode()
+        result = 31 * result + chrRom.contentHashCode()
+        result = 31 * result + treinerData.contentHashCode()
+        result = 31 * result + studyBox.hashCode()
+        result = 31 * result + bytes.contentHashCode()
         result = 31 * result + biosMissing.hashCode()
+        result = 31 * result + fdsBios.contentHashCode()
         return result
     }
 }

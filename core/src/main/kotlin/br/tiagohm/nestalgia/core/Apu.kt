@@ -165,6 +165,16 @@ class Apu(val console: Console) :
         return status
     }
 
+    override fun peek(addr: UShort): UByte {
+        // Only run the APU (to catch up) if we're running this in the emulation thread
+        // (not 100% accurate, but we can't run the APU from any other thread without locking)
+        if (console.emulationThreadId == Thread.currentThread().id) {
+            run()
+        }
+
+        return status
+    }
+
     override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
         run()
 

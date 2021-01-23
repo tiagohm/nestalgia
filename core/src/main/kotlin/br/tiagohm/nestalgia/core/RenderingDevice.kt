@@ -6,7 +6,7 @@ interface RenderingDevice : Resetable, Disposable {
 
     val screenHeight: Int
 
-    fun updateFrame(buffer: UIntArray, width: Int, height: Int)
+    fun updateFrame(buffer: IntArray, width: Int, height: Int)
 
     fun render()
 }

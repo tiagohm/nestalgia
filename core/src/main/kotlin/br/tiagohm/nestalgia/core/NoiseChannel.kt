@@ -6,15 +6,17 @@ class NoiseChannel(
     console: Console,
     mixer: SoundMixer,
 ) : ApuEnvelope(channel, console, mixer) {
+
+    private var modeFlag = false
+
     // On power-up, the shift register is loaded with the value 1.
     var shiftRegister: UShort = 1U
         private set
-    private var modeFlag = false
 
     override val frequency: Double
         get() = region.clockRate / (period.toInt() + 1.0) / if (modeFlag) 93 else 1
 
-    val isMuted: Boolean
+    inline val isMuted: Boolean
         // The mixer receives the current envelope volume except when Bit 0 of the shift register is set, or The length counter is zero
         get() = shiftRegister.bit0
 

@@ -15,6 +15,8 @@ class InternalRamHandler(
         return ram[(addr and mask).toInt()]
     }
 
+    override fun peek(addr: UShort) = read(addr)
+
     override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
         ram[(addr and mask).toInt()] = value
     }

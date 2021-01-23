@@ -1,5 +1,6 @@
 package br.tiagohm.nestalgia.core
 
+@Suppress("NOTHING_TO_INLINE")
 @ExperimentalUnsignedTypes
 abstract class ApuLengthCounter(
     channel: AudioChannel,
@@ -7,7 +8,7 @@ abstract class ApuLengthCounter(
     mixer: SoundMixer,
 ) : ApuChannel(channel, console, mixer) {
 
-    private var newHaltValue = false
+    protected var newHaltValue = false
 
     protected var lengthCounterHalt = false
     protected var lengthCounter: UByte = 0U
@@ -20,12 +21,12 @@ abstract class ApuLengthCounter(
             field = value
         }
 
-    fun initializeLengthCounter(haltFlag: Boolean) {
+    protected inline fun initializeLengthCounter(haltFlag: Boolean) {
         console.apu.isNeedToRun = true
         newHaltValue = haltFlag
     }
 
-    fun loadLengthCounter(value: UByte) {
+    protected inline fun loadLengthCounter(value: UByte) {
         if (isEnabled) {
             lengthCounterReloadValue = LC_LOOKUP_TABLE[value.toInt()]
             lengthCounterPreviousValue = lengthCounter
@@ -101,7 +102,7 @@ abstract class ApuLengthCounter(
     }
 
     companion object {
-        private val LC_LOOKUP_TABLE = ubyteArrayOf(
+        protected val LC_LOOKUP_TABLE = ubyteArrayOf(
             10U, 254U, 20U, 2U, 40U, 4U, 80U, 6U,
             160U, 8U, 60U, 10U, 14U, 12U, 26U, 14U,
             12U, 16U, 24U, 18U, 48U, 20U, 96U, 22U,

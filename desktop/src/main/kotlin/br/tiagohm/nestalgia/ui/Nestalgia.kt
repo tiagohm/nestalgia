@@ -50,6 +50,8 @@ class Nestalgia(
     private var isFullscreen = false
     private lateinit var graphicsDevice: GraphicsDevice
 
+    private var fdsBios = FDS_BIOS
+
     init {
         console.notificationManager.registerNotificationListener(this)
         console.batteryManager.provider = this
@@ -160,6 +162,7 @@ class Nestalgia(
         menuBar {
             menu("File") {
                 menuItem("Open ROM", ctrl(KeyEvent.VK_O), this@Nestalgia::loadROM)
+
                 menu("Open Recent") {
                     val games = preferences.recentlyOpened
 
@@ -176,7 +179,7 @@ class Nestalgia(
 
                                 val rom = file.readBytes()
 
-                                if (emulator.load(rom, name)) {
+                                if (emulator.load(rom, name, fdsBios)) {
                                     statusBar.hideText()
                                     loadSavedStates()
                                     saveGameToRecentlyOpened(file)
@@ -186,8 +189,11 @@ class Nestalgia(
                         }
                     }
                 }
+
                 separator()
+
                 menuItem("Save State", ctrl(KeyEvent.VK_S), this@Nestalgia::saveState)
+
                 menu("Restore State") {
                     for ((i, slot) in slots.withIndex()) {
                         menuItem(
@@ -197,9 +203,12 @@ class Nestalgia(
                             restoreState(slot.first)
                         }
                     }
+
                     menuItem("Open...", ctrl(KeyEvent.VK_R), this@Nestalgia::restoreState)
                 }
+
                 separator()
+
                 menuItem("Screenshot", key(KeyEvent.VK_F12), this@Nestalgia::takeScreenshot)
             }
             menu("Game") {
@@ -208,13 +217,16 @@ class Nestalgia(
                 menuItem("Pause", key(KeyEvent.VK_F7), emulator::pause)
                 menuItem("Resume", key(KeyEvent.VK_F8), emulator::resume)
                 menuItem("Power Off", key(KeyEvent.VK_F9), emulator::stop)
+
                 separator()
+
                 menu("Region") {
                     radioMenuItem("Auto", settings.region == Region.AUTO) { setRegion(Region.AUTO) }
                     radioMenuItem("NTSC", settings.region == Region.NTSC) { setRegion(Region.NTSC) }
                     radioMenuItem("PAL", settings.region == Region.PAL) { setRegion(Region.PAL) }
                     radioMenuItem("DENDY", settings.region == Region.DENDY) { setRegion(Region.DENDY) }
                 }
+
                 menu("Speed") {
                     radioMenuItem("Normal (100%)", settings.getEmulationSpeed() == 100) { setSpeed(100) }
                     radioMenuItem("Double (200%)", settings.getEmulationSpeed() == 200) { setSpeed(200) }
@@ -222,26 +234,56 @@ class Nestalgia(
                     radioMenuItem("Half (50%)", settings.getEmulationSpeed() == 50) { setSpeed(50) }
                     radioMenuItem("Quarter (25%)", settings.getEmulationSpeed() == 25) { setSpeed(25) }
                 }
+
                 separator()
-                menuItem("Audio Settings", action = this@Nestalgia::showAudioConfig)
-                menuItem("Controller Settings", action = this@Nestalgia::showControllerConfig)
-                menuItem("Video Settings", action = this@Nestalgia::showVideoConfig)
-                menuItem("Emulation Settings", action = this@Nestalgia::showEmulationConfig)
+
+                menu("Settings") {
+                    menuItem("Audio", action = this@Nestalgia::showAudioConfig)
+                    menuItem("Controller", action = this@Nestalgia::showControllerConfig)
+                    menuItem("Video", action = this@Nestalgia::showVideoConfig)
+                    menuItem("Emulation", action = this@Nestalgia::showEmulationConfig)
+                    menuItem("FDS", action = this@Nestalgia::showFdsConfig)
+                }
+
                 separator()
+
                 menuItem("Cheats", key(KeyEvent.VK_F2), this@Nestalgia::showCheats)
+
+                val sideCount = if (emulator.console.isFds) emulator.fdsSideCount else 0
+
+                if (sideCount > 0) {
+                    separator()
+
+                    menuItem("Switch Disk Side", ctrl(KeyEvent.VK_B), emulator::switchDiskSide)
+
+                    menu("Select Disk") {
+                        for (i in 0 until sideCount) {
+                            val side = if (i % 2 == 0) "A" else "B"
+                            menuItem("Disk ${i / 2 + 1} Side $side") { emulator.insertDisk(i) }
+                        }
+                    }
+
+                    menuItem("Eject Disk", action = emulator::ejectDisk)
+                }
                 separator()
                 menuItem("Fullscreen", key(KeyEvent.VK_F11), this@Nestalgia::toggleFullscreen)
             }
             menu("Debug") {
                 menuItem("Continue", shift(KeyEvent.VK_F5), emulator::debugRun)
+
                 separator()
+
                 menuItem("Run one PPU cycle", shift(KeyEvent.VK_F6), emulator::debugRunPpuCycle)
                 menuItem("Run one scanline", shift(KeyEvent.VK_F7), emulator::debugRunScanline)
                 menuItem("Run one frame", shift(KeyEvent.VK_F8), emulator::debugRunFrame)
                 menuItem("Run one CPU cycle", shift(KeyEvent.VK_F9), emulator::debugRunCpuCycle)
+
                 separator()
+
                 menuItem("Break On...", action = this@Nestalgia::showBreakOnConfig)
+
                 separator()
+
                 menuItem("Batch Test...", action = this@Nestalgia::loadBatchTest)
             }
             menu("Help") {
@@ -331,6 +373,10 @@ class Nestalgia(
         EmulationConfig.show(emulator, ::saveSettings)
     }
 
+    private fun showFdsConfig() {
+        FdsConfig.show(emulator, ::saveSettings)
+    }
+
     private fun showCheats() {
         if (emulator.isRunning) {
             CheatDialog.show(emulator.info.hash.prgCrc32, cheats) {
@@ -349,7 +395,7 @@ class Nestalgia(
         val dialog = FileDialog(this)
         dialog.mode = FileDialog.LOAD
         dialog.title = "Select a ROM to load"
-        dialog.setFilenameFilter { _, name -> name.endsWith(".nes") }
+        dialog.setFilenameFilter { _, name -> name.endsWith(".fds") || name.endsWith(".nes") }
         preferences.loadRomDir.takeIf { it.isNotEmpty() }?.let { dialog.directory = it }
 
         dialog.isVisible = true
@@ -364,7 +410,7 @@ class Nestalgia(
 
             emulator.debugRun()
 
-            if (emulator.load(data, name)) {
+            if (emulator.load(data, name, fdsBios)) {
                 statusBar.hideText()
                 loadSavedStates()
                 saveGameToRecentlyOpened(file)
@@ -378,7 +424,7 @@ class Nestalgia(
         dialog.mode = FileDialog.LOAD
         dialog.title = "Select the ROMs to test"
         dialog.isMultipleMode = true
-        dialog.setFilenameFilter { _, name -> name.endsWith(".nes") }
+        dialog.setFilenameFilter { _, name -> name.endsWith(".fds") || name.endsWith(".nes") }
         preferences.loadRomDir.takeIf { it.isNotEmpty() }?.let { dialog.directory = it }
 
         dialog.isVisible = true
@@ -394,17 +440,22 @@ class Nestalgia(
                     val data = rom.readBytes()
                     val name = rom.nameWithoutExtension
 
-                    if (emulator.load(data, name)) {
+                    if (emulator.load(data, name, fdsBios)) {
                         loadSavedStates()
                         title = "Nestalgia - $name"
                     } else {
                         continue
                     }
 
-                    Thread.sleep(BATCH_TEST_TIMEOUT)
+                    val factor = if (emulator.isFds) 2L else 1L
+                    val time = BATCH_TEST_TIMEOUT * factor
+
+                    Thread.sleep(time)
 
                     takeScreenshot(false, false)
                 }
+
+                emulator.stop()
             }
         }
     }
@@ -586,6 +637,12 @@ class Nestalgia(
             KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, // UP DOWN LEFT RIGHT
             KeyEvent.VK_ENTER, KeyEvent.VK_SPACE, // START SELECT
         )
+
+        val FDS_BIOS by lazy {
+            Thread.currentThread().contextClassLoader.getResourceAsStream(FdsBios.NINTENDO_FDS_FILENAME)?.use {
+                it.readBytes()
+            } ?: ByteArray(0)
+        }
 
         const val MAX_SLOTS = 30
         const val VERSION_NAME = "0.2.0"

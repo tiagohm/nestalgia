@@ -8,7 +8,13 @@ import kotlin.random.Random
 
 @Suppress("NOTHING_TO_INLINE")
 @ExperimentalUnsignedTypes
-abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, Snapshotable {
+abstract class Mapper :
+    Resetable,
+    Battery,
+    Peekable,
+    MemoryHandler,
+    Disposable,
+    Snapshotable {
 
     open var region: Region = Region.AUTO
 
@@ -209,7 +215,7 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
             }
         }
 
-    private fun setNametables(a: Int, b: Int, c: Int, d: Int) {
+    private inline fun setNametables(a: Int, b: Int, c: Int, d: Int) {
         setNametable(0U, a)
         setNametable(1U, b)
         setNametable(2U, c)
@@ -362,33 +368,30 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
         }
     }
 
-    fun isWriteRegister(addr: UShort) = isWriteRegisterAddr[addr.toInt()]
-
-    fun isReadRegister(addr: UShort) = allowRegisterRead && isReadRegisterAddr[addr.toInt()]
-
     override fun read(addr: UShort, type: MemoryOperationType): UByte {
-        val lo = addr.loByte.toInt()
-        val hi = addr.hiByte.toInt()
+        return if (allowRegisterRead && isReadRegisterAddr[addr.toInt()]) {
+            readRegister(addr)
+        } else {
+            val hi = addr.hiByte.toInt()
 
-        return when {
-            isReadRegister(addr) -> {
-                readRegister(addr)
-            }
-            prgMemoryAccess[hi].isRead -> {
-                prgPages[hi][lo]
-            }
-            else -> {
+            if (prgMemoryAccess[hi].isRead) {
+                prgPages[hi][addr.loByte.toInt()]
+            } else {
                 console.memoryManager.getOpenBus()
             }
         }
     }
 
+    override fun peek(addr: UShort): UByte {
+        val hi = addr.hiByte.toInt()
+        return if (prgMemoryAccess[hi].isRead) prgPages[hi][addr.loByte.toInt()] else (addr shr 8).toUByte()
+    }
+
     open fun readVRam(addr: UShort): UByte {
-        val lo = addr.loByte.toInt()
         val hi = addr.hiByte.toInt()
 
         if (chrMemoryAccess[hi].isRead) {
-            return chrPages[hi][lo]
+            return chrPages[hi][addr.loByte.toInt()]
         }
 
         // Open bus - "When CHR is disabled, the pattern tables are open bus.
@@ -411,22 +414,20 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
     }
 
     open fun writePrgRam(addr: UShort, value: UByte) {
-        val lo = addr.loByte.toInt()
         val hi = addr.hiByte.toInt()
 
         if (prgMemoryAccess[hi].isWrite) {
             val page = prgPages[hi]
-            page[lo] = value
+            page[addr.loByte.toInt()] = value
         }
     }
 
     fun writeVRam(addr: UShort, value: UByte) {
-        val lo = addr.loByte.toInt()
         val hi = addr.hiByte.toInt()
 
         if (chrMemoryAccess[hi].isWrite) {
             val page = chrPages[hi]
-            page[lo] = value
+            page[addr.loByte.toInt()] = value
         }
     }
 
@@ -879,7 +880,7 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
     open fun applySamples(buffer: ShortArray, sampleCount: Int, volume: Double) {
     }
 
-    val dipSwitches: Int
+    inline val dipSwitches: Int
         get() {
             val mask = (1 shl dipSwitchCount) - 1
             return console.settings.dipSwitches and mask
@@ -959,15 +960,13 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
     }
 
     companion object {
-        fun initialize(console: Console, rom: ByteArray, name: String): Pair<Mapper?, RomData?> {
-            val loader = RomLoader()
-
-            val data = try {
-                loader.load(rom, name)
-            } catch (e: Exception) {
-                System.err.println(e.message)
-                return null to null
-            }
+        fun initialize(
+            console: Console,
+            rom: ByteArray,
+            name: String,
+            fdsBios: ByteArray = ByteArray(0),
+        ): Pair<Mapper?, RomData?> {
+            val data = RomLoader.load(rom, name, fdsBios)
 
             if ((data.info.isInDatabase || data.info.isNes20Header) && data.info.inputType != GameInputType.UNSPECIFIED) {
                 if (console.settings.checkFlag(EmulationFlag.AUTO_CONFIGURE_INPUT)) {
@@ -987,6 +986,7 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
                 0 -> NROM()
                 1 -> MMC1()
                 2 -> UNROM()
+                FDS_MAPPER_ID -> Fds()
                 else -> {
                     System.err.println("${data.info.name} has unsupported mapper $id")
                     throw IOException("Unsupported mapper $id")
@@ -996,5 +996,7 @@ abstract class Mapper : Resetable, Battery, Memory, MemoryHandler, Disposable, S
 
         const val NAMETABLE_COUNT = 0x10
         const val NAMETABLE_SIZE = 0x400
+
+        const val FDS_MAPPER_ID = 65535
     }
 }

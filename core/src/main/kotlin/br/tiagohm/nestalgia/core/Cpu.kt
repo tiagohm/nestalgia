@@ -11,7 +11,8 @@ class Cpu(val console: Console) :
     private var startClockCount: UByte = 0U
     private var endClockCount: UByte = 0U
 
-    val state = CpuState()
+    @PublishedApi
+    internal val state = CpuState()
 
     private val memoryManager = console.memoryManager
 

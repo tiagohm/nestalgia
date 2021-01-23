@@ -241,6 +241,7 @@ open class Ppu(val console: Console) :
         }
     }
 
+    // "inline" turns it over slow. Why?
     private fun exec() {
         if (cycle > 339) {
             cycle = 0
@@ -1198,6 +1199,69 @@ open class Ppu(val console: Console) :
         }
 
         return applyOpenBus(openBusMask, result)
+    }
+
+    override fun peek(addr: UShort): UByte {
+        var openBusMask: UByte = 0xFFU
+        var result: UByte = 0U
+
+        when (getRegisterId(addr)) {
+            PpuRegister.STATUS -> {
+                result = ((if (statusFlags.spriteOverflow) 0x20U else 0x00U) or
+                        (if (statusFlags.sprite0Hit) 0x40U else 0x00U) or
+                        (if (statusFlags.verticalBlank) 0x80U else 0x00U)).toUByte()
+
+                if (scanline == nmiScanline && cycle < 3) {
+                    // Clear vertical blank flag
+                    result = result and 0x7FU
+                }
+
+                openBusMask = 0x1FU
+
+                val (a, b) = processStatusRegOpenBus(result)
+
+                if (a != null) {
+                    openBusMask = a
+                }
+                if (b != null) {
+                    result = b
+                }
+            }
+            PpuRegister.SPRITE_DATA -> {
+                if (!settings.checkFlag(EmulationFlag.DISABLE_PPU_2004_READS)) {
+                    result = if (scanline <= 239 && isRenderingEnabled) {
+                        // While the screen is begin drawn
+                        if (cycle in 257..320) {
+                            // If we're doing sprite rendering, set OAM copy buffer to its proper value.  This is done here for performance.
+                            // It's faster to only do this here when it's needed, rather than splitting LoadSpriteTileInfo() into an 8-step process
+                            val step = min((cycle - 257) % 8, 3)
+                            val a = ((cycle - 257) / 8) * 4 + step
+                            secondarySpriteRAM[a]
+                        } else {
+                            oamCopybuffer
+                        }
+                    } else {
+                        spriteRAM[state.spriteRamAddr.toInt()]
+                    }
+
+                    openBusMask = 0x00U
+                }
+            }
+            PpuRegister.VIDEO_MEMORY_DATA -> {
+                result = memoryReadBuffer
+
+                if (state.videoRamAddr and 0x3FFFU >= 0x3F00U && !settings.checkFlag(EmulationFlag.DISABLE_PALETTE_READ)) {
+                    result = readPaletteRam(state.videoRamAddr) or (openBus and 0xC0U)
+                    openBusMask = 0xC0U
+                } else {
+                    openBusMask = 0x00U
+                }
+            }
+            else -> {
+            }
+        }
+
+        return result or (openBus and openBusMask)
     }
 
     private inline fun applyOpenBus(mask: UByte, value: UByte): UByte {

@@ -36,6 +36,7 @@ class Debugger(val console: Console) : Disposable {
         breakLock.release()
     }
 
+    @Suppress("ControlFlowWithEmptyBody")
     fun suspend() {
         suspendCount.set(true)
         while (executionStopped.get());
@@ -104,6 +105,16 @@ class Debugger(val console: Console) : Disposable {
     fun step(count: Int) {
         resetStepState()
         stepCount.set(count)
+    }
+
+    inline fun frameStep(count: Int = 1) {
+        val extraScanlines = console.settings.extraScanlinesAfterNmi + console.settings.extraScanlinesBeforeNmi
+        val cycleCount = ((if (console.settings.region == Region.NTSC) 262 else 312) + extraScanlines) * 341
+        ppuStep(count * cycleCount)
+    }
+
+    inline fun scanlineStep(count: Int = 1) {
+        ppuStep(count * 341)
     }
 
     fun breakOn(type: BreakOnType, count: Int) {

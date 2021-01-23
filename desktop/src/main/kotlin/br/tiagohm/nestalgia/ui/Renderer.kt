@@ -53,13 +53,9 @@ class Renderer(val console: Console) :
         removeComponentListener(this)
     }
 
-    override fun updateFrame(buffer: UIntArray, width: Int, height: Int) {
+    override fun updateFrame(buffer: IntArray, width: Int, height: Int) {
         val data = (image.raster.dataBuffer as DataBufferInt).data
-        val length = buffer.size
-
-        for (i in 0 until length) {
-            data[i] = buffer[i].toInt()
-        }
+        buffer.copyInto(data)
     }
 
     override fun render() {

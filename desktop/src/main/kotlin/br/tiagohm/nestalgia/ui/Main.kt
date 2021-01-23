@@ -43,12 +43,12 @@ fun main() {
 
     val loader = Thread.currentThread().contextClassLoader
 
-    loader.getResourceAsStream("NesDB.csv")?.use {
+    loader.getResourceAsStream(GameDatabase.NES_DB_FILENAME)?.use {
         val lines = BufferedReader(InputStreamReader(it, Charsets.UTF_8)).lines().collect(Collectors.toList())
         GameDatabase.load(lines)
     }
 
-    loader.getResourceAsStream("CheatDB.csv")?.use {
+    loader.getResourceAsStream(CheatDatabase.CHEAT_DB_FILENAME)?.use {
         val lines = BufferedReader(InputStreamReader(it, Charsets.UTF_8)).lines().collect(Collectors.toList())
         CheatDatabase.load(lines)
     }

@@ -4,7 +4,7 @@ import java.io.IOException
 import java.util.zip.CRC32
 
 @ExperimentalUnsignedTypes
-class INesLoader {
+object INesLoader {
 
     fun load(rom: ByteArray, name: String, preloadedHeader: NesHeader? = null): RomData {
         var dataSize = rom.size.toUInt()
@@ -49,7 +49,7 @@ class INesLoader {
 
         val prgChrRomCrc = CRC32().let { it.update(rom, offset, rom.size - offset); it.value }
 
-        val db = GameDatabase.entries[prgChrRomCrc]
+        val db = GameDatabase.get(prgChrRomCrc)
         val prgSize: UInt
         val chrSize: UInt
 
@@ -122,11 +122,7 @@ class INesLoader {
             prgRom,
             chrRom,
             treinerData,
-            null,
-            null,
-            null,
-            rom,
-            false,
+            bytes = rom,
         )
 
         return db?.update(data, preloadedHeader != null) ?: data

@@ -167,7 +167,7 @@ open class ControlManager(
     protected open fun remapControllerButtons() {
     }
 
-    val hasKeyboard: Boolean
+    inline val hasKeyboard: Boolean
         get() = getControlDevice(ControlDevice.EXP_DEVICE_PORT)?.isKeyboard ?: false
 
     protected open fun getOpenBusMask(port: UByte): UByte {

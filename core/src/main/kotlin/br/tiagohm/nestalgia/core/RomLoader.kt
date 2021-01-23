@@ -4,9 +4,13 @@ import java.io.IOException
 import java.util.*
 
 @ExperimentalUnsignedTypes
-class RomLoader {
+object RomLoader {
 
-    fun load(rom: ByteArray, name: String): RomData {
+    fun load(
+        rom: ByteArray,
+        name: String,
+        fdsBios: ByteArray = ByteArray(0),
+    ): RomData {
         if (rom.isEmpty()) {
             throw IOException("Empty ROM")
         }
@@ -15,10 +19,10 @@ class RomLoader {
             throw IOException("Invalid file format")
         }
 
-        val magic = String(rom, 0, 8)
-
         val data = when {
-            magic.startsWith("NES\u001a") -> INesLoader().load(rom, name)
+            rom.startsWith("NES\u001A") -> INesLoader.load(rom, name)
+            rom.startsWith("FDS\u001A") ||
+                    rom.startsWith("\u0001*NINTENDO-HVC*") -> FdsLoader.load(rom, name, fdsBios)
             else -> throw IOException("Invalid file format")
         }
 

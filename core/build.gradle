@@ -29,9 +29,3 @@ kotlin {
         languageSettings.enableLanguageFeature('InlineClasses')
     }
 }
-
-compileKotlin {
-    kotlinOptions {
-        freeCompilerArgs = ["-Xinline-classes"]
-    }
-}

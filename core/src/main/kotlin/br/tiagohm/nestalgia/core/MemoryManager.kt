@@ -5,6 +5,7 @@ import java.util.*
 @ExperimentalUnsignedTypes
 class MemoryManager constructor(private val console: Console) :
     Memory,
+    Peekable,
     Snapshotable {
 
     private val openBusHandler = OpenBusHandler()
@@ -28,29 +29,19 @@ class MemoryManager constructor(private val console: Console) :
     }
 
     fun registerIODevice(handler: MemoryHandler) {
-        val ranges = MemoryRanges()
-        handler.getMemoryRanges(ranges)
+        val ranges = MemoryRanges().also { handler.getMemoryRanges(it) }
         initializeMemoryHandlers(ramReadHandlers, handler, ranges.ramReadAddresses, ranges.allowOverride)
         initializeMemoryHandlers(ramWriteHandlers, handler, ranges.ramWriteAddresses, ranges.allowOverride)
     }
 
     fun registerWriteHandler(handler: MemoryHandler, start: Int, end: Int) {
-        for (i in start until end) {
-            ramWriteHandlers[i] = handler
-        }
+        (start until end).forEach { ramWriteHandlers[it] = handler }
     }
 
     fun unregisterIODevice(handler: MemoryHandler) {
-        val ranges = MemoryRanges()
-        handler.getMemoryRanges(ranges)
-
-        for (addr in ranges.ramReadAddresses) {
-            ramReadHandlers[addr.toInt()] = openBusHandler
-        }
-
-        for (addr in ranges.ramWriteAddresses) {
-            ramWriteHandlers[addr.toInt()] = openBusHandler
-        }
+        val ranges = MemoryRanges().also { handler.getMemoryRanges(it) }
+        ranges.ramReadAddresses.forEach { ramReadHandlers[it.toInt()] = openBusHandler }
+        ranges.ramWriteAddresses.forEach { ramWriteHandlers[it.toInt()] = openBusHandler }
     }
 
     override fun read(addr: UShort, type: MemoryOperationType): UByte {
@@ -59,6 +50,16 @@ class MemoryManager constructor(private val console: Console) :
         console.debugger.processRamOperation(type, addr, value)
         openBusHandler.openBus = value
         return value
+    }
+
+    override fun peek(addr: UShort): UByte {
+        val value = if (addr.toInt() <= 0x1FFF) {
+            ramReadHandlers[addr.toInt()].read(addr)
+        } else {
+            ramReadHandlers[addr.toInt()].peek(addr)
+        }
+
+        return console.cheatManager.applyCode(addr, value)
     }
 
     override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {

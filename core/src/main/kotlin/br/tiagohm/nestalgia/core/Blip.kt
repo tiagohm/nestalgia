@@ -29,7 +29,7 @@ class Blip(val size: Int) {
         factor = ceil(TIME_UNIT.toDouble() * sampleRate / clockRate).toULong()
     }
 
-    fun clocksNeeded(samples: Int): Long {
+    inline fun clocksNeeded(samples: Int): Long {
         if (samples < 0 || avail + samples > size) {
             throw IllegalStateException("Buffer can't hold that many more samples")
         }

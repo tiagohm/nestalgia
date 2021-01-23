@@ -11,11 +11,8 @@ enum class EmulationFlag(override val code: ULong) : Flag<ULong> {
     ENABLE_PPU_OAM_ROW_CORRUPTION(0x0200UL),
 
     ALLOW_BACKGROUND_INPUT(0x0400UL),
-    ReduceSoundInBackground(0x0800UL),
-    MuteSoundInBackground(0x1000UL),
 
-    FdsFastForwardOnLoad(0x2000UL),
-    FdsAutoLoadDisk(0x4000UL),
+    FDS_AUTO_LOAD_DISK(0x4000UL),
     MMC3_IRQ_ALT_BEHAVIOR(0x8000UL),
 
     SWAP_DUTY_CYCLES(0x10000UL),
@@ -38,7 +35,7 @@ enum class EmulationFlag(override val code: ULong) : Flag<ULong> {
 
     USE_NES_101_HVC_101_BEHAVIOR(0x100000000UL),
 
-    FdsAutoInsertDisk(0x800000000UL),
+    FDS_AUTO_INSERT_DISK(0x800000000UL),
 
     REWIND(0x1000000000UL),
     TURBO(0x2000000000UL),
@@ -52,8 +49,6 @@ enum class EmulationFlag(override val code: ULong) : Flag<ULong> {
     ENABLE_PPU_2006_SCROLL_GLITCH(0x100000000000UL),
     ENABLE_PPU_2000_SCROLL_GLITCH(0x200000000000UL),
 
-    ConfirmExitResetPower(0x400000000000UL),
-
     NsfRepeat(0x800000000000UL),
     NsfShuffle(0x1000000000000UL),
 
@@ -64,5 +59,4 @@ enum class EmulationFlag(override val code: ULong) : Flag<ULong> {
     RANDOMIZE_CPU_PPU_ALIGNMENT(0x800000000000000UL),
 
     FORCE_MAX_SPEED(0x4000000000000000UL),
-    ConsoleMode(0x8000000000000000UL)
 }

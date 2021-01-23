@@ -6,7 +6,7 @@ class DefaultVideoFilter(console: Console) : VideoFilter(console) {
 
     private val palette = console.settings.palette
 
-    private inline fun decodePpuBuffer(outputBuffer: UShortArray, output: UIntArray) {
+    private inline fun decodePpuBuffer(outputBuffer: UShortArray, output: IntArray) {
         var out = 0
 
         val bottom = 0
@@ -18,7 +18,7 @@ class DefaultVideoFilter(console: Console) : VideoFilter(console) {
             val offset = i * 256
 
             for (j in left until 256 - right) {
-                output[out++] = palette[outputBuffer[offset + j].toInt()]
+                output[out++] = palette[outputBuffer[offset + j].toInt()].toInt()
             }
         }
     }

@@ -142,9 +142,14 @@ class Console(
         }
     }
 
-    fun initialize(rom: ByteArray, name: String, forPowerCycle: Boolean = false): Boolean {
+    fun initialize(
+        rom: ByteArray,
+        name: String,
+        forPowerCycle: Boolean = false,
+        fdsBios: ByteArray = ByteArray(0),
+    ): Boolean {
         val (newMapper, data) = try {
-            Mapper.initialize(this, rom, name)
+            Mapper.initialize(this, rom, name, fdsBios)
         } catch (e: IOException) {
             notificationManager.sendNotification(NotificationType.ERROR, e.message)
             return false
@@ -197,13 +202,13 @@ class Console(
             if (master == null && mapper!!.info.vsType == VsSystemType.VS_DUAL_SYSTEM) {
                 slave?.dispose()
                 slave = Console(this)
-                slave!!.initialize(rom, name)
+                slave!!.initialize(rom, name, fdsBios = fdsBios)
             }
 
             when (mapper!!.info.system) {
                 GameSystem.FDS -> {
                     settings.ppuModel = PpuModel.PPU_2C02
-                    systemActionManager = FdsSystemActionManager(this, mapper!!)
+                    systemActionManager = FdsSystemActionManager(this, mapper!! as Fds)
                 }
                 GameSystem.VS_SYSTEM -> {
                     settings.ppuModel = mapper!!.info.vsPpuModel
@@ -302,7 +307,12 @@ class Console(
 
     fun reloadRom(forPowerCycle: Boolean = false) {
         if (initialized && mapper != null) {
-            initialize(mapper!!.data.bytes, mapper!!.name, forPowerCycle)
+            initialize(
+                mapper!!.data.bytes,
+                mapper!!.name,
+                forPowerCycle,
+                mapper!!.data.fdsBios,
+            )
         }
     }
 
@@ -693,8 +703,11 @@ class Console(
     inline val isNsf: Boolean
         get() = mapper is NsfMapper
 
+    inline val isFds: Boolean
+        get() = mapper is Fds
+
     inline val isVsSystem: Boolean
-        get() = controlManager is VsControlManager
+        get() = isRunning and (controlManager is VsControlManager)
 
     fun takeScreenshot(): IntArray {
         return if (isRunning && !isNsf) {
