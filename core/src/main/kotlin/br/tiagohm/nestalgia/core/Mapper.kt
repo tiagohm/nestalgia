@@ -986,10 +986,12 @@ abstract class Mapper :
                 0 -> NROM()
                 1 -> MMC1()
                 2 -> UNROM()
+                3 -> CNROM(false)
                 36 -> Txc22000()
                 132 -> Txc22211a()
                 172 -> Txc22211b()
                 173 -> Txc22211c()
+                185 -> CNROM(true)
                 FDS_MAPPER_ID -> Fds()
                 else -> {
                     System.err.println("${data.info.name} has unsupported mapper $id")
