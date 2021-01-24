@@ -387,7 +387,13 @@ abstract class Mapper :
         return if (prgMemoryAccess[hi].isRead) prgPages[hi][addr.loByte.toInt()] else (addr shr 8).toUByte()
     }
 
-    open fun readVRam(addr: UShort): UByte {
+    inline fun readVRAM(addr: UShort) = mapperReadVRAM(addr)
+
+    @PublishedApi
+    internal open fun mapperReadVRAM(addr: UShort) = internalReadVRAM(addr)
+
+    @PublishedApi
+    internal fun internalReadVRAM(addr: UShort): UByte {
         val hi = addr.hiByte.toInt()
 
         if (chrMemoryAccess[hi].isRead) {
@@ -422,7 +428,7 @@ abstract class Mapper :
         }
     }
 
-    fun writeVRam(addr: UShort, value: UByte) {
+    fun writeVRAM(addr: UShort, value: UByte) {
         val hi = addr.hiByte.toInt()
 
         if (chrMemoryAccess[hi].isWrite) {
@@ -866,7 +872,7 @@ abstract class Mapper :
         }
     }
 
-    open fun notifyVRAMAddressChange(value: UShort) {
+    open fun notifyVRAMAddressChange(addr: UShort) {
         // This is called when the VRAM addr on the PPU memory bus changes
         // Used by MMC3/MMC5/etc
     }
@@ -874,7 +880,7 @@ abstract class Mapper :
     inline fun debugReadVRAM(addr: UShort, disableSideEffects: Boolean = true): UByte {
         val a = addr and 0x3FFFU
         if (!disableSideEffects) notifyVRAMAddressChange(a)
-        return readVRam(a)
+        return internalReadVRAM(a)
     }
 
     open fun applySamples(buffer: ShortArray, sampleCount: Int, volume: Double) {
@@ -960,6 +966,7 @@ abstract class Mapper :
     }
 
     companion object {
+
         fun initialize(
             console: Console,
             rom: ByteArray,

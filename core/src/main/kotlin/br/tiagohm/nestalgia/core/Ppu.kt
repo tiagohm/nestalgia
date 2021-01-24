@@ -1281,12 +1281,12 @@ open class Ppu(val console: Console) :
 
     protected inline fun readVRam(addr: UShort): UByte {
         setBusAddress(addr)
-        return console.mapper!!.readVRam(addr)
+        return console.mapper!!.readVRAM(addr)
     }
 
     protected inline fun writeVRam(addr: UShort, value: UByte) {
         setBusAddress(addr)
-        console.mapper!!.writeVRam(addr, value)
+        console.mapper!!.writeVRAM(addr, value)
     }
 
     protected inline fun readSpriteRam(addr: UByte): UByte {
@@ -1431,10 +1431,10 @@ open class Ppu(val console: Console) :
                 if ((ppuBusAddress and 0x3FFFU) >= 0x3F00U) {
                     writePaletteRam(ppuBusAddress, value)
                 } else if (scanline >= 240 || !isRenderingEnabled) {
-                    console.mapper!!.writeVRam(ppuBusAddress and 0x3FFFU, value)
+                    console.mapper!!.writeVRAM(ppuBusAddress and 0x3FFFU, value)
                 } else {
                     // During rendering, the value written is ignored, and instead the address' LSB is used (not confirmed, based on Visual NES)
-                    console.mapper!!.writeVRam(ppuBusAddress and 0x3FFFU, ppuBusAddress.toUByte())
+                    console.mapper!!.writeVRAM(ppuBusAddress and 0x3FFFU, ppuBusAddress.toUByte())
                 }
 
                 updateVideoRamAddr()
