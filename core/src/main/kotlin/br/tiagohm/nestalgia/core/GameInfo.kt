@@ -29,8 +29,6 @@ data class GameInfo(
         // Boards marked as UNK should only be used for headerless roms (since their data is unverified)
         if (!forHeaderlessRom && board == "UNK") return data
 
-        val isValid = subMapperId != -1
-
         val info = data.info.copy(
             mapperId = mapperId,
             subMapperId = subMapperId,
@@ -39,15 +37,15 @@ data class GameInfo(
             vsPpuModel = if (system == GameSystem.VS_SYSTEM) vsPpuModel else data.info.vsPpuModel,
             inputType = inputType,
             busConflict = busConflict,
-            hasBattery = if (isValid) hasBattery else data.info.hasBattery || hasBattery,
+            hasBattery = data.info.hasBattery || hasBattery,
             mirroring = mirroring ?: data.info.mirroring
         )
 
         return data.copy(
             info = info,
-            chrRamSize = if (isValid || chrRamSize > 0) chrRamSize else data.chrRamSize,
-            workRamSize = if (isValid || workRamSize > 0) workRamSize else data.workRamSize,
-            saveRamSize = if (isValid || saveRamSize > 0) saveRamSize else data.saveRamSize,
+            chrRamSize = if (chrRamSize > 0) chrRamSize else data.chrRamSize,
+            workRamSize = if (workRamSize > 0) workRamSize else data.workRamSize,
+            saveRamSize = if (saveRamSize > 0) saveRamSize else data.saveRamSize,
         )
     }
 
