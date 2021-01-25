@@ -45,6 +45,10 @@ inline val UByte.isZero: Boolean
     get() = this == 0.toUByte()
 
 @ExperimentalUnsignedTypes
+inline val UByte.isOne: Boolean
+    get() = this == 1.toUByte()
+
+@ExperimentalUnsignedTypes
 inline val UByte.isNonZero: Boolean
     get() = !isZero
 

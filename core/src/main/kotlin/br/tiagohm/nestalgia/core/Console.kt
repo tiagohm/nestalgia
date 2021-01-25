@@ -173,6 +173,8 @@ class Console(
         batteryManager.initialize()
 
         if (newMapper != null && data != null) {
+            System.err.println("MAPPER: ${newMapper::class.simpleName}")
+
             val isDifferentGame = mapper == null || mapper!!.info.hash.crc32 != data.info.hash.crc32
 
             if (mapper != null) {
