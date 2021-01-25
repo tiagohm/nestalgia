@@ -996,6 +996,7 @@ abstract class Mapper :
                 3 -> CNROM(false)
                 4 -> if (data.info.subMapperId == 3) McAcc() else MMC3()
                 36 -> Txc22000()
+                115 -> Mapper115()
                 132 -> Txc22211a()
                 172 -> Txc22211b()
                 173 -> Txc22211c()
