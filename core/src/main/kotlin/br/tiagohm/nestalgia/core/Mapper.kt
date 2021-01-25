@@ -772,7 +772,7 @@ abstract class Mapper :
         }
     }
 
-    protected fun addRegisterRange(start: UShort, end: UShort, operation: MemoryOperation) {
+    protected fun addRegisterRange(start: UShort, end: UShort, operation: MemoryOperation = MemoryOperation.ANY) {
         for (i in start..end) {
             if (operation.isRead) {
                 isReadRegisterAddr[i.toInt()] = true
@@ -995,6 +995,7 @@ abstract class Mapper :
                 2 -> UNROM()
                 3 -> CNROM(false)
                 4 -> if (data.info.subMapperId == 3) McAcc() else MMC3()
+                12 -> Mapper012()
                 36 -> Txc22000()
                 47 -> Mapper047()
                 91 -> Mapper091()
