@@ -132,7 +132,7 @@ data class GameInfo(
             val board = parts[2]
             val pcb = parts[3]
             val chip = parts[4]
-            val mapper = parts[5].toInt()
+            var mapper = parts[5].toInt()
             val prgRomSize = parts[6].toInt() * 1024
             val chrRomSize = (parts[7].toIntOrNull() ?: 0) * 1024
             val chrRamSize = (parts[8].toIntOrNull() ?: 0) * 1024
@@ -160,6 +160,10 @@ data class GameInfo(
             val subMapper = parts[15].toIntOrNull() ?: -1
             val vsSystem = VsSystemType.values()[parts[16].toIntOrNull() ?: 0]
             val ppuModel = PpuModel.values()[parts[17].toIntOrNull()?.let { if (it > 10) 0 else it } ?: 0]
+
+            if (mapper == 65000) {
+                mapper = UnifLoader.getMapperId(board)
+            }
 
             return GameInfo(
                 crc,
