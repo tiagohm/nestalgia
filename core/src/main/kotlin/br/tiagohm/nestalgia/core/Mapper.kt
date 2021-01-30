@@ -788,7 +788,7 @@ abstract class Mapper :
         }
     }
 
-    protected fun removeRegisterRange(start: UShort, end: UShort, operation: MemoryOperation) {
+    protected fun removeRegisterRange(start: UShort, end: UShort, operation: MemoryOperation = MemoryOperation.ANY) {
         for (i in start..end) {
             if (operation.isRead) {
                 isReadRegisterAddr[i.toInt()] = false
@@ -999,6 +999,7 @@ abstract class Mapper :
                 36 -> Txc22000()
                 37 -> Mapper037()
                 44 -> Mapper044()
+                45 -> Mapper045()
                 47 -> Mapper047()
                 91 -> Mapper091()
                 114 -> Mapper114()
