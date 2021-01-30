@@ -45,7 +45,7 @@ class Mapper114 : MMC3() {
                 0xC000 -> {
                     if (exRegs[1].isNonZero) {
                         exRegs[1] = 0U
-                        super.writeRegister(0x8001U, value);
+                        super.writeRegister(0x8001U, value)
                     }
                 }
                 0xC001 -> irqReload = true
