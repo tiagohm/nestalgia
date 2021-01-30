@@ -459,6 +459,7 @@ abstract class Mapper :
         accessType: MemoryAccessType = MemoryAccessType.UNSPECIFIED,
     ) {
         if (!validateAddressRange(start, end) || start > 0xFF00U || end <= start) {
+            System.err.println("Invalid address range")
             return
         }
 
@@ -582,7 +583,10 @@ abstract class Mapper :
             prgPages[i] = source
             prgMemoryAccess[i] =
                 if (accessType != MemoryAccessType.UNSPECIFIED) accessType else MemoryAccessType.READ
-            source = Pointer(source, 0x100)
+
+            if (source != Pointer.NULL) {
+                source = Pointer(source, 0x100)
+            }
         }
     }
 
@@ -608,6 +612,7 @@ abstract class Mapper :
         accessType: MemoryAccessType = MemoryAccessType.UNSPECIFIED,
     ) {
         if (!validateAddressRange(start, end) || start > 0x3F00U || end > 0x3FFFU || end <= start) {
+            System.err.println("Invalid address range")
             return
         }
 
@@ -772,7 +777,7 @@ abstract class Mapper :
         }
     }
 
-    protected fun addRegisterRange(start: UShort, end: UShort, operation: MemoryOperation) {
+    protected fun addRegisterRange(start: UShort, end: UShort, operation: MemoryOperation = MemoryOperation.ANY) {
         for (i in start..end) {
             if (operation.isRead) {
                 isReadRegisterAddr[i.toInt()] = true
@@ -783,7 +788,7 @@ abstract class Mapper :
         }
     }
 
-    protected fun removeRegisterRange(start: UShort, end: UShort, operation: MemoryOperation) {
+    protected fun removeRegisterRange(start: UShort, end: UShort, operation: MemoryOperation = MemoryOperation.ANY) {
         for (i in start..end) {
             if (operation.isRead) {
                 isReadRegisterAddr[i.toInt()] = false
@@ -832,15 +837,9 @@ abstract class Mapper :
 
     open fun selectChrPage(slot: UShort, page: UShort, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
         val pageSize = when (memoryType) {
-            ChrMemoryType.NAMETABLE_RAM -> {
-                NAMETABLE_SIZE.toUInt()
-            }
-            ChrMemoryType.RAM -> {
-                internalChrRamPageSize
-            }
-            else -> {
-                internalChrPageSize
-            }
+            ChrMemoryType.NAMETABLE_RAM -> NAMETABLE_SIZE.toUInt()
+            ChrMemoryType.RAM -> internalChrRamPageSize
+            else -> internalChrPageSize
         }
 
         val start = slot * pageSize
@@ -994,7 +993,19 @@ abstract class Mapper :
                 1 -> MMC1()
                 2 -> UNROM()
                 3 -> CNROM(false)
+                4 -> if (data.info.subMapperId == 3) McAcc() else MMC3()
+                12 -> Mapper012()
+                14 -> Mapper014()
                 36 -> Txc22000()
+                37 -> Mapper037()
+                44 -> Mapper044()
+                45 -> Mapper045()
+                47 -> Mapper047()
+                49 -> Mapper049()
+                52 -> Mapper052()
+                91 -> Mapper091()
+                114 -> Mapper114()
+                115 -> Mapper115()
                 132 -> Txc22211a()
                 172 -> Txc22211b()
                 173 -> Txc22211c()

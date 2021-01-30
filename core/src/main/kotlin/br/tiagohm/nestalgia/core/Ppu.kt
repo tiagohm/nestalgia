@@ -906,7 +906,8 @@ open class Ppu(val console: Console) :
                     oamCopybuffer = readSpriteRam(state.spriteRamAddr.toUByte())
                 } else {
                     if (oamCopyDone) {
-                        spriteAddrH = spriteAddrH.plusOne() and 0x3FU
+                        spriteAddrH++
+                        spriteAddrH = spriteAddrH and 0x3FU
 
                         if (secondaryOAMAddr >= 0x20U) {
                             // As seen above, a side effect of the OAM write disable signal is to turn writes to the secondary OAM into reads from it.
@@ -940,7 +941,8 @@ open class Ppu(val console: Console) :
                                     spriteInRange = false
                                     spriteAddrL = 0U
                                     lastVisibleSpriteAddr = (spriteAddrH.toUInt() * 4U).toUByte()
-                                    spriteAddrH = spriteAddrH.plusOne() and 0x3FU
+                                    spriteAddrH++
+                                    spriteAddrH = spriteAddrH and 0x3FU
 
                                     if (spriteAddrH.isZero) {
                                         oamCopyDone = true
@@ -948,7 +950,8 @@ open class Ppu(val console: Console) :
                                 }
                             } else {
                                 // Nothing to copy, skip to next sprite
-                                spriteAddrH = spriteAddrH.plusOne() and 0x3FU
+                                spriteAddrH++
+                                spriteAddrH = spriteAddrH and 0x3FU
 
                                 if (spriteAddrH.isZero) {
                                     oamCopyDone = true
@@ -965,7 +968,8 @@ open class Ppu(val console: Console) :
                                 spriteAddrL++
 
                                 if (spriteAddrL.toUInt() == 4U) {
-                                    spriteAddrH = spriteAddrH.plusOne() and 0x3FU
+                                    spriteAddrH++
+                                    spriteAddrH = spriteAddrH and 0x3FU
                                     spriteAddrL = 0U
                                 }
 
@@ -982,8 +986,10 @@ open class Ppu(val console: Console) :
                                 }
                             } else {
                                 // Sprite isn't on this scanline, trigger sprite evaluation bug - increment both H & L at the same time
-                                spriteAddrH = spriteAddrH.plusOne() and 0x3FU
-                                spriteAddrL = spriteAddrL.plusOne() and 0x03U
+                                spriteAddrH++
+                                spriteAddrH = spriteAddrH and 0x3FU
+                                spriteAddrL++
+                                spriteAddrL = spriteAddrL and 0x03U
 
                                 if (spriteAddrH.isZero) {
                                     oamCopyDone = true
@@ -1353,18 +1359,16 @@ open class Ppu(val console: Console) :
             setOpenBus(0xFFU, value)
         }
 
-        val ppuModel = settings.ppuModel
-
         when (getRegisterId(addr)) {
             PpuRegister.CONTROL -> {
-                if (ppuModel.is2C05) {
+                if (settings.ppuModel.is2C05) {
                     setMaskRegister(value)
                 } else {
                     setControlRegister(value)
                 }
             }
             PpuRegister.MASK -> {
-                if (ppuModel.is2C05) {
+                if (settings.ppuModel.is2C05) {
                     setControlRegister(value)
                 } else {
                     setMaskRegister(value)
@@ -1443,7 +1447,6 @@ open class Ppu(val console: Console) :
                 console.cpu.runDmaTransfer(value)
             }
             else -> {
-
             }
         }
     }
@@ -1465,7 +1468,8 @@ open class Ppu(val console: Console) :
         updateMinimumDrawCycles()
         updateGrayscaleAndIntensifyBits()
 
-        //"Bit 0 controls a greyscale mode, which causes the palette to use only the colors from the grey column: $00, $10, $20, $30. This is implemented as a bitwise AND with $30 on any value read from PPU $3F00-$3FFF"
+        //"Bit 0 controls a greyscale mode, which causes the palette to use only the colors from the grey column: $00, $10, $20, $30.
+        // This is implemented as a bitwise AND with $30 on any value read from PPU $3F00-$3FFF"
         paletteRamMask = if (flags.grayscale) 0x30U else 0x3FU
 
         if (region == Region.NTSC) {

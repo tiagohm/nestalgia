@@ -164,24 +164,25 @@ class Cpu(val console: Console) :
     }
 
     private inline fun add(value: UByte) {
-        val result = (a + value + if (checkFlag(PSFlag.CARRY)) 0x01U else 0x00U).toUShort()
+        val sum = (a + value + if (checkFlag(PSFlag.CARRY)) 0x01U else 0x00U).toUShort()
+        val result = sum.toUByte()
 
         clearFlag(PSFlag.CARRY)
         clearFlag(PSFlag.NEGATIVE)
         clearFlag(PSFlag.OVERFLOW)
         clearFlag(PSFlag.ZERO)
 
-        setZeroNegativeFlags(result.toUByte())
+        setZeroNegativeFlags(result)
 
         // if(~(A() ^ value) & (A() ^ result) & 0x80)
-        if (((a xor value).inv() and (a xor result.toUByte())).bit7) {
+        if (((a xor value).inv() and (a xor result)).bit7) {
             setFlag(PSFlag.OVERFLOW)
         }
-        if (result > 0xFFU) {
+        if (sum > 0xFFU) {
             setFlag(PSFlag.CARRY)
         }
 
-        a = result.toUByte()
+        a = result
     }
 
     private inline fun and() {
@@ -703,7 +704,7 @@ class Cpu(val console: Console) :
     private inline fun sxa() {
         val hi = operand.hiByte
         val lo = operand.loByte
-        val value = x and hi.plusOne()
+        val value = (x.toUInt() and (hi + 1U)).toUByte()
 
         write((((x.toUInt() and (hi + 1U)) shl 8) or lo.toUInt()).toUShort(), value)
     }
@@ -711,7 +712,7 @@ class Cpu(val console: Console) :
     private inline fun sya() {
         val hi = operand.hiByte
         val lo = operand.loByte
-        val value = y and hi.plusOne()
+        val value = (y.toUInt() and (hi + 1U)).toUByte()
 
         // From here: http://forums.nesdev.com/viewtopic.php?f=3&t=3831&start=30
         // Unsure if this is accurate or not
@@ -725,7 +726,7 @@ class Cpu(val console: Console) :
         // target address of the argument + 1. Store result in memory.
         val addr = operand
         sp = x and a
-        write(addr, sp and addr.hiByte.plusOne())
+        write(addr, (sp.toUInt() and (addr.hiByte + 1U)).toUByte())
     }
 
     private inline fun tax() {

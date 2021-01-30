@@ -54,11 +54,11 @@ object INesLoader {
         val chrSize: UInt
 
         if (db != null) {
-            System.err.println(db)
+            System.err.println(String.format("$name: %08X", romCrc32))
             prgSize = db.prgRomSize.toUInt()
             chrSize = db.chrRomSize.toUInt()
         } else {
-            System.err.println("The game $name is not in database")
+            System.err.println(String.format("The game $name (%08X) is not in database", romCrc32))
             prgSize = header.prgSize
             chrSize = header.chrSize
         }
