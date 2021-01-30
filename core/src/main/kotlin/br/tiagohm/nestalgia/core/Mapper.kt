@@ -459,6 +459,7 @@ abstract class Mapper :
         accessType: MemoryAccessType = MemoryAccessType.UNSPECIFIED,
     ) {
         if (!validateAddressRange(start, end) || start > 0xFF00U || end <= start) {
+            System.err.println("Invalid address range")
             return
         }
 
@@ -582,7 +583,10 @@ abstract class Mapper :
             prgPages[i] = source
             prgMemoryAccess[i] =
                 if (accessType != MemoryAccessType.UNSPECIFIED) accessType else MemoryAccessType.READ
-            source = Pointer(source, 0x100)
+
+            if (source != Pointer.NULL) {
+                source = Pointer(source, 0x100)
+            }
         }
     }
 
@@ -608,6 +612,7 @@ abstract class Mapper :
         accessType: MemoryAccessType = MemoryAccessType.UNSPECIFIED,
     ) {
         if (!validateAddressRange(start, end) || start > 0x3F00U || end > 0x3FFFU || end <= start) {
+            System.err.println("Invalid address range")
             return
         }
 
@@ -832,15 +837,9 @@ abstract class Mapper :
 
     open fun selectChrPage(slot: UShort, page: UShort, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
         val pageSize = when (memoryType) {
-            ChrMemoryType.NAMETABLE_RAM -> {
-                NAMETABLE_SIZE.toUInt()
-            }
-            ChrMemoryType.RAM -> {
-                internalChrRamPageSize
-            }
-            else -> {
-                internalChrPageSize
-            }
+            ChrMemoryType.NAMETABLE_RAM -> NAMETABLE_SIZE.toUInt()
+            ChrMemoryType.RAM -> internalChrRamPageSize
+            else -> internalChrPageSize
         }
 
         val start = slot * pageSize

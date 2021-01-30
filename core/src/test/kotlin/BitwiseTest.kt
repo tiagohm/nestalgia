@@ -45,18 +45,6 @@ class BitwiseTest {
     }
 
     @Test
-    fun plusOne() {
-        val a: UByte = 255U
-        assertEquals(0.toUByte(), a.plusOne())
-    }
-
-    @Test
-    fun minusOne() {
-        val a: UByte = 0U
-        assertEquals(255.toUByte(), a.minusOne())
-    }
-
-    @Test
     fun shr() {
         val a: UByte = 0xFFU
         assertEquals(0x7F.toUByte(), a shr 1)

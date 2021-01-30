@@ -41,30 +41,29 @@ inline val UByte.bit7: Boolean
     get() = (this.toUInt() and 0x080U) == 0x80U
 
 @ExperimentalUnsignedTypes
+const val BYTE_ZERO = UByte.MIN_VALUE
+
+@ExperimentalUnsignedTypes
+const val BYTE_ONE: UByte = 1U
+
+@ExperimentalUnsignedTypes
+const val BYTE_FILLED = UByte.MAX_VALUE
+
+@ExperimentalUnsignedTypes
 inline val UByte.isZero: Boolean
-    get() = this == 0.toUByte()
+    get() = this == BYTE_ZERO
 
 @ExperimentalUnsignedTypes
 inline val UByte.isOne: Boolean
-    get() = this == 1.toUByte()
+    get() = this == BYTE_ONE
 
 @ExperimentalUnsignedTypes
 inline val UByte.isNonZero: Boolean
-    get() = !isZero
+    get() = this != BYTE_ZERO
 
 @ExperimentalUnsignedTypes
 inline val UByte.isFilled: Boolean
-    get() = toUInt() and 0xFFU == 0xFFU
-
-@ExperimentalUnsignedTypes
-inline fun UByte.plusOne(): UByte {
-    return (this + 1U).toUByte()
-}
-
-@ExperimentalUnsignedTypes
-inline fun UByte.minusOne(): UByte {
-    return (this - 1U).toUByte()
-}
+    get() = this == BYTE_FILLED
 
 @ExperimentalUnsignedTypes
 inline infix fun UByte.shr(n: Int): UByte {

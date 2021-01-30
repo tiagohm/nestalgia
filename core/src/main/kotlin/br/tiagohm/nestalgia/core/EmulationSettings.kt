@@ -6,7 +6,8 @@ import kotlin.math.min
 @ExperimentalUnsignedTypes
 class EmulationSettings : Snapshotable {
 
-    private var flags = 0UL
+    @PublishedApi
+    internal var flags = 0UL
 
     // Zapper
     @JvmField
@@ -189,7 +190,7 @@ class EmulationSettings : Snapshotable {
         }
     }
 
-    fun checkFlag(flag: EmulationFlag) = (this.flags and flag.code) == flag.code
+    inline fun checkFlag(flag: EmulationFlag) = (this.flags and flag.code) == flag.code
 
     fun getEmulationSpeed(ignoreTurbo: Boolean = true): Int {
         return when {

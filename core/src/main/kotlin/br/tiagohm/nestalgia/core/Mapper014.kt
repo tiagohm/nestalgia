@@ -11,15 +11,6 @@ class Mapper014 : MMC3() {
     private var vrcMirroring: UByte = 0U
     private var mode: UByte = 0U
 
-    override fun reset(softReset: Boolean) {
-        super.reset(softReset)
-
-        mode = 0U
-        vrcMirroring = 0U
-        vrcChrRegs.fill(0U)
-        vrcPrgRegs.fill(0U)
-    }
-
     override fun updateChrMapping() {
         val slotSwap = if (state8000.bit7) 4U else 0U
         val outerBank0: UShort = if (mode.bit3) 0x100U else 0U

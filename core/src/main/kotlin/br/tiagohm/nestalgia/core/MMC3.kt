@@ -55,7 +55,7 @@ open class MMC3 : Mapper() {
     override val saveRamSize: UInt
         get() = if (info.subMapperId == 1) 0x400U else 0x2000U
 
-    override fun reset(softReset: Boolean) {
+    protected fun resetMMC3() {
         resetState()
 
         chrMode = getPowerOnByte() and 0x01U
@@ -72,11 +72,9 @@ open class MMC3 : Mapper() {
 
         wramEnabled = getPowerOnByte().bit0
         wramWriteProtected = getPowerOnByte().bit0
-
-        a12Watcher.reset(softReset)
     }
 
-    private inline fun resetState() {
+    private fun resetState() {
         for (i in state.indices) state[i] = getPowerOnByte()
     }
 
@@ -195,7 +193,7 @@ open class MMC3 : Mapper() {
     override fun init() {
         privateForceMmc3RevAIrqs = info.gameInfo?.chip == "MMC3A"
 
-        reset(true)
+        resetMMC3()
 
         setCpuMemoryMapping(
             0x6000U,
@@ -222,7 +220,6 @@ open class MMC3 : Mapper() {
                     registers[currentRegister.toInt()] = value
                 }
 
-                registers[currentRegister.toInt()] = value
                 updateState()
             }
             0xA000 -> {
@@ -294,7 +291,7 @@ open class MMC3 : Mapper() {
         super.restoreState(s)
 
         s.readUByteArray("registers")?.copyInto(registers) ?: resetRegisters()
-        s.readSnapshot("a12Watcher")?.let { a12Watcher.restoreState(it) } ?: a12Watcher.reset(true)
+        s.readSnapshot("a12Watcher")?.let { a12Watcher.restoreState(it) } ?: a12Watcher.reset(false)
         s.readUByteArray("state")?.copyInto(state) ?: resetState()
         currentRegister = s.readUByte("currentRegister") ?: 0U
         chrMode = s.readUByte("chrMode") ?: 0U
