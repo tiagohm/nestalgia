@@ -134,6 +134,7 @@ open class ControlManager(
         return when (type) {
             ExpansionPortDevice.ZAPPER -> Zapper(console, ControlDevice.EXP_DEVICE_PORT)
             ExpansionPortDevice.ASCII_TURBO_FILE -> AsciiTurboFile(console)
+            ExpansionPortDevice.BATTLE_BOX -> BattleBox(console)
             else -> null
         }
     }
