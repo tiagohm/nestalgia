@@ -998,6 +998,7 @@ abstract class Mapper :
                 14 -> Mapper014()
                 36 -> Txc22000()
                 37 -> Mapper037()
+                44 -> Mapper044()
                 47 -> Mapper047()
                 91 -> Mapper091()
                 114 -> Mapper114()
