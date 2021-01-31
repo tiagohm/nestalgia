@@ -8,3 +8,4 @@
 |2-in-1 (Super 300-in-1) (Pocket Monster)|45|YES|YES|?|NO|
 |Mario Party (Mario 3 option)|45|YES|NO|YES|NO|
 |Mario 7-in-1|52|YES|YES|?|NO|
+|God Slayer - Haruka Tenkuu no Sonata (China)|195|YES|NO|YES|NO|
