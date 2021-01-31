@@ -1010,6 +1010,7 @@ abstract class Mapper :
                 121 -> Mapper121()
                 123 -> Mapper123()
                 132 -> Txc22211a()
+                134 -> Mapper134()
                 172 -> Txc22211b()
                 173 -> Txc22211c()
                 185 -> CNROM(true)
