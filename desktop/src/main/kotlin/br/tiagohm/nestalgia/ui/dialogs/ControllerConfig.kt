@@ -309,6 +309,7 @@ class ControllerConfig(
             ExpansionPortDevice.ZAPPER,
             ExpansionPortDevice.FOUR_PLAYER_ADAPTER,
             ExpansionPortDevice.ASCII_TURBO_FILE,
+            ExpansionPortDevice.BATTLE_BOX,
         )
 
         fun show(emulator: Emulator, onSave: () -> Unit) {
