@@ -1004,6 +1004,7 @@ abstract class Mapper :
                 49 -> Mapper049()
                 52 -> Mapper052()
                 91 -> Mapper091()
+                108 -> Bb()
                 114 -> Mapper114()
                 115 -> Mapper115()
                 132 -> Txc22211a()
