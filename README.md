@@ -18,7 +18,7 @@ It implements only the emulator (no debugging tools).
 * Configurable Region and Speed
 * Fullscreen and Screenshot support
 * Audio, Video, Controller and Emulation config support
-* Zapper and AsciiTurboFile is supported
+* Zapper, Ascii Turbo File and Battle Box is supported
 * Gamepad Support
 
 <p align="center">
