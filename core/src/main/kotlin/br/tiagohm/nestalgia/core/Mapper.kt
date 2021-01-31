@@ -1008,6 +1008,7 @@ abstract class Mapper :
                 115 -> Mapper115()
                 118 -> TxSRom()
                 121 -> Mapper121()
+                123 -> Mapper123()
                 132 -> Txc22211a()
                 172 -> Txc22211b()
                 173 -> Txc22211c()
