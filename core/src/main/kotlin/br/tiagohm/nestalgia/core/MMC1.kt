@@ -14,6 +14,30 @@ open class MMC1 : Mapper() {
 
     protected val state = UByteArray(4)
 
+    protected inline var state8000: UByte
+        get() = state[0]
+        set(value) {
+            state[0] = value
+        }
+
+    protected inline var stateA000: UByte
+        get() = state[1]
+        set(value) {
+            state[1] = value
+        }
+
+    protected inline var stateC000: UByte
+        get() = state[2]
+        set(value) {
+            state[2] = value
+        }
+
+    protected inline var stateE000: UByte
+        get() = state[3]
+        set(value) {
+            state[3] = value
+        }
+
     override val prgPageSize = 0x4000U
 
     override val chrPageSize = 0x1000U
@@ -23,11 +47,11 @@ open class MMC1 : Mapper() {
 
         // On powerup: bits 2,3 of $8000 are set (this ensures the $8000 is bank 0,
         // and $C000 is the last bank - needed for SEROM/SHROM/SH1ROM which do no support banking)
-        state[0] = getPowerOnByte() or 0x0CU
-        state[1] = getPowerOnByte()
-        state[2] = getPowerOnByte()
+        state8000 = getPowerOnByte() or 0x0CU
+        stateA000 = getPowerOnByte()
+        stateC000 = getPowerOnByte()
         // WRAM Disable: enabled by default for MMC1B
-        state[3] = if (info.gameInfo?.board?.contains("MMC1B") == true) 0x10U else 0x00U
+        stateE000 = if (info.gameInfo?.board?.contains("MMC1B") == true) 0x10U else 0x00U
         // MMC1A: PRG RAM is always enabled - Normally these roms should be classified as mapper 155
         forceWramOn = info.gameInfo?.board == "MMC1A"
         lastChrReg = 1 // 0xA000
@@ -51,7 +75,7 @@ open class MMC1 : Mapper() {
             //	- bits 2,3 of reg $8000 are set (16k PRG mode, $8000 swappable)
             //	- other bits of $8000 (and other regs) are unchanged
             resetBuffer()
-            state[0] = state[0] or 0x0CU
+            state8000 = state8000 or 0x0CU
             updateState()
             return false
         } else {
@@ -65,22 +89,22 @@ open class MMC1 : Mapper() {
     }
 
     protected open fun updateState() {
-        when (state[0].toInt() and 0x03) {
-            0 -> mirroringType = MirroringType.SCREEN_A_ONLY
-            1 -> mirroringType = MirroringType.SCREEN_B_ONLY
-            2 -> mirroringType = MirroringType.VERTICAL
-            3 -> mirroringType = MirroringType.HORIZONTAL
+        mirroringType = when (state8000.toInt() and 0x03) {
+            0 -> MirroringType.SCREEN_A_ONLY
+            1 -> MirroringType.SCREEN_B_ONLY
+            2 -> MirroringType.VERTICAL
+            else -> MirroringType.HORIZONTAL
         }
 
-        val wramDisable = state[3].bit4
+        val wramDisable = stateE000.bit4
 
-        val is8000 = state[0].bit2 // Slot address: 0x8000 or 0xC000
-        val isPrg16k = state[0].bit3
-        val isChr4k = state[0].bit4
+        val is8000 = state8000.bit2 // Slot address: 0x8000 or 0xC000
+        val isPrg16k = state8000.bit3
+        val isChr4k = state8000.bit4
 
-        val chrReg0 = state[1] and 0x1FU
-        val chrReg1 = state[2] and 0x1FU
-        val prgReg = state[3] and 0x0FU
+        val chrReg0 = stateA000 and 0x1FU
+        val chrReg1 = stateC000 and 0x1FU
+        val prgReg = stateE000 and 0x0FU
 
         val extraReg = if (lastChrReg == 2 && isChr4k) chrReg1 else chrReg0
         // 512kb carts use bit 7 of $A000/$C000 to select page

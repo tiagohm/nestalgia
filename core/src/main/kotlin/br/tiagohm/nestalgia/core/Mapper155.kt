@@ -7,7 +7,7 @@ class Mapper155 : MMC1() {
 
     override fun updateState() {
         // WRAM disable bit does not exist in mapper 155
-        state[3] = state[3] and 0x0FU
+        stateE000 = stateE000 and 0x0FU
 
         super.updateState()
     }
