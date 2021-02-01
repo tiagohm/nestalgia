@@ -10,3 +10,7 @@
 |Mario 7-in-1|52|YES|YES|?|NO|
 |Falsion|108|YES|NO|YES|NO|
 |God Slayer - Haruka Tenkuu no Sonata (China)|195|YES|NO|YES|NO|
+|Dragon Ball Z II - Gekishin Freeza!! (China) ¹|199|X|NO|YES|NO|
+
+* X - Crash
+* ¹ - Minor sprite glitch

@@ -90,13 +90,13 @@ abstract class Mapper :
     private inline val internalChrRamPageSize: UInt
         get() = min(chrRamPageSize, privateChrRamSize)
 
-    private inline val prgPageCount: UInt
+    protected val prgPageCount: UInt
         get() {
             val pageSize = internalPrgPageSize
             return if (pageSize > 0U) privatePrgSize / pageSize else 0U
         }
 
-    private inline val chrPageCount: UInt
+    protected val chrPageCount: UInt
         get() {
             val pageSize = internalChrPageSize
             return if (pageSize > 0U) privateChrRomSize / pageSize else 0U
@@ -1024,6 +1024,10 @@ abstract class Mapper :
                 192 -> Mapper192()
                 194 -> Mapper194()
                 195 -> Mapper195()
+                196 -> Mapper196()
+                197 -> Mapper197()
+                198 -> Mapper198()
+                199 -> Mapper199()
                 200 -> Mapper200()
                 FDS_MAPPER_ID -> Fds()
                 else -> {

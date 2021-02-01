@@ -5,7 +5,7 @@ package br.tiagohm.nestalgia.core
 @ExperimentalUnsignedTypes
 class Mapper114 : MMC3() {
 
-    private val exRegs = UByteArray(2)
+    private val exReg = UByteArray(2)
 
     override val registerStartAddress: UShort = 0x5000U
 
@@ -14,15 +14,15 @@ class Mapper114 : MMC3() {
     override fun reset(softReset: Boolean) {
         super.reset(softReset)
 
-        exRegs[0] = 0U
-        exRegs[1] = 0U
+        exReg[0] = 0U
+        exReg[1] = 0U
     }
 
     override fun updatePrgMapping() {
         super.updatePrgMapping()
 
-        if (exRegs[0].bit7) {
-            val page = ((exRegs[0] and 0x0FU).toUInt() shl 1).toUShort()
+        if (exReg[0].bit7) {
+            val page = ((exReg[0] and 0x0FU).toUInt() shl 1).toUShort()
             selectPrgPage2x(0U, page)
             selectPrgPage2x(1U, page)
         } else {
@@ -32,19 +32,19 @@ class Mapper114 : MMC3() {
 
     override fun writeRegister(addr: UShort, value: UByte) {
         if (addr < 0x8000U) {
-            exRegs[0] = value
+            exReg[0] = value
             updatePrgMapping()
         } else {
             when (addr.toInt() and 0xE001) {
                 0x8001 -> super.writeRegister(0xA000U, value)
                 0xA000 -> {
                     super.writeRegister(0x8000U, (value and 0xC0U) or SECURITY[value.toInt() and 0x07])
-                    exRegs[1] = 1U
+                    exReg[1] = 1U
                 }
                 0xA001 -> irqReloadValue = value
                 0xC000 -> {
-                    if (exRegs[1].isNonZero) {
-                        exRegs[1] = 0U
+                    if (exReg[1].isNonZero) {
+                        exReg[1] = 0U
                         super.writeRegister(0x8001U, value)
                     }
                 }
@@ -63,19 +63,16 @@ class Mapper114 : MMC3() {
     override fun saveState(s: Snapshot) {
         super.saveState(s)
 
-        s.write("exRegs0", exRegs[0])
-        s.write("exRegs1", exRegs[1])
+        s.write("exReg", exReg)
     }
 
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        exRegs[0] = s.readUByte("exRegs0") ?: 0U
-        exRegs[1] = s.readUByte("exRegs1") ?: 0U
+        s.readUByteArray("exReg")?.copyInto(exReg) ?: exReg.fill(0U)
     }
 
     companion object {
-
         private val SECURITY = ubyteArrayOf(0U, 3U, 1U, 5U, 6U, 7U, 2U, 4U)
     }
 }
