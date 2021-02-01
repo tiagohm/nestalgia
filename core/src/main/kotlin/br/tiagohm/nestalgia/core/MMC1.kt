@@ -64,7 +64,7 @@ open class MMC1 : Mapper() {
         }
     }
 
-    protected fun updateState() {
+    protected open fun updateState() {
         when (state[0].toInt() and 0x03) {
             0 -> mirroringType = MirroringType.SCREEN_A_ONLY
             1 -> mirroringType = MirroringType.SCREEN_B_ONLY
