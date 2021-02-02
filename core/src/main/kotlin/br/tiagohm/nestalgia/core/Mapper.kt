@@ -1019,6 +1019,7 @@ abstract class Mapper :
                 172 -> Txc22211b()
                 173 -> Txc22211c()
                 177 -> Henggedianzi177()
+                178 -> Waixing178()
                 179 -> Henggedianzi179()
                 185 -> CNROM(true)
                 190 -> MagicKidGooGoo()
