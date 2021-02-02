@@ -15,4 +15,4 @@
 * X - Crash
 * ¹ - Minor sprite glitch
 
-> Some bugs seem to be related to incorrect region!
+> Some bugs seem to be related to incorrect region or mirroring from NesDB!

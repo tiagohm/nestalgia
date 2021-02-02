@@ -1032,6 +1032,7 @@ abstract class Mapper :
                 198 -> Mapper198()
                 199 -> Mapper199()
                 200 -> Mapper200()
+                252 -> Waixing252()
                 FDS_MAPPER_ID -> Fds()
                 else -> {
                     System.err.println("${data.info.name} has unsupported mapper $id")
