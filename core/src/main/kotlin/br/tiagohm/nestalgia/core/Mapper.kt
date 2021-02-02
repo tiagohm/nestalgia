@@ -1015,6 +1015,7 @@ abstract class Mapper :
                 132 -> Txc22211a()
                 134 -> Mapper134()
                 162 -> Waixing162()
+                164 -> Waixing164()
                 172 -> Txc22211b()
                 173 -> Txc22211c()
                 177 -> Henggedianzi177()
