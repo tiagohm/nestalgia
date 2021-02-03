@@ -59,7 +59,7 @@ class Txc22211b : Mapper() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        s.readSnapshot("txChip")?.let { txChip.restoreState(it) }
+        s.readSnapshot("txChip")?.let { txChip.restoreState(it) } ?: txChip.reset(false)
     }
 
     companion object {

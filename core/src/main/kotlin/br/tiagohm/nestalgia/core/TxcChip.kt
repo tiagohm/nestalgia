@@ -4,6 +4,7 @@ package br.tiagohm.nestalgia.core
 @ExperimentalUnsignedTypes
 class TxcChip(val isJv001: Boolean) :
     Memory,
+    Resetable,
     Snapshotable {
 
     private var accumulator: UByte = 0U
@@ -22,6 +23,16 @@ class TxcChip(val isJv001: Boolean) :
 
     var output: UByte = 0U
         private set
+
+    override fun reset(softReset: Boolean) {
+        accumulator = 0U
+        inverter = 0U
+        staging = 0U
+        increase = false
+        invert = isJv001
+        output = 0U
+        y = false
+    }
 
     private inline fun updateYFlag(value: UByte) {
         y = !invert || value.bit4

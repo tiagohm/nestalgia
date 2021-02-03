@@ -1,10 +1,12 @@
 package br.tiagohm.nestalgia.core
 
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_132
+// https://wiki.nesdev.com/w/index.php/INES_Mapper_136
 
 @Suppress("NOTHING_TO_INLINE")
 @ExperimentalUnsignedTypes
-open class Txc22211a : Mapper() {
+class Sachen136 : Mapper() {
+
+    private val txChip = TxcChip(true)
 
     override val prgPageSize = 0x8000U
 
@@ -16,8 +18,6 @@ open class Txc22211a : Mapper() {
 
     override val allowRegisterRead = true
 
-    protected val txChip = TxcChip(false)
-
     override fun init() {
         addRegisterRange(0x4020U, 0x5FFFU, MemoryOperation.ANY)
         removeRegisterRange(0x8000U, 0xFFFFU, MemoryOperation.READ)
@@ -26,16 +26,15 @@ open class Txc22211a : Mapper() {
         selectChrPage(0U, 0U)
     }
 
-    protected open fun updateState() {
-        selectPrgPage(0U, if (txChip.output.bit2) 0x01U else 0x00U)
-        selectChrPage(0U, (txChip.output and 0x03U).toUShort())
+    private inline fun updateState() {
+        selectChrPage(0U, txChip.output.toUShort())
     }
 
     override fun readRegister(addr: UShort): UByte {
         val openBus = console.memoryManager.getOpenBus()
 
         val value = if (addr.toInt() and 0x103 == 0x100) {
-            (openBus and 0xF0U) or (txChip.read(addr) and 0x0FU)
+            (openBus and 0xC0U) or (txChip.read(addr) and 0x3FU)
         } else {
             openBus
         }
@@ -46,7 +45,7 @@ open class Txc22211a : Mapper() {
     }
 
     override fun writeRegister(addr: UShort, value: UByte) {
-        txChip.write(addr, value and 0x0FU)
+        txChip.write(addr, value and 0x3FU)
         updateState()
     }
 
