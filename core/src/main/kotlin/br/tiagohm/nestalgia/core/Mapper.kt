@@ -1046,6 +1046,7 @@ abstract class Mapper :
                 198 -> Mapper198()
                 199 -> Mapper199()
                 200 -> Mapper200()
+                244 -> Mapper244()
                 246 -> Mapper246()
                 252 -> Waixing252()
                 FDS_MAPPER_ID -> Fds()
