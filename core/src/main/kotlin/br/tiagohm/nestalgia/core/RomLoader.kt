@@ -23,7 +23,7 @@ object RomLoader {
             rom.startsWith("NES\u001A") -> INesLoader.load(rom, name)
             rom.startsWith("FDS\u001A") ||
                     rom.startsWith("\u0001*NINTENDO-HVC*") -> FdsLoader.load(rom, name, fdsBios)
-            else -> HeaderlessLoader.load(rom, name, fdsBios)
+            else -> HeaderlessLoader.load(rom, name)
         }
 
         val system = if (data.info.system == GameSystem.UNKNOWN) {
