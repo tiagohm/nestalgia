@@ -98,9 +98,7 @@ class Fds : Mapper() {
         setCpuMemoryMapping(0x6000U, 0xDFFFU, 0, PrgMemoryType.WRAM, MemoryAccessType.READ_WRITE)
         // 8K of CHR RAM
         selectChrPage(0U, 0U)
-    }
 
-    override fun init(data: RomData) {
         audio = FdsAudio(console)
 
         rawData = data.bytes.toUByteArray()

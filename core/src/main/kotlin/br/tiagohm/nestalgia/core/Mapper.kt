@@ -154,9 +154,6 @@ abstract class Mapper :
     override fun dispose() {
     }
 
-    open fun init(data: RomData) {
-    }
-
     override fun reset(softReset: Boolean) {
     }
 
@@ -352,7 +349,6 @@ abstract class Mapper :
         this.data = data.copy(info = info)
 
         init()
-        init(data)
 
         loadBattery()
     }
