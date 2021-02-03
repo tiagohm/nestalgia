@@ -1019,6 +1019,7 @@ abstract class Mapper :
                 143 -> Sachen143()
                 145 -> Sachen145()
                 148 -> Sachen148()
+                149 -> Sachen149()
                 162 -> Waixing162()
                 164 -> Waixing164()
                 172 -> Txc22211b()
