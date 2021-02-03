@@ -20,6 +20,6 @@ class Henggedianzi177 : Mapper() {
 
     override fun writeRegister(addr: UShort, value: UByte) {
         selectPrgPage(0U, value.toUShort())
-        mirroringType = if(value.bit5) MirroringType.HORIZONTAL else MirroringType.VERTICAL
+        mirroringType = if (value.bit5) MirroringType.HORIZONTAL else MirroringType.VERTICAL
     }
 }
