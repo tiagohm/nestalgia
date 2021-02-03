@@ -11,6 +11,10 @@
 |Falsion|108|YES|NO|YES|NO|
 |God Slayer - Haruka Tenkuu no Sonata (China)|195|YES|NO|YES|NO|
 |Dragon Ball Z II - Gekishin Freeza!! (China) ¹|199|X|NO|YES|NO|
+|Bio Senshi Dan - Increaser Tono Tatakai (Japan)|34|YES|NO|YES|NO|
+|Dragon Ball - Shen Long no Nazo (Japan)|34|YES|NO|YES|NO|
+|Mississippi Satsujin Jiken (Japan)|34|YES|NO|YES|NO|
+|Takahashi Meijin no Bugutte Honey (Japan)|34|YES|NO|YES|NO|
 
 * X - Crash
 * ¹ - Minor sprite glitch

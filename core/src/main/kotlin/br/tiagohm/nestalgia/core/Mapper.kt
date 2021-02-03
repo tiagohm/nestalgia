@@ -334,7 +334,6 @@ abstract class Mapper :
 
         if (info.hasTreiner) {
             if (privateWorkRamSize >= 0x2000U) {
-                System.arraycopy(data.treinerData, 0, workRam, 0x1000, 512)
                 data.treinerData.copyInto(workRam, 0x1000, 0, 512)
             } else if (privateSaveRamSize >= 0x2000U) {
                 data.treinerData.copyInto(saveRam, 0x1000, 0, 512)
@@ -996,6 +995,15 @@ abstract class Mapper :
                 4 -> if (data.info.subMapperId == 3) McAcc() else MMC3()
                 12 -> Mapper012()
                 14 -> Mapper014()
+                34 -> {
+                    when (val sid = data.info.subMapperId) {
+                        // BnROM uses CHR RAM (so no CHR rom in the NES file)
+                        0 -> if (data.chrRom.isEmpty()) BnRom() else Nina01()
+                        1 -> Nina01()
+                        2 -> BnRom()
+                        else -> throw IOException("Unsupported mapper $id with submapper $sid")
+                    }
+                }
                 36 -> Txc22000()
                 37 -> Mapper037()
                 44 -> Mapper044()
