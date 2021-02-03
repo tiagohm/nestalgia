@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+// https://wiki.nesdev.com/w/index.php/INES_Mapper_136
+
 @Suppress("NOTHING_TO_INLINE")
 @ExperimentalUnsignedTypes
 class Sachen136 : Mapper() {
