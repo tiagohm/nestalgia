@@ -1013,6 +1013,7 @@ abstract class Mapper :
                 121 -> Mapper121()
                 123 -> Mapper123()
                 132 -> Txc22211a()
+                133 -> Sachen133()
                 134 -> Mapper134()
                 136 -> Sachen136()
                 143 -> Sachen143()
