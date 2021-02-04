@@ -212,7 +212,7 @@ abstract class Mapper :
             }
         }
 
-    private inline fun setNametables(a: Int, b: Int, c: Int, d: Int) {
+    protected inline fun setNametables(a: Int, b: Int, c: Int, d: Int) {
         setNametable(0U, a)
         setNametable(1U, b)
         setNametable(2U, c)
@@ -1018,6 +1018,7 @@ abstract class Mapper :
                 79 -> Nina0306(false)
                 88 -> Mapper088()
                 91 -> Mapper091()
+                95 -> Mapper095()
                 108 -> Bb()
                 113 -> Nina0306(true)
                 114 -> Mapper114()
