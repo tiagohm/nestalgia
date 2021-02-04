@@ -385,7 +385,7 @@ abstract class Mapper :
     protected fun internalRead(addr: UShort): UByte {
         val hi = addr.hiByte.toInt()
         val page = prgPages[hi]
-        return if(page != Pointer.NULL) page[addr.loByte.toInt()] else 0U
+        return if (page != Pointer.NULL) page[addr.loByte.toInt()] else 0U
     }
 
     inline fun readVRAM(addr: UShort) = mapperReadVRAM(addr)
