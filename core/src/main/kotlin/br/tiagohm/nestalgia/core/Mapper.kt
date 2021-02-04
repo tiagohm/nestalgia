@@ -1014,6 +1014,7 @@ abstract class Mapper :
                 49 -> Mapper049()
                 52 -> Mapper052()
                 74 -> Mapper074()
+                76 -> Mapper076()
                 79 -> Nina0306(false)
                 91 -> Mapper091()
                 108 -> Bb()
