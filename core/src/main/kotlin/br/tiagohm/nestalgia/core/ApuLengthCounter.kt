@@ -5,7 +5,7 @@ package br.tiagohm.nestalgia.core
 abstract class ApuLengthCounter(
     channel: AudioChannel,
     console: Console,
-    mixer: SoundMixer,
+    mixer: SoundMixer?,
 ) : ApuChannel(channel, console, mixer) {
 
     protected var newHaltValue = false

@@ -213,17 +213,17 @@ abstract class Mapper :
         }
 
     private inline fun setNametables(a: Int, b: Int, c: Int, d: Int) {
-        setNametable(0U, a)
-        setNametable(1U, b)
-        setNametable(2U, c)
-        setNametable(3U, d)
+        setNametable(0, a)
+        setNametable(1, b)
+        setNametable(2, c)
+        setNametable(3, d)
     }
 
-    fun setNametable(index: UByte, nametableIndex: Int) {
+    fun setNametable(index: Int, nametableIndex: Int) {
         if (nametableIndex in 0 until NAMETABLE_COUNT) {
             setPpuMemoryMapping(
-                (0x2000U + index * 0x400U).toUShort(),
-                (0x2000U + (index + 1U) * 0x400U - 1U).toUShort(),
+                (0x2000 + index * 0x400).toUShort(),
+                (0x2000 + (index + 1) * 0x400 - 1).toUShort(),
                 nametableIndex.toUShort(),
                 ChrMemoryType.NAMETABLE_RAM
             )
@@ -231,8 +231,8 @@ abstract class Mapper :
             // Previously, $3000-$3FFF was being "redirected" to $2000-$2FFF to avoid MMC3 IRQ issues (which is incorrect)
             // More info here: https://forums.nesdev.com/viewtopic.php?p=132145#p132145
             setPpuMemoryMapping(
-                (0x3000U + index * 0x400U).toUShort(),
-                (0x3000U + (index + 1U) * 0x400U - 1U).toUShort(),
+                (0x3000 + index * 0x400).toUShort(),
+                (0x3000 + (index + 1) * 0x400 - 1).toUShort(),
                 nametableIndex.toUShort(),
                 ChrMemoryType.NAMETABLE_RAM
             )
@@ -891,6 +891,9 @@ abstract class Mapper :
             val mask = (1 shl dipSwitchCount) - 1
             return console.settings.dipSwitches and mask
         }
+
+    inline val isNes20: Boolean
+        get() = info.isNes20Header
 
     override fun saveState(s: Snapshot) {
         privateMirroringType?.let { s.write("mirroringType", it) }

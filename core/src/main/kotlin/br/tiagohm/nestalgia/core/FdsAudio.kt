@@ -22,11 +22,11 @@ class FdsAudio(console: Console) :
     private var masterVolume: UByte = 0U
 
     // Internal values
-    private var waveOverflowCounter: UShort = 0U
+    private var waveOverflowCounter = 0
     private var wavePitch = 0
     private var wavePosition: UByte = 0U
 
-    private var lastOutput: UByte = 0U
+    private var lastOutput = 0
 
     override fun clockAudio() {
         val frequency = volume.frequency
@@ -51,9 +51,9 @@ class FdsAudio(console: Console) :
             updateOutput()
 
             if ((frequency.toInt() + mod.output) > 0 && !waveWriteEnabled) {
-                waveOverflowCounter = (waveOverflowCounter.toInt() + frequency.toInt() + mod.output).toUShort()
+                waveOverflowCounter += frequency.toInt() + mod.output
 
-                if (waveOverflowCounter < (frequency.toInt() + mod.output).toUShort()) {
+                if (waveOverflowCounter < frequency.toInt() + mod.output) {
                     wavePosition = ((wavePosition + 1U) and 0x3FU).toUByte()
                 }
             }
@@ -62,10 +62,10 @@ class FdsAudio(console: Console) :
 
     private inline fun updateOutput() {
         val level = min(volume.gain.toUInt(), 32U) * WAVE_VOLUME_TABLE[masterVolume.toInt()]
-        val outputLevel = ((waveTable[wavePosition.toInt()] * level) / 1152U).toUByte()
+        val outputLevel = ((waveTable[wavePosition.toInt()] * level) / 1152U).toInt() and 0xFF
 
         if (lastOutput != outputLevel) {
-            console.apu.addExpansionAudioDelta(AudioChannel.FDS, (outputLevel - lastOutput).toShort())
+            console.apu.addExpansionAudioDelta(AudioChannel.FDS, outputLevel - lastOutput)
             lastOutput = outputLevel
         }
     }
@@ -149,10 +149,10 @@ class FdsAudio(console: Console) :
         disableEnvelopes = s.readBoolean("disableEnvelopes") ?: false
         haltWaveform = s.readBoolean("haltWaveform") ?: false
         masterVolume = s.readUByte("masterVolume") ?: 0U
-        waveOverflowCounter = s.readUShort("waveOverflowCounter") ?: 0U
+        waveOverflowCounter = s.readInt("waveOverflowCounter") ?: 0
         wavePitch = s.readInt("wavePitch") ?: 0
         wavePosition = s.readUByte("wavePosition") ?: 0U
-        lastOutput = s.readUByte("lastOutput") ?: 0U
+        lastOutput = s.readInt("lastOutput") ?: 0
         s.readUByteArray("waveTable")?.copyInto(waveTable) ?: waveTable.fill(0U)
     }
 
