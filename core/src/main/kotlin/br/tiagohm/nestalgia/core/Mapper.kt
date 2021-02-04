@@ -212,7 +212,7 @@ abstract class Mapper :
             }
         }
 
-    private inline fun setNametables(a: Int, b: Int, c: Int, d: Int) {
+    protected inline fun setNametables(a: Int, b: Int, c: Int, d: Int) {
         setNametable(0U, a)
         setNametable(1U, b)
         setNametable(2U, c)
@@ -1014,8 +1014,11 @@ abstract class Mapper :
                 49 -> Mapper049()
                 52 -> Mapper052()
                 74 -> Mapper074()
+                76 -> Mapper076()
                 79 -> Nina0306(false)
+                88 -> Mapper088()
                 91 -> Mapper091()
+                95 -> Mapper095()
                 108 -> Bb()
                 113 -> Nina0306(true)
                 114 -> Mapper114()
@@ -1034,6 +1037,7 @@ abstract class Mapper :
                 147 -> Sachen147()
                 148 -> Sachen148()
                 149 -> Sachen149()
+                154 -> Mapper154()
                 162 -> Waixing162()
                 164 -> Waixing164()
                 172 -> Txc22211b()
@@ -1052,6 +1056,7 @@ abstract class Mapper :
                 198 -> Mapper198()
                 199 -> Mapper199()
                 200 -> Mapper200()
+                206 -> Namco108()
                 213 -> Mapper213()
                 214 -> Mapper214()
                 240 -> Mapper240()
