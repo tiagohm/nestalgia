@@ -1052,6 +1052,7 @@ abstract class Mapper :
                 198 -> Mapper198()
                 199 -> Mapper199()
                 200 -> Mapper200()
+                206 -> Namco108()
                 213 -> Mapper213()
                 214 -> Mapper214()
                 240 -> Mapper240()
