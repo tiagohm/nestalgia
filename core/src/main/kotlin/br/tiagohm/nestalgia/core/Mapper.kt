@@ -996,6 +996,7 @@ abstract class Mapper :
                 3 -> CNROM(false)
                 4 -> if (data.info.subMapperId == 3) McAcc() else MMC3()
                 7 -> AXROM()
+                11 -> ColorDreams()
                 12 -> Mapper012()
                 14 -> Mapper014()
                 34 -> {
@@ -1011,6 +1012,7 @@ abstract class Mapper :
                 37 -> Mapper037()
                 44 -> Mapper044()
                 45 -> Mapper045()
+                46 -> ColorDreams46()
                 47 -> Mapper047()
                 49 -> Mapper049()
                 52 -> Mapper052()
@@ -1033,6 +1035,7 @@ abstract class Mapper :
                 134 -> Mapper134()
                 136 -> Sachen136()
                 143 -> Sachen143()
+                144 -> Mapper144()
                 145 -> Sachen145()
                 146 -> Nina0306(false)
                 147 -> Sachen147()
