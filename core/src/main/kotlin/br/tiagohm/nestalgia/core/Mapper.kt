@@ -996,6 +996,7 @@ abstract class Mapper :
                 3 -> CNROM(false)
                 4 -> if (data.info.subMapperId == 3) McAcc() else MMC3()
                 7 -> AXROM()
+                11 -> ColorDreams()
                 12 -> Mapper012()
                 14 -> Mapper014()
                 34 -> {
