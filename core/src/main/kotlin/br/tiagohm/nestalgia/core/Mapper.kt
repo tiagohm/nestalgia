@@ -1012,6 +1012,7 @@ abstract class Mapper :
                 37 -> Mapper037()
                 44 -> Mapper044()
                 45 -> Mapper045()
+                46 -> ColorDreams46()
                 47 -> Mapper047()
                 49 -> Mapper049()
                 52 -> Mapper052()
