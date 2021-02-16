@@ -1034,6 +1034,7 @@ abstract class Mapper :
                 134 -> Mapper134()
                 136 -> Sachen136()
                 143 -> Sachen143()
+                144 -> Mapper144()
                 145 -> Sachen145()
                 146 -> Nina0306(false)
                 147 -> Sachen147()
