@@ -17,8 +17,6 @@ class Bmc235 : Mapper() {
     }
 
     override fun reset(softReset: Boolean) {
-        super.reset(softReset)
-
         selectPrgPage2x(0U, 0U)
         openBus = false
     }
