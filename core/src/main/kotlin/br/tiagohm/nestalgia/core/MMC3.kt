@@ -259,7 +259,7 @@ open class MMC3 : Mapper() {
 
             if (forceMmc3RevAIrqs || console.settings.checkFlag(EmulationFlag.MMC3_IRQ_ALT_BEHAVIOR)) {
                 // MMC3 Revision A behavior
-                if ((count > 0U || irqReload) && irqCounter.isZero && irqEnabled) {
+                if (((count > 0U && irqReloadValue > 0U) || irqReload) && irqCounter.isZero && irqEnabled) {
                     triggerIrq()
                 }
             } else if (irqCounter.isZero && irqEnabled) {
