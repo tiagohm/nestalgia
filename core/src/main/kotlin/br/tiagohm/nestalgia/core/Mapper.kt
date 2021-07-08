@@ -1016,6 +1016,7 @@ abstract class Mapper :
                 47 -> Mapper047()
                 49 -> Mapper049()
                 52 -> Mapper052()
+                63 -> Bmc63()
                 74 -> Mapper074()
                 76 -> Mapper076()
                 79 -> Nina0306(false)
@@ -1063,6 +1064,7 @@ abstract class Mapper :
                 206 -> Namco108()
                 213 -> Mapper213()
                 214 -> Mapper214()
+                235 -> Bmc235()
                 240 -> Mapper240()
                 241 -> Mapper241()
                 242 -> Mapper242()
@@ -1071,6 +1073,7 @@ abstract class Mapper :
                 252 -> Waixing252()
                 250 -> Mapper250()
                 254 -> Mapper254()
+                255 -> Bmc255()
                 FDS_MAPPER_ID -> Fds()
                 else -> {
                     System.err.println("${data.info.name} has unsupported mapper $id")
