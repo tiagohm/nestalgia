@@ -5,9 +5,11 @@ Relevant commits from Mesen's forks:
 * [Fixed noise and volume for VRC7](https://github.com/Perkka2/Mesen/commit/6c5454638fcc59758933d30c1781dde5b044d219)
 * [NSF EPSG Support](https://github.com/Perkka2/Mesen/commit/85586aaa359b9779084fff7658208fb0efb84c72)
 * [Some cleanup and added $4016 EPSG addressing to all mappers](https://github.com/Perkka2/Mesen/commit/64efda4e0b107feb771cbc8618e65a3d0e838299)
-* [Update MMC3.h](https://github.com/mkwong98/Mesen/commit/c16d0ac8b374401c7fe1656c62124191f6d7f30b)
+* [~~Update MMC3.h~~](https://github.com/mkwong98/Mesen/commit/c16d0ac8b374401c7fe1656c62124191f6d7f30b)
 * [Fix Twin Dragons support](https://github.com/mkwong98/Mesen/commit/91185e1a43a32a96a7d6c67d3de18164efc936f3)
 * [Update JyCompany.h](https://github.com/Perkka2/Mesen/commit/cd99aedb1e49085c2db481f55a9dedd4c9be5774)
+* [Update MMC3_52, Fix: Mario 7-in-1 display errors](https://github.com/Perkka2/Mesen/commit/45f2a51f282a237faf7e1774c8e7a39ad76a4910): *It did not work.*
+* [~~Better support for MMC3_198~~](https://github.com/Perkka2/Mesen/commit/3477a2663eaee9705d0e494865fca1b87c31963d)
 
 Good issues to try solving:
 
