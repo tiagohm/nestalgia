@@ -33,6 +33,10 @@ open class Pointer(
         return this[addr.toInt()]
     }
 
+    inline fun fill(value: UByte, length: Int, startIndex: Int = 0) {
+        data.fill(value, offset + startIndex, offset + startIndex + length)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

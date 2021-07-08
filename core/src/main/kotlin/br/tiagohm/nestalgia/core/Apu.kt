@@ -220,7 +220,7 @@ class Apu(val console: Console) :
         }
     }
 
-    fun addExpansionAudioDelta(channel: AudioChannel, delta: Short) {
+    fun addExpansionAudioDelta(channel: AudioChannel, delta: Int) {
         mixer.addDelta(channel, currentCycle, delta)
     }
 

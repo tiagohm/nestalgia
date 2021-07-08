@@ -90,11 +90,10 @@ class SoundMixer(val console: Console) :
                     getChannelOutput(AudioChannel.VRC7)).toInt().toUShort()
         }
 
-    fun addDelta(channel: AudioChannel, time: Int, delta: Short) {
-        if (delta.toInt() != 0) {
+    fun addDelta(channel: AudioChannel, time: Int, delta: Int) {
+        if (delta != 0) {
             timestamps.add(time)
-            channelOutput[channel.ordinal][time] =
-                (channelOutput[channel.ordinal][time] + delta).toShort()
+            channelOutput[channel.ordinal][time] = (channelOutput[channel.ordinal][time] + delta).toShort()
         }
     }
 

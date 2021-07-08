@@ -3,8 +3,9 @@ package br.tiagohm.nestalgia.core
 @Suppress("NOTHING_TO_INLINE")
 @ExperimentalUnsignedTypes
 open class SquareChannel(
-    channel: AudioChannel, console: Console,
-    mixer: SoundMixer,
+    channel: AudioChannel,
+    console: Console,
+    mixer: SoundMixer?,
     val isChannel1: Boolean,
     val isMmc5: Boolean = false,
 ) : ApuEnvelope(channel, console, mixer) {

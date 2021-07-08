@@ -64,7 +64,7 @@ abstract class ApuChannel(
 
     open fun addOutput(output: Byte) {
         if (output != lastOutput) {
-            mixer?.addDelta(channel, previousCycle, (output - lastOutput).toShort())
+            mixer?.addDelta(channel, previousCycle, output - lastOutput)
             lastOutput = output
         }
     }
