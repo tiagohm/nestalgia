@@ -913,7 +913,7 @@ abstract class Mapper :
     override fun restoreState(s: Snapshot) {
         s.load()
 
-        privateMirroringType = s.readEnum("mirroringType")
+        privateMirroringType = s.readEnum<MirroringType>("mirroringType")
         s.readUByteArray("chrRam")?.copyInto(chrRam)
         s.readUByteArray("workRam")?.copyInto(workRam)
         s.readUByteArray("saveRam")?.copyInto(saveRam)

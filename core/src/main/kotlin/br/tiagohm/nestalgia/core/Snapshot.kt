@@ -1,7 +1,7 @@
 package br.tiagohm.nestalgia.core
 
 import okio.Buffer
-import okio.IOException
+import java.io.IOException
 import java.io.OutputStream
 
 @ExperimentalUnsignedTypes
@@ -326,11 +326,11 @@ open class Snapshot(buffer: Buffer = Buffer()) {
         return (data[key] as? ByteArray)?.let { String(it) }
     }
 
-    inline fun <reified E : Enum<*>> readEnum(key: String): E? {
+    inline fun <reified E : Enum<E>> readEnum(key: String): E? {
         return (data[key] as? Long)?.let { enumValues<E>()[it.toInt()] }
     }
 
-    inline fun <reified E : Enum<*>> readEnumArray(key: String): Array<out E>? {
+    inline fun <reified E : Enum<E>> readEnumArray(key: String): Array<out E>? {
         val a = readIntArray(key) ?: return null
         val values = enumValues<E>()
         return Array(a.size) { i -> values[a[i]] }

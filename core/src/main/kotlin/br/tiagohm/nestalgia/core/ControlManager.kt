@@ -254,9 +254,9 @@ open class ControlManager(
     override fun restoreState(s: Snapshot) {
         s.load()
 
-        console.settings.region = s.readEnum("region") ?: Region.AUTO
-        console.settings.expansionDevice = s.readEnum("expansionDevice") ?: ExpansionPortDevice.NONE
-        console.settings.consoleType = s.readEnum("consoleType") ?: ConsoleType.NES
+        console.settings.region = s.readEnum<Region>("region") ?: Region.AUTO
+        console.settings.expansionDevice = s.readEnum<ExpansionPortDevice>("expansionDevice") ?: ExpansionPortDevice.NONE
+        console.settings.consoleType = s.readEnum<ConsoleType>("consoleType") ?: ConsoleType.NES
         val hasFourScore = s.readBoolean("hasFourScore") ?: false
         val useNes101Hvc101Behavior = s.readBoolean("useNes101Hvc101Behavior") ?: false
         console.settings.asciiTurboFileSlot = s.readInt("asciiTurboFileSlot") ?: 0

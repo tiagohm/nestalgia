@@ -1619,7 +1619,7 @@ open class Ppu(val console: Console) :
         spriteAddrH = s.readUByte("spriteAddrH") ?: 0U
         spriteAddrL = s.readUByte("spriteAddrL") ?: 0U
         oamCopyDone = s.readBoolean("oamCopyDone") ?: false
-        region = s.readEnum("region") ?: Region.AUTO
+        region = s.readEnum<Region>("region") ?: Region.AUTO
         prevIsRenderingEnabled = s.readBoolean("prevIsRenderingEnabled") ?: false
         isRenderingEnabled = s.readBoolean("isRenderingEnabled") ?: false
         openBus = s.readUByte("openBus") ?: 0U

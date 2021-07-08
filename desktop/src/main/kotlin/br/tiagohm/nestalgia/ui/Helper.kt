@@ -11,7 +11,7 @@ fun base64Decode(text: String): String {
 }
 
 val operatingSystem by lazy {
-    val os = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH)
+    val os = System.getProperty("os.name", "generic").lowercase(Locale.ENGLISH)
 
     if (os.contains("mac") || os.contains("darwin")) {
         "MACOSX"

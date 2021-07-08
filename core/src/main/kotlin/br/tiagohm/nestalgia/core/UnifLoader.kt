@@ -30,7 +30,7 @@ object UnifLoader {
                     break
                 } else {
                     // Ignore spaces
-                    res.append(rom[offset++].toChar())
+                    res.append(rom[offset++].toInt().toChar())
                 }
             }
 
@@ -133,8 +133,8 @@ object UnifLoader {
             }
         }
 
-        val prgRom = UByteArray(prgChunks.sumBy { it.size })
-        val chrRom = UByteArray(chrChunks.sumBy { it.size })
+        val prgRom = UByteArray(prgChunks.sumOf { it.size })
+        val chrRom = UByteArray(chrChunks.sumOf { it.size })
 
         var prgRomOffset = 0
         var chrRomOffset = 0

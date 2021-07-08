@@ -207,7 +207,7 @@ class SoundMixer(val console: Console) :
 
         clockRate = s.readInt("clockRate") ?: 0
         sampleRate = s.readInt("sampleRate") ?: console.settings.sampleRate
-        privateRegion = s.readEnum("region") ?: Region.NTSC
+        privateRegion = s.readEnum<Region>("region") ?: Region.NTSC
 
         reset(true)
 

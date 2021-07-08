@@ -243,7 +243,7 @@ class Apu(val console: Console) :
 
         previousCycle = 0
         currentCycle = 0
-        privateRegion = s.readEnum("region") ?: Region.AUTO
+        privateRegion = s.readEnum<Region>("region") ?: Region.AUTO
         s.readSnapshot("square1")?.let { squareChannel1.restoreState(it) }
         s.readSnapshot("square2")?.let { squareChannel2.restoreState(it) }
         s.readSnapshot("triangle")?.let { triangleChannel.restoreState(it) }

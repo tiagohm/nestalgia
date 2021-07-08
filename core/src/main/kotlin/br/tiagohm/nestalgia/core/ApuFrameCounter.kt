@@ -186,7 +186,7 @@ class ApuFrameCounter(val console: Console) :
         currentStep = s.readInt("currentStep") ?: 0
         stepMode = s.readBoolean("stepMode") ?: false
         inhibitIRQ = s.readBoolean("inhibitIRQ") ?: false
-        region = s.readEnum("region") ?: Region.AUTO
+        region = s.readEnum<Region>("region") ?: Region.AUTO
         blockFrameCounterTick = s.readUByte("blockFrameCounterTick") ?: 0U
         writeDelayCounter = s.readByte("writeDelayCounter") ?: 0
         newValue = s.readShort("newValue") ?: 0
