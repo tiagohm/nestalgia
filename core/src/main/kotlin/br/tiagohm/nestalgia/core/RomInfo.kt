@@ -21,6 +21,7 @@ data class RomInfo(
     val hash: HashInfo = HashInfo.EMPTY,
     val header: NesHeader = NesHeader.EMPTY,
     val nsf: NsfHeader? = null,
+    val unifBoard: String = "",
     val gameInfo: GameInfo? = null,
 ) {
     val isInDatabase = gameInfo != null
