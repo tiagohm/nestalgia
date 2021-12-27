@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 class MMC5MemoryHandler(val console: Console) : MemoryHandler {
 
     private val ppuReg = UByteArray(8)

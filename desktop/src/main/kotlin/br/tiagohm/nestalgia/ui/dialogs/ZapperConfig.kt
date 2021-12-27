@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.ui.dialogs
 import br.tiagohm.nestalgia.ui.*
 import javax.swing.JPanel
 
-@ExperimentalUnsignedTypes
 class ZapperConfig(
     port: Int,
     private var radius: Int,

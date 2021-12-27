@@ -6,7 +6,6 @@ import br.tiagohm.nestalgia.core.StandardControllerButton
 import br.tiagohm.nestalgia.ui.*
 import javax.swing.JPanel
 
-@ExperimentalUnsignedTypes
 class StandardControllerConfig(
     port: Int,
     private val keyManager: KeyManager,

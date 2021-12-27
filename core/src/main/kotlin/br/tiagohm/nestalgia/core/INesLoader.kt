@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 import java.io.IOException
 
-@ExperimentalUnsignedTypes
 object INesLoader {
 
     fun load(rom: ByteArray, name: String, preloadedHeader: NesHeader? = null): RomData {

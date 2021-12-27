@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 interface Peekable {
     fun peek(addr: UShort): UByte = 0U
 

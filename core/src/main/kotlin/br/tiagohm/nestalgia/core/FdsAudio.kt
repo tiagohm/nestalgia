@@ -5,7 +5,6 @@ import kotlin.math.min
 // https://wiki.nesdev.com/w/index.php/FDS_audio
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class FdsAudio(console: Console) :
     ExpansionAudio(console),
     Memory {

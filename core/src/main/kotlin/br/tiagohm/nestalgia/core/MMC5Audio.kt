@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/MMC5_audio
 
-@ExperimentalUnsignedTypes
 class MMC5Audio(console: Console) :
     Memory,
     ExpansionAudio(console) {

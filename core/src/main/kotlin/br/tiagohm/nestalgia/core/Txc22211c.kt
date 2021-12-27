@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_173
 
-@ExperimentalUnsignedTypes
 class Txc22211c : Txc22211a() {
 
     override fun updateState() {

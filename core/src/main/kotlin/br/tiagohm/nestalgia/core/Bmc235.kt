@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_235
 
-@ExperimentalUnsignedTypes
 class Bmc235 : Mapper() {
 
     private var openBus = false

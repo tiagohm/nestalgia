@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_121
 
-@ExperimentalUnsignedTypes
 class Mapper121 : MMC3() {
 
     private val exReg = UByteArray(8)

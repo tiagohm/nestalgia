@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 data class SaveStateData(
     var version: Int = 0,
     var mapperId: Int = -1,

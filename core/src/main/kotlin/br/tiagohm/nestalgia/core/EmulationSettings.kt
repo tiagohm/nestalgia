@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 import kotlin.math.min
 
 @Suppress("NOTHING_TO_INLINE", "DuplicatedCode")
-@ExperimentalUnsignedTypes
 class EmulationSettings : Snapshotable {
 
     @PublishedApi

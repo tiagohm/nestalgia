@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 class TriangleChannel(
     channel: AudioChannel,
     console: Console,

@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_197
 
-@ExperimentalUnsignedTypes
 class Mapper197 : MMC3() {
 
     override fun updateChrMapping() {

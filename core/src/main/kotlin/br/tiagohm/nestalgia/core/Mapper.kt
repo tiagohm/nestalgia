@@ -7,7 +7,6 @@ import kotlin.random.Random
 // https://wiki.nesdev.com/w/index.php/Mapper
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 abstract class Mapper :
     Resetable,
     Battery,

@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.ui.dialogs
 import br.tiagohm.nestalgia.ui.*
 import javax.swing.JPanel
 
-@ExperimentalUnsignedTypes
 class AsciiTurboFileConfig(
     private var slot: Int,
     private val onOk: (Int) -> Unit,

@@ -10,7 +10,6 @@ package br.tiagohm.nestalgia.core
 //         成吉思汗 (Chéngjísīhán) could actually be using MMC3_199 in reality according to the Nesdev wiki.
 // These games may actually use different mappers altogether.
 
-@ExperimentalUnsignedTypes
 class Mapper198 : MMC3() {
 
     private val exReg = UByteArray(4)

@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 enum class PaletteType(override val data: UIntArray) : Palette {
     DEFAULT(EmulationSettings.DEFAULT_PALETTE),
     UNSATURATED(EmulationSettings.UNSATURATED_PALETTE),

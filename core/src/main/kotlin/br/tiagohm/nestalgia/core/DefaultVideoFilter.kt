@@ -1,7 +1,6 @@
 package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class DefaultVideoFilter(console: Console) : VideoFilter(console) {
 
     private val palette = console.settings.palette

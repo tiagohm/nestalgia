@@ -6,7 +6,6 @@ import java.io.OutputStream
 import java.nio.charset.Charset
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 @JvmInline
 value class ByteStream(val buffer: Buffer = Buffer()) {
 

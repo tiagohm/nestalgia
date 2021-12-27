@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 abstract class ApuEnvelope(
     channel: AudioChannel,
     console: Console,

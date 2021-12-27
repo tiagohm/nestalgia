@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class MMC5 : Mapper() {
 
     private lateinit var audio: MMC5Audio

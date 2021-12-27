@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_144
 
-@ExperimentalUnsignedTypes
 class Mapper144 : ColorDreams() {
 
     override fun writeRegister(addr: UShort, value: UByte) {

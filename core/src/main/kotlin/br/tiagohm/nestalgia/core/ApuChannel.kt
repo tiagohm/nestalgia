@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 abstract class ApuChannel(
     val channel: AudioChannel,
     val console: Console,

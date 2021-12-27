@@ -23,7 +23,6 @@ import kotlin.concurrent.thread
 import kotlin.math.min
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class Nestalgia(
     private val console: Console,
     private val audio: Speaker,

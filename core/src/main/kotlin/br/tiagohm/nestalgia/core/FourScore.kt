@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/Four_Score
 
-@ExperimentalUnsignedTypes
 class FourScore(console: Console) : ControlDevice(console, EXP_DEVICE_PORT) {
 
     private var signature4016 = 0U

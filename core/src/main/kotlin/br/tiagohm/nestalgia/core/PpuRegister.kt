@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 enum class PpuRegister(override val address: UShort) : Register {
     CONTROL(0x00U),
     MASK(0x01U),

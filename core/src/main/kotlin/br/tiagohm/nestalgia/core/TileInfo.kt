@@ -1,7 +1,6 @@
 package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 data class TileInfo(
     var lowByte: UByte = 0U,
     var highByte: UByte = 0U,

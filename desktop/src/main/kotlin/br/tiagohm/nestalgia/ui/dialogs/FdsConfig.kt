@@ -5,7 +5,6 @@ import br.tiagohm.nestalgia.core.Emulator
 import br.tiagohm.nestalgia.ui.*
 import javax.swing.JPanel
 
-@ExperimentalUnsignedTypes
 class FdsConfig(
     private val emulator: Emulator,
     private val onSave: () -> Unit,

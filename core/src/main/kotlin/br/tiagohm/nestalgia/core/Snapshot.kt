@@ -4,7 +4,6 @@ import okio.Buffer
 import java.io.IOException
 import java.io.OutputStream
 
-@ExperimentalUnsignedTypes
 open class Snapshot(buffer: Buffer = Buffer()) {
 
     constructor(data: ByteArray) : this(Buffer().also { it.write(data) })

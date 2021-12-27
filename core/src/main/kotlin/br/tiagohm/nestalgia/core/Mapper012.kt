@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_012
 
-@ExperimentalUnsignedTypes
 class Mapper012 : MMC3() {
 
     private var chrSelection: UByte = 0U

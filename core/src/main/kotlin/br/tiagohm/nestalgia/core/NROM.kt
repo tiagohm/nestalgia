@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_000
 
-@ExperimentalUnsignedTypes
 open class NROM : Mapper() {
 
     override val prgPageSize = 0x4000U

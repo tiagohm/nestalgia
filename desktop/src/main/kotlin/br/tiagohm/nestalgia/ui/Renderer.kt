@@ -13,7 +13,6 @@ import java.awt.image.BufferedImage
 import java.awt.image.DataBufferInt
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class Renderer(val console: Console) :
     Canvas(),
     ComponentListener,

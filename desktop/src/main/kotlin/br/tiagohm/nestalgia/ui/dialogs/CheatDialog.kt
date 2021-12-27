@@ -6,7 +6,6 @@ import br.tiagohm.nestalgia.ui.*
 import java.util.*
 import javax.swing.JPanel
 
-@ExperimentalUnsignedTypes
 class CheatDialog(
     private val game: Long,
     private val selectedCheats: MutableList<CheatInfo>,

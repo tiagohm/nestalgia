@@ -11,7 +11,6 @@ import java.util.stream.Collectors
 import javax.swing.UIManager
 import javax.swing.filechooser.FileSystemView
 
-@ExperimentalUnsignedTypes
 fun main() {
     System.setProperty("sun.java2d.opengl", "True")
 

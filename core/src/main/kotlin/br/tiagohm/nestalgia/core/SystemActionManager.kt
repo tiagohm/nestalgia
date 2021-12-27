@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 open class SystemActionManager(console: Console) : ControlDevice(console, CONSOLE_INPUT_PORT) {
 
     private var isNeedReset: Boolean = false

@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 class A12Watcher :
     Resetable,
     Snapshotable {

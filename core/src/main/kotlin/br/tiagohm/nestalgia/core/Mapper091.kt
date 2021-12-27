@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_091
 
-@ExperimentalUnsignedTypes
 class Mapper091 : MMC3() {
 
     override val registerStartAddress: UShort = 0x6000U

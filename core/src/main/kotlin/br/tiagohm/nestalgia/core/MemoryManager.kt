@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 import java.util.*
 
-@ExperimentalUnsignedTypes
 class MemoryManager constructor(private val console: Console) :
     Memory,
     Peekable,

@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 class MMC5SquareChannel(console: Console) : SquareChannel(AudioChannel.MMC5, console, null, false, true) {
 
     var output: Byte = 0

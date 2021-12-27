@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 class ApuFrameCounter(val console: Console) :
     MemoryHandler,
     Resetable,

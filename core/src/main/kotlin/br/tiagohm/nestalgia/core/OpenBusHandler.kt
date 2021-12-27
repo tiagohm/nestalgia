@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 class OpenBusHandler : MemoryHandler {
 
     var openBus: UByte = 0U

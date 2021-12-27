@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://en.wikipedia.org/wiki/Turbo_File_(ASCII)
 
-@ExperimentalUnsignedTypes
 class AsciiTurboFile(console: Console) :
     ControlDevice(console, EXP_DEVICE_PORT),
     Battery {

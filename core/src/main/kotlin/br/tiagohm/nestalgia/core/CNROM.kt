@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_003
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_185
 
-@ExperimentalUnsignedTypes
 class CNROM(val enableCopyProtection: Boolean) : Mapper() {
 
     override val prgPageSize = 0x8000U

@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_046
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class ColorDreams46 : Mapper() {
 
     private val regs = UByteArray(2)

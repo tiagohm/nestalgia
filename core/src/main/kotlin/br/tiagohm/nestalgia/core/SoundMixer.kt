@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 import java.util.*
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class SoundMixer(val console: Console) :
     Resetable,
     Disposable,

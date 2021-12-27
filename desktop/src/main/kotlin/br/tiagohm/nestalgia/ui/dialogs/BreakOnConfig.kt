@@ -5,7 +5,6 @@ import br.tiagohm.nestalgia.ui.*
 import javax.swing.JPanel
 import kotlin.math.max
 
-@ExperimentalUnsignedTypes
 class BreakOnConfig(
     private var type: BreakOnType,
     private var count: Int,

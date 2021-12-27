@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 import kotlin.concurrent.thread
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 open class Emulator(
     val console: Console,
     val audio: AudioDevice,

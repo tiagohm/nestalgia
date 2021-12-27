@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_105
 
-@ExperimentalUnsignedTypes
 class Mapper105 : MMC1() {
 
     private var initState = 0

@@ -2,7 +2,6 @@ import br.tiagohm.nestalgia.core.IpsPatcher
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-@ExperimentalUnsignedTypes
 class IpsPatcherTest {
 
     @Test

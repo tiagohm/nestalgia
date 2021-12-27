@@ -5,7 +5,6 @@ import br.tiagohm.nestalgia.core.Snapshot
 import br.tiagohm.nestalgia.core.Snapshotable
 import java.io.File
 
-@ExperimentalUnsignedTypes
 class Preferences(private val file: File) : Snapshotable {
 
     val settings = EmulationSettings()

@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 import java.io.IOException
 import java.util.*
 
-@ExperimentalUnsignedTypes
 object RomLoader {
 
     fun load(

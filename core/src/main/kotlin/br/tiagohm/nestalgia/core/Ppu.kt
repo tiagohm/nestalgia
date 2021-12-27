@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 import kotlin.math.min
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 open class Ppu(val console: Console) :
     MemoryHandler,
     Resetable,

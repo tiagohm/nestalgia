@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_118
 
-@ExperimentalUnsignedTypes
 class TxSRom : MMC3() {
 
     override fun updateMirroring() {

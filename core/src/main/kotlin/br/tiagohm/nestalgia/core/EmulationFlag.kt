@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 enum class EmulationFlag(override val code: ULong) : Flag<ULong> {
     PAUSED(0x01UL),
     ALLOW_INVALID_INPUT(0x08UL),

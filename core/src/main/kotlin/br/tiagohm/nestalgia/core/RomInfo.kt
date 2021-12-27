@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 data class RomInfo(
     val name: String,
     val format: RomFormat,

@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 class VsSystemActionManager(console: Console) : SystemActionManager(console) {
 
     private val needInsertCoin = IntArray(4)

@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 import java.io.IOException
 
-@ExperimentalUnsignedTypes
 object UnifLoader {
 
     fun load(rom: ByteArray, name: String) = read(rom, name)

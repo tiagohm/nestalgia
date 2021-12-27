@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 interface RenderingDevice : Resetable, Disposable {
     val screenWidth: Int
 

@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_178
 
-@ExperimentalUnsignedTypes
 class Waixing178 : Mapper() {
 
     private var exReg = UByteArray(4)

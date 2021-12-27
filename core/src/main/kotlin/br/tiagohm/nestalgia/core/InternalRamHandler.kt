@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 class InternalRamHandler(
     private val ram: UByteArray,
     private val mask: UShort

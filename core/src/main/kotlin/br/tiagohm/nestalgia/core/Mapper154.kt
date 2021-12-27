@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_154
 
-@ExperimentalUnsignedTypes
 class Mapper154 : Mapper088() {
 
     override fun writeRegister(addr: UShort, value: UByte) {
