@@ -15,7 +15,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.9.3"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
-    api "com.squareup.okio:okio:3.0.0"
+    api "com.squareup.okio:okio:3.3.0"
 }
 
 test {
