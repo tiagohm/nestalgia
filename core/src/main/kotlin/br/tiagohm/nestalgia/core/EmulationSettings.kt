@@ -163,7 +163,6 @@ class EmulationSettings : Snapshotable {
         }
     }
 
-    @Suppress("NON_EXHAUSTIVE_WHEN")
     fun setFlag(flag: EmulationFlag) {
         if ((this.flags and flag.code) == 0UL) {
             this.flags = this.flags or flag.code
@@ -172,11 +171,11 @@ class EmulationSettings : Snapshotable {
                 EmulationFlag.DISABLE_BACKGROUND -> isBackgroundEnabled = true
                 EmulationFlag.DISABLE_SPRITES -> spritesEnabled = true
                 EmulationFlag.USE_CUSTOM_VS_PALETTE -> updateCurrentPalette()
+                else -> Unit
             }
         }
     }
 
-    @Suppress("NON_EXHAUSTIVE_WHEN")
     fun clearFlag(flag: EmulationFlag) {
         if ((this.flags and flag.code) != 0UL) {
             this.flags = this.flags and flag.code.inv()
@@ -185,6 +184,7 @@ class EmulationSettings : Snapshotable {
                 EmulationFlag.DISABLE_BACKGROUND -> isBackgroundEnabled = false
                 EmulationFlag.DISABLE_SPRITES -> spritesEnabled = false
                 EmulationFlag.USE_CUSTOM_VS_PALETTE -> updateCurrentPalette()
+                else -> Unit
             }
         }
     }

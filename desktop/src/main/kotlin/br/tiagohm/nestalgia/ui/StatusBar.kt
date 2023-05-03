@@ -49,6 +49,7 @@ class StatusBar(val console: Console) :
                 showDebugInfo()
                 isVisible = true
             }
+            else -> Unit
         }
     }
 
