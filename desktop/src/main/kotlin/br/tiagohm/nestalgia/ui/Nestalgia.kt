@@ -651,7 +651,7 @@ class Nestalgia(
         }
 
         const val MAX_SLOTS = 30
-        const val VERSION_NAME = "0.8.0"
+        const val VERSION_NAME = "0.9.0"
         const val BATCH_TEST_TIMEOUT = 15000L
     }
 }
