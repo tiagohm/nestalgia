@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-
 @Suppress("NOTHING_TO_INLINE")
 class MMC5 : Mapper() {
 

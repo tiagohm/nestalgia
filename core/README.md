@@ -10,6 +10,11 @@ Relevant commits from Mesen's forks:
 * [Update JyCompany.h](https://github.com/Perkka2/Mesen/commit/cd99aedb1e49085c2db481f55a9dedd4c9be5774)
 * [Update MMC3_52, Fix: Mario 7-in-1 display errors](https://github.com/Perkka2/Mesen/commit/45f2a51f282a237faf7e1774c8e7a39ad76a4910): *It did not work.*
 * [~~Better support for MMC3_198~~](https://github.com/Perkka2/Mesen/commit/3477a2663eaee9705d0e494865fca1b87c31963d)
+* [Implement Mapper559](https://github.com/GamingLiamStudios/Mesen-X/commit/13122397f29a8b48b2ae4840e0d59f4d11ed9f34)
+* [Fix save state of EMU2149](https://github.com/Erendel/Mesen/commit/58c439b692338a370a3ce1c2ec5a9ad8f832210e)
+* [EPSM](https://github.com/Erendel/Mesen/commits/0300696774c946cb216c706898c5f4ba606ebaca/Core/EPSMAudio.h)
+* [Audio Interference](https://github.com/Erendel/Mesen/commit/a22b17b2c14bc7d5211b3309016ded869757d3c5#diff-bf0c86f4ea09f99283a03cc12dc5c21792cd5bab75677564126bcb6e9143d8e8)
+* [Audio Interference](https://github.com/Erendel/Mesen/commit/a6cfe578fbbd0dccd28540e61b188d9ec95727a2#diff-bf0c86f4ea09f99283a03cc12dc5c21792cd5bab75677564126bcb6e9143d8e8)
 
 Good issues to try solving:
 
