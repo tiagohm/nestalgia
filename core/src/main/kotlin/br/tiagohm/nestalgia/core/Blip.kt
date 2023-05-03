@@ -5,7 +5,6 @@ import kotlin.math.max
 import kotlin.math.min
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class Blip(val size: Int) {
 
     var factor = TIME_UNIT / BLIP_MAX_RATIO.toUInt()

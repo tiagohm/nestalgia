@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 class VrcIrq(val console: Console) :
     Resetable,
     Snapshotable {

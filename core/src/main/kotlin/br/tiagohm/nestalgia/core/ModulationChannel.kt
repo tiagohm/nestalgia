@@ -1,7 +1,6 @@
 package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class ModulationChannel : FdsChannel() {
 
     private var counter = 0

@@ -1,7 +1,6 @@
 package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 abstract class ExpansionAudio(val console: Console) : Snapshotable {
 
     abstract fun clockAudio()

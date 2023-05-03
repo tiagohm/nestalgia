@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 import java.io.IOException
 import kotlin.math.log
 
-@ExperimentalUnsignedTypes
 data class GameInfo(
     val crc: Long,
     val system: GameSystem,

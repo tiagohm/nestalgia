@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_118
 
-@ExperimentalUnsignedTypes
 class TxSRom : MMC3() {
 
     override fun updateMirroring() {
@@ -16,20 +15,20 @@ class TxSRom : MMC3() {
             if (chrMode.isZero) {
                 when (currentRegister.toInt()) {
                     0 -> {
-                        setNametable(0U, nametable)
-                        setNametable(1U, nametable)
+                        setNametable(0, nametable)
+                        setNametable(1, nametable)
                     }
                     1 -> {
-                        setNametable(2U, nametable)
-                        setNametable(3U, nametable)
+                        setNametable(2, nametable)
+                        setNametable(3, nametable)
                     }
                 }
             } else {
                 when (currentRegister.toInt()) {
-                    2 -> setNametable(0U, nametable)
-                    3 -> setNametable(1U, nametable)
-                    4 -> setNametable(2U, nametable)
-                    5 -> setNametable(3U, nametable)
+                    2 -> setNametable(0, nametable)
+                    3 -> setNametable(1, nametable)
+                    4 -> setNametable(2, nametable)
+                    5 -> setNametable(3, nametable)
                 }
             }
         }

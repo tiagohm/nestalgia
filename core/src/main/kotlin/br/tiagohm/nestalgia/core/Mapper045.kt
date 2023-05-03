@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_045
 
-@ExperimentalUnsignedTypes
 class Mapper045 : MMC3() {
 
     private var regIndex = 0

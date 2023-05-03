@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_132
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 open class Txc22211a : Mapper() {
 
     override val prgPageSize = 0x8000U

@@ -5,7 +5,6 @@ import br.tiagohm.nestalgia.ui.*
 import java.util.*
 import javax.swing.JPanel
 
-@ExperimentalUnsignedTypes
 class ControllerConfig(
     private val emulator: Emulator,
     private val onSave: () -> Unit,

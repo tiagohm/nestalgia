@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 interface KeyManager {
     fun isKeyPressed(keyCode: Int): Boolean
 

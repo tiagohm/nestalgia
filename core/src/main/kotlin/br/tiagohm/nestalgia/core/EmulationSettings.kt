@@ -2,8 +2,7 @@ package br.tiagohm.nestalgia.core
 
 import kotlin.math.min
 
-@Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
+@Suppress("NOTHING_TO_INLINE", "DuplicatedCode")
 class EmulationSettings : Snapshotable {
 
     @PublishedApi
@@ -132,15 +131,15 @@ class EmulationSettings : Snapshotable {
         flags = s.readULong("flags") ?: 0UL
         s.readIntArray("zapperDetectionRadius")?.copyInto(zapperDetectionRadius)
         asciiTurboFileSlot = s.readInt("asciiTurboFileSlot") ?: 0
-        region = s.readEnum("region") ?: Region.AUTO
-        ramPowerOnState = s.readEnum("ramPowerOnState") ?: RamPowerOnState.ALL_ZEROS
+        region = s.readEnum<Region>("region") ?: Region.AUTO
+        ramPowerOnState = s.readEnum<RamPowerOnState>("ramPowerOnState") ?: RamPowerOnState.ALL_ZEROS
         dipSwitches = s.readInt("dipSwitches") ?: 0
         s.readEnumArray<ControllerType>("controllerTypes")?.copyInto(controllerTypes)
         for (i in 0 until ControlDevice.PORT_COUNT) controllerKeys[i] =
             s.readSnapshot("controllerKeys$i")?.let { KeyMapping.load(it) } ?: KeyMapping.NONE
         isKeyboardMode = s.readBoolean("isKeyboardMode") ?: false
-        expansionDevice = s.readEnum("expansionDevice") ?: ExpansionPortDevice.NONE
-        consoleType = s.readEnum("consoleType") ?: ConsoleType.NES
+        expansionDevice = s.readEnum<ExpansionPortDevice>("expansionDevice") ?: ExpansionPortDevice.NONE
+        consoleType = s.readEnum<ConsoleType>("consoleType") ?: ConsoleType.NES
         emulationSpeed = s.readInt("emulationSpeed") ?: 100
         turboSpeed = s.readInt("turboSpeed") ?: 300
         rewindSpeed = s.readInt("rewindSpeed") ?: 100
@@ -149,8 +148,8 @@ class EmulationSettings : Snapshotable {
         disableOverclocking = s.readBoolean("disableOverclocking") ?: false
         extraScanlinesBeforeNmi = s.readInt("extraScanlinesBeforeNmi") ?: 0
         extraScanlinesAfterNmi = s.readInt("extraScanlinesAfterNmi") ?: 0
-        ppuModel = s.readEnum("ppuModel") ?: PpuModel.PPU_2C02
-        paletteType = s.readEnum("paletteType") ?: PaletteType.DEFAULT
+        ppuModel = s.readEnum<PpuModel>("ppuModel") ?: PpuModel.PPU_2C02
+        paletteType = s.readEnum<PaletteType>("paletteType") ?: PaletteType.DEFAULT
         isBackgroundEnabled = !checkFlag(EmulationFlag.DISABLE_BACKGROUND)
         spritesEnabled = !checkFlag(EmulationFlag.DISABLE_SPRITES)
     }
@@ -164,7 +163,6 @@ class EmulationSettings : Snapshotable {
         }
     }
 
-    @Suppress("NON_EXHAUSTIVE_WHEN")
     fun setFlag(flag: EmulationFlag) {
         if ((this.flags and flag.code) == 0UL) {
             this.flags = this.flags or flag.code
@@ -173,11 +171,11 @@ class EmulationSettings : Snapshotable {
                 EmulationFlag.DISABLE_BACKGROUND -> isBackgroundEnabled = true
                 EmulationFlag.DISABLE_SPRITES -> spritesEnabled = true
                 EmulationFlag.USE_CUSTOM_VS_PALETTE -> updateCurrentPalette()
+                else -> Unit
             }
         }
     }
 
-    @Suppress("NON_EXHAUSTIVE_WHEN")
     fun clearFlag(flag: EmulationFlag) {
         if ((this.flags and flag.code) != 0UL) {
             this.flags = this.flags and flag.code.inv()
@@ -186,6 +184,7 @@ class EmulationSettings : Snapshotable {
                 EmulationFlag.DISABLE_BACKGROUND -> isBackgroundEnabled = false
                 EmulationFlag.DISABLE_SPRITES -> spritesEnabled = false
                 EmulationFlag.USE_CUSTOM_VS_PALETTE -> updateCurrentPalette()
+                else -> Unit
             }
         }
     }
@@ -389,10 +388,10 @@ class EmulationSettings : Snapshotable {
         isNeedControllerUpdate = true
     }
 
-    inline val needsPause: Boolean
+    inline val needsPause
         get() = checkFlag(EmulationFlag.PAUSED)
 
-    inline val isInputEnabled: Boolean
+    inline val isInputEnabled
         get() = !checkFlag(EmulationFlag.IN_BACKGROUND) || checkFlag(EmulationFlag.ALLOW_BACKGROUND_INPUT)
 
     fun needAudioSettingsUpdate(): Boolean {
@@ -401,12 +400,12 @@ class EmulationSettings : Snapshotable {
         return value
     }
 
-    val hasZapper: Boolean
+    val hasZapper
         get() = controllerTypes[0] == ControllerType.ZAPPER ||
                 controllerTypes[1] == ControllerType.ZAPPER ||
                 (consoleType == ConsoleType.FAMICOM && expansionDevice == ExpansionPortDevice.ZAPPER)
 
-    val hasFourScore: Boolean
+    val hasFourScore
         get() = consoleType == ConsoleType.FAMICOM && expansionDevice == ExpansionPortDevice.FOUR_PLAYER_ADAPTER
 
     companion object {

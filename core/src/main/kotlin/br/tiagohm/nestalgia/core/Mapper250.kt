@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_250
 
-@ExperimentalUnsignedTypes
 class Mapper250 : MMC3() {
 
     override fun writeRegister(addr: UShort, value: UByte) {

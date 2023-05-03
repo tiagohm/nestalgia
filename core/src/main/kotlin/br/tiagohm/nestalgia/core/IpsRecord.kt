@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 data class IpsRecord(
     var address: Int = 0,
     var length: Int = 0,

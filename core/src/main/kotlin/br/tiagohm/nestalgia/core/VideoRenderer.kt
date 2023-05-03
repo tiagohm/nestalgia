@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-@ExperimentalUnsignedTypes
 class VideoRenderer(val console: Console) : Disposable {
 
     private var stop = AtomicBoolean(false)

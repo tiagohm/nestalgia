@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 data class RomInfo(
     val name: String,
     val format: RomFormat,
@@ -21,6 +20,7 @@ data class RomInfo(
     val hash: HashInfo = HashInfo.EMPTY,
     val header: NesHeader = NesHeader.EMPTY,
     val nsf: NsfHeader? = null,
+    val unifBoard: String = "",
     val gameInfo: GameInfo? = null,
 ) {
     val isInDatabase = gameInfo != null

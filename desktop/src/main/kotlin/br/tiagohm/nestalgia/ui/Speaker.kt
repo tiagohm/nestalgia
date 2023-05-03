@@ -10,7 +10,6 @@ import javax.sound.sampled.SourceDataLine
 import kotlin.concurrent.thread
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class Speaker(val console: Console) : AudioDevice {
 
     private var sampleRate = 0

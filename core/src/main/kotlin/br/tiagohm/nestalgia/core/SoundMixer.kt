@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 import java.util.*
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class SoundMixer(val console: Console) :
     Resetable,
     Disposable,
@@ -90,11 +89,10 @@ class SoundMixer(val console: Console) :
                     getChannelOutput(AudioChannel.VRC7)).toInt().toUShort()
         }
 
-    fun addDelta(channel: AudioChannel, time: Int, delta: Short) {
-        if (delta.toInt() != 0) {
+    fun addDelta(channel: AudioChannel, time: Int, delta: Int) {
+        if (delta != 0) {
             timestamps.add(time)
-            channelOutput[channel.ordinal][time] =
-                (channelOutput[channel.ordinal][time] + delta).toShort()
+            channelOutput[channel.ordinal][time] = (channelOutput[channel.ordinal][time] + delta).toShort()
         }
     }
 
@@ -208,7 +206,7 @@ class SoundMixer(val console: Console) :
 
         clockRate = s.readInt("clockRate") ?: 0
         sampleRate = s.readInt("sampleRate") ?: console.settings.sampleRate
-        privateRegion = s.readEnum("region") ?: Region.NTSC
+        privateRegion = s.readEnum<Region>("region") ?: Region.NTSC
 
         reset(true)
 

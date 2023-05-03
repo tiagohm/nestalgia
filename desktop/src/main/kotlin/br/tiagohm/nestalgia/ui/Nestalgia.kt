@@ -23,7 +23,6 @@ import kotlin.concurrent.thread
 import kotlin.math.min
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class Nestalgia(
     private val console: Console,
     private val audio: Speaker,
@@ -392,11 +391,15 @@ class Nestalgia(
         }
     }
 
+    private fun isRomExtension(name: String): Boolean {
+        return name.endsWith(".fds") || name.endsWith(".nes") || name.endsWith(".unf")
+    }
+
     private fun loadROM() {
         val dialog = FileDialog(this)
         dialog.mode = FileDialog.LOAD
         dialog.title = "Select a ROM to load"
-        dialog.setFilenameFilter { _, name -> name.endsWith(".fds") || name.endsWith(".nes") }
+        dialog.setFilenameFilter { _, name -> isRomExtension(name) }
         preferences.loadRomDir.takeIf { it.isNotEmpty() }?.let { dialog.directory = it }
 
         dialog.isVisible = true
@@ -425,7 +428,7 @@ class Nestalgia(
         dialog.mode = FileDialog.LOAD
         dialog.title = "Select the ROMs to test"
         dialog.isMultipleMode = true
-        dialog.setFilenameFilter { _, name -> name.endsWith(".fds") || name.endsWith(".nes") }
+        dialog.setFilenameFilter { _, name -> isRomExtension(name) }
         preferences.loadRomDir.takeIf { it.isNotEmpty() }?.let { dialog.directory = it }
 
         dialog.isVisible = true

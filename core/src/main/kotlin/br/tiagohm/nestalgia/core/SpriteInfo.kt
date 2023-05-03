@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 data class SpriteInfo(
     var lowByte: UByte = 0U,
     var highByte: UByte = 0U,

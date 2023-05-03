@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_052
 
-@ExperimentalUnsignedTypes
 class Mapper052 : MMC3() {
 
     private var extraReg: UByte = 0U

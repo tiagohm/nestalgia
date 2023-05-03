@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_011
 
-@ExperimentalUnsignedTypes
 open class ColorDreams : Mapper() {
 
     override val prgPageSize = 0x8000U

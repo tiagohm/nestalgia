@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 // https://wiki.nesdev.com/w/index.php/Standard_controller
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 open class StandardController(console: Console, port: Int) : ControlDevice(console, port) {
 
     private val keys = console.settings.getControllerKeys(port)

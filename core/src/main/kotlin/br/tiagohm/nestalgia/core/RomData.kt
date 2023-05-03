@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 data class RomData(
     val info: RomInfo,
     val chrRamSize: Int = -1,

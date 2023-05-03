@@ -5,7 +5,6 @@ import java.awt.event.*
 import java.util.*
 import javax.swing.SwingUtilities
 
-@ExperimentalUnsignedTypes
 class MouseKeyboard(
     val console: Console,
     val renderer: RenderingDevice,

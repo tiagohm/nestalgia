@@ -1,6 +1,196 @@
 package br.tiagohm.nestalgia.core
 
+import java.io.IOException
+
 object UnifLoader {
+
+    fun load(rom: ByteArray, name: String) = read(rom, name)
+
+    private fun read(rom: ByteArray, name: String): RomData {
+        // Skip header, version & null bytes, start reading at first chunk
+        var offset = 32
+
+        fun readFourCC() = String(ByteArray(4) { rom[offset++] })
+
+        fun readByte() = rom[offset++].toInt()
+
+        fun readInt() = (rom[offset++].toInt() and 0xFF) or
+                ((rom[offset++].toInt() and 0xFF) shl 8) or
+                ((rom[offset++].toInt() and 0xFF) shl 16) or
+                ((rom[offset++].toInt() and 0xFF) shl 24)
+
+        fun readString(): String {
+            val res = StringBuilder()
+
+            while (offset < rom.size) {
+                // End of string
+                if (rom[offset].toInt() == 0) {
+                    offset++
+                    break
+                } else {
+                    // Ignore spaces
+                    res.append(rom[offset++].toInt().toChar())
+                }
+            }
+
+            return "$res"
+        }
+
+        fun readByteArray(output: ByteArray) {
+            for (i in output.indices) output[i] = rom[offset++]
+        }
+
+        var board = ""
+        var mapperId = 0
+        var system = GameSystem.UNKNOWN
+        var hasBattety = false
+        var mirroring = MirroringType.HORIZONTAL
+        val prgChunks = Array(16) { ByteArray(0) }
+        val chrChunks = Array(16) { ByteArray(0) }
+
+        while (offset < rom.size) {
+            // FourCC + Length
+            if (offset + 8 > rom.size) {
+                break
+            }
+
+            val fourCC = readFourCC()
+            val length = readInt()
+
+            if (offset + length > rom.size) {
+                break
+            }
+
+            when {
+                // Mapper
+                fourCC == "MAPR" -> {
+                    board = readString()
+
+                    if (board.isNotEmpty()) {
+                        System.err.println("UNIF Board: $board")
+
+                        mapperId = getMapperId(board)
+
+                        if (mapperId == UnifBoard.UNKNOWN.id) {
+                            System.err.println("[UNIF] ERROR: Unknown board")
+                        }
+                    } else {
+                        throw IOException("[UNIF]: Invalid UNIF board name")
+                    }
+
+                    if (board.length + 1 < length) {
+                        offset += length - board.length - 1
+                    }
+                }
+                // PRG
+                fourCC.startsWith("PRG") -> {
+                    val chunkNumber = fourCC[3].toString().toInt(16)
+                    prgChunks[chunkNumber] = ByteArray(length)
+                    readByteArray(prgChunks[chunkNumber])
+                }
+                // CHR
+                fourCC.startsWith("CHR") -> {
+                    val chunkNumber = fourCC[3].toString().toInt(16)
+                    chrChunks[chunkNumber] = ByteArray(length)
+                    readByteArray(chrChunks[chunkNumber])
+                }
+                // System
+                fourCC == "TVCI" -> {
+                    system = if (readByte() == 1) GameSystem.PAL else GameSystem.NTSC
+                }
+                //
+                // Battery
+                fourCC == "BATR" -> {
+                    hasBattety = readByte() > 0
+                }
+                // Mirroring Type
+                fourCC == "MIRR" -> {
+                    mirroring = when (readByte()) {
+                        1 -> MirroringType.VERTICAL
+                        2 -> MirroringType.SCREEN_A_ONLY
+                        3 -> MirroringType.SCREEN_B_ONLY
+                        4 -> MirroringType.FOUR_SCREENS
+                        else -> MirroringType.HORIZONTAL
+                    }
+                }
+                // Controller
+                fourCC == "CTRL" -> {
+                    readByte()
+                }
+                // Dump info
+                fourCC == "DINF" -> {
+                    offset += 204
+                }
+                // Name
+                fourCC == "NAME" -> {
+                    readString()
+                }
+                // Unused: PCKn, CCKn, WRTR, READ, VROR
+                else -> {
+                    offset += length
+                }
+            }
+        }
+
+        val prgRom = UByteArray(prgChunks.sumOf { it.size })
+        val chrRom = UByteArray(chrChunks.sumOf { it.size })
+
+        var prgRomOffset = 0
+        var chrRomOffset = 0
+
+        for (i in 0..15) {
+            prgChunks[i].forEach { prgRom[prgRomOffset++] = it.toUByte() }
+            chrChunks[i].forEach { chrRom[chrRomOffset++] = it.toUByte() }
+        }
+
+        if (prgRom.isEmpty()) {
+            throw IOException("[UNIF]: PRG ROM is empty")
+        }
+
+        val prgChr = UByteArray(prgRom.size + chrRom.size)
+        var romOffset = 0
+
+        prgRom.forEach { prgChr[romOffset++] = it }
+        chrRom.forEach { prgChr[romOffset++] = it }
+
+        val hash = HashInfo(
+            prgRom.crc32(),
+            prgRom.md5(),
+            prgRom.sha1(),
+            prgRom.sha256(),
+            chrRom.crc32(),
+            chrRom.md5(),
+            chrRom.sha1(),
+            chrRom.sha256(),
+            prgChr.crc32(),
+            prgChr.md5(),
+            prgChr.sha1(),
+            prgChr.sha256(),
+        )
+
+        val db = GameDatabase.get(hash.crc32)
+
+        val info = RomInfo(
+            name,
+            RomFormat.UNIF,
+            mapperId = mapperId,
+            system = system,
+            hasBattery = hasBattety,
+            mirroring = mirroring,
+            hash = hash,
+            unifBoard = board,
+            gameInfo = db,
+        )
+
+        val data = RomData(
+            info,
+            prgRom = prgRom,
+            chrRom = chrRom,
+            bytes = rom,
+        )
+
+        return db?.update(data, false) ?: data
+    }
 
     fun getMapperId(board: String): Int {
         val name = when (board.substring(0, 4)) {

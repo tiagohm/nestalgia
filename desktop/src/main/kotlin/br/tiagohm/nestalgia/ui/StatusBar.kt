@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit
 import javax.swing.JLabel
 import javax.swing.JPanel
 
-@ExperimentalUnsignedTypes
 class StatusBar(val console: Console) :
     JPanel(),
     Disposable,
@@ -50,6 +49,7 @@ class StatusBar(val console: Console) :
                 showDebugInfo()
                 isVisible = true
             }
+            else -> Unit
         }
     }
 

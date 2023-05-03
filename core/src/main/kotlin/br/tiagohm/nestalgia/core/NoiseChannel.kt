@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 class NoiseChannel(
     channel: AudioChannel,
     console: Console,

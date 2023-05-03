@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 abstract class ApuChannel(
     val channel: AudioChannel,
     val console: Console,
@@ -64,7 +63,7 @@ abstract class ApuChannel(
 
     open fun addOutput(output: Byte) {
         if (output != lastOutput) {
-            mixer?.addDelta(channel, previousCycle, (output - lastOutput).toShort())
+            mixer?.addDelta(channel, previousCycle, output - lastOutput)
             lastOutput = output
         }
     }
@@ -87,6 +86,6 @@ abstract class ApuChannel(
         lastOutput = s.readByte("lastOutput") ?: 0
         timer = s.readUShort("timer") ?: 0U
         period = s.readUShort("period") ?: 0U
-        privateRegion = s.readEnum("region") ?: Region.AUTO
+        privateRegion = s.readEnum<Region>("region") ?: Region.AUTO
     }
 }

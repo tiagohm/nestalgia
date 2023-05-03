@@ -1,7 +1,6 @@
 package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 open class Pointer(
     val data: UByteArray,
     val offset: Int = 0,
@@ -31,6 +30,10 @@ open class Pointer(
 
     override fun read(addr: UShort, type: MemoryOperationType): UByte {
         return this[addr.toInt()]
+    }
+
+    inline fun fill(value: UByte, length: Int, startIndex: Int = 0) {
+        data.fill(value, offset + startIndex, offset + startIndex + length)
     }
 
     override fun equals(other: Any?): Boolean {

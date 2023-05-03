@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 class BattleBox(console: Console) :
     ControlDevice(console, EXP_DEVICE_PORT),
     Battery {

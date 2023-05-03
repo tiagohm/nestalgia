@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_190
 
-@ExperimentalUnsignedTypes
 class MagicKidGooGoo : Mapper() {
 
     override val prgPageSize = 0x4000U

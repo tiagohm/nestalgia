@@ -1,7 +1,6 @@
 package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 abstract class VideoFilter(val console: Console) : Disposable {
 
     protected val buffer: IntArray = IntArray(Ppu.PIXEL_COUNT)

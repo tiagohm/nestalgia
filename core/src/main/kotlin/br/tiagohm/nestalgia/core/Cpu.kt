@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 import kotlin.random.Random
 
-@ExperimentalUnsignedTypes
 @Suppress("NOTHING_TO_INLINE")
 class Cpu(val console: Console) :
     Memory,

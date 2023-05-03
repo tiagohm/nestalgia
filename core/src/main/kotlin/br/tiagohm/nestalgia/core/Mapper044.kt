@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_044
 
-@ExperimentalUnsignedTypes
 class Mapper044 : MMC3() {
 
     private var selectedBlock: UByte = 0U

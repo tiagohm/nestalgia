@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 import kotlin.concurrent.thread
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 open class Emulator(
     val console: Console,
     val audio: AudioDevice,
@@ -129,6 +128,7 @@ open class Emulator(
 
     fun getControllerType(port: Int) = console.settings.getControllerType(port)
 
+    @Suppress("UNCHECKED_CAST")
     fun <T : ControlDevice> getControlDevice(port: Int): T? = console.controlManager.getControlDevice(port) as? T
 
     fun insertCoin(port: Int) {

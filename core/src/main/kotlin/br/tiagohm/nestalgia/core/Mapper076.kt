@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_076
 
-@ExperimentalUnsignedTypes
 class Mapper076 : Namco108() {
 
     override val chrPageSize = 0x800U

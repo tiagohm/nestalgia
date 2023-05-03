@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 class CpuState(
     var pc: UShort = 0U,
     var sp: UByte = 0U,

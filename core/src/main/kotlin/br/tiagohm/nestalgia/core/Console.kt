@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class Console(
     val master: Console? = null,
     settings: EmulationSettings? = null,

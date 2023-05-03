@@ -4,7 +4,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class Debugger(val console: Console) : Disposable {
 
     private val stepCount = AtomicInteger(-1)

@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 class NsfMapper : Mapper() {
 
     override val controlDevice: ControlDevice

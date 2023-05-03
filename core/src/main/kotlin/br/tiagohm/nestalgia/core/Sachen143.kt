@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_143
 
-@ExperimentalUnsignedTypes
 class Sachen143 : NROM() {
 
     override val registerStartAddress: UShort = 0x4100U

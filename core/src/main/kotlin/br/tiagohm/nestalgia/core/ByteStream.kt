@@ -6,8 +6,8 @@ import java.io.OutputStream
 import java.nio.charset.Charset
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
-inline class ByteStream(val buffer: Buffer = Buffer()) {
+@JvmInline
+value class ByteStream(val buffer: Buffer = Buffer()) {
 
     inline val size: Int
         get() = buffer.size.toInt()
@@ -291,11 +291,11 @@ inline class ByteStream(val buffer: Buffer = Buffer()) {
         return Double.fromBits(readLongLe())
     }
 
-    inline fun <reified E : Enum<*>> readEnum(): E {
+    inline fun <reified E : Enum<E>> readEnum(): E {
         return enumValues<E>()[buffer.readInt()]
     }
 
-    inline fun <reified E : Enum<*>> readEnumLe(): E {
+    inline fun <reified E : Enum<E>> readEnumLe(): E {
         return enumValues<E>()[buffer.readIntLe()]
     }
 

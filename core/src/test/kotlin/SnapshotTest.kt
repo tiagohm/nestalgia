@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-@ExperimentalUnsignedTypes
 class SnapshotTest {
 
     fun makeSnapshot(): Snapshot {

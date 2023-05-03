@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_199
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class Mapper199 : MMC3() {
 
     private val exReg = UByteArray(4)

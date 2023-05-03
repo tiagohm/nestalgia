@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_047
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class Mapper014 : MMC3() {
 
     private val vrcChrRegs = UByteArray(8)

@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class VideoDecoder(val console: Console) :
     Disposable,
     Resetable {

@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 data class PpuStatus(
     var spriteOverflow: Boolean = false,
     var sprite0Hit: Boolean = false,

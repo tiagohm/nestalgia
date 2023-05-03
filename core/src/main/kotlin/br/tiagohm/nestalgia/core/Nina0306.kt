@@ -4,7 +4,6 @@ package br.tiagohm.nestalgia.core
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_113
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_146
 
-@ExperimentalUnsignedTypes
 class Nina0306(val multicartMode: Boolean) : Mapper() {
 
     override val prgPageSize = 0x8000U

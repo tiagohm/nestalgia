@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_162
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class Waixing162 : Mapper() {
 
     private val exReg = UByteArray(4)

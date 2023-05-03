@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 import java.io.IOException
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class SaveStateManager(val console: Console) : Resetable {
 
     override fun reset(softReset: Boolean) {

@@ -5,7 +5,6 @@ import kotlin.math.min
 // https://wiki.nesdev.com/w/index.php/INES
 // https://wiki.nesdev.com/w/index.php/NES_2.0
 
-@ExperimentalUnsignedTypes
 data class NesHeader(
     /*
 	Thing 	    Archaic			 	iNES 								NES 2.0

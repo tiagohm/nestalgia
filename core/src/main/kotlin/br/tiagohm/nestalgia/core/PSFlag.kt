@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 enum class PSFlag(override val code: UByte) : Flag<UByte> {
     CARRY(0x01U),
     ZERO(0x02U),

@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 import java.io.IOException
 import java.util.*
 
-@ExperimentalUnsignedTypes
 object RomLoader {
 
     fun load(
@@ -21,6 +20,7 @@ object RomLoader {
 
         val data = when {
             rom.startsWith("NES\u001A") -> INesLoader.load(rom, name)
+            rom.startsWith("UNIF") -> UnifLoader.load(rom, name)
             rom.startsWith("FDS\u001A") ||
                     rom.startsWith("\u0001*NINTENDO-HVC*") -> FdsLoader.load(rom, name, fdsBios)
             else -> HeaderlessLoader.load(rom, name)

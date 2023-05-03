@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 import java.util.*
 
-@ExperimentalUnsignedTypes
 class CheatManager(val console: Console) {
 
     private val relativeCheatCodes = Array<MutableList<CodeInfo>?>(65536) { null }

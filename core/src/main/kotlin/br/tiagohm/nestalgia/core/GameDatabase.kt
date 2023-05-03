@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 import java.util.*
 
-@ExperimentalUnsignedTypes
 object GameDatabase {
 
     private val entries = HashMap<Long, GameInfo>(8192)

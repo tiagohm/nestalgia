@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 data class PpuControl(
     var verticalWrite: Boolean = false,
     var spritePatternAddr: UShort = 0U,

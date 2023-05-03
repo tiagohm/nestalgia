@@ -1,10 +1,9 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 abstract class ApuEnvelope(
     channel: AudioChannel,
     console: Console,
-    mixer: SoundMixer,
+    mixer: SoundMixer?,
 ) : ApuLengthCounter(channel, console, mixer) {
 
     private var constantVolume = false

@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_099
 
-@ExperimentalUnsignedTypes
 class VsSystem : Mapper() {
 
     private var prgChrSelectBit: UByte = 0U

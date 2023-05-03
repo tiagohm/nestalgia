@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 class PpuState(
     var control: UByte = 0U,
     var mask: UByte = 0U,

@@ -6,7 +6,6 @@ import br.tiagohm.nestalgia.core.PaletteType
 import br.tiagohm.nestalgia.ui.*
 import javax.swing.JPanel
 
-@ExperimentalUnsignedTypes
 class VideoConfig(
     private val emulator: Emulator,
     private val onSave: () -> Unit,

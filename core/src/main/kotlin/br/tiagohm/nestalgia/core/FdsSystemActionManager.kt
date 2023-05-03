@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 class FdsSystemActionManager(
     console: Console,
     val mapper: Fds,

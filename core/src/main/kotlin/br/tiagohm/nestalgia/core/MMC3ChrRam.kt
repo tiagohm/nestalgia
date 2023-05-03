@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@ExperimentalUnsignedTypes
 open class MMC3ChrRam(
     private val firstRamBank: UShort,
     private val lastRamBank: UShort,

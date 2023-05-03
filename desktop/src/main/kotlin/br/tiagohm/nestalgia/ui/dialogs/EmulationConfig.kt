@@ -6,7 +6,6 @@ import br.tiagohm.nestalgia.core.RamPowerOnState
 import br.tiagohm.nestalgia.ui.*
 import javax.swing.JPanel
 
-@ExperimentalUnsignedTypes
 class EmulationConfig(
     private val emulator: Emulator,
     private val onSave: () -> Unit,

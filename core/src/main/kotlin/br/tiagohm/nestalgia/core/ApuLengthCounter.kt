@@ -1,11 +1,10 @@
 package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 abstract class ApuLengthCounter(
     channel: AudioChannel,
     console: Console,
-    mixer: SoundMixer,
+    mixer: SoundMixer?,
 ) : ApuChannel(channel, console, mixer) {
 
     protected var newHaltValue = false

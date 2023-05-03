@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 import kotlin.math.min
 
-@ExperimentalUnsignedTypes
 class BatteryManager(val console: Console) {
 
     var isSaveEnabled = false

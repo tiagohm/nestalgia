@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_088
 
-@ExperimentalUnsignedTypes
 open class Mapper088 : Namco108() {
 
     override fun updateChrMapping() {

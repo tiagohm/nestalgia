@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 import kotlin.math.abs
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class DeltaModulationChannel(
     channel: AudioChannel,
     console: Console,

@@ -7,7 +7,6 @@ import kotlin.random.Random
 // https://wiki.nesdev.com/w/index.php/Mapper
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 abstract class Mapper :
     Resetable,
     Battery,
@@ -196,6 +195,7 @@ abstract class Mapper :
     }
 
     private var privateMirroringType: MirroringType? = null
+
     var mirroringType: MirroringType?
         get() = privateMirroringType
         set(value) {
@@ -212,18 +212,18 @@ abstract class Mapper :
             }
         }
 
-    protected inline fun setNametables(a: Int, b: Int, c: Int, d: Int) {
-        setNametable(0U, a)
-        setNametable(1U, b)
-        setNametable(2U, c)
-        setNametable(3U, d)
+    inline fun setNametables(a: Int, b: Int, c: Int, d: Int) {
+        setNametable(0, a)
+        setNametable(1, b)
+        setNametable(2, c)
+        setNametable(3, d)
     }
 
-    fun setNametable(index: UByte, nametableIndex: Int) {
+    fun setNametable(index: Int, nametableIndex: Int) {
         if (nametableIndex in 0 until NAMETABLE_COUNT) {
             setPpuMemoryMapping(
-                (0x2000U + index * 0x400U).toUShort(),
-                (0x2000U + (index + 1U) * 0x400U - 1U).toUShort(),
+                (0x2000 + index * 0x400).toUShort(),
+                (0x2000 + (index + 1) * 0x400 - 1).toUShort(),
                 nametableIndex.toUShort(),
                 ChrMemoryType.NAMETABLE_RAM
             )
@@ -231,8 +231,8 @@ abstract class Mapper :
             // Previously, $3000-$3FFF was being "redirected" to $2000-$2FFF to avoid MMC3 IRQ issues (which is incorrect)
             // More info here: https://forums.nesdev.com/viewtopic.php?p=132145#p132145
             setPpuMemoryMapping(
-                (0x3000U + index * 0x400U).toUShort(),
-                (0x3000U + (index + 1U) * 0x400U - 1U).toUShort(),
+                (0x3000 + index * 0x400).toUShort(),
+                (0x3000 + (index + 1) * 0x400 - 1).toUShort(),
                 nametableIndex.toUShort(),
                 ChrMemoryType.NAMETABLE_RAM
             )
@@ -892,6 +892,9 @@ abstract class Mapper :
             return console.settings.dipSwitches and mask
         }
 
+    inline val isNes20: Boolean
+        get() = info.isNes20Header
+
     override fun saveState(s: Snapshot) {
         privateMirroringType?.let { s.write("mirroringType", it) }
         s.write("chrRam", chrRam)
@@ -909,7 +912,7 @@ abstract class Mapper :
     override fun restoreState(s: Snapshot) {
         s.load()
 
-        privateMirroringType = s.readEnum("mirroringType")
+        privateMirroringType = s.readEnum<MirroringType>("mirroringType")
         s.readUByteArray("chrRam")?.copyInto(chrRam)
         s.readUByteArray("workRam")?.copyInto(workRam)
         s.readUByteArray("saveRam")?.copyInto(saveRam)
@@ -1016,12 +1019,14 @@ abstract class Mapper :
                 47 -> Mapper047()
                 49 -> Mapper049()
                 52 -> Mapper052()
+                63 -> Bmc63()
                 74 -> Mapper074()
                 76 -> Mapper076()
                 79 -> Nina0306(false)
                 88 -> Mapper088()
                 91 -> Mapper091()
                 95 -> Mapper095()
+                105 -> Mapper105()
                 108 -> Bb()
                 113 -> Nina0306(true)
                 114 -> Mapper114()
@@ -1042,6 +1047,7 @@ abstract class Mapper :
                 148 -> Sachen148()
                 149 -> Sachen149()
                 154 -> Mapper154()
+                155 -> Mapper155()
                 162 -> Waixing162()
                 164 -> Waixing164()
                 172 -> Txc22211b()
@@ -1063,6 +1069,7 @@ abstract class Mapper :
                 206 -> Namco108()
                 213 -> Mapper213()
                 214 -> Mapper214()
+                235 -> Bmc235()
                 240 -> Mapper240()
                 241 -> Mapper241()
                 242 -> Mapper242()
@@ -1071,6 +1078,7 @@ abstract class Mapper :
                 252 -> Waixing252()
                 250 -> Mapper250()
                 254 -> Mapper254()
+                255 -> Bmc255()
                 FDS_MAPPER_ID -> Fds()
                 else -> {
                     System.err.println("${data.info.name} has unsupported mapper $id")

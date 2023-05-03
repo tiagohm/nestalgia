@@ -1,7 +1,6 @@
 package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalUnsignedTypes
 class Apu(val console: Console) :
     MemoryHandler,
     Resetable,
@@ -220,7 +219,7 @@ class Apu(val console: Console) :
         }
     }
 
-    fun addExpansionAudioDelta(channel: AudioChannel, delta: Short) {
+    fun addExpansionAudioDelta(channel: AudioChannel, delta: Int) {
         mixer.addDelta(channel, currentCycle, delta)
     }
 
@@ -243,7 +242,7 @@ class Apu(val console: Console) :
 
         previousCycle = 0
         currentCycle = 0
-        privateRegion = s.readEnum("region") ?: Region.AUTO
+        privateRegion = s.readEnum<Region>("region") ?: Region.AUTO
         s.readSnapshot("square1")?.let { squareChannel1.restoreState(it) }
         s.readSnapshot("square2")?.let { squareChannel2.restoreState(it) }
         s.readSnapshot("triangle")?.let { triangleChannel.restoreState(it) }

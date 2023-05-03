@@ -7,7 +7,6 @@ import com.studiohartman.jamepad.ControllerManager
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-@ExperimentalUnsignedTypes
 class GamepadInputProvider(
     private val console: Console,
     private val onAction: (Action) -> Unit,
