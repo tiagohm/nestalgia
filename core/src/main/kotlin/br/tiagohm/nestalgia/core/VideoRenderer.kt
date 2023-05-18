@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean

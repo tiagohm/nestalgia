@@ -143,6 +143,7 @@ class BattleBox(console: Console) :
     }
 
     companion object {
+
         const val FILE_SIZE = 0x200
     }
 }

@@ -19,6 +19,7 @@ data class HashInfo(
 ) {
 
     companion object {
-        val EMPTY = HashInfo()
+
+        @JvmStatic val EMPTY = HashInfo()
     }
 }

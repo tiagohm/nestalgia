@@ -73,20 +73,20 @@ class SoundMixer(val console: Console) :
         get() {
             val squareOutput = getChannelOutput(AudioChannel.SQUARE_1) + getChannelOutput(AudioChannel.SQUARE_2)
             val tndOutput = (3 * getChannelOutput(AudioChannel.TRIANGLE) +
-                    2 * getChannelOutput(AudioChannel.NOISE) +
-                    getChannelOutput(AudioChannel.DMC))
+                2 * getChannelOutput(AudioChannel.NOISE) +
+                getChannelOutput(AudioChannel.DMC))
 
             val squareVolume = 477600 / (8128.0 / squareOutput + 100.0)
             val tndVolume = 818350 / (24329.0 / tndOutput + 100.0)
 
             return (squareVolume +
-                    tndVolume +
-                    getChannelOutput(AudioChannel.FDS) * 20 +
-                    getChannelOutput(AudioChannel.MMC5) * 43 +
-                    getChannelOutput(AudioChannel.NAMCO_163) * 20 +
-                    getChannelOutput(AudioChannel.SUNSOFT_5B) * 15 +
-                    getChannelOutput(AudioChannel.VRC6) * 75 +
-                    getChannelOutput(AudioChannel.VRC7)).toInt().toUShort()
+                tndVolume +
+                getChannelOutput(AudioChannel.FDS) * 20 +
+                getChannelOutput(AudioChannel.MMC5) * 43 +
+                getChannelOutput(AudioChannel.NAMCO_163) * 20 +
+                getChannelOutput(AudioChannel.SUNSOFT_5B) * 15 +
+                getChannelOutput(AudioChannel.VRC6) * 75 +
+                getChannelOutput(AudioChannel.VRC7)).toInt().toUShort()
         }
 
     fun addDelta(channel: AudioChannel, time: Int, delta: Int) {
@@ -216,6 +216,7 @@ class SoundMixer(val console: Console) :
     }
 
     companion object {
+
         const val CYCLE_LENGTH = 10000
         const val BITS_PER_SAMPLE = 16
 

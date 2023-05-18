@@ -116,6 +116,7 @@ abstract class ControlDevice(
     }
 
     companion object {
+
         const val EXP_DEVICE_PORT = 4
         const val CONSOLE_INPUT_PORT = 5
         const val MAPPER_INPUT_PORT = 6

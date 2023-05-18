@@ -26,10 +26,10 @@ class CNROM(val enableCopyProtection: Boolean) : Mapper() {
             // Submapper 7: Enable CHR-ROM if bits 0..1 of the latch hold the value 3, otherwise disable CHR-ROM.
             val latch = value.toInt() and 0x03
             val isValidAccess = info.subMapperId == 0 && value.toInt() and 0x0F != 0 && value.toInt() != 0x13 ||
-                    info.subMapperId == 4 && latch == 0 ||
-                    info.subMapperId == 5 && latch == 1 ||
-                    info.subMapperId == 6 && latch == 2 ||
-                    info.subMapperId == 7 && latch == 3
+                info.subMapperId == 4 && latch == 0 ||
+                info.subMapperId == 5 && latch == 1 ||
+                info.subMapperId == 6 && latch == 2 ||
+                info.subMapperId == 7 && latch == 3
 
             if (isValidAccess) {
                 selectChrPage(0U, 0U)

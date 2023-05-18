@@ -1,7 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-import java.util.*
-
 open class ControlManager(
     val console: Console,
     val systemActionManager: ControlDevice,

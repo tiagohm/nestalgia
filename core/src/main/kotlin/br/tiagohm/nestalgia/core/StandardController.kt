@@ -16,13 +16,13 @@ open class StandardController(console: Console, port: Int) : ControlDevice(conso
     protected inline val value: UByte
         get() {
             return ((if (isPressed(StandardControllerButton.A)) 0x01U else 0x00U) or
-                    (if (isPressed(StandardControllerButton.B)) 0x02U else 0x00U) or
-                    (if (isPressed(StandardControllerButton.SELECT)) 0x04U else 0x00U) or
-                    (if (isPressed(StandardControllerButton.START)) 0x08U else 0x00U) or
-                    (if (isPressed(StandardControllerButton.UP)) 0x10U else 0x00U) or
-                    (if (isPressed(StandardControllerButton.DOWN)) 0x20U else 0x00U) or
-                    (if (isPressed(StandardControllerButton.LEFT)) 0x40U else 0x00U) or
-                    (if (isPressed(StandardControllerButton.RIGHT)) 0x80U else 0x00U)).toUByte()
+                (if (isPressed(StandardControllerButton.B)) 0x02U else 0x00U) or
+                (if (isPressed(StandardControllerButton.SELECT)) 0x04U else 0x00U) or
+                (if (isPressed(StandardControllerButton.START)) 0x08U else 0x00U) or
+                (if (isPressed(StandardControllerButton.UP)) 0x10U else 0x00U) or
+                (if (isPressed(StandardControllerButton.DOWN)) 0x20U else 0x00U) or
+                (if (isPressed(StandardControllerButton.LEFT)) 0x40U else 0x00U) or
+                (if (isPressed(StandardControllerButton.RIGHT)) 0x80U else 0x00U)).toUByte()
         }
 
     // inline val isTurboOn: Boolean

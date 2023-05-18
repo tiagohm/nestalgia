@@ -1,7 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-import java.util.*
-
 class CheatManager(val console: Console) {
 
     private val relativeCheatCodes = Array<MutableList<CodeInfo>?>(65536) { null }
@@ -163,15 +161,16 @@ class CheatManager(val console: Console) {
         }
 
     companion object {
+
         // Game Genie
         private const val GAME_GENIE_LETTERS = "APZLGITYEOXUKSVN"
-        private val GAME_GENIE_ADDRESS_BITS = intArrayOf(14, 13, 12, 19, 22, 21, 20, 7, 10, 9, 8, 15, 18, 17, 16)
-        private val GAME_GENIE_VALUE_BITS = intArrayOf(3, 6, 5, 4, 23, 2, 1, 0)
-        private val GAME_GENIE_VALUE_BITS_8 = intArrayOf(3, 6, 5, 4, 31, 2, 1, 0)
-        private val GAME_GENIE_COMPARE_VALUE_BITS = intArrayOf(27, 30, 29, 28, 23, 26, 25, 24)
+        @JvmStatic private val GAME_GENIE_ADDRESS_BITS = intArrayOf(14, 13, 12, 19, 22, 21, 20, 7, 10, 9, 8, 15, 18, 17, 16)
+        @JvmStatic private val GAME_GENIE_VALUE_BITS = intArrayOf(3, 6, 5, 4, 23, 2, 1, 0)
+        @JvmStatic private val GAME_GENIE_VALUE_BITS_8 = intArrayOf(3, 6, 5, 4, 31, 2, 1, 0)
+        @JvmStatic private val GAME_GENIE_COMPARE_VALUE_BITS = intArrayOf(27, 30, 29, 28, 23, 26, 25, 24)
 
         // PAR
-        private val PAR_SHIFT_VALUES = intArrayOf(
+        @JvmStatic private val PAR_SHIFT_VALUES = intArrayOf(
             3, 13, 14, 1, 6, 9, 5, 0, 12, 7, 2, 8, 10, 11, 4, // Address
             19, 21, 23, 22, 20, 17, 16, 18, // Compare
             29, 31, 24, 26, 25, 30, 27, 28, // Value

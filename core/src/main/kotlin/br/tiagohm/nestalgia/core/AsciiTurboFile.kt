@@ -98,6 +98,7 @@ class AsciiTurboFile(console: Console) :
     }
 
     companion object {
+
         const val FILE_SIZE = 0x2000
         const val SLOT_COUNT = 4
         const val BIT_COUNT = FILE_SIZE * 8

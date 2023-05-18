@@ -63,8 +63,8 @@ open class Snapshot(buffer: Buffer = Buffer()) {
     ) {
         // [3-2:type][1: signed flag][0:array flag]
         val data = (type.ordinal shl 2) or
-                (if (isUnsigned) 0x2 else 0) or
-                (if (isArray) 0x1 else 0)
+            (if (isUnsigned) 0x2 else 0) or
+            (if (isArray) 0x1 else 0)
         buffer.write(data)
         buffer.writeAscii(key)
     }
@@ -376,9 +376,9 @@ open class Snapshot(buffer: Buffer = Buffer()) {
         val a = IntArray(data.size / 4)
         for (i in data.indices step 4) {
             a[i / 4] = (data[i].toInt() and 0xFF shl 24) or
-                    (data[i + 1].toInt() and 0xFF shl 16) or
-                    (data[i + 2].toInt() and 0xFF shl 8) or
-                    (data[i + 3].toInt() and 0xFF)
+                (data[i + 1].toInt() and 0xFF shl 16) or
+                (data[i + 2].toInt() and 0xFF shl 8) or
+                (data[i + 3].toInt() and 0xFF)
         }
         return a
     }
@@ -388,9 +388,9 @@ open class Snapshot(buffer: Buffer = Buffer()) {
         val a = UIntArray(data.size / 4)
         for (i in data.indices step 4) {
             a[i / 4] = ((data[i].toInt() and 0xFF shl 24) or
-                    (data[i + 1].toInt() and 0xFF shl 16) or
-                    (data[i + 2].toInt() and 0xFF shl 8) or
-                    (data[i + 3].toInt() and 0xFF)).toUInt()
+                (data[i + 1].toInt() and 0xFF shl 16) or
+                (data[i + 2].toInt() and 0xFF shl 8) or
+                (data[i + 3].toInt() and 0xFF)).toUInt()
         }
         return a
     }
@@ -400,13 +400,13 @@ open class Snapshot(buffer: Buffer = Buffer()) {
         val a = LongArray(data.size / 8)
         for (i in data.indices step 8) {
             a[i / 8] = (data[i].toLong() and 0xFF shl 56) or
-                    (data[i + 1].toLong() and 0xFF shl 48) or
-                    (data[i + 2].toLong() and 0xFF shl 40) or
-                    (data[i + 3].toLong() and 0xFF shl 32) or
-                    (data[i + 4].toLong() and 0xFF shl 24) or
-                    (data[i + 5].toLong() and 0xFF shl 16) or
-                    (data[i + 6].toLong() and 0xFF shl 8) or
-                    (data[i + 7].toLong() and 0xFF)
+                (data[i + 1].toLong() and 0xFF shl 48) or
+                (data[i + 2].toLong() and 0xFF shl 40) or
+                (data[i + 3].toLong() and 0xFF shl 32) or
+                (data[i + 4].toLong() and 0xFF shl 24) or
+                (data[i + 5].toLong() and 0xFF shl 16) or
+                (data[i + 6].toLong() and 0xFF shl 8) or
+                (data[i + 7].toLong() and 0xFF)
         }
         return a
     }
@@ -416,13 +416,13 @@ open class Snapshot(buffer: Buffer = Buffer()) {
         val a = ULongArray(data.size / 8)
         for (i in data.indices step 8) {
             a[i / 8] = ((data[i].toLong() and 0xFF shl 56) or
-                    (data[i + 1].toLong() and 0xFF shl 48) or
-                    (data[i + 2].toLong() and 0xFF shl 40) or
-                    (data[i + 3].toLong() and 0xFF shl 32) or
-                    (data[i + 4].toLong() and 0xFF shl 24) or
-                    (data[i + 5].toLong() and 0xFF shl 16) or
-                    (data[i + 6].toLong() and 0xFF shl 8) or
-                    (data[i + 7].toLong() and 0xFF)).toULong()
+                (data[i + 1].toLong() and 0xFF shl 48) or
+                (data[i + 2].toLong() and 0xFF shl 40) or
+                (data[i + 3].toLong() and 0xFF shl 32) or
+                (data[i + 4].toLong() and 0xFF shl 24) or
+                (data[i + 5].toLong() and 0xFF shl 16) or
+                (data[i + 6].toLong() and 0xFF shl 8) or
+                (data[i + 7].toLong() and 0xFF)).toULong()
         }
         return a
     }
@@ -433,9 +433,9 @@ open class Snapshot(buffer: Buffer = Buffer()) {
         for (i in data.indices step 4) {
             a[i / 4] = Float.fromBits(
                 (data[i].toInt() and 0xFF shl 24) or
-                        (data[i + 1].toInt() and 0xFF shl 16) or
-                        (data[i + 2].toInt() and 0xFF shl 8) or
-                        (data[i + 3].toInt() and 0xFF)
+                    (data[i + 1].toInt() and 0xFF shl 16) or
+                    (data[i + 2].toInt() and 0xFF shl 8) or
+                    (data[i + 3].toInt() and 0xFF)
             )
         }
         return a
@@ -447,13 +447,13 @@ open class Snapshot(buffer: Buffer = Buffer()) {
         for (i in data.indices step 8) {
             a[i / 8] = Double.fromBits(
                 (data[i].toLong() and 0xFF shl 56) or
-                        (data[i + 1].toLong() and 0xFF shl 48) or
-                        (data[i + 2].toLong() and 0xFF shl 40) or
-                        (data[i + 3].toLong() and 0xFF shl 32) or
-                        (data[i + 4].toLong() and 0xFF shl 24) or
-                        (data[i + 5].toLong() and 0xFF shl 16) or
-                        (data[i + 6].toLong() and 0xFF shl 8) or
-                        (data[i + 7].toLong() and 0xFF)
+                    (data[i + 1].toLong() and 0xFF shl 48) or
+                    (data[i + 2].toLong() and 0xFF shl 40) or
+                    (data[i + 3].toLong() and 0xFF shl 32) or
+                    (data[i + 4].toLong() and 0xFF shl 24) or
+                    (data[i + 5].toLong() and 0xFF shl 16) or
+                    (data[i + 6].toLong() and 0xFF shl 8) or
+                    (data[i + 7].toLong() and 0xFF)
             )
         }
         return a
@@ -467,6 +467,7 @@ open class Snapshot(buffer: Buffer = Buffer()) {
     }
 
     companion object {
+
         private const val BYTE_ZERO: Byte = 0
         private const val BYTE_ONE: Byte = 1
     }

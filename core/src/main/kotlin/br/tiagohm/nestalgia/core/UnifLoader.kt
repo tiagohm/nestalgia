@@ -15,9 +15,9 @@ object UnifLoader {
         fun readByte() = rom[offset++].toInt()
 
         fun readInt() = (rom[offset++].toInt() and 0xFF) or
-                ((rom[offset++].toInt() and 0xFF) shl 8) or
-                ((rom[offset++].toInt() and 0xFF) shl 16) or
-                ((rom[offset++].toInt() and 0xFF) shl 24)
+            ((rom[offset++].toInt() and 0xFF) shl 8) or
+            ((rom[offset++].toInt() and 0xFF) shl 16) or
+            ((rom[offset++].toInt() and 0xFF) shl 24)
 
         fun readString(): String {
             val res = StringBuilder()

@@ -1,7 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-import java.util.*
-
 class MemoryRanges {
 
     val ramReadAddresses = ArrayList<UShort>()

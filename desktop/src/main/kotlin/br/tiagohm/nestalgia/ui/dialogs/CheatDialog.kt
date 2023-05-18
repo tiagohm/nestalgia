@@ -2,8 +2,16 @@ package br.tiagohm.nestalgia.ui.dialogs
 
 import br.tiagohm.nestalgia.core.CheatDatabase
 import br.tiagohm.nestalgia.core.CheatInfo
-import br.tiagohm.nestalgia.ui.*
-import java.util.*
+import br.tiagohm.nestalgia.ui.Anchor
+import br.tiagohm.nestalgia.ui.Fill
+import br.tiagohm.nestalgia.ui.SelectionMode
+import br.tiagohm.nestalgia.ui.Size
+import br.tiagohm.nestalgia.ui.button
+import br.tiagohm.nestalgia.ui.checkboxList
+import br.tiagohm.nestalgia.ui.label
+import br.tiagohm.nestalgia.ui.margin
+import br.tiagohm.nestalgia.ui.panel
+import br.tiagohm.nestalgia.ui.scrollPane
 import javax.swing.JPanel
 
 class CheatDialog(

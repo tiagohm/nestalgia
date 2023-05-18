@@ -18,8 +18,8 @@ class Mapper123 : MMC3() {
     override fun updatePrgMapping() {
         if (exReg[0].bit6) {
             val bank = ((exReg[0] and 0x05U) or
-                    ((exReg[0] and 0x08U) shr 2) or
-                    ((exReg[0] and 0x20U) shr 2)).toUInt()
+                ((exReg[0] and 0x08U) shr 2) or
+                ((exReg[0] and 0x20U) shr 2)).toUInt()
 
             if (exReg[0].bit1) {
                 selectPrgPage4x(0U, ((bank and 0xFEU) shl 1).toUShort())
@@ -60,6 +60,7 @@ class Mapper123 : MMC3() {
     }
 
     companion object {
-        private val SECURITY = ubyteArrayOf(0U, 3U, 1U, 5U, 6U, 7U, 2U, 4U)
+
+        @JvmStatic private val SECURITY = ubyteArrayOf(0U, 3U, 1U, 5U, 6U, 7U, 2U, 4U)
     }
 }

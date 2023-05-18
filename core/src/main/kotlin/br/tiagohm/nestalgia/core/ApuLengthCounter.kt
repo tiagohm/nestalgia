@@ -101,7 +101,8 @@ abstract class ApuLengthCounter(
     }
 
     companion object {
-        protected val LC_LOOKUP_TABLE = ubyteArrayOf(
+
+        @JvmStatic protected val LC_LOOKUP_TABLE = ubyteArrayOf(
             10U, 254U, 20U, 2U, 40U, 4U, 80U, 6U,
             160U, 8U, 60U, 10U, 14U, 12U, 26U, 14U,
             12U, 16U, 24U, 18U, 48U, 20U, 96U, 22U,

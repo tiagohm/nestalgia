@@ -12,8 +12,8 @@ class Txc22211c : Txc22211a() {
                 selectChrPage(
                     0U,
                     ((if (txChip.output.bit0) 0x01U else 0x00U) or
-                            (if (txChip.y) 0x02U else 0U) or
-                            (if (txChip.output.bit1) 0x04U else 0x00U)).toUShort()
+                        (if (txChip.y) 0x02U else 0U) or
+                        (if (txChip.output.bit1) 0x04U else 0x00U)).toUShort()
                 )
             }
             txChip.y -> selectChrPage(0U, 0U)

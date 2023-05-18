@@ -75,20 +75,20 @@ class KeyMapping(
     }
 
     companion object {
-        val NONE = KeyMapping(0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-        inline fun load(s: Snapshot): KeyMapping {
-            return KeyMapping(
-                s.readInt("a") ?: 0,
-                s.readInt("b") ?: 0,
-                s.readInt("up") ?: 0,
-                s.readInt("down") ?: 0,
-                s.readInt("left") ?: 0,
-                s.readInt("right") ?: 0,
-                s.readInt("start") ?: 0,
-                s.readInt("select") ?: 0,
-                s.readInt("microphone") ?: 0,
-            )
-        }
+        @JvmStatic val NONE = KeyMapping(0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+        @JvmStatic
+        fun load(s: Snapshot) = KeyMapping(
+            s.readInt("a") ?: 0,
+            s.readInt("b") ?: 0,
+            s.readInt("up") ?: 0,
+            s.readInt("down") ?: 0,
+            s.readInt("left") ?: 0,
+            s.readInt("right") ?: 0,
+            s.readInt("start") ?: 0,
+            s.readInt("select") ?: 0,
+            s.readInt("microphone") ?: 0,
+        )
     }
 }

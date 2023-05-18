@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 class InternalRamHandler(
     private val ram: UByteArray,
-    private val mask: UShort
+    private val mask: UShort,
 ) : MemoryHandler {
 
     override fun getMemoryRanges(ranges: MemoryRanges) {

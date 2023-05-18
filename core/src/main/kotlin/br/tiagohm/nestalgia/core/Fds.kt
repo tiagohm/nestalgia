@@ -654,6 +654,7 @@ class Fds : Mapper() {
     }
 
     companion object {
+
         const val NO_DISK_INSERTED = 0xFF
     }
 }

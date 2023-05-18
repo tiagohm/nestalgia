@@ -2,13 +2,41 @@ package br.tiagohm.nestalgia.ui
 
 import com.intellij.uiDesigner.core.GridConstraints
 import com.intellij.uiDesigner.core.GridLayoutManager
-import java.awt.*
+import java.awt.Color
+import java.awt.Component
+import java.awt.Cursor
+import java.awt.Dimension
+import java.awt.Event
+import java.awt.Font
+import java.awt.Insets
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
-import javax.swing.*
+import javax.swing.ComboBoxModel
+import javax.swing.Icon
+import javax.swing.JButton
+import javax.swing.JCheckBox
+import javax.swing.JCheckBoxMenuItem
+import javax.swing.JComboBox
+import javax.swing.JComponent
+import javax.swing.JFrame
+import javax.swing.JLabel
+import javax.swing.JList
+import javax.swing.JMenu
+import javax.swing.JMenuBar
+import javax.swing.JMenuItem
+import javax.swing.JPanel
+import javax.swing.JRadioButtonMenuItem
+import javax.swing.JScrollPane
+import javax.swing.JSpinner
 import javax.swing.JSpinner.DefaultEditor
+import javax.swing.KeyStroke
+import javax.swing.ListCellRenderer
+import javax.swing.ListSelectionModel
+import javax.swing.SpinnerModel
+import javax.swing.SpinnerNumberModel
+import javax.swing.SwingConstants
 import javax.swing.event.ListDataListener
 
 val APP_ICON: BufferedImage? by lazy {
@@ -72,8 +100,8 @@ data class SizePolicy(
     val wantGrow: Boolean = false,
 ) {
     val value = (if (canShrink) GridConstraints.SIZEPOLICY_CAN_SHRINK else 0) or
-            (if (canGrow) GridConstraints.SIZEPOLICY_CAN_GROW else 0) or
-            (if (wantGrow) GridConstraints.SIZEPOLICY_WANT_GROW else 0)
+        (if (canGrow) GridConstraints.SIZEPOLICY_CAN_GROW else 0) or
+        (if (wantGrow) GridConstraints.SIZEPOLICY_WANT_GROW else 0)
 
     companion object {
         val DEFAULT = SizePolicy()
@@ -636,7 +664,7 @@ class CheckboxListRenderer<T> : JPanel(), ListCellRenderer<CheckboxListItem<T>> 
         value: CheckboxListItem<T>,
         index: Int,
         isSelected: Boolean,
-        cellHasFocus: Boolean
+        cellHasFocus: Boolean,
     ): Component {
         return checkbox(
             0, 0,
@@ -727,8 +755,8 @@ fun key(
     isAlt: Boolean = false,
 ): KeyStroke {
     val modifiers = (if (isCtrl) Event.CTRL_MASK else 0) or
-            (if (isShift) Event.SHIFT_MASK else 0) or
-            (if (isAlt) Event.ALT_MASK else 0)
+        (if (isShift) Event.SHIFT_MASK else 0) or
+        (if (isAlt) Event.ALT_MASK else 0)
 
     return KeyStroke.getKeyStroke(code, modifiers)
 }

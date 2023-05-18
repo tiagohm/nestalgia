@@ -73,6 +73,7 @@ class SaveStateManager(val console: Console) : Resetable {
     }
 
     companion object {
+
         const val VERSION = 1
     }
 }

@@ -970,6 +970,7 @@ abstract class Mapper :
 
     companion object {
 
+        @JvmStatic
         fun initialize(
             console: Console,
             rom: ByteArray,
@@ -991,6 +992,7 @@ abstract class Mapper :
             return Pair(fromId(data), data)
         }
 
+        @JvmStatic
         fun fromId(data: RomData): Mapper {
             return when (val id = data.info.mapperId) {
                 0 -> NROM()

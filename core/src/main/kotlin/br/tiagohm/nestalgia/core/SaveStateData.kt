@@ -5,7 +5,7 @@ data class SaveStateData(
     var mapperId: Int = -1,
     var subMapperId: Int = -1,
     var hash: Long = 0L,
-    var data: Snapshot = Snapshot()
+    var data: Snapshot = Snapshot(),
 ) : Snapshotable {
 
     override fun saveState(s: Snapshot) {

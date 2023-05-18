@@ -305,11 +305,11 @@ open class MMC3 : Mapper() {
 
     companion object {
 
-        protected val MEMORY_ACCESS_TYPES = arrayOf(
+        @JvmStatic protected val MEMORY_ACCESS_TYPES = arrayOf(
             MemoryAccessType.NO_ACCESS,
             MemoryAccessType.READ,
             MemoryAccessType.WRITE,
-            MemoryAccessType.READ_WRITE
+            MemoryAccessType.READ_WRITE,
         )
     }
 }

@@ -661,7 +661,7 @@ open class Ppu(val console: Console) :
         tileIndex: UByte,
         attributes: UByte,
         spriteX: UByte,
-        extraSprite: Boolean
+        extraSprite: Boolean,
     ) {
         var ti = tileIndex
         val backgroundPriority = attributes.bit5
@@ -1058,8 +1058,8 @@ open class Ppu(val console: Console) :
 
     private inline fun updateStatusFlag() {
         state.status = ((if (statusFlags.spriteOverflow) 0x20U else 0U) or
-                (if (statusFlags.sprite0Hit) 0x40U else 0U) or
-                (if (statusFlags.verticalBlank) 0x80U else 0U)).toUByte()
+            (if (statusFlags.sprite0Hit) 0x40U else 0U) or
+            (if (statusFlags.verticalBlank) 0x80U else 0U)).toUByte()
 
         statusFlags.verticalBlank = false
         console.cpu.nmi = false
@@ -1213,8 +1213,8 @@ open class Ppu(val console: Console) :
         when (getRegisterId(addr)) {
             PpuRegister.STATUS -> {
                 result = ((if (statusFlags.spriteOverflow) 0x20U else 0x00U) or
-                        (if (statusFlags.sprite0Hit) 0x40U else 0x00U) or
-                        (if (statusFlags.verticalBlank) 0x80U else 0x00U)).toUByte()
+                    (if (statusFlags.sprite0Hit) 0x40U else 0x00U) or
+                    (if (statusFlags.verticalBlank) 0x80U else 0x00U)).toUByte()
 
                 if (scanline == nmiScanline && cycle < 3) {
                     // Clear vertical blank flag
@@ -1677,6 +1677,7 @@ open class Ppu(val console: Console) :
     }
 
     companion object {
+
         const val SCREEN_WIDTH = 256
         const val SCREEN_HEIGHT = 240
         const val PIXEL_COUNT = SCREEN_WIDTH * SCREEN_HEIGHT

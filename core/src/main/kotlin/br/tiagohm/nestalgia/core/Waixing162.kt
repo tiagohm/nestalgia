@@ -32,8 +32,8 @@ class Waixing162 : Mapper() {
         when (exReg[3].toInt() and 0x05) {
             0 -> {
                 val page = (exReg[0] and 0x0CU) or
-                        (exReg[1] and 0x02U) or
-                        ((exReg[2] and 0x0FU).toUInt() shl 4).toUByte()
+                    (exReg[1] and 0x02U) or
+                    ((exReg[2] and 0x0FU).toUInt() shl 4).toUByte()
                 selectPrgPage(0U, page.toUShort())
             }
             1 -> {
@@ -42,8 +42,8 @@ class Waixing162 : Mapper() {
             }
             4 -> {
                 val page = (exReg[0] and 0x0EU) or
-                        ((exReg[1] shr 1) and 0x01U) or
-                        ((exReg[2].toUInt() and 0x0FU) shl 4).toUByte()
+                    ((exReg[1] shr 1) and 0x01U) or
+                    ((exReg[2].toUInt() and 0x0FU) shl 4).toUByte()
                 selectPrgPage(0U, page.toUShort())
             }
             5 -> {

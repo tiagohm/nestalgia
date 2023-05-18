@@ -3,7 +3,16 @@ package br.tiagohm.nestalgia.ui.dialogs
 import br.tiagohm.nestalgia.core.EmulationFlag
 import br.tiagohm.nestalgia.core.Emulator
 import br.tiagohm.nestalgia.core.RamPowerOnState
-import br.tiagohm.nestalgia.ui.*
+import br.tiagohm.nestalgia.ui.Anchor
+import br.tiagohm.nestalgia.ui.Fill
+import br.tiagohm.nestalgia.ui.Size
+import br.tiagohm.nestalgia.ui.button
+import br.tiagohm.nestalgia.ui.checkbox
+import br.tiagohm.nestalgia.ui.dropdown
+import br.tiagohm.nestalgia.ui.label
+import br.tiagohm.nestalgia.ui.margin
+import br.tiagohm.nestalgia.ui.panel
+import br.tiagohm.nestalgia.ui.spinnerNumber
 import javax.swing.JPanel
 
 class EmulationConfig(

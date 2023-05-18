@@ -1,10 +1,7 @@
 package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
-class Apu(val console: Console) :
-    MemoryHandler,
-    Resetable,
-    Snapshotable {
+class Apu(val console: Console) : MemoryHandler, Resetable, Snapshotable {
 
     private val mixer = console.soundMixer
     private var currentCycle = 0

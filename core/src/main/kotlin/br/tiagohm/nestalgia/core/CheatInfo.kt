@@ -16,6 +16,8 @@ data class CheatInfo(
     override fun toString() = description
 
     companion object {
+
+        @JvmStatic
         fun parse(line: String): CheatInfo? {
             val parts = line.split(";")
             val hash = parts[0].also { if (it.isBlank()) return null }

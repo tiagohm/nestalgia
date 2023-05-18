@@ -21,7 +21,7 @@ data class GameInfo(
     val busConflict: BusConflictType,
     val subMapperId: Int,
     val vsType: VsSystemType,
-    val vsPpuModel: PpuModel
+    val vsPpuModel: PpuModel,
 ) {
 
     fun update(data: RomData, forHeaderlessRom: Boolean): RomData {
@@ -111,6 +111,8 @@ data class GameInfo(
     }
 
     companion object {
+
+        @JvmStatic
         fun parse(line: String): GameInfo {
             val parts = line.split(";")
 

@@ -74,7 +74,7 @@ class Bmc235 : Mapper() {
 
     companion object {
 
-        private val CONFIG = arrayOf(
+        @JvmStatic private val CONFIG = arrayOf(
             arrayOf(ubyteArrayOf(0x00U, 0U), ubyteArrayOf(0x00U, 1U), ubyteArrayOf(0x00U, 1U), ubyteArrayOf(0x00U, 1U)),
             arrayOf(ubyteArrayOf(0x00U, 0U), ubyteArrayOf(0x00U, 1U), ubyteArrayOf(0x20U, 0U), ubyteArrayOf(0x00U, 1U)),
             arrayOf(ubyteArrayOf(0x00U, 0U), ubyteArrayOf(0x00U, 1U), ubyteArrayOf(0x20U, 0U), ubyteArrayOf(0x40U, 0U)),

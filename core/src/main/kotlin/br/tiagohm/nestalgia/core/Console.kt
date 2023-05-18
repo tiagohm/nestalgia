@@ -1,7 +1,6 @@
 package br.tiagohm.nestalgia.core
 
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random

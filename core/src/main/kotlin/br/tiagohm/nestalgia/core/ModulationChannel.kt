@@ -125,8 +125,9 @@ class ModulationChannel : FdsChannel() {
     }
 
     companion object {
+
         private const val RESET = 0xFF
 
-        private val MOD_LUT = intArrayOf(0, 1, 2, 4, RESET, -4, -2, -1)
+        @JvmStatic private val MOD_LUT = intArrayOf(0, 1, 2, 4, RESET, -4, -2, -1)
     }
 }

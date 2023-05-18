@@ -137,8 +137,8 @@ class ApuFrameCounter(val console: Console) :
         // - The "blockFrameCounterTick" process is running
         // - We're at the before-last or last tick of the current step
         return newValue >= 0 ||
-                blockFrameCounterTick > 0U ||
-                (previousCycle + cycles) >= stepCycles[stepMode.toInt()][currentStep] - 1
+            blockFrameCounterTick > 0U ||
+            (previousCycle + cycles) >= stepCycles[stepMode.toInt()][currentStep] - 1
     }
 
     override fun getMemoryRanges(ranges: MemoryRanges) {
@@ -192,17 +192,18 @@ class ApuFrameCounter(val console: Console) :
     }
 
     companion object {
-        private val STEP_CYCLES_NTSC = arrayOf(
+
+        @JvmStatic private val STEP_CYCLES_NTSC = arrayOf(
             intArrayOf(7457, 14913, 22371, 29828, 29829, 29830),
             intArrayOf(7457, 14913, 22371, 29829, 37281, 37282),
         )
 
-        private val STEP_CYCLES_PAL = arrayOf(
+        @JvmStatic private val STEP_CYCLES_PAL = arrayOf(
             intArrayOf(8313, 16627, 24939, 33252, 33253, 33254),
             intArrayOf(8313, 16627, 24939, 33253, 41565, 41566),
         )
 
-        private val FRAME_TYPE = arrayOf(
+        @JvmStatic private val FRAME_TYPE = arrayOf(
             arrayOf(
                 FrameType.QUARTER,
                 FrameType.HALF,

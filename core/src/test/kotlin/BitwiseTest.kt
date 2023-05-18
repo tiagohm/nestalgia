@@ -1,4 +1,15 @@
-import br.tiagohm.nestalgia.core.*
+import br.tiagohm.nestalgia.core.bit0
+import br.tiagohm.nestalgia.core.bit1
+import br.tiagohm.nestalgia.core.bit2
+import br.tiagohm.nestalgia.core.bit3
+import br.tiagohm.nestalgia.core.bit4
+import br.tiagohm.nestalgia.core.bit5
+import br.tiagohm.nestalgia.core.bit6
+import br.tiagohm.nestalgia.core.bit7
+import br.tiagohm.nestalgia.core.hiByte
+import br.tiagohm.nestalgia.core.loByte
+import br.tiagohm.nestalgia.core.makeUShort
+import br.tiagohm.nestalgia.core.shr
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

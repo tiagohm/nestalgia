@@ -22,7 +22,8 @@ object RomLoader {
             rom.startsWith("NES\u001A") -> INesLoader.load(rom, name)
             rom.startsWith("UNIF") -> UnifLoader.load(rom, name)
             rom.startsWith("FDS\u001A") ||
-                    rom.startsWith("\u0001*NINTENDO-HVC*") -> FdsLoader.load(rom, name, fdsBios)
+                rom.startsWith("\u0001*NINTENDO-HVC*") -> FdsLoader.load(rom, name, fdsBios)
+
             else -> HeaderlessLoader.load(rom, name)
         }
 

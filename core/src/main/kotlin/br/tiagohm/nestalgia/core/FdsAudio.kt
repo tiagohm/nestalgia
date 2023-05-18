@@ -156,6 +156,7 @@ class FdsAudio(console: Console) :
     }
 
     companion object {
-        private val WAVE_VOLUME_TABLE = uintArrayOf(36U, 24U, 17U, 14U)
+
+        @JvmStatic private val WAVE_VOLUME_TABLE = uintArrayOf(36U, 24U, 17U, 14U)
     }
 }

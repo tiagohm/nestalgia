@@ -72,6 +72,7 @@ class Mapper114 : MMC3() {
     }
 
     companion object {
-        private val SECURITY = ubyteArrayOf(0U, 3U, 1U, 5U, 6U, 7U, 2U, 4U)
+
+        @JvmStatic private val SECURITY = ubyteArrayOf(0U, 3U, 1U, 5U, 6U, 7U, 2U, 4U)
     }
 }

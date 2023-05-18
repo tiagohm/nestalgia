@@ -1,8 +1,24 @@
 package br.tiagohm.nestalgia.ui
 
-import br.tiagohm.nestalgia.core.*
-import br.tiagohm.nestalgia.ui.*
-import br.tiagohm.nestalgia.ui.dialogs.*
+import br.tiagohm.nestalgia.core.BatteryProvider
+import br.tiagohm.nestalgia.core.CheatInfo
+import br.tiagohm.nestalgia.core.Console
+import br.tiagohm.nestalgia.core.ControllerType
+import br.tiagohm.nestalgia.core.Emulator
+import br.tiagohm.nestalgia.core.FdsBios
+import br.tiagohm.nestalgia.core.KeyMapping
+import br.tiagohm.nestalgia.core.NotificationListener
+import br.tiagohm.nestalgia.core.NotificationType
+import br.tiagohm.nestalgia.core.Ppu
+import br.tiagohm.nestalgia.core.Region
+import br.tiagohm.nestalgia.core.Snapshot
+import br.tiagohm.nestalgia.ui.dialogs.AudioConfig
+import br.tiagohm.nestalgia.ui.dialogs.BreakOnConfig
+import br.tiagohm.nestalgia.ui.dialogs.CheatDialog
+import br.tiagohm.nestalgia.ui.dialogs.ControllerConfig
+import br.tiagohm.nestalgia.ui.dialogs.EmulationConfig
+import br.tiagohm.nestalgia.ui.dialogs.FdsConfig
+import br.tiagohm.nestalgia.ui.dialogs.VideoConfig
 import java.awt.BorderLayout
 import java.awt.FileDialog
 import java.awt.GraphicsDevice
@@ -14,7 +30,6 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
-import java.util.*
 import javax.imageio.ImageIO
 import javax.swing.JComponent
 import javax.swing.JFrame

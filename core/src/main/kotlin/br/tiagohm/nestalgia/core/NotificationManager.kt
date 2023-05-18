@@ -1,7 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-import java.util.*
-
 class NotificationManager : Disposable {
 
     private val listeners = ArrayList<NotificationListener>()

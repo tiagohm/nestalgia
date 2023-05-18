@@ -1,7 +1,6 @@
 package br.tiagohm.nestalgia.core
 
 import java.io.IOException
-import java.util.*
 
 // https://wiki.nesdev.com/w/index.php/FDS_file_format
 // https://wiki.nesdev.com/w/index.php/FDS_disk_format
@@ -84,9 +83,9 @@ object FdsLoader {
         var offset = 0
 
         val hasHeader = data[0].toInt() == 70 &&
-                data[1].toInt() == 68 &&
-                data[2].toInt() == 83 &&
-                data[3].toInt() == 0x1A
+            data[1].toInt() == 68 &&
+            data[2].toInt() == 83 &&
+            data[3].toInt() == 0x1A
 
         val numberOfSides = if (hasHeader) {
             offset = 16

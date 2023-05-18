@@ -55,6 +55,7 @@ open class Pointer(
     }
 
     companion object {
-        val NULL = Pointer(UByteArray(0), 0)
+
+        @JvmStatic val NULL = Pointer(UByteArray(0), 0)
     }
 }

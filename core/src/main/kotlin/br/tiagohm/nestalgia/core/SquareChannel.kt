@@ -203,11 +203,12 @@ open class SquareChannel(
     }
 
     companion object {
-        val DUTY_SEQUENCES = arrayOf(
+
+        @JvmStatic val DUTY_SEQUENCES = arrayOf(
             ubyteArrayOf(0U, 0U, 0U, 0U, 0U, 0U, 0U, 1U),
             ubyteArrayOf(0U, 0U, 0U, 0U, 0U, 0U, 1U, 1U),
             ubyteArrayOf(0U, 0U, 0U, 0U, 1U, 1U, 1U, 1U),
-            ubyteArrayOf(1U, 1U, 1U, 1U, 1U, 1U, 0U, 0U)
+            ubyteArrayOf(1U, 1U, 1U, 1U, 1U, 1U, 0U, 0U),
         )
     }
 }

@@ -62,15 +62,17 @@ class Txc22211b : Mapper() {
     }
 
     companion object {
-        private inline fun convertValue(v: UByte): UByte {
+
+        @JvmStatic
+        private fun convertValue(v: UByte): UByte {
             val i = v.toInt()
 
             return (((i and 0x01) shl 5) or
-                    ((i and 0x02) shl 3) or
-                    ((i and 0x04) shl 1) or
-                    ((i and 0x08) shr 1) or
-                    ((i and 0x10) shr 3) or
-                    ((i and 0x20) shr 5)).toUByte()
+                ((i and 0x02) shl 3) or
+                ((i and 0x04) shl 1) or
+                ((i and 0x08) shr 1) or
+                ((i and 0x10) shr 3) or
+                ((i and 0x20) shr 5)).toUByte()
         }
     }
 }

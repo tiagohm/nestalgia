@@ -1,7 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-import java.util.*
-
 object CheatDatabase {
 
     private val entries = ArrayList<CheatInfo>(16384)

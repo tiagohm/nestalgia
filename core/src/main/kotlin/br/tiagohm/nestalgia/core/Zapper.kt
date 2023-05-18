@@ -32,7 +32,7 @@ class Zapper(console: Console, port: Int) : ControlDevice(console, port) {
 
         if ((isExpansionDevice && addr.toUInt() == 0x4017U) || isCurrentPort(addr)) {
             output = ((if (isLight()) 0x00U else 0x08U) or
-                    (if (isPressed(ZapperButton.FIRE)) 0x10U else 0x00U)).toUByte()
+                (if (isPressed(ZapperButton.FIRE)) 0x10U else 0x00U)).toUByte()
         }
 
         return output
@@ -58,7 +58,9 @@ class Zapper(console: Console, port: Int) : ControlDevice(console, port) {
     }
 
     companion object {
-        private inline fun isLight(mx: Int, my: Int, radius: Int, ppu: Ppu): Boolean {
+
+        @JvmStatic
+        private fun isLight(mx: Int, my: Int, radius: Int, ppu: Ppu): Boolean {
             val scanline = ppu.scanline
             val cycle = ppu.cycle
 

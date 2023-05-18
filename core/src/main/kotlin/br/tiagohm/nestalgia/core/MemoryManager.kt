@@ -1,7 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-import java.util.*
-
 class MemoryManager constructor(private val console: Console) :
     Memory,
     Peekable,
@@ -71,7 +69,7 @@ class MemoryManager constructor(private val console: Console) :
         handlers: Array<MemoryHandler>,
         handler: MemoryHandler,
         addresses: ArrayList<UShort>,
-        allowOverride: Boolean
+        allowOverride: Boolean,
     ) {
         for (addr in addresses) {
             if (!allowOverride && handlers[addr.toInt()] != openBusHandler && handlers[addr.toInt()] != handler) {
@@ -97,6 +95,7 @@ class MemoryManager constructor(private val console: Console) :
     }
 
     companion object {
+
         const val RAM_SIZE = 0x10000
         const val VRAM_SIZE = 0x4000
         const val INTERNAL_RAM_SIZE = 0x800

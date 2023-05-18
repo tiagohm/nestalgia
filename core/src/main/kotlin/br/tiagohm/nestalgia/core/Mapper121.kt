@@ -50,12 +50,12 @@ class Mapper121 : MMC3() {
                     val i = value.toInt()
 
                     exReg[6] = (((i and 0x01) shl 5) or
-                            ((i and 0x02) shl 3) or
-                            ((i and 0x04) shl 1) or
-                            ((i and 0x08) shr 1) or
-                            ((i and 0x10) shr 3) or
-                            ((i and 0x20) shr 5)
-                            ).toUByte()
+                        ((i and 0x02) shl 3) or
+                        ((i and 0x04) shl 1) or
+                        ((i and 0x08) shr 1) or
+                        ((i and 0x10) shr 3) or
+                        ((i and 0x20) shr 5)
+                        ).toUByte()
 
                     if (exReg[7].isZero) {
                         updateExRegs()
@@ -143,6 +143,7 @@ class Mapper121 : MMC3() {
     }
 
     companion object {
-        private val LOOKUP = ubyteArrayOf(0x83U, 0x83U, 0x42U, 0x00U)
+
+        @JvmStatic private val LOOKUP = ubyteArrayOf(0x83U, 0x83U, 0x42U, 0x00U)
     }
 }

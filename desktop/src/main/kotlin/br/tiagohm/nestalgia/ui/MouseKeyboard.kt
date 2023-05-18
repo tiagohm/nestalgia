@@ -1,8 +1,15 @@
 package br.tiagohm.nestalgia.ui
 
-import br.tiagohm.nestalgia.core.*
-import java.awt.event.*
-import java.util.*
+import br.tiagohm.nestalgia.core.Console
+import br.tiagohm.nestalgia.core.KeyManager
+import br.tiagohm.nestalgia.core.MouseButton
+import br.tiagohm.nestalgia.core.Ppu
+import br.tiagohm.nestalgia.core.RenderingDevice
+import java.awt.event.KeyEvent
+import java.awt.event.KeyListener
+import java.awt.event.MouseEvent
+import java.awt.event.MouseListener
+import java.awt.event.MouseMotionListener
 import javax.swing.SwingUtilities
 
 class MouseKeyboard(

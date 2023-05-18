@@ -1,8 +1,21 @@
 package br.tiagohm.nestalgia.ui.dialogs
 
-import br.tiagohm.nestalgia.core.*
-import br.tiagohm.nestalgia.ui.*
-import java.util.*
+import br.tiagohm.nestalgia.core.ConsoleType
+import br.tiagohm.nestalgia.core.ControlDevice
+import br.tiagohm.nestalgia.core.ControllerType
+import br.tiagohm.nestalgia.core.EmulationFlag
+import br.tiagohm.nestalgia.core.Emulator
+import br.tiagohm.nestalgia.core.ExpansionPortDevice
+import br.tiagohm.nestalgia.core.KeyMapping
+import br.tiagohm.nestalgia.ui.Anchor
+import br.tiagohm.nestalgia.ui.Fill
+import br.tiagohm.nestalgia.ui.Size
+import br.tiagohm.nestalgia.ui.button
+import br.tiagohm.nestalgia.ui.checkbox
+import br.tiagohm.nestalgia.ui.dropdown
+import br.tiagohm.nestalgia.ui.label
+import br.tiagohm.nestalgia.ui.margin
+import br.tiagohm.nestalgia.ui.panel
 import javax.swing.JPanel
 
 class ControllerConfig(
@@ -215,7 +228,7 @@ class ControllerConfig(
                         "Settings",
                         row, 2,
                         isEnabled = expansionDevice == ExpansionPortDevice.ZAPPER ||
-                                expansionDevice == ExpansionPortDevice.ASCII_TURBO_FILE,
+                            expansionDevice == ExpansionPortDevice.ASCII_TURBO_FILE,
                         fill = Fill.HORIZONTAL,
                         onClick = {
                             when (expansionDevice) {

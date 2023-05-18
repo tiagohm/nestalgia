@@ -86,9 +86,11 @@ class NoiseChannel(
     }
 
     companion object {
-        val NOISE_PERIOD_LOOKUP_TABLE_NTSC =
+
+        @JvmStatic val NOISE_PERIOD_LOOKUP_TABLE_NTSC =
             ushortArrayOf(4U, 8U, 16U, 32U, 64U, 96U, 128U, 160U, 202U, 254U, 380U, 508U, 762U, 1016U, 2034U, 4068U)
-        val NOISE_PERIOD_LOOKUP_TABLE_PAL =
+
+        @JvmStatic val NOISE_PERIOD_LOOKUP_TABLE_PAL =
             ushortArrayOf(4U, 8U, 14U, 30U, 60U, 88U, 118U, 148U, 188U, 236U, 354U, 472U, 708U, 944U, 1890U, 3778U)
     }
 }

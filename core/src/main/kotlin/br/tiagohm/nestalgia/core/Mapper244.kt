@@ -25,14 +25,14 @@ class Mapper244 : Mapper() {
 
     companion object {
 
-        private val LUT_PRG = arrayOf(
+        @JvmStatic private val LUT_PRG = arrayOf(
             ushortArrayOf(0U, 1U, 2U, 3U),
             ushortArrayOf(3U, 2U, 1U, 0U),
             ushortArrayOf(0U, 2U, 1U, 3U),
             ushortArrayOf(3U, 1U, 2U, 0U),
         )
 
-        private val LUT_CHR = arrayOf(
+        @JvmStatic private val LUT_CHR = arrayOf(
             ushortArrayOf(0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U),
             ushortArrayOf(0U, 2U, 1U, 3U, 4U, 6U, 5U, 7U),
             ushortArrayOf(0U, 1U, 4U, 5U, 2U, 3U, 6U, 7U),

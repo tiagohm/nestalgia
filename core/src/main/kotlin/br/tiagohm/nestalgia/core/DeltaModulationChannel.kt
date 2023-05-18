@@ -292,10 +292,11 @@ class DeltaModulationChannel(
     }
 
     companion object {
-        private val DMC_PERIOD_LOOKUP_TABLE_NTSC =
-            shortArrayOf(428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106, 84, 72, 54)
-        private val DMC_PERIOD_LOOKUP_TABLE_PAL =
-            shortArrayOf(398, 354, 316, 298, 276, 236, 210, 198, 176, 148, 132, 118, 98, 78, 66, 50)
 
+        @JvmStatic private val DMC_PERIOD_LOOKUP_TABLE_NTSC =
+            shortArrayOf(428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106, 84, 72, 54)
+
+        @JvmStatic private val DMC_PERIOD_LOOKUP_TABLE_PAL =
+            shortArrayOf(398, 354, 316, 298, 276, 236, 210, 198, 176, 148, 132, 118, 98, 78, 66, 50)
     }
 }
