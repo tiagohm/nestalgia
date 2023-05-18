@@ -58,14 +58,19 @@ abstract class Mapper :
 
     protected var privateSaveRamSize = 0U
         private set
+
     protected var privateWorkRamSize = 0U
         private set
+
     protected var privatePrgSize = 0U
         private set
+
     protected var privateChrRomSize = 0U
         private set
+
     protected var privateChrRamSize = 0U
         private set
+
     protected var onlyChrRam = false
         private set
 
@@ -124,14 +129,19 @@ abstract class Mapper :
 
     protected var prgRom = UByteArray(0)
         private set
+
     protected var chrRom = UByteArray(0)
         private set
+
     protected var chrRam = UByteArray(0)
         private set
+
     protected var saveRam = UByteArray(0)
         private set
+
     protected var workRam = UByteArray(0)
         private set
+
     protected var nametableRam = UByteArray(0)
         private set
 
@@ -147,17 +157,13 @@ abstract class Mapper :
     private val chrMemoryOffset = IntArray(0x100)
     private val chrMemoryType = Array(0x100) { ChrMemoryType.DEFAULT }
 
-    open fun init() {
-    }
+    open fun init() {}
 
-    override fun dispose() {
-    }
+    override fun dispose() {}
 
-    override fun reset(softReset: Boolean) {
-    }
+    override fun reset(softReset: Boolean) {}
 
-    protected open fun writeRegister(addr: UShort, value: UByte) {
-    }
+    protected open fun writeRegister(addr: UShort, value: UByte) {}
 
     protected open fun readRegister(addr: UShort): UByte = 0U
 
@@ -179,8 +185,7 @@ abstract class Mapper :
         }
     }
 
-    open fun processCpuClock() {
-    }
+    open fun processCpuClock() {}
 
     fun copyPrgChrRom(mapper: Mapper) {
         if (privatePrgSize == mapper.privatePrgSize &&
@@ -1000,10 +1005,13 @@ abstract class Mapper :
                 2 -> UNROM()
                 3 -> CNROM(false)
                 4 -> if (data.info.subMapperId == 3) McAcc() else MMC3()
+                6 -> Mapper006()
                 7 -> AXROM()
+                8 -> Mapper008()
                 11 -> ColorDreams()
                 12 -> Mapper012()
                 14 -> Mapper014()
+                17 -> Mapper017()
                 34 -> {
                     when (val sid = data.info.subMapperId) {
                         // BnROM uses CHR RAM (so no CHR rom in the NES file)

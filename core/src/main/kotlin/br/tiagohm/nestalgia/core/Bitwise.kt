@@ -102,6 +102,10 @@ inline infix fun UShort.shr(n: Int): UShort {
     return (toUInt() shr n).toUShort()
 }
 
+inline infix fun UShort.shl(n: Int): UShort {
+    return (toUInt() shl n).toUShort()
+}
+
 inline val UShort.isZero: Boolean
     get() = this == 0.toUShort()
 
