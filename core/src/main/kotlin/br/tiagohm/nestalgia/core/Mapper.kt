@@ -465,7 +465,7 @@ abstract class Mapper :
         accessType: MemoryAccessType = MemoryAccessType.UNSPECIFIED,
     ) {
         if (!validateAddressRange(start, end) || start > 0xFF00U || end <= start) {
-            System.err.println("Invalid address range")
+            System.err.println("Invalid CPU address range")
             return
         }
 
@@ -618,7 +618,7 @@ abstract class Mapper :
         accessType: MemoryAccessType = MemoryAccessType.UNSPECIFIED,
     ) {
         if (!validateAddressRange(start, end) || start > 0x3F00U || end > 0x3FFFU || end <= start) {
-            System.err.println("Invalid address range")
+            System.err.println("Invalid PPU address range")
             return
         }
 
@@ -1012,6 +1012,7 @@ abstract class Mapper :
                 12 -> Mapper012()
                 14 -> Mapper014()
                 17 -> Mapper017()
+                30 -> UnRom512()
                 34 -> {
                     when (val sid = data.info.subMapperId) {
                         // BnROM uses CHR RAM (so no CHR rom in the NES file)
@@ -1038,6 +1039,7 @@ abstract class Mapper :
                 95 -> Mapper095()
                 105 -> Mapper105()
                 108 -> Bb()
+                111 -> Cheapocabra()
                 113 -> Nina0306(true)
                 114 -> Mapper114()
                 115 -> Mapper115()

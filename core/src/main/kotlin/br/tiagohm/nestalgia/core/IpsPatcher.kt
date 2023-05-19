@@ -71,6 +71,7 @@ object IpsPatcher {
     fun createPatch(originalData: UByteArray, newData: UByteArray): UByteArray {
         assert(originalData.size == newData.size)
 
+        // TODO: Não fazer isso!
         val patchFile = ArrayList<UByte>(originalData.size)
 
         patchFile.addAll(PATCH_BYTES)
@@ -106,7 +107,7 @@ object IpsPatcher {
 
                     if ((recordLength == rleCount && rleCount > 3) || rleCount > 13) {
                         if (recordLength == rleCount) {
-                            // Same character since the start of this entry, make the RLE entry now
+                            // Same character since the start of this entry, make the RLE entry now.
                             createRleRecord = true
                         } else {
                             recordLength -= rleCount
@@ -119,6 +120,7 @@ object IpsPatcher {
                 val record = if (createRleRecord) {
                     IpsRecord(recordAddress, 0, repeatCount = rleCount, value = rleByte)
                 } else {
+                    // TODO: Optimize sliceArray using an wrapper like ByteBuffer.
                     val replacement = newData.sliceArray(recordAddress until recordAddress + recordLength)
                     IpsRecord(recordAddress, recordLength, replacement)
                 }
