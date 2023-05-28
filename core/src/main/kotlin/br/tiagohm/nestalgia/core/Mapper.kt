@@ -1066,6 +1066,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 246 -> Mapper246()
                 252 -> Waixing252()
                 250 -> Mapper250()
+                253 -> Mapper253()
                 254 -> Mapper254()
                 255 -> Bmc255()
                 FDS_MAPPER_ID -> Fds()
