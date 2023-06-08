@@ -33,11 +33,11 @@ jobs:
 
       - name: Rename Build
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: mv desktop/build/libs/desktop.jar nestalgia-${{ github.ref_name }}-linux.jar
+        run: mv desktop/build/libs/nestalgia.jar nestalgia-${{ github.ref_name }}-linux.jar
 
       - name: Rename Build
         if: ${{ matrix.os == 'windows-latest' }}
-        run: mv desktop/build/libs/desktop.jar nestalgia-${{ github.ref_name }}-windows.jar
+        run: mv desktop/build/libs/nestalgia.jar nestalgia-${{ github.ref_name }}-windows.jar
 
       - name: Deploy
         uses: xresloader/upload-to-github-release@v1
