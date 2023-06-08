@@ -47,9 +47,8 @@ dependencies {
 
 ## Desktop
 
-* [Windows](https://raw.githubusercontent.com/tiagohm/nestalgia/master/desktop/nestalgia.jar)
-* [Linux](https://raw.githubusercontent.com/tiagohm/nestalgia/master/desktop/nestalgia.jar)
-* [Mac](https://raw.githubusercontent.com/tiagohm/nestalgia/master/desktop/nestalgia.jar)
+* [Windows](https://github.com/tiagohm/nestalgia/releases/download/0.10.0/nestalgia-0.10.0-windows.jar)
+* [Linux](https://github.com/tiagohm/nestalgia/releases/download/0.10.0/nestalgia-0.10.0-linux.jar)
 
 > Before running, check if you have Java 17 or newer installed.
 
