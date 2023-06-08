@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-@Suppress("NOTHING_TO_INLINE")
 abstract class ApuLengthCounter(
     channel: AudioChannel,
     console: Console,
@@ -8,28 +7,27 @@ abstract class ApuLengthCounter(
 ) : ApuChannel(channel, console, mixer) {
 
     protected var newHaltValue = false
-
     protected var lengthCounterHalt = false
-    protected var lengthCounter: UByte = 0U
-    protected var lengthCounterReloadValue: UByte = 0U
-    protected var lengthCounterPreviousValue: UByte = 0U
+    protected var lengthCounter = 0
+    protected var lengthCounterReloadValue = 0
+    protected var lengthCounterPreviousValue = 0
 
-    override var isEnabled = false
-        set(value) {
-            if (!value) lengthCounter = 0U
+    override var enabled = false
+        internal set(value) {
+            if (!value) lengthCounter = 0
             field = value
         }
 
-    protected inline fun initializeLengthCounter(haltFlag: Boolean) {
-        console.apu.isNeedToRun = true
+    protected fun initializeLengthCounter(haltFlag: Boolean) {
+        console.apu.needToRun = true
         newHaltValue = haltFlag
     }
 
-    protected inline fun loadLengthCounter(value: UByte) {
-        if (isEnabled) {
-            lengthCounterReloadValue = LC_LOOKUP_TABLE[value.toInt()]
+    protected fun loadLengthCounter(value: Int) {
+        if (enabled) {
+            lengthCounterReloadValue = LC_LOOKUP_TABLE[value]
             lengthCounterPreviousValue = lengthCounter
-            console.apu.isNeedToRun = true
+            console.apu.needToRun = true
         }
     }
 
@@ -37,43 +35,43 @@ abstract class ApuLengthCounter(
         super.reset(softReset)
 
         if (softReset) {
-            isEnabled = false
+            enabled = false
 
             if (channel != AudioChannel.TRIANGLE) {
-                // At reset, length counters should be enabled, triangle unaffected
+                // At reset, length counters should be enabled, triangle unaffected.
                 lengthCounterHalt = false
-                lengthCounter = 0U
+                lengthCounter = 0
                 newHaltValue = false
-                lengthCounterReloadValue = 0U
-                lengthCounterPreviousValue = 0U
+                lengthCounterReloadValue = 0
+                lengthCounterPreviousValue = 0
             }
         } else {
-            isEnabled = false
+            enabled = false
             lengthCounterHalt = false
-            lengthCounter = 0U
+            lengthCounter = 0
             newHaltValue = false
-            lengthCounterReloadValue = 0U
-            lengthCounterPreviousValue = 0U
+            lengthCounterReloadValue = 0
+            lengthCounterPreviousValue = 0
         }
     }
 
-    override val status: Boolean
-        get() = lengthCounter.toUInt() > 0U
+    override val status
+        get() = lengthCounter > 0
 
     fun reloadCounter() {
-        if (lengthCounterReloadValue.isNonZero) {
+        if (lengthCounterReloadValue != 0) {
             if (lengthCounter == lengthCounterPreviousValue) {
                 lengthCounter = lengthCounterReloadValue
             }
 
-            lengthCounterReloadValue = 0U
+            lengthCounterReloadValue = 0
         }
 
         lengthCounterHalt = newHaltValue
     }
 
     fun tickLengthCounter() {
-        if (lengthCounter > 0U && !lengthCounterHalt) {
+        if (lengthCounter > 0 && !lengthCounterHalt) {
             lengthCounter--
         }
     }
@@ -81,7 +79,7 @@ abstract class ApuLengthCounter(
     override fun saveState(s: Snapshot) {
         super.saveState(s)
 
-        s.write("isEnabled", isEnabled)
+        s.write("enabled", enabled)
         s.write("lengthCounterHalt", lengthCounterHalt)
         s.write("newHaltValue", newHaltValue)
         s.write("lengthCounter", lengthCounter)
@@ -92,21 +90,21 @@ abstract class ApuLengthCounter(
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        isEnabled = s.readBoolean("isEnabled") ?: false
-        lengthCounterHalt = s.readBoolean("lengthCounterHalt") ?: false
-        newHaltValue = s.readBoolean("newHaltValue") ?: false
-        lengthCounter = s.readUByte("lengthCounter") ?: 0U
-        lengthCounterPreviousValue = s.readUByte("lengthCounterPreviousValue") ?: 0U
-        lengthCounterReloadValue = s.readUByte("lengthCounterReloadValue") ?: 0U
+        enabled = s.readBoolean("enabled")
+        lengthCounterHalt = s.readBoolean("lengthCounterHalt")
+        newHaltValue = s.readBoolean("newHaltValue")
+        lengthCounter = s.readInt("lengthCounter")
+        lengthCounterPreviousValue = s.readInt("lengthCounterPreviousValue")
+        lengthCounterReloadValue = s.readInt("lengthCounterReloadValue")
     }
 
     companion object {
 
-        @JvmStatic protected val LC_LOOKUP_TABLE = ubyteArrayOf(
-            10U, 254U, 20U, 2U, 40U, 4U, 80U, 6U,
-            160U, 8U, 60U, 10U, 14U, 12U, 26U, 14U,
-            12U, 16U, 24U, 18U, 48U, 20U, 96U, 22U,
-            192U, 24U, 72U, 26U, 16U, 28U, 32U, 30U,
+        @JvmStatic protected val LC_LOOKUP_TABLE = intArrayOf(
+            10, 254, 20, 2, 40, 4, 80, 6,
+            160, 8, 60, 10, 14, 12, 26, 14,
+            12, 16, 24, 18, 48, 20, 96, 22,
+            192, 24, 72, 26, 16, 28, 32, 30,
         )
     }
 }

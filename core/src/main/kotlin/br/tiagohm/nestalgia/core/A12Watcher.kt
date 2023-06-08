@@ -1,15 +1,13 @@
 package br.tiagohm.nestalgia.core
 
-class A12Watcher :
-    Resetable,
-    Snapshotable {
+class A12Watcher : Resetable, Snapshotable {
 
     private var lastCycle = 0
     private var cyclesDown = 0L
 
     override fun reset(softReset: Boolean) {
         lastCycle = 0
-        cyclesDown = 0
+        cyclesDown = 0L
     }
 
     override fun saveState(s: Snapshot) {
@@ -18,13 +16,11 @@ class A12Watcher :
     }
 
     override fun restoreState(s: Snapshot) {
-        s.load()
-
-        lastCycle = s.readInt("lastCycle") ?: 0
-        cyclesDown = s.readLong("cycleDown") ?: 0
+        lastCycle = s.readInt("lastCycle")
+        cyclesDown = s.readLong("cycleDown")
     }
 
-    fun updateVRAMAddress(addr: UShort, frameCycle: Int, minDelay: Long = 10): A12StateChange {
+    fun updateVRAMAddress(addr: Int, frameCycle: Int, minDelay: Long = 10): A12StateChange {
         var result = A12StateChange.NONE
 
         if (cyclesDown > 0) {
@@ -36,7 +32,7 @@ class A12Watcher :
             }
         }
 
-        if (addr.toInt() and 0x1000 == 0) {
+        if (addr and 0x1000 == 0) {
             if (cyclesDown == 0L) {
                 cyclesDown = 1
                 result = A12StateChange.FALL

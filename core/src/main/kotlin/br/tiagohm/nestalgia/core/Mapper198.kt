@@ -1,5 +1,8 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.ChrMemoryType.*
+import br.tiagohm.nestalgia.core.PrgMemoryType.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_198
 
 // Most likely incorrect/incomplete, but works (with minor glitches) with the 2 games marked as mapper 198 that I am aware of.
@@ -12,58 +15,58 @@ package br.tiagohm.nestalgia.core
 
 class Mapper198 : MMC3() {
 
-    private val exReg = UByteArray(4)
+    private val exReg = IntArray(4)
 
-    override val workRamSize = 0x1000U
+    override val workRamSize = 0x1000
 
-    override val workRamPageSize = 0x1000U
+    override val workRamPageSize = 0x1000
 
-    override val chrRamPageSize = 0x400U
+    override val chrRamPageSize = 0x400
 
     override val isForceWorkRamSize = true
 
-    override fun init() {
+    override fun initialize() {
         resetExReg()
 
         // Set 4kb of work ram at $5000, mirrored
-        setCpuMemoryMapping(0x5000U, 0x7FFFU, 0, PrgMemoryType.WRAM)
+        addCpuMemoryMapping(0x5000, 0x7FFF, 0, WRAM)
 
-        super.init()
+        super.initialize()
 
-        if (saveRamSize == 0U) {
-            setCpuMemoryMapping(0x5000U, 0x7FFFU, 0, PrgMemoryType.WRAM)
+        if (saveRamSize == 0) {
+            addCpuMemoryMapping(0x5000, 0x7FFF, 0, WRAM)
         }
     }
 
     private fun resetExReg() {
-        exReg[0] = 0U
-        exReg[1] = 1U
-        exReg[2] = (prgPageCount - 2U).toUByte()
-        exReg[3] = (prgPageCount - 1U).toUByte()
+        exReg[0] = 0
+        exReg[1] = 1
+        exReg[2] = prgPageCount - 2
+        exReg[3] = prgPageCount - 1
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        if (addr.toInt() == 0x8001 && (state8000 and 0x07U) >= 6U) {
-            exReg[(state8000.toInt() and 0x07) - 6] = value and 0x7FU
+    override fun writeRegister(addr: Int, value: Int) {
+        if (addr == 0x8001 && (state8000 and 0x07) >= 6) {
+            exReg[(state8000 and 0x07) - 6] = value and 0x7F
         }
 
         super.writeRegister(addr, value)
     }
 
-    override fun selectPrgPage(slot: UShort, page: UShort, memoryType: PrgMemoryType) {
-        super.selectPrgPage(slot, exReg[slot.toInt()].toUShort(), memoryType)
+    override fun selectPrgPage(slot: Int, page: Int, memoryType: PrgMemoryType) {
+        super.selectPrgPage(slot, exReg[slot], memoryType)
     }
 
     override fun updateChrMapping() {
-        if (privateChrRamSize > 0U &&
-            registers[0].isZero &&
-            registers[1].isZero &&
-            registers[2].isZero &&
-            registers[3].isZero &&
-            registers[4].isZero &&
-            registers[5].isZero
+        if (mChrRamSize > 0 &&
+            registers[0] == 0 &&
+            registers[1] == 0 &&
+            registers[2] == 0 &&
+            registers[3] == 0 &&
+            registers[4] == 0 &&
+            registers[5] == 0
         ) {
-            selectChrPage8x(0U, 0U, ChrMemoryType.RAM)
+            selectChrPage8x(0, 0, RAM)
         } else {
             super.updateChrMapping()
         }
@@ -78,6 +81,6 @@ class Mapper198 : MMC3() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        s.readUByteArray("exReg")?.copyInto(exReg) ?: resetExReg()
+        s.readIntArray("exReg", exReg) ?: resetExReg()
     }
 }

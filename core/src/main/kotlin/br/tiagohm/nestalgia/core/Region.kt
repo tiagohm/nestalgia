@@ -6,7 +6,7 @@ enum class Region {
     PAL,
     DENDY;
 
-    inline val clockRate: Int
+    val clockRate
         get() = when (this) {
             PAL -> Cpu.CLOCK_RATE_PAL
             DENDY -> Cpu.CLOCK_RATE_DENDY

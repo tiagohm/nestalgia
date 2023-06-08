@@ -5,10 +5,11 @@ import java.util.*
 
 object RomLoader {
 
+    @JvmStatic
     fun load(
-        rom: ByteArray,
+        rom: IntArray,
         name: String,
-        fdsBios: ByteArray = ByteArray(0),
+        fdsBios: IntArray = IntArray(0),
     ): RomData {
         if (rom.isEmpty()) {
             throw IOException("Empty ROM")
@@ -29,7 +30,7 @@ object RomLoader {
 
         val system = if (data.info.system == GameSystem.UNKNOWN) {
             // Use filename to detect PAL/VS system games
-            name.toLowerCase(Locale.ENGLISH).let {
+            name.lowercase(Locale.ENGLISH).let {
                 if (it.contains("(e)") ||
                     it.contains("(australia)") ||
                     it.contains("(europe)") ||

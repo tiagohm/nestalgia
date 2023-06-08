@@ -2,35 +2,34 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_046
 
-@Suppress("NOTHING_TO_INLINE")
 class ColorDreams46 : Mapper() {
 
-    private val regs = UByteArray(2)
+    private val regs = IntArray(2)
 
-    override val registerStartAddress: UShort = 0x6000U
+    override val registerStartAddress = 0x6000
 
-    override val registerEndAddress: UShort = 0xFFFFU
+    override val registerEndAddress = 0xFFFF
 
-    override val prgPageSize = 0x8000U
+    override val prgPageSize = 0x8000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override fun init() {
+    override fun initialize() {
         reset(false)
     }
 
     override fun reset(softReset: Boolean) {
-        writeRegister(0x6000U, 0U)
-        writeRegister(0x8000U, 0U)
+        writeRegister(0x6000, 0)
+        writeRegister(0x8000, 0)
     }
 
-    private inline fun updateState() {
-        selectPrgPage(0U, ((regs[0].toInt() and 0x0F shl 1) or (regs[1].toInt() and 0x01)).toUShort())
-        selectChrPage(0U, ((regs[0].toInt() and 0xF0 shr 1) or ((regs[1].toInt() and 0x70) shr 4)).toUShort())
+    private fun updateState() {
+        selectPrgPage(0, (regs[0] and 0x0F shl 1) or (regs[1] and 0x01))
+        selectChrPage(0, (regs[0] and 0xF0 shr 1) or (regs[1] and 0x70 shr 4))
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        regs[if (addr < 0x8000U) 0 else 1] = value
+    override fun writeRegister(addr: Int, value: Int) {
+        regs[if (addr < 0x8000) 0 else 1] = value
         updateState()
     }
 
@@ -43,6 +42,6 @@ class ColorDreams46 : Mapper() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        s.readUByteArray("regs")?.copyInto(regs) ?: regs.fill(0U)
+        s.readIntArrayOrFill("regs", regs, 0)
     }
 }

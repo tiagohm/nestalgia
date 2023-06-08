@@ -1,16 +1,16 @@
 package br.tiagohm.nestalgia.core
 
-class PpuState(
-    var control: UByte = 0U,
-    var mask: UByte = 0U,
-    var status: UByte = 0U,
-    var spriteRamAddr: UInt = 0U,
-    var videoRamAddr: UShort = 0U,
-    var xScroll: UByte = 0U,
-    var tmpVideoRamAddr: UShort = 0U,
-    var writeToggle: Boolean = false,
-    var highBitShift: UShort = 0U,
-    var lowBitShift: UShort = 0U,
+data class PpuState(
+    @JvmField var control: Int = 0,
+    @JvmField var mask: Int = 0,
+    @JvmField var status: Int = 0,
+    @JvmField var spriteRamAddr: Int = 0,
+    @JvmField var videoRamAddr: Int = 0,
+    @JvmField var xScroll: Int = 0,
+    @JvmField var tmpVideoRamAddr: Int = 0,
+    @JvmField var writeToggle: Boolean = false,
+    @JvmField var highBitShift: Int = 0,
+    @JvmField var lowBitShift: Int = 0,
 ) : Snapshotable {
 
     override fun saveState(s: Snapshot) {
@@ -27,17 +27,15 @@ class PpuState(
     }
 
     override fun restoreState(s: Snapshot) {
-        s.load()
-
-        control = s.readUByte("control") ?: 0U
-        mask = s.readUByte("mask") ?: 0U
-        status = s.readUByte("status") ?: 0U
-        spriteRamAddr = s.readUInt("spriteRamAddr") ?: 0U
-        videoRamAddr = s.readUShort("videoRamAddr") ?: 0U
-        xScroll = s.readUByte("xScroll") ?: 0U
-        tmpVideoRamAddr = s.readUShort("tmpVideoRamAddr") ?: 0U
-        writeToggle = s.readBoolean("writeToggle") ?: false
-        highBitShift = s.readUShort("highBitShift") ?: 0U
-        lowBitShift = s.readUShort("lowBitShift") ?: 0U
+        control = s.readInt("control")
+        mask = s.readInt("mask")
+        status = s.readInt("status")
+        spriteRamAddr = s.readInt("spriteRamAddr")
+        videoRamAddr = s.readInt("videoRamAddr")
+        xScroll = s.readInt("xScroll")
+        tmpVideoRamAddr = s.readInt("tmpVideoRamAddr")
+        writeToggle = s.readBoolean("writeToggle")
+        highBitShift = s.readInt("highBitShift")
+        lowBitShift = s.readInt("lowBitShift")
     }
 }

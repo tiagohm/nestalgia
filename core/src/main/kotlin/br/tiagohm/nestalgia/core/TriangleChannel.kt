@@ -6,29 +6,32 @@ class TriangleChannel(
     mixer: SoundMixer,
 ) : ApuLengthCounter(channel, console, mixer) {
 
-    private var linearCounter: UByte = 0U
-    private var linearCounterReload: UByte = 0U
+    private var linearCounter = 0
+    private var linearCounterReload = 0
     private var linearReloadFlag = false
     private var linearControlFlag = false
 
-    var sequencePosition: UByte = 0U
+    var sequencePosition = 0
         private set
 
-    override val frequency: Double
-        get() = region.clockRate / 32.0 / (period.toInt() + 1)
+    override val frequency
+        get() = region.clockRate / 32.0 / (period + 1)
 
-    override val volume: Long
-        get() = lastOutput.toLong()
+    override val volume
+        get() = lastOutput
+
+    override val muted
+        get() = false
 
     override fun clock() {
         // The sequencer is clocked by the timer as long as both the linear counter and the length counter are nonzero.
-        if (lengthCounter > 0U && linearCounter > 0U) {
-            sequencePosition = ((sequencePosition + 1U) and 0x1FU).toUByte()
+        if (lengthCounter > 0 && linearCounter > 0) {
+            sequencePosition = (sequencePosition + 1) and 0x1F
 
-            if (period >= 2U || console.settings.checkFlag(EmulationFlag.SILENCE_TRIANGLE_HIGH_FREQ)) {
+            if (period >= 2 || console.settings.flag(EmulationFlag.SILENCE_TRIANGLE_HIGH_FREQ)) {
                 // Disabling the triangle channel when period is < 2 removes "pops" in the audio that are caused by the ultrasonic frequencies
                 // This is less "accurate" in terms of emulation, so this is an option (disabled by default)
-                addOutput(SEQUENCE[sequencePosition.toInt()])
+                addOutput(SEQUENCE[sequencePosition])
             }
         }
     }
@@ -36,50 +39,48 @@ class TriangleChannel(
     override fun reset(softReset: Boolean) {
         super.reset(softReset)
 
-        linearCounter = 0U
-        linearCounterReload = 0U
+        linearCounter = 0
+        linearCounterReload = 0
         linearReloadFlag = false
         linearControlFlag = false
-        sequencePosition = 0U
+        sequencePosition = 0
     }
 
-    override fun getMemoryRanges(ranges: MemoryRanges) {
-        ranges.addHandler(MemoryOperation.WRITE, 0x4008U, 0x400BU)
+    override fun memoryRanges(ranges: MemoryRanges) {
+        ranges.addHandler(MemoryOperation.WRITE, 0x4008, 0x400B)
     }
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         console.apu.run()
 
         when (addr.toUInt() and 0x03U) {
             // 4008
             0U -> {
                 linearControlFlag = value.bit7
-                linearCounterReload = value and 0x7FU
+                linearCounterReload = value and 0x7F
                 initializeLengthCounter(linearControlFlag)
             }
             // 400A
             2U -> {
-                period = (period and 0xFF00U) or value.toUShort()
+                period = (period and 0xFF00) or value
             }
             // 400B
             3U -> {
                 loadLengthCounter(value shr 3)
 
-                period = period and 0x00FFU
-                period = period or ((value.toUInt() and 0x07U) shl 8).toUShort()
+                period = period and 0x00FF
+                period = period or (value and 0x07) shl 8
 
-                // Side effects: Sets the linear counter reload flag
+                // Side effects: Sets the linear counter reload flag.
                 linearReloadFlag = true
             }
         }
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte = 0U
-
     fun tickLinearCounter() {
         if (linearReloadFlag) {
             linearCounter = linearCounterReload
-        } else if (linearCounter > 0U) {
+        } else if (linearCounter > 0) {
             linearCounter--
         }
 
@@ -101,16 +102,16 @@ class TriangleChannel(
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        linearCounter = s.readUByte("linearCounter") ?: 0U
-        linearCounterReload = s.readUByte("linearCounterReload") ?: 0U
-        linearReloadFlag = s.readBoolean("linearReloadFlag") ?: false
-        linearControlFlag = s.readBoolean("linearControlFlag") ?: false
-        sequencePosition = s.readUByte("sequencePosition") ?: 0U
+        linearCounter = s.readInt("linearCounter")
+        linearCounterReload = s.readInt("linearCounterReload")
+        linearReloadFlag = s.readBoolean("linearReloadFlag")
+        linearControlFlag = s.readBoolean("linearControlFlag")
+        sequencePosition = s.readInt("sequencePosition")
     }
 
     companion object {
 
-        @JvmStatic private val SEQUENCE = byteArrayOf(
+        @JvmStatic private val SEQUENCE = intArrayOf(
             15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
         )

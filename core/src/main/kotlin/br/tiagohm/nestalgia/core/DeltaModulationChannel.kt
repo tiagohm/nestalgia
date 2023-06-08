@@ -2,44 +2,46 @@ package br.tiagohm.nestalgia.core
 
 import kotlin.math.abs
 
-@Suppress("NOTHING_TO_INLINE")
 class DeltaModulationChannel(
     channel: AudioChannel,
     console: Console,
     mixer: SoundMixer? = null,
 ) : ApuChannel(channel, console, mixer) {
 
-    private var sampleLength: UShort = 0U
-    private var outputLevel: UByte = 0U
+    private var sampleLength = 0
+    private var outputLevel = 0
     private var irqEnabled = false
     private var loop = false
 
-    private var bytesRemaining: UShort = 0U
-    private var readBuffer: UByte = 0U
+    private var bytesRemaining = 0
+    private var readBuffer = 0
     private var bufferEmpty = true
 
-    private var shiftRegister: UByte = 0U
-    private var bitsRemaining: UByte = 0U
+    private var shiftRegister = 0
+    private var bitsRemaining = 0
     private var silence = true
-    private var isNeedToRun = false
-    private var needInit: UByte = 0U
+    private var needToRun = false
+    private var needInit = 0
 
-    private var lastValue4011: UByte = 0U
+    private var lastValue4011 = 0
 
-    var sampleAddr: UShort = 0U
+    var sampleAddr = 0
         private set
 
-    var dmcReadAddress: UShort = 0U
+    var dmcReadAddress = 0
         private set
 
-    override val frequency: Double
-        get() = region.clockRate / (period.toInt() + 1.0)
+    override val frequency
+        get() = region.clockRate / (period + 1.0)
 
-    override val volume: Long
-        get() = lastOutput.toLong()
+    override val volume
+        get() = lastOutput
 
-    override val isEnabled: Boolean
+    override val enabled
         get() = irqEnabled
+
+    override val muted
+        get() = false
 
     override fun reset(softReset: Boolean) {
         super.reset(softReset)
@@ -47,63 +49,62 @@ class DeltaModulationChannel(
         if (!softReset) {
             // At power on, the sample address is set to $C000 and the sample length is set to 1
             // Resetting does not reset their value
-            sampleAddr = 0xC000U
-            sampleLength = 1U
+            sampleAddr = 0xC000
+            sampleLength = 1
         }
 
-        outputLevel = 0U
+        outputLevel = 0
         irqEnabled = false
         loop = false
 
-        dmcReadAddress = 0U
-        bytesRemaining = 0U
-        readBuffer = 0U
+        dmcReadAddress = 0
+        bytesRemaining = 0
+        readBuffer = 0
         bufferEmpty = true
 
-        shiftRegister = 0U
-        bitsRemaining = 8U
+        shiftRegister = 0
+        bitsRemaining = 8
         silence = true
-        isNeedToRun = false
+        needToRun = false
 
-        lastValue4011 = 0U
+        lastValue4011 = 0
 
         // Not sure if this is accurate, but it seems to make things better rather than worse (for dpcmletterbox)
         // On the real thing, I think the power-on value is 428 (or the equivalent at least - it uses a linear feedback shift register), though only the even/oddness should matter for this test.
-        period =
-            ((if (region == Region.NTSC) DMC_PERIOD_LOOKUP_TABLE_NTSC else DMC_PERIOD_LOOKUP_TABLE_PAL)[0] - 1).toUShort()
+        period = (if (region == Region.NTSC) DMC_PERIOD_LOOKUP_TABLE_NTSC else DMC_PERIOD_LOOKUP_TABLE_PAL)[0] - 1
 
         // Make sure the DMC doesn't tick on the first cycle - this is part of what keeps Sprite/DMC DMA tests working while fixing dmc_pitch.
         timer = period
     }
 
-    private inline fun initSample() {
+    private fun initSample() {
         dmcReadAddress = sampleAddr
         bytesRemaining = sampleLength
-        isNeedToRun = bytesRemaining > 0U
+        needToRun = bytesRemaining > 0
     }
 
-    private inline fun startDmcTransfer() {
-        if (bufferEmpty && bytesRemaining > 0U) {
+    private fun startDmcTransfer() {
+        if (bufferEmpty && bytesRemaining > 0) {
             console.cpu.startDmcTransfer()
         }
     }
 
-    fun setDmcReadBuffer(value: UByte) {
-        if (bytesRemaining > 0U) {
+    fun dmcReadBuffer(value: Int) {
+        if (bytesRemaining > 0) {
             readBuffer = value
             bufferEmpty = false
 
             // The address is incremented; if it exceeds $FFFF, it is wrapped around to $8000.
             dmcReadAddress++
 
-            if (dmcReadAddress.toUInt() == 0U) {
-                dmcReadAddress = 0x8000U
+            if (dmcReadAddress == 0) {
+                dmcReadAddress = 0x8000
             }
 
             bytesRemaining--
 
-            if (bytesRemaining.toUInt() == 0U) {
-                isNeedToRun = false
+            if (bytesRemaining == 0) {
+                needToRun = false
 
                 if (loop) {
                     // Looped sample should never set IRQ flag
@@ -118,12 +119,12 @@ class DeltaModulationChannel(
     override fun clock() {
         if (!silence) {
             if (shiftRegister.bit0) {
-                if (outputLevel <= 125U) {
+                if (outputLevel <= 125) {
                     outputLevel++
                     outputLevel++
                 }
             } else {
-                if (outputLevel >= 2U) {
+                if (outputLevel >= 2) {
                     outputLevel--
                     outputLevel--
                 }
@@ -134,8 +135,8 @@ class DeltaModulationChannel(
 
         bitsRemaining--
 
-        if (bitsRemaining.isZero) {
-            bitsRemaining = 8U
+        if (bitsRemaining == 0) {
+            bitsRemaining = 8
 
             if (bufferEmpty) {
                 silence = true
@@ -147,14 +148,14 @@ class DeltaModulationChannel(
             }
         }
 
-        addOutput(outputLevel.toByte())
+        addOutput(outputLevel)
     }
 
     fun irqPending(cyclesToRun: Int): Boolean {
-        if (irqEnabled && bytesRemaining > 0U) {
-            val cyclesToEmptyBuffer = (bitsRemaining + (bytesRemaining - 1U) * 8U) * period
+        if (irqEnabled && bytesRemaining > 0) {
+            val cyclesToEmptyBuffer = (bitsRemaining + (bytesRemaining - 1) * 8) * period
 
-            if (cyclesToRun >= cyclesToEmptyBuffer.toInt()) {
+            if (cyclesToRun >= cyclesToEmptyBuffer) {
                 return true
             }
         }
@@ -162,94 +163,89 @@ class DeltaModulationChannel(
         return false
     }
 
-    override val status: Boolean
-        get() = bytesRemaining > 0U
+    override val status
+        get() = bytesRemaining > 0
 
-    override fun getMemoryRanges(ranges: MemoryRanges) {
-        ranges.addHandler(MemoryOperation.WRITE, 0x4010U, 0x4013U)
+    override fun memoryRanges(ranges: MemoryRanges) {
+        ranges.addHandler(MemoryOperation.WRITE, 0x4010, 0x4013)
     }
 
     fun needToRun(): Boolean {
-        if (needInit > 0U) {
+        if (needInit > 0) {
             needInit--
 
-            if (needInit.isZero) {
+            if (needInit == 0) {
                 startDmcTransfer()
             }
         }
 
-        return isNeedToRun
+        return needToRun
     }
 
-    fun setEnabled(enabled: Boolean) {
+    fun enable(enabled: Boolean) {
         if (!enabled) {
-            bytesRemaining = 0U
-            isNeedToRun = false
-        } else if (bytesRemaining.isZero) {
+            bytesRemaining = 0
+            needToRun = false
+        } else if (bytesRemaining == 0) {
             initSample()
 
             // Delay a number of cycles based on odd/even cycles
             // Allows behavior to match dmc_dma_start_test
-            needInit = if ((console.cpu.cycleCount and 0x01L) == 0L) {
-                2U
-            } else {
-                3U
-            }
+            needInit = if ((console.cpu.cycleCount and 0x01L) == 0L) 2 else 3
         }
     }
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         console.apu.run()
 
-        when (addr.toUInt() and 0x03U) {
+        when (addr and 0x03) {
             // 4010
-            0U -> {
+            0 -> {
                 irqEnabled = value.bit7
                 loop = value.bit6
 
                 // The rate determines for how many CPU cycles happen between changes in the output level during automatic delta-encoded sample playback.
                 // Because BaseApuChannel does not decrement when setting _timer, we need to actually set the value to 1 less than the lookup table
-                period =
-                    ((if (region == Region.NTSC) DMC_PERIOD_LOOKUP_TABLE_NTSC else DMC_PERIOD_LOOKUP_TABLE_PAL)[value.toInt() and 0x0F] - 1).toUShort()
+                period = (if (region == Region.NTSC) DMC_PERIOD_LOOKUP_TABLE_NTSC else DMC_PERIOD_LOOKUP_TABLE_PAL)[value and 0x0F] - 1
 
                 if (!irqEnabled) {
                     console.cpu.clearIRQSource(IRQSource.DMC)
                 }
             }
             // 4011
-            1U -> {
-                val newValue = value and 0x7FU
+            1 -> {
+                val newValue = value and 0x7F
                 val previousLevel = outputLevel
                 outputLevel = newValue
 
-                if (console.settings.checkFlag(EmulationFlag.REDUCE_DMC_POPPING) && abs(outputLevel.toInt() - previousLevel.toInt()) > 50) {
+                if (console.settings.flag(EmulationFlag.REDUCE_DMC_POPPING) && abs(outputLevel - previousLevel) > 50) {
                     // Reduce popping sounds for 4011 writes
-                    outputLevel = (outputLevel.toInt() - (outputLevel.toInt() - previousLevel.toInt()) / 2).toUByte()
+                    outputLevel -= (outputLevel - previousLevel) / 2
                 }
 
                 // 4011 applies new output right away, not on the timer's reload.  This fixes bad DMC sound when playing through 4011.
-                addOutput(outputLevel.toByte())
+                addOutput(outputLevel)
 
-                if (lastValue4011 != value && newValue > 0U) {
-                    console.setNextFrameOverclockStatus(true)
+                if (lastValue4011 != value && newValue > 0) {
+                    console.nextFrameOverclockStatus(true)
                 }
 
                 lastValue4011 = newValue
             }
             // 4012
-            2U -> {
-                sampleAddr = (0xC000U or (value.toUInt() shl 6)).toUShort()
+            2 -> {
+                sampleAddr = 0xC000 or (value shl 6)
 
-                if (value > 0U) {
-                    console.setNextFrameOverclockStatus(false)
+                if (value > 0) {
+                    console.nextFrameOverclockStatus(false)
                 }
             }
             // 4013
-            3U -> {
-                sampleLength = ((value.toUInt() shl 4) or 0x0001U).toUShort()
+            3 -> {
+                sampleLength = (value shl 4) or 0x0001
 
-                if (value > 0U) {
-                    console.setNextFrameOverclockStatus(false)
+                if (value > 0) {
+                    console.nextFrameOverclockStatus(false)
                 }
             }
         }
@@ -270,25 +266,25 @@ class DeltaModulationChannel(
         s.write("shiftRegister", shiftRegister)
         s.write("bitsRemaining", bitsRemaining)
         s.write("silence", silence)
-        s.write("isNeedToRun", isNeedToRun)
+        s.write("needToRun", needToRun)
     }
 
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        sampleAddr = s.readUShort("sampleAddr") ?: 0U
-        sampleLength = s.readUShort("sampleLength") ?: 0U
-        outputLevel = s.readUByte("outputLevel") ?: 0U
-        irqEnabled = s.readBoolean("irqEnabled") ?: false
-        loop = s.readBoolean("loop") ?: false
-        dmcReadAddress = s.readUShort("dmcReadAddress") ?: 0U
-        bytesRemaining = s.readUShort("bytesRemaining") ?: 0U
-        readBuffer = s.readUByte("readBuffer") ?: 0U
-        bufferEmpty = s.readBoolean("bufferEmpty") ?: true
-        shiftRegister = s.readUByte("shiftRegister") ?: 0U
-        bitsRemaining = s.readUByte("bitsRemaining") ?: 0U
-        silence = s.readBoolean("silence") ?: true
-        isNeedToRun = s.readBoolean("isNeedToRun") ?: false
+        sampleAddr = s.readInt("sampleAddr")
+        sampleLength = s.readInt("sampleLength")
+        outputLevel = s.readInt("outputLevel")
+        irqEnabled = s.readBoolean("irqEnabled")
+        loop = s.readBoolean("loop")
+        dmcReadAddress = s.readInt("dmcReadAddress")
+        bytesRemaining = s.readInt("bytesRemaining")
+        readBuffer = s.readInt("readBuffer")
+        bufferEmpty = s.readBoolean("bufferEmpty", true)
+        shiftRegister = s.readInt("shiftRegister")
+        bitsRemaining = s.readInt("bitsRemaining")
+        silence = s.readBoolean("silence", true)
+        needToRun = s.readBoolean("needToRun")
     }
 
     companion object {

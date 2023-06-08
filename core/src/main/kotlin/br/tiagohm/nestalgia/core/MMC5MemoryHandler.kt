@@ -1,18 +1,15 @@
 package br.tiagohm.nestalgia.core
 
-class MMC5MemoryHandler(val console: Console) : MemoryHandler {
+class MMC5MemoryHandler(private val console: Console) : MemoryHandler {
 
-    private val ppuReg = UByteArray(8)
+    private val ppuReg = IntArray(8)
 
-    override fun getMemoryRanges(ranges: MemoryRanges) {
-    }
+    override fun memoryRanges(ranges: MemoryRanges) {}
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte = 0U
+    fun readRegister(addr: Int) = ppuReg[addr and 0x07]
 
-    fun readRegister(addr: UShort) = ppuReg[addr.toInt() and 0x07]
-
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         console.ppu.write(addr, value, type)
-        ppuReg[addr.toInt() and 0x07] = value
+        ppuReg[addr and 0x07] = value
     }
 }

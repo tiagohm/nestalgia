@@ -1,0 +1,78 @@
+<?import br.tiagohm.nestalgia.core.*?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane maxHeight="-Infinity"
+            maxWidth="-Infinity"
+            minHeight="-Infinity"
+            minWidth="-Infinity"
+            xmlns="http://javafx.com/javafx/20"
+            xmlns:fx="http://javafx.com/fxml/1">
+    <VBox spacing="4.0"
+          alignment="CENTER"
+          AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0">
+        <padding>
+            <Insets topRightBottomLeft="16.0"/>
+        </padding>
+        <HBox alignment="CENTER_LEFT"
+              spacing="4.0">
+            <Label text="Fire"
+                   minWidth="64.0"/>
+            <ComboBox fx:id="fireComboBox"
+                      HBox.hgrow="ALWAYS"
+                      minWidth="220.0"
+                      maxWidth="Infinity">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <MouseButton fx:value="LEFT"/>
+                        <MouseButton fx:value="MIDDLE"/>
+                        <MouseButton fx:value="RIGHT"/>
+                    </FXCollections>
+                </items>
+            </ComboBox>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="4.0">
+            <Label text="Aim offscreen"
+                   minWidth="64.0"/>
+            <ComboBox fx:id="aimOffscreenComboBox"
+                      HBox.hgrow="ALWAYS"
+                      minWidth="220.0"
+                      maxWidth="Infinity">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <MouseButton fx:value="LEFT"/>
+                        <MouseButton fx:value="MIDDLE"/>
+                        <MouseButton fx:value="RIGHT"/>
+                    </FXCollections>
+                </items>
+            </ComboBox>
+        </HBox>
+        <HBox alignment="CENTER"
+              spacing="4.0">
+            <Label text="Light detection radius (px)"
+                   minWidth="64.0"/>
+            <Slider fx:id="lightDetectionRadiusSlider"
+                    HBox.hgrow="ALWAYS"
+                    max="16.0"
+                    min="1.0"
+                    value="1.0"
+                    showTickMarks="true"
+                    showTickLabels="true"
+                    snapToTicks="true"
+                    majorTickUnit="3.0"
+                    maxWidth="Infinity"/>
+        </HBox>
+        <HBox alignment="CENTER"
+              spacing="2.0">
+            <Button text="Reset"
+                    onAction="#reset"/>
+            <Button text="OK"
+                    onAction="#save"/>
+        </HBox>
+    </VBox>
+</AnchorPane>

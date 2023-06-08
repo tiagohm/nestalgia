@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**.kt'
+      - '**.kts'
+      - '**/src/test/resources/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.kt'
+      - '**.kts'
+      - '**/src/test/resources/**'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Test
+        run: ./gradlew :core:test --continue -Dgithub=true

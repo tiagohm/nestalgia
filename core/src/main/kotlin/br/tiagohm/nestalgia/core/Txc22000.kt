@@ -2,42 +2,41 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_036
 
-@Suppress("NOTHING_TO_INLINE")
 class Txc22000 : Mapper() {
 
-    override val prgPageSize = 0x8000U
+    override val prgPageSize = 0x8000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override val registerStartAddress: UShort = 0x8000U
+    override val registerStartAddress = 0x8000
 
-    override val registerEndAddress: UShort = 0xFFFFU
+    override val registerEndAddress = 0xFFFF
 
     override val allowRegisterRead = true
 
     private val txChip = TxcChip(false)
-    private var chrBank: UByte = 0U
+    private var chrBank = 0
 
-    override fun init() {
-        addRegisterRange(0x4100U, 0x5FFFU, MemoryOperation.ANY)
-        removeRegisterRange(0x8000U, 0xFFFFU, MemoryOperation.READ)
+    override fun initialize() {
+        addRegisterRange(0x4100, 0x5FFF, MemoryOperation.ANY)
+        removeRegisterRange(0x8000, 0xFFFF, MemoryOperation.READ)
 
-        chrBank = 0U
+        chrBank = 0
 
-        selectPrgPage(0U, 0U)
-        selectChrPage(0U, 0U)
+        selectPrgPage(0, 0)
+        selectChrPage(0, 0)
     }
 
-    private inline fun updateState() {
-        selectPrgPage(0U, (txChip.output and 0x03U).toUShort())
-        selectChrPage(0U, chrBank.toUShort())
+    private fun updateState() {
+        selectPrgPage(0, txChip.output and 0x03)
+        selectChrPage(0, chrBank)
     }
 
-    override fun readRegister(addr: UShort): UByte {
-        val openBus = console.memoryManager.getOpenBus()
+    override fun readRegister(addr: Int): Int {
+        val openBus = console.memoryManager.openBus()
 
-        val value = if (addr.toInt() and 0x103 == 0x100) {
-            (openBus and 0xCFU) or ((txChip.read(addr).toUInt() shl 4) and 0x30U).toUByte()
+        val value = if (addr and 0x103 == 0x100) {
+            (openBus and 0xCF) or (txChip.read(addr) shl 4 and 0x30)
         } else {
             openBus
         }
@@ -47,12 +46,12 @@ class Txc22000 : Mapper() {
         return value
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        if (addr.toInt() and 0xF200 == 0x4200) {
+    override fun writeRegister(addr: Int, value: Int) {
+        if (addr and 0xF200 == 0x4200) {
             chrBank = value
         }
 
-        txChip.write(addr, (value shr 4) and 0x03U)
+        txChip.write(addr, value shr 4 and 0x03)
 
         updateState()
     }
@@ -67,7 +66,7 @@ class Txc22000 : Mapper() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        s.readSnapshot("txChip")?.let { txChip.restoreState(it) } ?: txChip.reset(false)
-        chrBank = s.readUByte("chrBank") ?: 0U
+        s.readSnapshotable("txChip", txChip) { txChip.reset(false) }
+        chrBank = s.readInt("chrBank")
     }
 }

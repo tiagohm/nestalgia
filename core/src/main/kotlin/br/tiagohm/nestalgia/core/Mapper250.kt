@@ -4,7 +4,7 @@ package br.tiagohm.nestalgia.core
 
 class Mapper250 : MMC3() {
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        super.writeRegister((addr and 0xE000U) or ((addr and 0x0400U) shr 10), addr.loByte)
+    override fun writeRegister(addr: Int, value: Int) {
+        super.writeRegister((addr and 0xE000) or (addr and 0x0400 shr 10), addr.loByte)
     }
 }

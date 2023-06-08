@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/FDS_BIOS
 
-class FdsBios(data: UByteArray) : Pointer(data, 0) {
+class FdsBios(data: IntArray) : Pointer(data, 0) {
 
     companion object {
 

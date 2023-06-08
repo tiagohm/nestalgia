@@ -1,36 +1,38 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryOperation.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_134
 
 class Mapper134 : MMC3() {
 
-    private var exReg: UByte = 0U
+    private var exReg = 0
 
-    override fun init() {
-        super.init()
+    override fun initialize() {
+        super.initialize()
 
-        addRegisterRange(0x6001U, 0x6001U, MemoryOperation.WRITE)
+        addRegisterRange(0x6001, 0x6001, WRITE)
     }
 
     override fun reset(softReset: Boolean) {
         super.reset(softReset)
 
         if (softReset) {
-            exReg = 0U
+            exReg = 0
             updateState()
         }
     }
 
-    override fun selectChrPage(slot: UShort, page: UShort, memoryType: ChrMemoryType) {
-        super.selectChrPage(slot, (page and 0xFFU) or ((exReg.toUInt() and 0x20U) shl 3).toUShort(), memoryType)
+    override fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType) {
+        super.selectChrPage(slot, (page and 0xFF) or (exReg and 0x20 shl 3), memoryType)
     }
 
-    override fun selectPrgPage(slot: UShort, page: UShort, memoryType: PrgMemoryType) {
-        super.selectPrgPage(slot, (page and 0x1FU) or ((exReg.toUInt() and 0x02U) shl 4).toUShort(), memoryType)
+    override fun selectPrgPage(slot: Int, page: Int, memoryType: PrgMemoryType) {
+        super.selectPrgPage(slot, (page and 0x1F) or (exReg and 0x02 shl 4), memoryType)
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        if (addr.toInt() == 0x6001) {
+    override fun writeRegister(addr: Int, value: Int) {
+        if (addr == 0x6001) {
             exReg = value
             updateState()
         } else {
@@ -47,6 +49,6 @@ class Mapper134 : MMC3() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        exReg = s.readUByte("exReg") ?: 0U
+        exReg = s.readInt("exReg")
     }
 }

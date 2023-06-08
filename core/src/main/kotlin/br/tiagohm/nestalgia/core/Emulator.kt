@@ -1,23 +1,26 @@
 package br.tiagohm.nestalgia.core
 
-import kotlin.concurrent.thread
+import java.awt.image.BufferedImage
+import java.awt.image.DataBufferInt
+import java.io.Closeable
+import java.io.InputStream
+import java.io.OutputStream
 
-@Suppress("NOTHING_TO_INLINE")
-open class Emulator(
-    val console: Console,
-    val audio: AudioDevice,
-    val video: RenderingDevice,
-    val keyManager: KeyManager,
-    val inputProviders: Iterable<InputProvider>,
-) : NotificationListener,
-    Disposable {
+data class Emulator(
+    @JvmField val console: Console,
+    @JvmField val audio: AudioDevice,
+    @JvmField val video: RenderingDevice,
+    @JvmField val keyManager: KeyManager,
+    @JvmField val inputProviders: Iterable<InputProvider>,
+) : NotificationListener, Resetable, Runnable, Closeable {
 
     private var emuThread: Thread? = null
 
-    val settings = console.settings
+    inline val settings
+        get() = console.settings
 
-    inline val isRunning: Boolean
-        get() = console.isRunning
+    inline val running
+        get() = console.running
 
     init {
         console.videoRenderer.registerRenderingDevice(video)
@@ -27,19 +30,24 @@ open class Emulator(
         console.notificationManager.registerNotificationListener(this)
     }
 
-    override fun dispose() {
-        console.dispose()
+    override fun run() {
+        console.run()
+    }
+
+    override fun close() {
+        console.close()
         emuThread?.interrupt()
         emuThread = null
     }
 
-    override fun processNotification(type: NotificationType, vararg data: Any?) {
-    }
+    override fun processNotification(type: NotificationType, vararg data: Any?) {}
 
-    fun load(rom: ByteArray, name: String, fdsBios: ByteArray = ByteArray(0)): Boolean {
+    fun load(rom: IntArray, name: String, fdsBios: IntArray = IntArray(0)): Boolean {
         return if (console.initialize(rom, name, true, fdsBios)) {
             if (emuThread == null) {
-                emuThread = thread(true, name = "Emulation", block = console::run)
+                emuThread = Thread(this)
+                emuThread!!.isDaemon = true
+                emuThread!!.start()
             }
 
             inputProviders.forEach { console.controlManager.registerInputProvider(it) }
@@ -51,27 +59,31 @@ open class Emulator(
     }
 
     fun pause() {
-        if (isRunning) {
-            settings.setFlag(EmulationFlag.PAUSED)
+        if (running) {
+            settings.flag(EmulationFlag.PAUSED, true)
         }
     }
 
-    inline val isPaused: Boolean
-        get() = isRunning && settings.checkFlag(EmulationFlag.PAUSED)
+    val paused
+        get() = running && settings.flag(EmulationFlag.PAUSED)
 
     fun resume() {
-        if (isRunning) {
-            settings.clearFlag(EmulationFlag.PAUSED)
+        if (running) {
+            settings.flag(EmulationFlag.PAUSED, false)
         }
     }
 
     fun stop() {
+        if (!running) return
+
         console.stop()
         emuThread?.interrupt()
         emuThread = null
     }
 
-    fun reset() {
+    override fun reset(softReset: Boolean) {
+        if (!running) return
+
         if (console.debugger.isExecutionStopped) {
             console.resetComponents(true)
             console.controlManager.updateInputState()
@@ -82,6 +94,8 @@ open class Emulator(
     }
 
     fun powerCycle() {
+        if (!running) return
+
         if (console.debugger.isExecutionStopped) {
             console.powerCycle()
             console.debugger.cpuStep(1)
@@ -94,48 +108,98 @@ open class Emulator(
         console.reloadRom()
     }
 
-    fun takeScreenshot(): IntArray {
-        return console.takeScreenshot()
+    fun takeScreenshot(): BufferedImage? {
+        if (!console.canTakeScreenshot) return null
+        val image = BufferedImage(Ppu.SCREEN_WIDTH, Ppu.SCREEN_HEIGHT, BufferedImage.TYPE_INT_RGB)
+        takeScreenshot(image)
+        return image
+    }
+
+    fun takeScreenshot(image: BufferedImage): Boolean {
+        if (!console.canTakeScreenshot) return false
+        val data = (image.raster.dataBuffer as DataBufferInt).data
+        console.takeScreenshot().copyInto(data)
+        return true
     }
 
     fun saveState(): ByteArray {
-        return console.saveStateManager.saveState()
+        val snapshot = Snapshot()
+        saveState(snapshot)
+        return snapshot.bytes()
+    }
+
+    fun saveState(sink: OutputStream) {
+        val snapshot = Snapshot()
+        saveState(snapshot)
+        snapshot.writeTo(sink)
+    }
+
+    fun saveState(snapshot: Snapshot) {
+        if (!running) return
+
+        try {
+            console.pause()
+            console.saveStateManager.saveState(snapshot)
+        } finally {
+            console.resume()
+        }
     }
 
     fun restoreState(data: ByteArray) {
-        console.saveStateManager.restoreState(data)
+        restoreState(Snapshot.from(data))
     }
 
-    inline val isVsSystem: Boolean
-        get() = console.isVsSystem
+    fun restoreState(source: InputStream) {
+        restoreState(Snapshot.from(source))
+    }
 
-    inline val isFds: Boolean
-        get() = console.isFds
+    fun restoreState(snapshot: Snapshot) {
+        if (!running) return
 
-    inline val isNsf: Boolean
-        get() = console.isNsf
+        try {
+            console.pause()
+            console.saveStateManager.restoreState(snapshot)
+        } finally {
+            console.resume()
+        }
+    }
 
-    inline val isDualSystem: Boolean
-        get() = console.isDualSystem
+    val isVsSystem
+        get() = console.vsSystem
 
-    val vsSystemActionManager: VsSystemActionManager?
-        get() = if (!console.isRunning) null else console.systemActionManager as? VsSystemActionManager
+    val isFds
+        get() = console.fds
 
-    val fdsSystemActionManager: FdsSystemActionManager?
-        get() = if (!console.isRunning) null else console.systemActionManager as? FdsSystemActionManager
+    val isNsf
+        get() = console.nsf
 
-    fun getControllerKey(port: Int) = console.settings.getControllerKeys(port)
+    val isDualSystem
+        get() = console.dualSystem
 
-    fun getControllerType(port: Int) = console.settings.getControllerType(port)
+    val vsSystemActionManager
+        get() = if (!console.running) null else console.systemActionManager as? VsSystemActionManager
+
+    val fdsSystemActionManager
+        get() = if (!console.running) null else console.systemActionManager as? FdsSystemActionManager
+
+    fun controllerKey(port: Int): KeyMapping {
+        return console.settings.controllerKeys(port)
+    }
+
+    fun controllerType(port: Int): ControllerType {
+        return console.settings.controllerType(port)
+    }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T : ControlDevice> getControlDevice(port: Int): T? = console.controlManager.getControlDevice(port) as? T
+    fun <T : ControlDevice> controlDevice(port: Int): T? {
+        return console.controlManager.controlDevice(port) as? T
+    }
 
     fun insertCoin(port: Int) {
         vsSystemActionManager?.insertCoin(port)
     }
 
-    val fdsSideCount: Int
+    val fdsSideCount
         get() = fdsSystemActionManager?.sideCount ?: 0
 
     fun insertDisk(diskNumber: Int) {
@@ -150,44 +214,44 @@ open class Emulator(
         fdsSystemActionManager?.ejectDisk()
     }
 
-    inline val dipSwitchCount: Int
+    inline val dipSwitchCount
         get() = console.dipSwitchCount
 
-    inline val info: RomInfo
+    inline val info
         get() = console.mapper!!.info
 
     fun debugRunFrame(count: Int = 1) {
-        if (isRunning) {
+        if (running) {
             console.debugger.frameStep(count)
         }
     }
 
     fun debugRunScanline(count: Int = 1) {
-        if (isRunning) {
+        if (running) {
             console.debugger.scanlineStep(count)
         }
     }
 
     fun debugRunPpuCycle(count: Int = 1) {
-        if (isRunning) {
+        if (running) {
             console.debugger.ppuStep(count)
         }
     }
 
     fun debugRunCpuCycle(count: Int = 1) {
-        if (isRunning) {
+        if (running) {
             console.debugger.cpuStep(count)
         }
     }
 
     fun debugRun() {
-        if (isRunning) {
+        if (running) {
             console.debugger.run()
         }
     }
 
     fun debugStep(count: Int) {
-        if (isRunning) {
+        if (running) {
             console.debugger.step(count)
         }
     }

@@ -1,10 +1,10 @@
 package br.tiagohm.nestalgia.core
 
+import java.io.Closeable
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
-@Suppress("NOTHING_TO_INLINE")
-class Debugger(val console: Console) : Disposable {
+class Debugger(private val console: Console) : Closeable {
 
     private val stepCount = AtomicInteger(-1)
     private val ppuStepCount = AtomicInteger(-1)
@@ -19,13 +19,13 @@ class Debugger(val console: Console) : Disposable {
     var breakOnType = BreakOnType.NONE
         private set
 
-    val breakOnCount: Int
+    val breakOnCount
         get() = breakOn.get()
 
-    val isExecutionStopped: Boolean
-        get() = executionStopped.get() || console.isStopped
+    val isExecutionStopped
+        get() = executionStopped.get() || console.stopped
 
-    override fun dispose() {
+    override fun close() {
         release()
     }
 
@@ -52,7 +52,7 @@ class Debugger(val console: Console) : Disposable {
         stepOut.set(false)
     }
 
-    fun processRamOperation(type: MemoryOperationType, addr: UShort, value: UByte) {
+    fun processRamOperation(type: MemoryOperationType, addr: Int, value: Int) {
         if (stepCycleCount.get() > 0) {
             if (stepCycleCount.decrementAndGet() == 0) {
                 step(1)
@@ -106,13 +106,13 @@ class Debugger(val console: Console) : Disposable {
         stepCount.set(count)
     }
 
-    inline fun frameStep(count: Int = 1) {
+    fun frameStep(count: Int = 1) {
         val extraScanlines = console.settings.extraScanlinesAfterNmi + console.settings.extraScanlinesBeforeNmi
         val cycleCount = ((if (console.settings.region == Region.NTSC) 262 else 312) + extraScanlines) * 341
         ppuStep(count * cycleCount)
     }
 
-    inline fun scanlineStep(count: Int = 1) {
+    fun scanlineStep(count: Int = 1) {
         ppuStep(count * 341)
     }
 
@@ -122,7 +122,7 @@ class Debugger(val console: Console) : Disposable {
         breakOnType = type
     }
 
-    private inline fun resetStepState() {
+    private fun resetStepState() {
         ppuStepCount.set(-1)
         stepCycleCount.set(-1)
         stepCount.set(-1)

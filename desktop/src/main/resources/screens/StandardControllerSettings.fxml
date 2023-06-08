@@ -1,0 +1,101 @@
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+<AnchorPane maxHeight="-Infinity"
+            maxWidth="-Infinity"
+            minHeight="-Infinity"
+            minWidth="-Infinity"
+            xmlns="http://javafx.com/javafx/20"
+            xmlns:fx="http://javafx.com/fxml/1">
+    <VBox spacing="4.0"
+          alignment="CENTER"
+          AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0">
+        <padding>
+            <Insets topRightBottomLeft="16.0"/>
+        </padding>
+        <HBox alignment="CENTER"
+              spacing="2.0">
+            <Label text="Up"
+                   minWidth="64.0"/>
+            <ComboBox fx:id="upComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER"
+              spacing="2.0">
+            <Label text="Down"
+                   minWidth="64.0"/>
+            <ComboBox fx:id="downComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER"
+              spacing="2.0">
+            <Label text="Left"
+                   minWidth="64.0"/>
+            <ComboBox fx:id="leftComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER"
+              spacing="2.0">
+            <Label text="Right"
+                   minWidth="64.0"/>
+            <ComboBox fx:id="rightComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER"
+              spacing="2.0">
+            <Label text="Select"
+                   minWidth="64.0"/>
+            <ComboBox fx:id="selectComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER"
+              spacing="2.0">
+            <Label text="Start"
+                   minWidth="64.0"/>
+            <ComboBox fx:id="startComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER"
+              spacing="2.0">
+            <Label text="A"
+                   minWidth="64.0"/>
+            <ComboBox fx:id="aComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER"
+              spacing="2.0">
+            <Label text="B"
+                   minWidth="64.0"/>
+            <ComboBox fx:id="bComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER"
+              spacing="2.0">
+            <ComboBox fx:id="presetComboBox"
+                      maxWidth="Infinity"
+                      HBox.hgrow="ALWAYS"
+                      value="WASD">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="WASD"/>
+                        <String fx:value="ARROW"/>
+                    </FXCollections>
+                </items>
+            </ComboBox>
+            <Button text="Apply preset"
+                    onAction="#applyPreset"/>
+        </HBox>
+        <HBox alignment="CENTER"
+              spacing="2.0">
+            <Button text="Reset"
+                    onAction="#reset"/>
+            <Button text="OK"
+                    onAction="#save"/>
+        </HBox>
+    </VBox>
+</AnchorPane>

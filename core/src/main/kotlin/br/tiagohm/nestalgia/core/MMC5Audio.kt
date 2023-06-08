@@ -2,9 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/MMC5_audio
 
-class MMC5Audio(console: Console) :
-    Memory,
-    ExpansionAudio(console) {
+class MMC5Audio(console: Console) : Memory, ExpansionAudio(console) {
 
     private val square1 = MMC5SquareChannel(console)
     private val square2 = MMC5SquareChannel(console)
@@ -13,7 +11,7 @@ class MMC5Audio(console: Console) :
     private var pcmReadMode = false
     private var pcmIrqEnabled = false
     private var pcmIrqTrip = false
-    private var pcmOutput: UByte = 0U
+    private var pcmOutput = 0
 
     override fun clockAudio() {
         audioCounter--
@@ -32,9 +30,10 @@ class MMC5Audio(console: Console) :
             square2.tickEnvelope()
         }
 
-        // The sound output of the square channels are equivalent in volume to the corresponding APU channels
-        // The polarity of all MMC5 channels is reversed compared to the APU
-        val summedOutput = -(square1.output.toInt() + square2.output.toInt() + pcmOutput.toInt())
+        // The sound output of the square channels are equivalent in volume to the
+        // corresponding APU channels.
+        // The polarity of all MMC5 channels is reversed compared to the APU.
+        val summedOutput = -(square1.output + square2.output + pcmOutput)
 
         if (summedOutput != lastOutput) {
             console.apu.addExpansionAudioDelta(AudioChannel.MMC5, summedOutput - lastOutput)
@@ -45,12 +44,12 @@ class MMC5Audio(console: Console) :
         square2.reloadCounter()
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte {
-        return when (addr.toInt()) {
+    override fun read(addr: Int, type: MemoryOperationType): Int {
+        return when (addr) {
             0x5010 -> {
-                var status: UByte = 0U
-                status = status or if (pcmReadMode) 0x01U else 0x00U
-                status = status or if (pcmIrqTrip and pcmIrqEnabled) 0x80U else 0x00U
+                var status = 0
+                status = status or if (pcmReadMode) 0x01 else 0x00
+                status = status or if (pcmIrqTrip and pcmIrqEnabled) 0x80 else 0x00
 
                 // TODO: PCM IRQ
                 pcmIrqTrip = false
@@ -58,17 +57,17 @@ class MMC5Audio(console: Console) :
                 status
             }
             0x5015 -> {
-                var status: UByte = 0U
-                status = status or if (square1.status) 0x01U else 0x00U
-                status = status or if (square2.status) 0x02U else 0x00U
+                var status = 0
+                status = status or if (square1.status) 0x01 else 0x00
+                status = status or if (square2.status) 0x02 else 0x00
                 status
             }
-            else -> console.memoryManager.getOpenBus()
+            else -> console.memoryManager.openBus()
         }
     }
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
-        when (addr.toInt()) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
+        when (addr) {
             0x5000, 0x5001, 0x5002, 0x5003 -> square1.write(addr, value, type)
             0x5004, 0x5005, 0x5006, 0x5007 -> square2.write(addr, value, type)
             0x5010 -> {
@@ -77,10 +76,10 @@ class MMC5Audio(console: Console) :
                 pcmIrqEnabled = value.bit7
             }
             // Shin 4 Nin Uchi Mahjong is the only game to uses the extra PCM channel ($5011).
-            0x5011 -> if (!pcmReadMode) if (value.isZero) pcmIrqTrip = true else pcmOutput = value
+            0x5011 -> if (!pcmReadMode) if (value == 0) pcmIrqTrip = true else pcmOutput = value
             0x5015 -> {
-                square1.isEnabled = value.bit0
-                square2.isEnabled = value.bit1
+                square1.enabled = value.bit0
+                square2.enabled = value.bit1
             }
         }
     }
@@ -100,12 +99,12 @@ class MMC5Audio(console: Console) :
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        s.readSnapshot("square1")?.let { square1.restoreState(it) } ?: square1.reset(false)
-        s.readSnapshot("square2")?.let { square2.restoreState(it) } ?: square2.reset(false)
-        audioCounter = s.readInt("audioCounter") ?: 0
-        lastOutput = s.readInt("lastOutput") ?: 0
-        pcmReadMode = s.readBoolean("pcmReadMode") ?: false
-        pcmIrqEnabled = s.readBoolean("pcmIrqEnabled") ?: false
-        pcmOutput = s.readUByte("pcmOutput") ?: 0U
+        s.readSnapshotable("square1", square1) { square1.reset(false) }
+        s.readSnapshotable("square2", square2) { square2.reset(false) }
+        audioCounter = s.readInt("audioCounter")
+        lastOutput = s.readInt("lastOutput")
+        pcmReadMode = s.readBoolean("pcmReadMode")
+        pcmIrqEnabled = s.readBoolean("pcmIrqEnabled")
+        pcmOutput = s.readInt("pcmOutput")
     }
 }

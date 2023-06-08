@@ -2,19 +2,15 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/Zapper
 
-@Suppress("NOTHING_TO_INLINE")
 class Zapper(console: Console, port: Int) : ControlDevice(console, port) {
 
-    @JvmField
-    var x = 0
-
-    @JvmField
-    var y = 0
+    @JvmField var x = 0
+    @JvmField var y = 0
 
     override fun setStateFromInput() {
         if (console.keyManager == null) return
 
-        if (console.settings.isInputEnabled && console.keyManager!!.isMouseButtonPressed(MouseButton.LEFT)) {
+        if (console.settings.inputEnabled && console.keyManager!!.isMouseButtonPressed(MouseButton.LEFT)) {
             setBit(ZapperButton.FIRE)
         }
 
@@ -22,26 +18,26 @@ class Zapper(console: Console, port: Int) : ControlDevice(console, port) {
             x = 0
             y = 0
         } else {
-            x = console.keyManager!!.x
-            y = console.keyManager!!.y
+            x = console.keyManager!!.mouseX
+            y = console.keyManager!!.mouseY
         }
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte {
-        var output: UByte = 0U
+    val light
+        get() = console.ppu.isLight(x, y, console.settings.zapperDetectionRadius[port])
 
-        if ((isExpansionDevice && addr.toUInt() == 0x4017U) || isCurrentPort(addr)) {
-            output = ((if (isLight()) 0x00U else 0x08U) or
-                (if (isPressed(ZapperButton.FIRE)) 0x10U else 0x00U)).toUByte()
+    override fun read(addr: Int, type: MemoryOperationType): Int {
+        var output = 0
+
+        if ((expansionPortDevice && addr == 0x4017) || isCurrentPort(addr)) {
+            output = (if (light) 0x00 else 0x08) or
+                (if (isPressed(ZapperButton.FIRE)) 0x10 else 0x00)
         }
 
         return output
     }
 
-    fun isLight() = isLight(x, y, console.settings.zapperDetectionRadius[port], console.ppu)
-
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
-    }
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {}
 
     override fun saveState(s: Snapshot) {
         super.saveState(s)
@@ -53,16 +49,16 @@ class Zapper(console: Console, port: Int) : ControlDevice(console, port) {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        x = s.readInt("x") ?: x
-        y = s.readInt("y") ?: y
+        x = s.readInt("x", x)
+        y = s.readInt("y", y)
     }
 
     companion object {
 
         @JvmStatic
-        private fun isLight(mx: Int, my: Int, radius: Int, ppu: Ppu): Boolean {
-            val scanline = ppu.scanline
-            val cycle = ppu.cycle
+        private fun Ppu.isLight(mx: Int, my: Int, radius: Int): Boolean {
+            val scanline = scanline
+            val cycle = cycle
 
             if (mx >= 0 && my >= 0) {
                 for (a in -radius..radius) {
@@ -76,7 +72,7 @@ class Zapper(console: Console, port: Int) : ControlDevice(console, port) {
                                 if (scanline >= y &&
                                     (scanline - y <= 20) &&
                                     (scanline != y || cycle > x) &&
-                                    ppu.getPixelBrightness(x, y) >= 85U
+                                    pixelBrightnessAt(x, y) >= 85
                                 ) {
                                     // Light cannot be detected if the Y/X position is further
                                     // ahead than the PPU, or if the PPU drew a dark color

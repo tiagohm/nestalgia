@@ -4,21 +4,22 @@ package br.tiagohm.nestalgia.core
 
 class AXROM : Mapper() {
 
-    override val prgPageSize = 0x8000U
+    override val prgPageSize = 0x8000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override val hasBusConflicts: Boolean
+    override val hasBusConflicts
         get() = info.subMapperId == 2
 
-    override fun init() {
-        selectChrPage(0U, 0U)
-        writeRegister(0U, getPowerOnByte())
+    override fun initialize() {
+        selectChrPage(0, 0)
+        writeRegister(0, powerOnByte())
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        selectPrgPage(0U, value.toUShort() and 0x0FU)
+    override fun writeRegister(addr: Int, value: Int) {
+        selectPrgPage(0, value and 0x0F)
 
-        mirroringType = if (value.bit4) MirroringType.SCREEN_B_ONLY else MirroringType.SCREEN_A_ONLY
+        mirroringType = if (value.bit4) MirroringType.SCREEN_B_ONLY
+        else MirroringType.SCREEN_A_ONLY
     }
 }

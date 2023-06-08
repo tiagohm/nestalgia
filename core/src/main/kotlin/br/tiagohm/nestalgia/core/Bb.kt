@@ -2,38 +2,37 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_108
 
-@Suppress("NOTHING_TO_INLINE")
 class Bb : Mapper() {
 
-    private var prgReg: UByte = 0U
-    private var chrReg: UByte = 0U
+    private var prgReg = 0
+    private var chrReg = 0
 
-    override val prgPageSize = 0x2000U
+    override val prgPageSize = 0x2000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override fun init() {
-        prgReg = 0xFFU
-        chrReg = 0U
+    override fun initialize() {
+        prgReg = 0xFF
+        chrReg = 0
 
-        selectPrgPage4x(0U, 0xFFFCU)
+        selectPrgPage4x(0, 0xFFFC)
 
         updateState()
     }
 
-    private inline fun updateState() {
-        setCpuMemoryMapping(0x6000U, 0x7FFFU, prgReg.toShort(), PrgMemoryType.ROM)
-        selectChrPage(0U, chrReg.toUShort())
+    private fun updateState() {
+        addCpuMemoryMapping(0x6000, 0x7FFF, prgReg, PrgMemoryType.ROM)
+        selectChrPage(0, chrReg)
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        if ((addr.toInt() and 0x9000) == 0x8000 || addr >= 0xF000U) {
+    override fun writeRegister(addr: Int, value: Int) {
+        if ((addr and 0x9000) == 0x8000 || addr >= 0xF000) {
             // A version of Bubble Bobble expects writes to $F000+ to switch the PRG banks
             chrReg = value
             prgReg = value
         } else {
             // For ProWres
-            chrReg = value and 0x01U
+            chrReg = value and 0x01
         }
 
         updateState()
@@ -49,8 +48,8 @@ class Bb : Mapper() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        prgReg = s.readUByte("prgReg") ?: 0xFFU
-        chrReg = s.readUByte("chrReg") ?: 0U
+        prgReg = s.readInt("prgReg", 0xFF)
+        chrReg = s.readInt("chrReg")
 
         updateState()
     }

@@ -1,29 +1,26 @@
 package br.tiagohm.nestalgia.core
 
-@Suppress("NOTHING_TO_INLINE")
-open class FdsChannel :
-    Memory,
-    Snapshotable {
+open class FdsChannel : Memory, Snapshotable {
 
-    protected var speed: UByte = 0U
+    protected var speed = 0
     protected var envelopeOff = false
     protected var volumeIncrease = false
 
-    protected var timer: UInt = 0U
+    protected var timer = 0
 
-    var gain: UByte = 0U
+    var gain = 0
         protected set
 
-    var frequency: UShort = 0U
+    var frequency = 0
         protected set
 
     // Few FDS NSFs write to this register. The BIOS initializes this to $FF
-    var masterSpeed: UByte = 0xFFU
+    var masterSpeed = 0xFF
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
-        when (addr.toInt() and 0x03) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
+        when (addr and 0x03) {
             0 -> {
-                speed = value and 0x3FU
+                speed = value and 0x3F
                 volumeIncrease = value.bit6
                 envelopeOff = value.bit7
 
@@ -35,23 +32,21 @@ open class FdsChannel :
                     gain = speed
                 }
             }
-            2 -> frequency = (frequency and 0x0F00U) or value.toUShort()
-            3 -> frequency = (frequency and 0xFFU) or ((value.toUInt() and 0x0FU) shl 8).toUShort()
+            2 -> frequency = (frequency and 0x0F00) or value
+            3 -> frequency = (frequency and 0xFF) or (value and 0x0F shl 8)
         }
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte = 0U
-
     fun tickEnvelope(): Boolean {
-        if (!envelopeOff && masterSpeed > 0U) {
+        if (!envelopeOff && masterSpeed > 0) {
             timer--
 
-            if (timer == 0U) {
+            if (timer == 0) {
                 resetTimer()
 
-                if (volumeIncrease && gain < 32U) {
+                if (volumeIncrease && gain < 32) {
                     gain++
-                } else if (!volumeIncrease && gain > 0U) {
+                } else if (!volumeIncrease && gain > 0) {
                     gain--
                 }
 
@@ -63,7 +58,7 @@ open class FdsChannel :
     }
 
     fun resetTimer() {
-        timer = 8U * (speed + 1U) * masterSpeed
+        timer = 8 * (speed + 1) * masterSpeed
     }
 
     override fun saveState(s: Snapshot) {
@@ -77,14 +72,12 @@ open class FdsChannel :
     }
 
     override fun restoreState(s: Snapshot) {
-        s.load()
-
-        speed = s.readUByte("speed") ?: 0U
-        gain = s.readUByte("gain") ?: 0U
-        envelopeOff = s.readBoolean("envelopeOff") ?: false
-        volumeIncrease = s.readBoolean("volumeIncrease") ?: false
-        frequency = s.readUShort("frequency") ?: 0U
-        timer = s.readUInt("timer") ?: 0U
-        masterSpeed = s.readUByte("masterSpeed") ?: 0U
+        speed = s.readInt("speed")
+        gain = s.readInt("gain")
+        envelopeOff = s.readBoolean("envelopeOff")
+        volumeIncrease = s.readBoolean("volumeIncrease")
+        frequency = s.readInt("frequency")
+        timer = s.readInt("timer")
+        masterSpeed = s.readInt("masterSpeed")
     }
 }

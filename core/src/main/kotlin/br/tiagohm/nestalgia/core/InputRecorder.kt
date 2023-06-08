@@ -1,5 +1,8 @@
 package br.tiagohm.nestalgia.core
 
-interface InputRecorder : Disposable {
+import java.io.Closeable
+
+interface InputRecorder : Closeable {
+
     fun recordInput(devices: Iterable<ControlDevice>)
 }

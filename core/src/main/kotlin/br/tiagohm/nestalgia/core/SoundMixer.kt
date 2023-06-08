@@ -1,31 +1,28 @@
 package br.tiagohm.nestalgia.core
 
+import java.io.Closeable
 import java.util.*
 
-@Suppress("NOTHING_TO_INLINE")
-class SoundMixer(val console: Console) :
-    Resetable,
-    Disposable,
-    Snapshotable {
+class SoundMixer(private val console: Console) : Resetable, Closeable, Snapshotable {
 
     private var clockRate = 0
     private val outputBuffer = ShortArray(MAX_SAMPLES_PER_FRAME)
     private val blip = Blip(MAX_SAMPLES_PER_FRAME)
     private var sampleRate = console.settings.sampleRate
     private val devices = ArrayList<AudioDevice>(1)
-    private var previousOutputLeft: UShort = 0U
-    private var previousOutputRight: UShort = 0U
+    private var previousOutputLeft = 0
+    private var previousOutputRight = 0
     private val channelOutput = Array(MAX_CHANNEL_COUNT) { ShortArray(10000) }
     private val currentOutput = ShortArray(MAX_CHANNEL_COUNT)
     private var previousTargetRate = 0.0
     private val timestamps = TreeSet<Int>()
-    private var muteFrameCount = 0U
+    private var muteFrameCount = 0
+    private var mRegion = Region.NTSC
 
-    private var privateRegion = Region.NTSC
     var region: Region
-        get() = privateRegion
+        get() = mRegion
         set(value) {
-            privateRegion = value
+            mRegion = value
             updateRates(true)
         }
 
@@ -38,10 +35,10 @@ class SoundMixer(val console: Console) :
     }
 
     override fun reset(softReset: Boolean) {
-        muteFrameCount = 0U
+        muteFrameCount = 0
 
-        previousOutputLeft = 0U
-        previousOutputRight = 0U
+        previousOutputLeft = 0
+        previousOutputRight = 0
 
         blip.clear()
 
@@ -53,8 +50,8 @@ class SoundMixer(val console: Console) :
         previousTargetRate = sampleRate.toDouble()
     }
 
-    override fun dispose() {
-        devices.forEach { it.dispose() }
+    override fun close() {
+        devices.forEach { it.close() }
     }
 
     fun stopAudio(clearBuffer: Boolean = false) {
@@ -65,28 +62,28 @@ class SoundMixer(val console: Console) :
         devices.forEach { it.processEndOfFrame() }
     }
 
-    fun getChannelOutput(channel: AudioChannel): Double {
+    fun channelOutput(channel: AudioChannel): Double {
         return currentOutput[channel.ordinal] * 2.0
     }
 
-    val outputVolume: UShort
+    val outputVolume: Int
         get() {
-            val squareOutput = getChannelOutput(AudioChannel.SQUARE_1) + getChannelOutput(AudioChannel.SQUARE_2)
-            val tndOutput = (3 * getChannelOutput(AudioChannel.TRIANGLE) +
-                2 * getChannelOutput(AudioChannel.NOISE) +
-                getChannelOutput(AudioChannel.DMC))
+            val squareOutput = channelOutput(AudioChannel.SQUARE_1) + channelOutput(AudioChannel.SQUARE_2)
+            val tndOutput = (3 * channelOutput(AudioChannel.TRIANGLE) +
+                2 * channelOutput(AudioChannel.NOISE) +
+                channelOutput(AudioChannel.DMC))
 
             val squareVolume = 477600 / (8128.0 / squareOutput + 100.0)
             val tndVolume = 818350 / (24329.0 / tndOutput + 100.0)
 
             return (squareVolume +
                 tndVolume +
-                getChannelOutput(AudioChannel.FDS) * 20 +
-                getChannelOutput(AudioChannel.MMC5) * 43 +
-                getChannelOutput(AudioChannel.NAMCO_163) * 20 +
-                getChannelOutput(AudioChannel.SUNSOFT_5B) * 15 +
-                getChannelOutput(AudioChannel.VRC6) * 75 +
-                getChannelOutput(AudioChannel.VRC7)).toInt().toUShort()
+                channelOutput(AudioChannel.FDS) * 20 +
+                channelOutput(AudioChannel.MMC5) * 43 +
+                channelOutput(AudioChannel.NAMCO_163) * 20 +
+                channelOutput(AudioChannel.SUNSOFT_5B) * 15 +
+                channelOutput(AudioChannel.VRC6) * 75 +
+                channelOutput(AudioChannel.VRC7)).toInt()
         }
 
     fun addDelta(channel: AudioChannel, time: Int, delta: Int) {
@@ -96,7 +93,7 @@ class SoundMixer(val console: Console) :
         }
     }
 
-    private inline fun endFrame(time: Int) {
+    private fun endFrame(time: Int) {
         var muteFrame = true
 
         for (stamp in timestamps) {
@@ -111,7 +108,7 @@ class SoundMixer(val console: Console) :
             }
 
             val currentOutput = outputVolume
-            blip.addDelta(stamp, ((currentOutput - previousOutputLeft).toInt() * 4.0).toInt())
+            blip.addDelta(stamp, (currentOutput - previousOutputLeft) * 4)
             previousOutputLeft = currentOutput
         }
 
@@ -120,7 +117,7 @@ class SoundMixer(val console: Console) :
         if (muteFrame) {
             muteFrameCount++
         } else {
-            muteFrameCount = 0U
+            muteFrameCount = 0
         }
 
         if (timestamps.isNotEmpty()) {
@@ -145,7 +142,7 @@ class SoundMixer(val console: Console) :
 
         console.mapper!!.applySamples(outputBuffer, sampleCount, 4.0)
 
-        if (devices.isNotEmpty() && !console.isPaused) {
+        if (devices.isNotEmpty() && !console.paused) {
             devices.forEach { it.play(outputBuffer, sampleCount, sampleRate, true) }
         }
 
@@ -159,10 +156,10 @@ class SoundMixer(val console: Console) :
         }
     }
 
-    private inline fun updateRates(force: Boolean) {
+    private fun updateRates(force: Boolean) {
         var newRate = region.clockRate
 
-        if (console.settings.checkFlag(EmulationFlag.INTEGER_FPS_MODE)) {
+        if (console.settings.flag(EmulationFlag.INTEGER_FPS_MODE)) {
             // Adjust sample rate when running at 60.0 fps instead of 60.1
             newRate = if (region == Region.NTSC) {
                 (newRate * 60.0 / 60.0988118623484).toInt()
@@ -171,48 +168,45 @@ class SoundMixer(val console: Console) :
             }
         }
 
-        val targetRate = sampleRate * getTargetRateAdjustment()
+        val targetRate = sampleRate * targetRateAdjustment
 
         if (clockRate != newRate || force) {
             clockRate = newRate
-            blip.setRates(clockRate.toDouble(), targetRate)
+            blip.rates(clockRate.toDouble(), targetRate)
         }
     }
 
-    private inline fun getTargetRateAdjustment(): Double {
-        return 100.0 / console.settings.getEmulationSpeed()
-    }
+    private val targetRateAdjustment
+        get() = 100.0 / console.settings.emulationSpeed()
 
-    private inline fun updateTargetSampleRate() {
-        val targetRate = sampleRate * getTargetRateAdjustment()
+    private fun updateTargetSampleRate() {
+        val targetRate = sampleRate * targetRateAdjustment
 
         if (targetRate != previousTargetRate) {
             previousTargetRate = targetRate
-            blip.setRates(clockRate.toDouble(), targetRate)
+            blip.rates(clockRate.toDouble(), targetRate)
         }
     }
 
     override fun saveState(s: Snapshot) {
         s.write("clockRate", clockRate)
         s.write("sampleRate", sampleRate)
-        s.write("region", privateRegion)
+        s.write("region", mRegion)
         s.write("previousOutputLeft", previousOutputLeft)
         s.write("currentOutput", currentOutput)
         s.write("previousOutputRight", previousOutputRight)
     }
 
     override fun restoreState(s: Snapshot) {
-        s.load()
-
-        clockRate = s.readInt("clockRate") ?: 0
-        sampleRate = s.readInt("sampleRate") ?: console.settings.sampleRate
-        privateRegion = s.readEnum<Region>("region") ?: Region.NTSC
+        clockRate = s.readInt("clockRate")
+        sampleRate = s.readInt("sampleRate", console.settings.sampleRate)
+        mRegion = s.readEnum("region", Region.NTSC)
 
         reset(true)
 
-        previousOutputLeft = s.readUShort("previousOutputLeft") ?: 0U
+        previousOutputLeft = s.readInt("previousOutputLeft")
         s.readShortArray("currentOutput")?.copyInto(currentOutput)
-        previousOutputRight = s.readUShort("previousOutputRight") ?: 0U
+        previousOutputRight = s.readInt("previousOutputRight")
     }
 
     companion object {
@@ -222,7 +216,7 @@ class SoundMixer(val console: Console) :
 
         const val MAX_SAMPLE_RATE = 96000
 
-        // x4 to allow CPU overclocking up to 10x, x2 for panning stereo
+        // x4 to allow CPU overclocking up to 10x, x2 for panning stereo.
         const val MAX_SAMPLES_PER_FRAME = MAX_SAMPLE_RATE / 60 * 4 * 2
         const val MAX_CHANNEL_COUNT = 11
     }

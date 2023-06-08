@@ -1,5 +1,6 @@
 package br.tiagohm.nestalgia.core
 
 interface Register {
-    val address: UShort
+
+    val address: Int
 }

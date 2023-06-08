@@ -2,44 +2,41 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/Standard_controller
 
-@Suppress("NOTHING_TO_INLINE")
 open class StandardController(console: Console, port: Int) : ControlDevice(console, port) {
 
-    private val keys = console.settings.getControllerKeys(port)
+    private val keys = console.settings.controllerKeys(port)
 
     private var microphoneEnabled = port == 1 && console.settings.consoleType == ConsoleType.FAMICOM
     // val turboSpeed = keys.turboSpeed
     // val turboFreq = (1 shl (4 - turboSpeed)) and 0xFF
 
-    protected var stateBuffer = 0U
+    protected var stateBuffer = 0
 
-    protected inline val value: UByte
-        get() {
-            return ((if (isPressed(StandardControllerButton.A)) 0x01U else 0x00U) or
-                (if (isPressed(StandardControllerButton.B)) 0x02U else 0x00U) or
-                (if (isPressed(StandardControllerButton.SELECT)) 0x04U else 0x00U) or
-                (if (isPressed(StandardControllerButton.START)) 0x08U else 0x00U) or
-                (if (isPressed(StandardControllerButton.UP)) 0x10U else 0x00U) or
-                (if (isPressed(StandardControllerButton.DOWN)) 0x20U else 0x00U) or
-                (if (isPressed(StandardControllerButton.LEFT)) 0x40U else 0x00U) or
-                (if (isPressed(StandardControllerButton.RIGHT)) 0x80U else 0x00U)).toUByte()
-        }
+    protected val value
+        get() = (if (isPressed(StandardControllerButton.A)) 0x01 else 0x00) or
+            (if (isPressed(StandardControllerButton.B)) 0x02 else 0x00) or
+            (if (isPressed(StandardControllerButton.SELECT)) 0x04 else 0x00) or
+            (if (isPressed(StandardControllerButton.START)) 0x08 else 0x00) or
+            (if (isPressed(StandardControllerButton.UP)) 0x10 else 0x00) or
+            (if (isPressed(StandardControllerButton.DOWN)) 0x20 else 0x00) or
+            (if (isPressed(StandardControllerButton.LEFT)) 0x40 else 0x00) or
+            (if (isPressed(StandardControllerButton.RIGHT)) 0x80 else 0x00)
 
     // inline val isTurboOn: Boolean
     //    get() = (console.frameCount % turboFreq) < (turboFreq / 2)
 
-    private inline val isMicrophoneEnabled: Boolean
+    private val isMicrophoneEnabled
         get() = microphoneEnabled && console.frameCount % 3 == 0
 
     override fun setStateFromInput() {
-        setPressedStateFromKeys(StandardControllerButton.A)
-        setPressedStateFromKeys(StandardControllerButton.B)
-        setPressedStateFromKeys(StandardControllerButton.START)
-        setPressedStateFromKeys(StandardControllerButton.SELECT)
-        setPressedStateFromKeys(StandardControllerButton.UP)
-        setPressedStateFromKeys(StandardControllerButton.DOWN)
-        setPressedStateFromKeys(StandardControllerButton.LEFT)
-        setPressedStateFromKeys(StandardControllerButton.RIGHT)
+        pressedStateFromKeys(StandardControllerButton.A)
+        pressedStateFromKeys(StandardControllerButton.B)
+        pressedStateFromKeys(StandardControllerButton.START)
+        pressedStateFromKeys(StandardControllerButton.SELECT)
+        pressedStateFromKeys(StandardControllerButton.UP)
+        pressedStateFromKeys(StandardControllerButton.DOWN)
+        pressedStateFromKeys(StandardControllerButton.LEFT)
+        pressedStateFromKeys(StandardControllerButton.RIGHT)
 
         // if (isTurboOn) {
         //     setPressedStateFromKeys(Buttons.A)
@@ -47,10 +44,10 @@ open class StandardController(console: Console, port: Int) : ControlDevice(conso
         // }
 
         if (isMicrophoneEnabled) {
-            setPressedStateFromKeys(StandardControllerButton.MICROPHONE)
+            pressedStateFromKeys(StandardControllerButton.MICROPHONE)
         }
 
-        if (!console.settings.checkFlag(EmulationFlag.ALLOW_INVALID_INPUT)) {
+        if (!console.settings.flag(EmulationFlag.ALLOW_INVALID_INPUT)) {
             // If both U+D or L+R are pressed at the same time, act as if neither is pressed
             if (isPressed(StandardControllerButton.UP) && isPressed(StandardControllerButton.DOWN)) {
                 setBit(StandardControllerButton.UP)
@@ -63,61 +60,61 @@ open class StandardController(console: Console, port: Int) : ControlDevice(conso
         }
     }
 
-    private inline fun setPressedStateFromKeys(button: Button) {
-        setPressedState(button, keys.getKey(button))
+    private fun pressedStateFromKeys(button: ControllerButton) {
+        setPressedState(button, keys.key(button))
     }
 
     override fun refreshStateBuffer() {
         val value = this.value
 
         stateBuffer = if (console.settings.consoleType == ConsoleType.NES &&
-            console.settings.checkFlag(EmulationFlag.HAS_FOUR_SCORE)
+            console.settings.flag(EmulationFlag.HAS_FOUR_SCORE)
         ) {
             if (port >= 2) {
-                value.toUInt() shl 8
+                value shl 8
             } else {
-                // Add some 0 bit padding to allow P3/P4 controller bits + signature bits
-                (if (port == 0) 0xFF000000U else 0xFF000000U) or value.toUInt()
+                // Add some 0 bit padding to allow P3/P4 controller bits + signature bits.
+                0xFF000000.toInt() or value
             }
         } else {
-            0xFFFFFF00U or value.toUInt()
+            0xFFFFFF00.toInt() or value
         }
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte {
-        if (port >= 2 && console.isDualSystem) {
+    override fun read(addr: Int, type: MemoryOperationType): Int {
+        if (port >= 2 && console.dualSystem) {
             // Ignore P3/P4 controllers for VS DualSystem - those are used by the slave CPU
-            return 0U
+            return 0
         }
 
-        var output: UByte = 0U
+        var output = 0
 
-        if (addr.toUInt() == 0x4016U && (port and 0x01) == 0x00 ||
-            addr.toUInt() == 0x4017U && (port and 0x01) == 0x01
+        if (addr == 0x4016 && (port and 0x01) == 0x00 ||
+            addr == 0x4017 && (port and 0x01) == 0x01
         ) {
             strobeOnRead()
 
-            output = (stateBuffer and 0x01U).toUByte()
+            output = stateBuffer and 0x01
 
             if (port >= 2 && console.settings.consoleType == ConsoleType.FAMICOM) {
                 // Famicom outputs P3 & P4 on bit 1
-                output = (output.toUInt() shl 1).toUByte()
+                output = output shl 1
             }
 
             stateBuffer = stateBuffer shr 1
 
             // All subsequent reads will return D=1 on an authentic controller but may return D=0 on third party controllers.
-            stateBuffer = stateBuffer or 0x80000000U
+            stateBuffer = stateBuffer or 0x80000000.toInt()
         }
 
-        if (addr.toUInt() == 0x4016U && isPressed(StandardControllerButton.MICROPHONE)) {
-            output = output or 0x04U
+        if (addr == 0x4016 && isPressed(StandardControllerButton.MICROPHONE)) {
+            output = output or 0x04
         }
 
         return output
     }
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         strobeOnWrite(value)
     }
 
@@ -131,7 +128,7 @@ open class StandardController(console: Console, port: Int) : ControlDevice(conso
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        stateBuffer = s.readUInt("stateBuffer") ?: 0U
-        microphoneEnabled = s.readBoolean("microphoneEnabled") ?: false
+        stateBuffer = s.readInt("stateBuffer")
+        microphoneEnabled = s.readBoolean("microphoneEnabled")
     }
 }

@@ -4,18 +4,18 @@ package br.tiagohm.nestalgia.core
 
 class Sachen148 : Mapper() {
 
-    override val prgPageSize = 0x8000U
+    override val prgPageSize = 0x8000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
     override val hasBusConflicts = true
 
-    override fun init() {
-        selectPrgPage(0U, 0U)
+    override fun initialize() {
+        selectPrgPage(0, 0)
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        selectPrgPage(0U, (value.toUShort() shr 3) and 0x01U)
-        selectChrPage(0U, value.toUShort() and 0x07U)
+    override fun writeRegister(addr: Int, value: Int) {
+        selectPrgPage(0, value shr 3 and 0x01)
+        selectChrPage(0, value and 0x07)
     }
 }

@@ -1,21 +1,17 @@
 package br.tiagohm.nestalgia.core
 
 import java.io.IOException
+import java.nio.IntBuffer
 
 // https://wiki.nesdev.com/w/index.php/FDS_file_format
 // https://wiki.nesdev.com/w/index.php/FDS_disk_format
 
 object FdsLoader {
 
-    fun load(rom: ByteArray, name: String, bios: ByteArray): RomData {
+    fun load(rom: IntArray, name: String, bios: IntArray): RomData {
         if (bios.isEmpty()) {
             throw IOException("BIOS is empty")
         }
-
-        val crc32 = rom.crc32()
-        val md5 = rom.md5()
-        val sha1 = rom.sha1()
-        val sha256 = rom.sha256()
 
         val info = RomInfo(
             name,
@@ -23,52 +19,52 @@ object FdsLoader {
             mapperId = Mapper.FDS_MAPPER_ID,
             mirroring = MirroringType.VERTICAL,
             system = GameSystem.FDS,
-            hash = HashInfo(crc32 = crc32, md5 = md5, sha1 = sha1, sha256 = sha256)
+            hash = HashInfo(crc32 = rom.crc32(), md5 = rom.md5(), sha1 = rom.sha1(), sha256 = rom.sha256()),
         )
 
         return RomData(
             info,
-            prgRom = bios.toUByteArray(),
-            bytes = rom,
+            prgRom = bios,
+            rawData = rom,
             biosMissing = bios.size != 0x2000,
             fdsBios = bios,
         )
     }
 
-    private fun addGaps(diskSide: MutableList<UByte>, buffer: Pointer) {
+    private fun addGaps(diskSide: IntBuffer, buffer: Pointer) {
         // Start image with 28300 bits of gap
-        for (i in 0 until 28300 / 8) diskSide.add(0U)
+        for (i in 0 until 28300 / 8) diskSide.put(0)
 
         var j = 0
 
         while (j < FDS_DISK_SIDE_CAPACITY) {
-            val blockType = buffer[j].toInt()
+            val blockType = buffer[j]
 
             val blockLength = when (blockType) {
                 1 -> 56 // Disk header
                 2 -> 2 // File count
                 3 -> 16 // File header
-                4 -> 1 + buffer[j - 3].toInt() + buffer[j - 2].toInt() * 0x100
+                4 -> 1 + buffer[j - 3] + buffer[j - 2] * 0x100
                 else -> 1
             }
 
             if (blockType == 0) {
-                diskSide.add(blockType.toUByte())
+                diskSide.put(blockType)
             } else {
-                diskSide.add(0x80U)
+                diskSide.put(0x80)
 
                 for (k in j until j + blockLength) {
                     if (k in buffer) {
-                        diskSide.add(buffer[k])
+                        diskSide.put(buffer[k])
                     }
                 }
 
                 // Fake CRC value
-                diskSide.add(0x4DU)
-                diskSide.add(0x62U)
+                diskSide.put(0x4D)
+                diskSide.put(0x62)
 
                 // Insert 976 bits of gap after a block
-                for (i in 0 until 976 / 8) diskSide.add(0U)
+                for (i in 0 until 976 / 8) diskSide.put(0)
             }
 
             j += blockLength
@@ -76,20 +72,20 @@ object FdsLoader {
     }
 
     fun loadDiskData(
-        data: UByteArray,
-        diskSides: MutableList<UByteArray>,
-        diskHeaders: MutableList<UByteArray>,
+        data: IntArray,
+        diskSides: MutableList<IntArray>,
+        diskHeaders: MutableList<IntArray>,
     ) {
         var offset = 0
 
-        val hasHeader = data[0].toInt() == 70 &&
-            data[1].toInt() == 68 &&
-            data[2].toInt() == 83 &&
-            data[3].toInt() == 0x1A
+        val hasHeader = data[0] == 70 &&
+            data[1] == 68 &&
+            data[2] == 83 &&
+            data[3] == 0x1A
 
         val numberOfSides = if (hasHeader) {
             offset = 16
-            data[4].toInt()
+            data[4]
         } else {
             data.size / FDS_DISK_SIDE_CAPACITY
         }
@@ -97,33 +93,29 @@ object FdsLoader {
         for (i in 0 until numberOfSides) {
             diskHeaders.add(data.sliceArray(offset until offset + 56))
 
-            val fdsDiskImage = ArrayList<UByte>(FDS_DISK_SIDE_CAPACITY)
+            val fdsDiskImage = IntBuffer.allocate(FDS_DISK_SIDE_CAPACITY)
             addGaps(fdsDiskImage, Pointer(data, offset))
 
             offset += FDS_DISK_SIDE_CAPACITY
 
             // Ensure the image is 65500 bytes
-            while (fdsDiskImage.size < FDS_DISK_SIDE_CAPACITY) {
-                fdsDiskImage.add(0U)
-            }
+            // while (fdsDiskImage.size < FDS_DISK_SIDE_CAPACITY) {
+            //     fdsDiskImage.add(0)
+            // }
 
-            diskSides.add(fdsDiskImage.toUByteArray())
+            diskSides.add(fdsDiskImage.array())
         }
     }
 
     fun rebuildFdsFile(
-        diskSides: List<UByteArray>,
+        diskSides: List<IntArray>,
         needHeader: Boolean,
-    ): UByteArray {
-        val output = ArrayList<UByte>(diskSides.size * FDS_DISK_SIDE_CAPACITY + 16)
+    ): IntArray {
+        val output = IntBuffer.allocate(diskSides.size * FDS_DISK_SIDE_CAPACITY + 16)
 
         if (needHeader) {
-            val header = ubyteArrayOf(
-                70U, 68U, 83U, 0x1AU, diskSides.size.toUByte(), 0U,
-                0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U
-            )
-
-            output.addAll(header)
+            val header = intArrayOf(70, 68, 83, 0x1A, diskSides.size, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+            output.put(header)
         }
 
         for (diskSide in diskSides) {
@@ -135,24 +127,24 @@ object FdsLoader {
 
             while (i < length) {
                 if (inGap) {
-                    if (diskSide[i].toInt() == 0x80) {
+                    if (diskSide[i] == 0x80) {
                         inGap = false
                     }
 
                     i++
                 } else {
-                    val blockLength = when (diskSide[i].toInt()) {
+                    val blockLength = when (diskSide[i]) {
                         1 -> 56
                         2 -> 2
                         3 -> {
-                            fileSize = (diskSide[i + 13] + diskSide[i + 14] * 0x100U).toInt()
+                            fileSize = diskSide[i + 13] + diskSide[i + 14] * 0x100
                             16
                         }
                         4 -> 1 + fileSize
                         else -> 1
                     }
 
-                    for (k in i until i + blockLength) output.add(diskSide[k])
+                    for (k in i until i + blockLength) output.put(diskSide[k])
 
                     gapNeeded -= blockLength
                     i += blockLength
@@ -162,10 +154,10 @@ object FdsLoader {
                 }
             }
 
-            while (gapNeeded-- > 0) output.add(0U)
+            // while (gapNeeded-- > 0) output.put(0)
         }
 
-        return output.toUByteArray()
+        return output.array()
     }
 
     const val FDS_DISK_SIDE_CAPACITY = 65500

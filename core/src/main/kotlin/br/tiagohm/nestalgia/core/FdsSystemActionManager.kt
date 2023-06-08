@@ -5,18 +5,18 @@ class FdsSystemActionManager(
     val mapper: Fds,
 ) : SystemActionManager(console) {
 
-    private var isNeedEjectDisk = false
+    private var needEjectDisk = false
     private var insertDiskNumber = 0
     private var insertDiskDelay = 0
 
-    inline val sideCount: Int
+    val sideCount
         get() = mapper.sideCount
 
-    inline val isAutoInsertDiskEnabled: Boolean
-        get() = mapper.isAutoInsertDiskEnabled
+    val autoInsertDiskEnabled
+        get() = mapper.autoInsertDiskEnabled
 
     init {
-        if (console.settings.checkFlag(EmulationFlag.FDS_AUTO_LOAD_DISK)) {
+        if (console.settings.flag(EmulationFlag.FDS_AUTO_LOAD_DISK)) {
             insertDisk(0)
         }
     }
@@ -24,9 +24,9 @@ class FdsSystemActionManager(
     override fun onAfterSetState() {
         super.onAfterSetState()
 
-        if (isNeedEjectDisk) {
+        if (needEjectDisk) {
             setBit(FdsButton.EJECT_DISK)
-            isNeedEjectDisk = false
+            needEjectDisk = false
         }
 
         if (insertDiskDelay > 0) {
@@ -60,18 +60,18 @@ class FdsSystemActionManager(
     }
 
     fun ejectDisk() {
-        isNeedEjectDisk = true
+        needEjectDisk = true
     }
 
     fun insertDisk(diskNumber: Int) {
         synchronized(mapper) {
-            if (mapper.isDiskInserted) {
-                // Eject disk on next frame, then insert new disk 2 seconds later
-                isNeedEjectDisk = true
+            if (mapper.diskInserted) {
+                // Eject disk on next frame, then insert new disk 2 seconds later.
+                needEjectDisk = true
                 insertDiskNumber = diskNumber
                 insertDiskDelay = REINSERT_DISK_FRAME_DELAY
             } else {
-                // Insert disk on next frame
+                // Insert disk on next frame.
                 insertDiskNumber = diskNumber
                 insertDiskDelay = 1
             }
@@ -82,9 +82,9 @@ class FdsSystemActionManager(
     }
 
     fun switchDiskSide() {
-        if (!isAutoInsertDiskEnabled) {
+        if (!autoInsertDiskEnabled) {
             synchronized(mapper) {
-                if (mapper.isDiskInserted) {
+                if (mapper.diskInserted) {
                     console.pause()
                     insertDisk((mapper.currentDisk xor 1) % sideCount)
                     console.resume()
@@ -94,7 +94,7 @@ class FdsSystemActionManager(
     }
 
     fun insertNextDisk() {
-        if (!isAutoInsertDiskEnabled) {
+        if (!autoInsertDiskEnabled) {
             synchronized(mapper) {
                 console.pause()
                 insertDisk(((mapper.currentDisk and 0xFE) + 2) % sideCount)
@@ -106,7 +106,7 @@ class FdsSystemActionManager(
     override fun saveState(s: Snapshot) {
         super.saveState(s)
 
-        s.write("needEjectDisk", isNeedEjectDisk)
+        s.write("needEjectDisk", needEjectDisk)
         s.write("insertDiskNumber", insertDiskNumber)
         s.write("insertDiskDelay", insertDiskDelay)
     }
@@ -114,13 +114,13 @@ class FdsSystemActionManager(
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        isNeedEjectDisk = s.readBoolean("needEjectDisk") ?: false
-        insertDiskNumber = s.readInt("insertDiskNumber") ?: 0
-        insertDiskDelay = s.readInt("insertDiskDelay") ?: 0
+        needEjectDisk = s.readBoolean("needEjectDisk")
+        insertDiskNumber = s.readInt("insertDiskNumber")
+        insertDiskDelay = s.readInt("insertDiskDelay")
     }
 
     companion object {
 
-        const val REINSERT_DISK_FRAME_DELAY = 120
+        private const val REINSERT_DISK_FRAME_DELAY = 120
     }
 }

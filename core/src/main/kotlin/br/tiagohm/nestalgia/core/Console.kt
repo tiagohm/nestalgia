@@ -1,59 +1,69 @@
 package br.tiagohm.nestalgia.core
 
+import java.io.Closeable
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
-@Suppress("NOTHING_TO_INLINE")
 class Console(
-    val master: Console? = null,
-    settings: EmulationSettings? = null,
-) : Battery,
-    Disposable,
-    Snapshotable {
+    private val master: Console? = null,
+    val settings: EmulationSettings = master?.settings ?: EmulationSettings(),
+) : Battery, Resetable, Closeable, Snapshotable, Runnable {
 
     private val pauseCounter = AtomicInteger(0)
 
     val batteryManager = BatteryManager(this)
     val notificationManager = NotificationManager()
-    val debugger = Debugger(this)
+
+    @JvmField internal val debugger = Debugger(this)
 
     lateinit var cpu: Cpu
         private set
+
     lateinit var ppu: Ppu
         private set
+
     lateinit var apu: Apu
         private set
+
     lateinit var controlManager: ControlManager
         private set
+
     lateinit var memoryManager: MemoryManager
         private set
+
     lateinit var systemActionManager: SystemActionManager
         private set
 
     var mapper: Mapper? = null
         private set
+
     var slave: Console? = null
         private set
 
     var videoDecoder: VideoDecoder
         private set
+
     var videoRenderer: VideoRenderer
         private set
+
     var saveStateManager: SaveStateManager
         private set
+
     var cheatManager: CheatManager
         private set
+
     var soundMixer: SoundMixer
         private set
+
     var keyManager: KeyManager? = null
 
     var region = Region.NTSC
         private set
 
     private var stop = AtomicBoolean(false)
-    private var running = false
+    private var mRunning = false
     private var pauseOnNextFrameRequested = false
     private var resetRunTimers = false
     private var disableOcNextFrame = false
@@ -64,13 +74,11 @@ class Console(
     private val clockTimer = Timer()
     private val lastFrameTimer = Timer()
 
-    val settings: EmulationSettings = master?.settings ?: settings ?: EmulationSettings()
-
-    var isPaused = false
-        get() = master?.isPaused ?: field
+    var paused = false
+        get() = master?.paused ?: field
         private set
 
-    var emulationThreadId: Long = 0
+    var emulationThreadId = 0L
         private set
 
     init {
@@ -86,21 +94,21 @@ class Console(
         }
     }
 
-    override fun dispose() {
-        debugger.dispose()
+    override fun close() {
+        debugger.close()
 
         stop()
 
-        notificationManager.dispose()
+        notificationManager.close()
 
-        mapper?.dispose()
+        mapper?.close()
 
-        videoDecoder.dispose()
-        videoRenderer.dispose()
-        soundMixer.dispose()
+        videoDecoder.close()
+        videoRenderer.close()
+        soundMixer.close()
 
         if (::controlManager.isInitialized) {
-            controlManager.dispose()
+            controlManager.close()
         }
     }
 
@@ -120,7 +128,7 @@ class Console(
         if (mapper != null) {
             mapper!!.saveBattery()
 
-            val device = controlManager.getControlDevice(ControlDevice.EXP_DEVICE_PORT)
+            val device = controlManager.controlDevice(ControlDevice.EXP_DEVICE_PORT)
 
             if (device is Battery) {
                 device.saveBattery()
@@ -132,7 +140,7 @@ class Console(
         if (mapper != null) {
             mapper!!.loadBattery()
 
-            val device = controlManager.getControlDevice(ControlDevice.EXP_DEVICE_PORT)
+            val device = controlManager.controlDevice(ControlDevice.EXP_DEVICE_PORT)
 
             if (device is Battery) {
                 device.loadBattery()
@@ -141,20 +149,17 @@ class Console(
     }
 
     fun initialize(
-        rom: ByteArray,
+        rom: IntArray,
         name: String,
         forPowerCycle: Boolean = false,
-        fdsBios: ByteArray = ByteArray(0),
+        fdsBios: IntArray = IntArray(0),
     ): Boolean {
         val (newMapper, data) = try {
             Mapper.initialize(this, rom, name, fdsBios)
         } catch (e: IOException) {
             notificationManager.sendNotification(NotificationType.ERROR, e.message)
             return false
-        } catch (e: Exception) {
-            System.err.println(e.message)
-            return false
-        } catch (e: Error) {
+        } catch (e: Throwable) {
             System.err.println(e.message)
             return false
         }
@@ -200,7 +205,7 @@ class Console(
             slave?.reset()
 
             if (master == null && mapper!!.info.vsType == VsSystemType.VS_DUAL_SYSTEM) {
-                slave?.dispose()
+                slave?.close()
                 slave = Console(this)
                 slave!!.initialize(rom, name, fdsBios = fdsBios)
             }
@@ -222,9 +227,9 @@ class Console(
 
             // Temporarely disable battery saves to prevent battery files from
             // being created for the wrong game (for Battle Box & Turbo File)
-            batteryManager.isSaveEnabled = false
+            batteryManager.saveEnabled = false
 
-            var pollCounter = 0U
+            var pollCounter = 0
 
             if (::controlManager.isInitialized && !isDifferentGame) {
                 // When power cycling, poll counter must be preserved to allow movies to playback properly
@@ -238,11 +243,11 @@ class Console(
             controlManager.pollCounter = pollCounter
             controlManager.updateControlDevices()
 
-            batteryManager.isSaveEnabled = true
+            batteryManager.saveEnabled = true
 
             ppu = if (mapper is NsfMapper) NsfPpu(this) else Ppu(this)
 
-            memoryManager.mapper = mapper
+            memoryManager.mapper = mapper!!
             memoryManager.registerIODevice(ppu)
             memoryManager.registerIODevice(apu)
             memoryManager.registerIODevice(controlManager)
@@ -255,13 +260,14 @@ class Console(
 
             resetComponents(false)
 
-            // Poll controller input after creating rewind manager, to make sure it catches the first frame's input
+            // Poll controller input after creating rewind manager,
+            // to make sure it catches the first frame's input.
             controlManager.updateInputState()
 
             videoDecoder.startThread()
 
             if (isMaster) {
-                settings.clearFlag(EmulationFlag.FORCE_MAX_SPEED)
+                settings.flag(EmulationFlag.FORCE_MAX_SPEED, false)
 
                 if (slave != null) {
                     notificationManager.sendNotification(NotificationType.VS_DUAL_SYSTEM_STARTED)
@@ -270,6 +276,10 @@ class Console(
 
             if (master != null) {
                 notificationManager.sendNotification(NotificationType.GAME_INIT_COMPLETED)
+            }
+
+            if (isDifferentGame) {
+                cheatManager.clear()
             }
 
             resume()
@@ -289,16 +299,16 @@ class Console(
         apu.processCpuClock()
     }
 
-    val isDualSystem: Boolean
+    val dualSystem
         get() = slave != null || master != null
 
     val dualConsole: Console?
         get() = slave ?: master
 
-    inline val isMaster: Boolean
+    val isMaster
         get() = master == null
 
-    inline val frameCount: Int
+    val frameCount
         get() = ppu.frameCount
 
     fun powerCycle() {
@@ -308,7 +318,7 @@ class Console(
     fun reloadRom(forPowerCycle: Boolean = false) {
         if (initialized && mapper != null) {
             initialize(
-                mapper!!.data.bytes,
+                mapper!!.data.rawData,
                 mapper!!.name,
                 forPowerCycle,
                 mapper!!.data.fdsBios,
@@ -316,10 +326,10 @@ class Console(
         }
     }
 
-    fun reset(softReset: Boolean = true) {
+    override fun reset(softReset: Boolean) {
         if (initialized) {
             val needSuspend = if (softReset) {
-                systemActionManager.reset()
+                systemActionManager.softReset()
             } else {
                 systemActionManager.powerCycle()
             }
@@ -339,7 +349,7 @@ class Console(
         soundMixer.stopAudio(true)
         memoryManager.reset(softReset)
 
-        if (!settings.checkFlag(EmulationFlag.DISABLE_PPU_RESET) || !softReset || isNsf) {
+        if (!settings.flag(EmulationFlag.DISABLE_PPU_RESET) || !softReset || nsf) {
             ppu.reset(softReset)
         }
 
@@ -360,7 +370,7 @@ class Console(
     }
 
     fun stop() {
-        if (isRunning) {
+        if (running) {
             stop.set(true)
 
             debugger.suspend()
@@ -408,7 +418,7 @@ class Console(
             }
         }
 
-        settings.disableOverclocking = disableOcNextFrame || isNsf
+        settings.disableOverclocking = disableOcNextFrame || nsf
         disableOcNextFrame = false
 
         systemActionManager.processSystemActions()
@@ -439,7 +449,7 @@ class Console(
         }
     }
 
-    fun run() {
+    override fun run() {
         if (mapper == null) {
             throw IllegalStateException("No mapper!")
         }
@@ -461,7 +471,7 @@ class Console(
 
         updateRegion(true)
 
-        running = true
+        mRunning = true
 
         try {
             while (true) {
@@ -470,10 +480,11 @@ class Console(
                 soundMixer.processEndOfFrame()
                 slave?.soundMixer?.processEndOfFrame()
 
-                settings.disableOverclocking = disableOcNextFrame || isNsf
+                settings.disableOverclocking = disableOcNextFrame || nsf
                 disableOcNextFrame = false
 
                 updateRegion(true)
+
                 val delay = frameDelay
 
                 if (resetRunTimers || delay != lastDelay || (clockTimer.elapsedMilliseconds - targetTime) > 300) {
@@ -514,7 +525,7 @@ class Console(
                 }
 
                 if (pauseOnNextFrameRequested) {
-                    settings.setFlag(EmulationFlag.PAUSED)
+                    settings.flag(EmulationFlag.PAUSED, true)
                     pauseOnNextFrameRequested = false
                 }
 
@@ -532,10 +543,10 @@ class Console(
                     while (pausedRequired && !stop.get()) {
                         Thread.sleep(30)
                         pausedRequired = settings.needsPause
-                        isPaused = true
+                        paused = true
                     }
 
-                    isPaused = false
+                    paused = false
 
                     runLock.acquire()
                     notificationManager.sendNotification(NotificationType.GAME_RESUMED)
@@ -552,19 +563,19 @@ class Console(
                     break
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             e.printStackTrace()
         }
 
-        isPaused = false
-        running = false
+        paused = false
+        mRunning = false
 
         notificationManager.sendNotification(NotificationType.BEFORE_EMULATION_STOP)
 
         videoDecoder.stopThread()
         soundMixer.stopAudio()
 
-        settings.clearFlag(EmulationFlag.FORCE_MAX_SPEED)
+        settings.flag(EmulationFlag.FORCE_MAX_SPEED, false)
 
         initialized = false
 
@@ -573,7 +584,7 @@ class Console(
             saveBattery()
         }
 
-        mapper?.dispose()
+        mapper?.close()
         mapper = null
 
         release(false)
@@ -591,11 +602,11 @@ class Console(
         resetRunTimers = true
     }
 
-    val isRunning: Boolean
-        get() = master?.isRunning ?: !stopLock.isFree && running
+    val running: Boolean
+        get() = master?.running ?: !stopLock.isFree && mRunning
 
-    val isStopped: Boolean
-        get() = master?.isPaused ?: runLock.isFree || (!runLock.isFree && pauseCounter.get() > 0) || !running
+    val stopped
+        get() = master?.paused ?: runLock.isFree || (!runLock.isFree && pauseCounter.get() > 0) || !mRunning
 
     fun pauseOnNextFrame() {
         pauseOnNextFrameRequested = true
@@ -624,7 +635,7 @@ class Console(
 
             configChanged = true
 
-            cpu.setMasterClockDivider(region)
+            cpu.masterClockDivider(region)
             mapper!!.region = region
             ppu.region = region
             apu.region = region
@@ -637,80 +648,79 @@ class Console(
 
     val frameDelay: Double
         get() {
-            val emulationSpeed = settings.getEmulationSpeed()
+            val emulationSpeed = settings.emulationSpeed()
 
             return if (emulationSpeed == 0) {
                 0.0
             } else {
                 val delay = when (region) {
-                    Region.PAL, Region.DENDY -> if (settings.checkFlag(EmulationFlag.INTEGER_FPS_MODE)) 20.0 else 19.99720920217466
-                    else -> if (settings.checkFlag(EmulationFlag.INTEGER_FPS_MODE)) 16.6666666666666666667 else 16.63926405550947
+                    Region.PAL, Region.DENDY -> if (settings.flag(EmulationFlag.INTEGER_FPS_MODE)) 20.0 else 19.99720920217466
+                    else -> if (settings.flag(EmulationFlag.INTEGER_FPS_MODE)) 16.666666666666668 else 16.63926405550947
                 }
 
                 delay / (emulationSpeed.toDouble() / 100)
             }
         }
 
-    inline val fps: Double
+    val fps
         get() = if (region == Region.NTSC) {
-            if (settings.checkFlag(EmulationFlag.INTEGER_FPS_MODE)) 60.0 else 60.098812
+            if (settings.flag(EmulationFlag.INTEGER_FPS_MODE)) 60.0 else 60.098812
         } else {
-            if (settings.checkFlag(EmulationFlag.INTEGER_FPS_MODE)) 50.0 else 50.006978
+            if (settings.flag(EmulationFlag.INTEGER_FPS_MODE)) 50.0 else 50.006978
         }
 
-    inline val lagCounter: UInt
+    val lagCounter
         get() = controlManager.lagCounter
 
-    inline fun resetLagCounter() {
+    fun resetLagCounter() {
         pause()
-        controlManager.lagCounter = 0U
+        controlManager.lagCounter = 0
         resume()
     }
 
-    fun setNextFrameOverclockStatus(disabled: Boolean) {
+    fun nextFrameOverclockStatus(disabled: Boolean) {
         disableOcNextFrame = disabled
     }
 
-    fun initializeRam(ram: UByteArray) {
+    fun initializeRam(ram: IntArray) {
         initializeRam(settings.ramPowerOnState, ram)
     }
 
-    private inline fun initializeRam(state: RamPowerOnState, ram: UByteArray) {
+    private fun initializeRam(state: RamPowerOnState, ram: IntArray) {
         when (state) {
-            RamPowerOnState.ALL_ZEROS -> {
-                ram.fill(0U)
-            }
-            RamPowerOnState.ALL_ONES -> {
-                ram.fill(255U)
-            }
+            RamPowerOnState.ALL_ZEROS -> ram.fill(0)
+            RamPowerOnState.ALL_ONES -> ram.fill(255)
             else -> {
                 for (i in ram.indices) {
-                    ram[i] = Random.nextInt(256).toUByte()
+                    ram[i] = Random.nextInt(256)
                 }
             }
         }
     }
 
-    inline val dipSwitchCount: Int
-        get() = if (isVsSystem) {
-            if (isDualSystem) 16 else 8
+    val dipSwitchCount
+        get() = if (vsSystem) {
+            if (dualSystem) 16 else 8
         } else if (mapper != null) {
             mapper!!.dipSwitchCount
         } else {
             0
         }
 
-    inline val isNsf: Boolean
+    val nsf
         get() = mapper is NsfMapper
 
-    inline val isFds: Boolean
+    val fds
         get() = mapper is Fds
 
-    inline val isVsSystem: Boolean
-        get() = isRunning and (controlManager is VsControlManager)
+    val vsSystem
+        get() = running and (controlManager is VsControlManager)
+
+    val canTakeScreenshot
+        get() = running && !nsf
 
     fun takeScreenshot(): IntArray {
-        return if (isRunning && !isNsf) {
+        return if (canTakeScreenshot) {
             return videoDecoder.takeScreenshot()
         } else {
             IntArray(0)
@@ -718,8 +728,8 @@ class Console(
     }
 
     override fun saveState(s: Snapshot) {
-        if (isRunning) {
-            // Send any unprocessed sound to the SoundMixer
+        if (running) {
+            // Send any unprocessed sound to the SoundMixer.
             apu.endFrame()
 
             s.write("cpu", cpu)
@@ -733,20 +743,18 @@ class Console(
     }
 
     override fun restoreState(s: Snapshot) {
-        if (isRunning) {
-            s.load()
-
+        if (running) {
             // Send any unprocessed sound to the SoundMixer
             apu.endFrame()
 
-            s.readSnapshot("cpu")?.let { cpu.restoreState(it) }
-            s.readSnapshot("ppu")?.let { ppu.restoreState(it) }
-            s.readSnapshot("memoryManager")?.let { memoryManager.restoreState(it) }
-            s.readSnapshot("apu")?.let { apu.restoreState(it) }
-            s.readSnapshot("controlManager")?.let { controlManager.restoreState(it) }
-            s.readSnapshot("mapper")?.let { mapper!!.restoreState(it) }
+            s.readSnapshotable("cpu", cpu)
+            s.readSnapshotable("ppu", ppu)
+            s.readSnapshotable("memoryManager", memoryManager)
+            s.readSnapshotable("apu", apu)
+            s.readSnapshotable("controlManager", controlManager)
+            s.readSnapshotable("mapper", mapper!!)
 
-            if (slave != null) s.readSnapshot("slave")?.let { slave!!.restoreState(it) }
+            slave?.also { s.readSnapshotable("slave", it) }
 
             updateRegion(false)
         }

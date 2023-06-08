@@ -1,20 +1,20 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryOperation.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_008
 
 class Mapper008 : FrontFareast() {
 
-    override fun init() {
-        super.init()
-
-        addRegisterRange(0x8000U, 0xFFFFU, MemoryOperation.WRITE)
-        selectPrgPage4x(0U, 0U)
+    override fun initialize() {
+        addRegisterRange(0x8000, 0xFFFF, WRITE)
+        selectPrgPage4x(0, 0)
     }
 
-    override fun handleWriteRegister(addr: UShort, value: UByte) {
-        if (addr >= 0x8000U) {
-            selectPrgPage2x(0U, (value and 0xF8U).toUShort() shr 2)
-            selectChrPage8x(0U, (value and 0x07U).toUShort() shl 3)
+    override fun handleWriteRegister(addr: Int, value: Int) {
+        if (addr >= 0x8000) {
+            selectPrgPage2x(0, value and 0xF8 shr 2)
+            selectChrPage8x(0, value and 0x07 shl 3)
         }
     }
 }

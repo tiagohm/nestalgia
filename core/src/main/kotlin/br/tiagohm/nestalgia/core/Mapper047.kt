@@ -4,24 +4,24 @@ package br.tiagohm.nestalgia.core
 
 class Mapper047 : MMC3() {
 
-    private var selectedBlock: UByte = 0U
+    private var selectedBlock = 0
 
-    override val registerStartAddress: UShort = 0x6000U
+    override val registerStartAddress = 0x6000
 
-    override val registerEndAddress: UShort = 0xFFFFU
+    override val registerEndAddress = 0xFFFF
 
-    override fun selectChrPage(slot: UShort, page: UShort, memoryType: ChrMemoryType) {
-        super.selectChrPage(slot, (page and 0x7FU) or if (selectedBlock.isOne) 0x80U else 0x00U, memoryType)
+    override fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType) {
+        super.selectChrPage(slot, (page and 0x7F) or if (selectedBlock == 1) 0x80 else 0x00, memoryType)
     }
 
-    override fun selectPrgPage(slot: UShort, page: UShort, memoryType: PrgMemoryType) {
-        super.selectPrgPage(slot, (page and 0x0FU) or if (selectedBlock.isOne) 0x10U else 0x00U, memoryType)
+    override fun selectPrgPage(slot: Int, page: Int, memoryType: PrgMemoryType) {
+        super.selectPrgPage(slot, (page and 0x0F) or if (selectedBlock == 1) 0x10 else 0x00, memoryType)
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        if (addr < 0x8000U) {
+    override fun writeRegister(addr: Int, value: Int) {
+        if (addr < 0x8000) {
             if (canWriteToWram) {
-                selectedBlock = value and 0x01U
+                selectedBlock = value and 0x01
                 updateState()
             }
         } else {
@@ -38,6 +38,6 @@ class Mapper047 : MMC3() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        selectedBlock = s.readUByte("selectedBlock") ?: 0U
+        selectedBlock = s.readInt("selectedBlock")
     }
 }

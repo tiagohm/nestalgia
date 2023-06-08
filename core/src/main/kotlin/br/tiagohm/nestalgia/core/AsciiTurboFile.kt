@@ -2,27 +2,27 @@ package br.tiagohm.nestalgia.core
 
 // https://en.wikipedia.org/wiki/Turbo_File_(ASCII)
 
-class AsciiTurboFile(console: Console) :
-    ControlDevice(console, EXP_DEVICE_PORT),
-    Battery {
+class AsciiTurboFile(console: Console) : ControlDevice(console, EXP_DEVICE_PORT), Battery {
 
-    private val data = Array(SLOT_COUNT) { UByteArray(FILE_SIZE) }
-    private var lastWrite: UByte = 0U
-    private var position = 0
+    private val data = Array(SLOT_COUNT) { IntArray(FILE_SIZE) }
+
     private var slot = console.settings.asciiTurboFileSlot
+    private var lastWrite = 0
+    private var position = 0
 
     init {
         loadBattery()
     }
 
     override fun saveBattery() {
-        val data = UByteArray(FILE_SIZE * SLOT_COUNT)
-        for (i in 0..3) this.data[i].copyInto(data, i * FILE_SIZE)
+        val data = IntArray(FILE_SIZE * SLOT_COUNT)
+        for (i in data.indices) this.data[i].copyInto(data, i * FILE_SIZE)
         console.batteryManager.saveBattery(".tf", data)
     }
 
     override fun loadBattery() {
-        val data = UByteArray(FILE_SIZE * SLOT_COUNT)
+        val data = IntArray(FILE_SIZE * SLOT_COUNT)
+
         console.batteryManager.loadBattery(".tf", data.size).copyInto(data)
 
         for (i in 0..3) {
@@ -35,18 +35,18 @@ class AsciiTurboFile(console: Console) :
         }
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte {
-        return if (addr.toInt() == 0x4017) {
+    override fun read(addr: Int, type: MemoryOperationType): Int {
+        return if (addr == 0x4017) {
             val i = position / 8
             val k = position % 8
             if (k == 0) slot = console.settings.asciiTurboFileSlot
-            (((data[slot][i] shr k) and 0x01U).toInt() shl 2).toUByte()
+            (data[slot][i] shr k and 0x01) shl 2
         } else {
-            0U
+            0
         }
     }
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         if (!value.bit1) {
             position = 0
         }
@@ -61,9 +61,9 @@ class AsciiTurboFile(console: Console) :
             // Clock, perform write, increase position
 
             if (value.bit0) {
-                s[i] = s[i] or (1 shl k).toUByte()
+                s[i] = s[i] or (1 shl k)
             } else {
-                s[i] = s[i] and (1 shl k).inv().toUByte()
+                s[i] = s[i] and (1 shl k).inv()
             }
 
             position = (position + 1) and (BIT_COUNT - 1)
@@ -87,14 +87,14 @@ class AsciiTurboFile(console: Console) :
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        position = s.readInt("position") ?: position
-        lastWrite = s.readUByte("lastWrite") ?: lastWrite
-        slot = s.readInt("slot") ?: slot
+        position = s.readInt("position", position)
+        lastWrite = s.readInt("lastWrite", lastWrite)
+        slot = s.readInt("slot", slot)
         console.settings.asciiTurboFileSlot = slot
-        s.readUByteArray("data0")?.copyInto(data[0])
-        s.readUByteArray("data1")?.copyInto(data[1])
-        s.readUByteArray("data2")?.copyInto(data[2])
-        s.readUByteArray("data3")?.copyInto(data[3])
+        s.readIntArray("data0", data[0])
+        s.readIntArray("data1", data[1])
+        s.readIntArray("data2", data[2])
+        s.readIntArray("data3", data[3])
     }
 
     companion object {

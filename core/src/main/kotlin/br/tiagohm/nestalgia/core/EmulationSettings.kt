@@ -1,49 +1,43 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.EmulationFlag.*
 import kotlin.math.min
 
-@Suppress("NOTHING_TO_INLINE", "DuplicatedCode")
-class EmulationSettings : Snapshotable {
+@Suppress("DuplicatedCode")
+class EmulationSettings : Snapshotable, Resetable {
 
-    @PublishedApi
-    internal var flags = 0UL
+    @PublishedApi @JvmField internal val flags = BooleanArray(128)
 
     // Zapper
-    @JvmField
-    val zapperDetectionRadius = IntArray(ControlDevice.PORT_COUNT)
+    @JvmField val zapperDetectionRadius = IntArray(ControlDevice.PORT_COUNT)
 
     // Ascii Turbo File II
-    @JvmField
-    var asciiTurboFileSlot = 0
+    @JvmField var asciiTurboFileSlot = 0
 
     // Console
-    @JvmField
-    var region = Region.AUTO
+    @JvmField var region = Region.AUTO
 
-    @JvmField
-    var ramPowerOnState = RamPowerOnState.ALL_ZEROS
+    @JvmField var ramPowerOnState = RamPowerOnState.ALL_ZEROS
 
-    @JvmField
-    var dipSwitches = 0
+    @JvmField var dipSwitches = 0
 
     // Devices
     private val controllerTypes = Array(ControlDevice.PORT_COUNT) { ControllerType.NONE }
-    private val controllerKeys = Array(ControlDevice.PORT_COUNT) { KeyMapping.NONE }
-    private var isNeedControllerUpdate = false
+    private val controllerKeys = Array(ControlDevice.PORT_COUNT) { KeyMapping() }
+    private var needControllerUpdate = false
 
-    @JvmField
-    var isKeyboardMode = true
+    @JvmField var isKeyboardMode = true
 
-    var expansionDevice = ExpansionPortDevice.NONE
+    var expansionPortDevice = ExpansionPortDevice.NONE
         set(value) {
             field = value
-            isNeedControllerUpdate = true
+            needControllerUpdate = true
         }
 
     var consoleType = ConsoleType.NES
         set(value) {
             field = value
-            isNeedControllerUpdate = true
+            needControllerUpdate = true
         }
 
     // CPU
@@ -52,24 +46,21 @@ class EmulationSettings : Snapshotable {
     private var rewindSpeed = 100
 
     // APU
-    private var isNeedAudioSettingsUpdate = false
+    private var needAudioSettingsUpdate = false
 
     var sampleRate = 48000
         set(value) {
             if (value != field) {
                 field = value
-                isNeedAudioSettingsUpdate = true
+                needAudioSettingsUpdate = true
             }
         }
 
     // PPU
-    @JvmField
-    var inputPollScanline = 241
+    @JvmField var inputPollScanline = 241
+    @JvmField var disableOverclocking = false
 
-    @JvmField
-    var disableOverclocking = false
-
-    val palette = UIntArray(512)
+    @JvmField val palette = IntArray(512)
 
     var extraScanlinesBeforeNmi = 0
         get() = if (disableOverclocking) 0 else field
@@ -77,7 +68,7 @@ class EmulationSettings : Snapshotable {
     var extraScanlinesAfterNmi = 0
         get() = if (disableOverclocking) 0 else field
 
-    var isBackgroundEnabled = true
+    var backgroundEnabled = true
         private set
 
     var spritesEnabled = true
@@ -91,29 +82,37 @@ class EmulationSettings : Snapshotable {
 
     var paletteType = PaletteType.DEFAULT
         set(value) {
-            if (field != value) {
-                field = value
-                updatePalette(value)
-            }
+            field = value
+            updatePalette(value)
         }
 
+    private fun resetFlags() {
+        flags.fill(false)
+        flag(AUTO_CONFIGURE_INPUT, true)
+        flag(FDS_AUTO_LOAD_DISK, true)
+    }
+
+    override fun reset(softReset: Boolean) {
+        restoreState(Snapshot(0))
+    }
+
     override fun saveState(s: Snapshot) {
-        s.write("flags", flags)
+        s.write("flags", flags.clone())
         s.write("zapperDetectionRadius", zapperDetectionRadius)
         s.write("asciiTurboFileSlot", asciiTurboFileSlot)
         s.write("region", region)
         s.write("ramPowerOnState", ramPowerOnState)
         s.write("dipSwitches", dipSwitches)
         s.write("controllerTypes", controllerTypes)
-        controllerKeys.forEachIndexed { i, km -> s.write("controllerKeys$i", km.toSnapshot()) }
-        s.write("isNeedControllerUpdate", isNeedControllerUpdate)
+        repeat(controllerKeys.size) { s.write("controllerKeys$it", controllerKeys[it]) }
+        s.write("needControllerUpdate", needControllerUpdate)
         s.write("isKeyboardMode", isKeyboardMode)
-        s.write("expansionDevice", expansionDevice)
+        s.write("expansionPortDevice", expansionPortDevice)
         s.write("consoleType", consoleType)
         s.write("emulationSpeed", emulationSpeed)
         s.write("turboSpeed", turboSpeed)
         s.write("rewindSpeed", rewindSpeed)
-        s.write("isNeedAudioSettingsUpdate", isNeedAudioSettingsUpdate)
+        s.write("needAudioSettingsUpdate", needAudioSettingsUpdate)
         s.write("sampleRate", sampleRate)
         s.write("inputPollScanline", inputPollScanline)
         s.write("disableOverclocking", disableOverclocking)
@@ -124,87 +123,72 @@ class EmulationSettings : Snapshotable {
     }
 
     override fun restoreState(s: Snapshot) {
-        s.load()
-
-        isNeedControllerUpdate = s.readBoolean("isNeedControllerUpdate") ?: false
-        isNeedAudioSettingsUpdate = s.readBoolean("isNeedAudioSettingsUpdate") ?: false
-        flags = s.readULong("flags") ?: 0UL
-        s.readIntArray("zapperDetectionRadius")?.copyInto(zapperDetectionRadius)
-        asciiTurboFileSlot = s.readInt("asciiTurboFileSlot") ?: 0
-        region = s.readEnum<Region>("region") ?: Region.AUTO
-        ramPowerOnState = s.readEnum<RamPowerOnState>("ramPowerOnState") ?: RamPowerOnState.ALL_ZEROS
-        dipSwitches = s.readInt("dipSwitches") ?: 0
-        s.readEnumArray<ControllerType>("controllerTypes")?.copyInto(controllerTypes)
-        for (i in 0 until ControlDevice.PORT_COUNT) controllerKeys[i] =
-            s.readSnapshot("controllerKeys$i")?.let { KeyMapping.load(it) } ?: KeyMapping.NONE
-        isKeyboardMode = s.readBoolean("isKeyboardMode") ?: false
-        expansionDevice = s.readEnum<ExpansionPortDevice>("expansionDevice") ?: ExpansionPortDevice.NONE
-        consoleType = s.readEnum<ConsoleType>("consoleType") ?: ConsoleType.NES
-        emulationSpeed = s.readInt("emulationSpeed") ?: 100
-        turboSpeed = s.readInt("turboSpeed") ?: 300
-        rewindSpeed = s.readInt("rewindSpeed") ?: 100
-        sampleRate = s.readInt("sampleRate") ?: 48000
-        inputPollScanline = s.readInt("inputPollScanline") ?: 241
-        disableOverclocking = s.readBoolean("disableOverclocking") ?: false
-        extraScanlinesBeforeNmi = s.readInt("extraScanlinesBeforeNmi") ?: 0
-        extraScanlinesAfterNmi = s.readInt("extraScanlinesAfterNmi") ?: 0
-        ppuModel = s.readEnum<PpuModel>("ppuModel") ?: PpuModel.PPU_2C02
-        paletteType = s.readEnum<PaletteType>("paletteType") ?: PaletteType.DEFAULT
-        isBackgroundEnabled = !checkFlag(EmulationFlag.DISABLE_BACKGROUND)
-        spritesEnabled = !checkFlag(EmulationFlag.DISABLE_SPRITES)
+        needControllerUpdate = s.readBoolean("needControllerUpdate")
+        needAudioSettingsUpdate = s.readBoolean("needAudioSettingsUpdate")
+        s.readBooleanArray("flags", flags) ?: resetFlags()
+        s.readIntArray("zapperDetectionRadius", zapperDetectionRadius)
+        asciiTurboFileSlot = s.readInt("asciiTurboFileSlot")
+        region = s.readEnum("region", Region.AUTO)
+        ramPowerOnState = s.readEnum("ramPowerOnState", RamPowerOnState.ALL_ZEROS)
+        dipSwitches = s.readInt("dipSwitches")
+        s.readArray("controllerTypes", controllerTypes)
+        repeat(controllerKeys.size) { s.readSnapshotable("controllerKeys$it", controllerKeys[it]) }
+        isKeyboardMode = s.readBoolean("isKeyboardMode")
+        expansionPortDevice = s.readEnum("expansionPortDevice", ExpansionPortDevice.NONE)
+        consoleType = s.readEnum("consoleType", ConsoleType.NES)
+        emulationSpeed = s.readInt("emulationSpeed", 100)
+        turboSpeed = s.readInt("turboSpeed", 300)
+        rewindSpeed = s.readInt("rewindSpeed", 100)
+        sampleRate = s.readInt("sampleRate", 48000)
+        inputPollScanline = s.readInt("inputPollScanline", 241)
+        disableOverclocking = s.readBoolean("disableOverclocking")
+        extraScanlinesBeforeNmi = s.readInt("extraScanlinesBeforeNmi")
+        extraScanlinesAfterNmi = s.readInt("extraScanlinesAfterNmi")
+        ppuModel = s.readEnum("ppuModel", PpuModel.PPU_2C02)
+        paletteType = s.readEnum("paletteType", PaletteType.DEFAULT)
+        backgroundEnabled = !flag(DISABLE_BACKGROUND)
+        spritesEnabled = !flag(DISABLE_SPRITES)
     }
 
     fun needControllerUpdate(): Boolean {
-        return if (isNeedControllerUpdate) {
-            isNeedControllerUpdate = false
+        return if (needControllerUpdate) {
+            needControllerUpdate = false
             true
         } else {
             false
         }
     }
 
-    fun setFlag(flag: EmulationFlag) {
-        if ((this.flags and flag.code) == 0UL) {
-            this.flags = this.flags or flag.code
+    @Suppress("NOTHING_TO_INLINE")
+    inline fun flag(flag: EmulationFlag): Boolean {
+        return flags[flag.ordinal]
+    }
 
-            when (flag) {
-                EmulationFlag.DISABLE_BACKGROUND -> isBackgroundEnabled = true
-                EmulationFlag.DISABLE_SPRITES -> spritesEnabled = true
-                EmulationFlag.USE_CUSTOM_VS_PALETTE -> updateCurrentPalette()
-                else -> Unit
-            }
+    fun flag(flag: EmulationFlag, value: Boolean) {
+        flags[flag.ordinal] = value
+
+        when (flag) {
+            DISABLE_BACKGROUND -> backgroundEnabled = !value
+            DISABLE_SPRITES -> spritesEnabled = !value
+            USE_CUSTOM_VS_PALETTE -> updateCurrentPalette()
+            else -> Unit
         }
     }
 
-    fun clearFlag(flag: EmulationFlag) {
-        if ((this.flags and flag.code) != 0UL) {
-            this.flags = this.flags and flag.code.inv()
-
-            when (flag) {
-                EmulationFlag.DISABLE_BACKGROUND -> isBackgroundEnabled = false
-                EmulationFlag.DISABLE_SPRITES -> spritesEnabled = false
-                EmulationFlag.USE_CUSTOM_VS_PALETTE -> updateCurrentPalette()
-                else -> Unit
-            }
-        }
-    }
-
-    inline fun checkFlag(flag: EmulationFlag) = (this.flags and flag.code) == flag.code
-
-    fun getEmulationSpeed(ignoreTurbo: Boolean = true): Int {
+    fun emulationSpeed(ignoreTurbo: Boolean = true): Int {
         return when {
             ignoreTurbo -> emulationSpeed
-            checkFlag(EmulationFlag.FORCE_MAX_SPEED) -> 0
-            checkFlag(EmulationFlag.TURBO) -> turboSpeed
-            checkFlag(EmulationFlag.REWIND) -> rewindSpeed
+            flag(FORCE_MAX_SPEED) -> 0
+            flag(TURBO) -> turboSpeed
+            flag(REWIND) -> rewindSpeed
             else -> emulationSpeed
         }
     }
 
-    fun setEmulationSpeed(speed: Int) {
+    fun emulationSpeed(speed: Int) {
         if (speed != emulationSpeed) {
             emulationSpeed = speed
-            isNeedAudioSettingsUpdate = true
+            needAudioSettingsUpdate = true
         }
     }
 
@@ -213,27 +197,24 @@ class EmulationSettings : Snapshotable {
     }
 
     private fun updatePalette(palette: Palette) {
-        if (palette.size != 64 && palette.size != 512) {
-            throw IllegalArgumentException("Invalid palette buffer size")
-        }
+        require(palette.size == 64 || palette.size == 512) { "Invalid palette buffer size" }
 
-        val data = UIntArray(512)
+        val data = IntArray(512)
         palette.data.copyInto(data)
 
-        if (palette.size == 64) {
+        if (!palette.isFullColor) {
             generateFullColorPalette(data)
         }
 
         updateCurrentPalette(data)
     }
 
-    private fun updateCurrentPalette(palette: UIntArray) {
+    private fun updateCurrentPalette(palette: IntArray) {
         when {
-            checkFlag(EmulationFlag.USE_CUSTOM_VS_PALETTE) -> {
+            flag(USE_CUSTOM_VS_PALETTE) -> {
                 for (i in 0 until 64) {
                     for (j in 0 until 8) {
-                        this.palette[(j shl 6) or i] =
-                            palette[(j shl 6) or PALETTE_LUT[ppuModel.ordinal][i].toInt()]
+                        this.palette[(j shl 6) or i] = palette[(j shl 6) or PALETTE_LUT[ppuModel.ordinal][i]]
                     }
                 }
             }
@@ -247,50 +228,52 @@ class EmulationSettings : Snapshotable {
         }
     }
 
-    private fun generateFullColorPalette(palette: UIntArray) {
-        for (i in 0 until 64) {
+    private fun generateFullColorPalette(palette: IntArray) {
+        repeat(64) {
             for (j in 0 until 8) {
-                var redColor = (palette[i] shr 16).toUByte().toDouble()
-                var greenColor = (palette[i] shr 8).toUByte().toDouble()
-                var blueColor = palette[i].toUByte().toDouble()
+                var red = (palette[it] shr 16 and 0xFF).toDouble()
+                var green = (palette[it] shr 8 and 0xFF).toDouble()
+                var blue = (palette[it] and 0xFF).toDouble()
 
-                if ((j and 0x01) == 0x01) {
-                    redColor *= 1.1
-                    greenColor *= 0.9
-                    blueColor *= 0.9
-                }
-                if ((j and 0x02) == 0x02) {
-                    redColor *= 0.9
-                    greenColor *= 1.1
-                    blueColor *= 0.9
-                }
-                if ((j and 0x04) == 0x04) {
-                    redColor *= 0.9
-                    greenColor *= 0.9
-                    blueColor *= 1.1
+                if (j.bit0) {
+                    red *= 1.1
+                    green *= 0.9
+                    blue *= 0.9
                 }
 
-                val r = min(255.0, redColor).toUInt()
-                val g = min(255.0, greenColor).toUInt()
-                val b = min(255.0, blueColor).toUInt()
-                val color = 0xFF000000U or (r shl 16) or (g shl 8) or b
-                palette[(j shl 6) or i] = color
+                if (j.bit1) {
+                    red *= 0.9
+                    green *= 1.1
+                    blue *= 0.9
+                }
+
+                if (j.bit2) {
+                    red *= 0.9
+                    green *= 0.9
+                    blue *= 1.1
+                }
+
+                val r = min(255, red.toInt())
+                val g = min(255, green.toInt())
+                val b = min(255, blue.toInt())
+                val color = 0xFF000000.toInt() or (r shl 16) or (g shl 8) or b
+                palette[(j shl 6) or it] = color
             }
         }
     }
 
     fun initializeInputDevices(inputType: GameInputType, gameSystem: GameSystem) {
         var system = gameSystem
-        var expansionDevice = ExpansionPortDevice.NONE
+        var expansionPortDevice = ExpansionPortDevice.NONE
 
         val controllers = arrayOf(
             ControllerType.STANDARD,
             ControllerType.STANDARD,
             ControllerType.NONE,
-            ControllerType.NONE
+            ControllerType.NONE,
         )
 
-        clearFlag(EmulationFlag.HAS_FOUR_SCORE)
+        flag(HAS_FOUR_SCORE, false)
 
         var isFamicom = system == GameSystem.FAMICOM || system == GameSystem.FDS || system == GameSystem.DENDY
 
@@ -299,21 +282,21 @@ class EmulationSettings : Snapshotable {
             controllers[0] = ControllerType.VS_ZAPPER
         } else if (inputType == GameInputType.ZAPPER) {
             if (isFamicom) {
-                expansionDevice = ExpansionPortDevice.ZAPPER
+                expansionPortDevice = ExpansionPortDevice.ZAPPER
             } else {
                 controllers[1] = ControllerType.ZAPPER
             }
         } else if (inputType == GameInputType.FOUR_SCORE) {
-            setFlag(EmulationFlag.HAS_FOUR_SCORE)
+            flag(HAS_FOUR_SCORE, true)
             controllers[2] = ControllerType.STANDARD
             controllers[3] = ControllerType.STANDARD
         } else if (inputType == GameInputType.FOUR_PLAYER_ADAPTER) {
-            setFlag(EmulationFlag.HAS_FOUR_SCORE)
-            expansionDevice = ExpansionPortDevice.FOUR_PLAYER_ADAPTER
+            flag(HAS_FOUR_SCORE, true)
+            expansionPortDevice = ExpansionPortDevice.FOUR_PLAYER_ADAPTER
             controllers[2] = ControllerType.STANDARD
             controllers[3] = ControllerType.STANDARD
         } else if (inputType == GameInputType.ARKANOID_CONTROLLER_FAMICOM) {
-            expansionDevice = ExpansionPortDevice.ARKANOID
+            expansionPortDevice = ExpansionPortDevice.ARKANOID
         } else if (inputType == GameInputType.ARKANOID_CONTROLLER_NES) {
             controllers[1] = ControllerType.ARKANOID
         } else if (inputType == GameInputType.DOUBLE_ARKANOID_CONTROLLER) {
@@ -321,44 +304,44 @@ class EmulationSettings : Snapshotable {
             controllers[1] = ControllerType.ARKANOID
         } else if (inputType == GameInputType.OEKA_KIDS_TABLET) {
             system = GameSystem.FAMICOM
-            expansionDevice = ExpansionPortDevice.OEKA_KIDS_TABLET
+            expansionPortDevice = ExpansionPortDevice.OEKA_KIDS_TABLET
         } else if (inputType == GameInputType.KONAMI_HYPER_SHOT) {
             system = GameSystem.FAMICOM
-            expansionDevice = ExpansionPortDevice.KONAMI_HYPER_SHOT
+            expansionPortDevice = ExpansionPortDevice.KONAMI_HYPER_SHOT
         } else if (inputType == GameInputType.FAMILY_BASIC_KEYBOARD) {
             system = GameSystem.FAMICOM
-            expansionDevice = ExpansionPortDevice.FAMILY_BASIC_KEYBOARD
+            expansionPortDevice = ExpansionPortDevice.FAMILY_BASIC_KEYBOARD
         } else if (inputType == GameInputType.PARTY_TAP) {
             system = GameSystem.FAMICOM
-            expansionDevice = ExpansionPortDevice.PARTY_TAP
+            expansionPortDevice = ExpansionPortDevice.PARTY_TAP
         } else if (inputType == GameInputType.PACHINKO_CONTROLLER) {
             system = GameSystem.FAMICOM
-            expansionDevice = ExpansionPortDevice.PACHINKO
+            expansionPortDevice = ExpansionPortDevice.PACHINKO
         } else if (inputType == GameInputType.EXCITING_BOXING) {
             system = GameSystem.FAMICOM
-            expansionDevice = ExpansionPortDevice.EXCITING_BOXING
+            expansionPortDevice = ExpansionPortDevice.EXCITING_BOXING
         } else if (inputType == GameInputType.SUBOR_KEYBOARD) {
             system = GameSystem.FAMICOM
-            expansionDevice = ExpansionPortDevice.SUBOR_KEYBOARD
+            expansionPortDevice = ExpansionPortDevice.SUBOR_KEYBOARD
             controllers[1] = ControllerType.SUBOR_MOUSE
         } else if (inputType == GameInputType.JISSEN_MAHJONG) {
             system = GameSystem.FAMICOM
-            expansionDevice = ExpansionPortDevice.JISSEN_MAHJONG
+            expansionPortDevice = ExpansionPortDevice.JISSEN_MAHJONG
         } else if (inputType == GameInputType.BARCODE_BATTLER) {
             system = GameSystem.FAMICOM
-            expansionDevice = ExpansionPortDevice.BARCODE_BATTLER
+            expansionPortDevice = ExpansionPortDevice.BARCODE_BATTLER
         } else if (inputType == GameInputType.BANDAI_HYPER_SHOT) {
             system = GameSystem.FAMICOM
-            expansionDevice = ExpansionPortDevice.BANDAI_HYPER_SHOT
+            expansionPortDevice = ExpansionPortDevice.BANDAI_HYPER_SHOT
         } else if (inputType == GameInputType.BATTLE_BOX) {
             system = GameSystem.FAMICOM
-            expansionDevice = ExpansionPortDevice.BATTLE_BOX
+            expansionPortDevice = ExpansionPortDevice.BATTLE_BOX
         } else if (inputType == GameInputType.TURBO_FILE) {
             system = GameSystem.FAMICOM
-            expansionDevice = ExpansionPortDevice.ASCII_TURBO_FILE
+            expansionPortDevice = ExpansionPortDevice.ASCII_TURBO_FILE
         } else if (inputType == GameInputType.FAMILY_TRAINER_SIDE_A || inputType == GameInputType.FAMILY_TRAINER_SIDE_B) {
             system = GameSystem.FAMICOM
-            expansionDevice = ExpansionPortDevice.FAMILY_TRAINER_MAT
+            expansionPortDevice = ExpansionPortDevice.FAMILY_TRAINER_MAT
         } else if (inputType == GameInputType.POWER_PAD_SIDE_A || inputType == GameInputType.POWER_PAD_SIDE_B) {
             system = GameSystem.NTSC
             controllers[1] = ControllerType.POWER_PAD
@@ -370,265 +353,266 @@ class EmulationSettings : Snapshotable {
         isFamicom = system == GameSystem.FAMICOM || system == GameSystem.FDS || system == GameSystem.DENDY
 
         consoleType = if (isFamicom) ConsoleType.FAMICOM else ConsoleType.NES
-        for (i in 0..3) setControllerType(i, controllers[i])
-        this.expansionDevice = expansionDevice
+        repeat(4) { controllerType(it, controllers[it]) }
+        this.expansionPortDevice = expansionPortDevice
     }
 
-    fun setControllerType(index: Int, controllerType: ControllerType) {
+    fun controllerType(index: Int, controllerType: ControllerType) {
         controllerTypes[index] = controllerType
-        isNeedControllerUpdate = true
+        needControllerUpdate = true
     }
 
-    fun getControllerType(port: Int) = controllerTypes[port]
+    fun controllerType(port: Int): ControllerType {
+        return controllerTypes[port]
+    }
 
-    fun getControllerKeys(port: Int) = controllerKeys[port]
+    fun controllerKeys(port: Int): KeyMapping {
+        return controllerKeys[port]
+    }
 
-    fun setControllerKeys(port: Int, keys: KeyMapping) {
+    fun controllerKeys(port: Int, keys: KeyMapping) {
         controllerKeys[port] = keys
-        isNeedControllerUpdate = true
+        needControllerUpdate = true
     }
 
-    inline val needsPause
-        get() = checkFlag(EmulationFlag.PAUSED)
+    val needsPause
+        get() = flag(PAUSED)
 
-    inline val isInputEnabled
-        get() = !checkFlag(EmulationFlag.IN_BACKGROUND) || checkFlag(EmulationFlag.ALLOW_BACKGROUND_INPUT)
+    val inputEnabled
+        get() = !flag(IN_BACKGROUND) || flag(ALLOW_BACKGROUND_INPUT)
 
     fun needAudioSettingsUpdate(): Boolean {
-        val value = isNeedAudioSettingsUpdate
-        if (value) isNeedControllerUpdate = false
+        val value = needAudioSettingsUpdate
+        if (value) needAudioSettingsUpdate = false
         return value
     }
 
     val hasZapper
-        get() = controllerTypes[0] == ControllerType.ZAPPER ||
-            controllerTypes[1] == ControllerType.ZAPPER ||
-            (consoleType == ConsoleType.FAMICOM && expansionDevice == ExpansionPortDevice.ZAPPER)
+        get() = controllerTypes.any { it == ControllerType.ZAPPER } || expansionPortDevice == ExpansionPortDevice.ZAPPER
 
     val hasFourScore
-        get() = consoleType == ConsoleType.FAMICOM && expansionDevice == ExpansionPortDevice.FOUR_PLAYER_ADAPTER
+        get() = expansionPortDevice == ExpansionPortDevice.FOUR_PLAYER_ADAPTER
 
     companion object {
-        // @formatter:off
 
+        // @formatter:off
         @JvmStatic private val PALETTE_LUT = arrayOf(
-            /* 2C02 */      ubyteArrayOf(0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U, 9U, 10U, 11U, 12U, 13U, 14U, 15U, 16U, 17U, 18U, 19U, 20U, 21U, 22U, 23U, 24U, 25U, 26U, 27U, 28U, 29U, 30U, 31U, 32U, 33U, 34U, 35U, 36U, 37U, 38U, 39U, 40U, 41U, 42U, 43U, 44U, 45U, 46U, 47U, 48U, 49U, 50U, 51U, 52U, 53U, 54U, 55U, 56U, 57U, 58U, 59U, 60U, 61U, 62U, 63U),
-            /* 2C03 */      ubyteArrayOf(0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U, 9U, 10U, 11U, 12U, 13U, 14U, 15U, 16U, 17U, 18U, 19U, 20U, 21U, 22U, 23U, 24U, 25U, 26U, 27U, 28U, 29U, 30U, 31U, 32U, 33U, 34U, 35U, 36U, 37U, 38U, 39U, 40U, 41U, 42U, 43U, 44U, 15U, 46U, 47U, 48U, 49U, 50U, 51U, 52U, 53U, 54U, 55U, 56U, 57U, 58U, 59U, 60U, 15U, 62U, 63U),
-            /* 2C04-0001 */ ubyteArrayOf(53U, 35U, 22U, 34U, 28U, 9U, 29U, 21U, 32U, 0U, 39U, 5U, 4U, 40U, 8U, 32U, 33U, 62U, 31U, 41U, 60U, 50U, 54U, 18U, 63U, 43U, 46U, 30U, 61U, 45U, 36U, 1U, 14U, 49U, 51U, 42U, 44U, 12U, 27U, 20U, 46U, 7U, 52U, 6U, 19U, 2U, 38U, 46U, 46U, 25U, 16U, 10U, 57U, 3U, 55U, 23U, 15U, 17U, 11U, 13U, 56U, 37U, 24U, 58U),
-            /* 2C04-0002 */ ubyteArrayOf(46U, 39U, 24U, 57U, 58U, 37U, 28U, 49U, 22U, 19U, 56U, 52U, 32U, 35U, 60U, 11U, 15U, 33U, 6U, 61U, 27U, 41U, 30U, 34U, 29U, 36U, 14U, 43U, 50U, 8U, 46U, 3U, 4U, 54U, 38U, 51U, 17U, 31U, 16U, 2U, 20U, 63U, 0U, 9U, 18U, 46U, 40U, 32U, 62U, 13U, 42U, 23U, 12U, 1U, 21U, 25U, 46U, 44U, 7U, 55U, 53U, 5U, 10U, 45U),
-            /* 2C04-0003 */ ubyteArrayOf(20U, 37U, 58U, 16U, 11U, 32U, 49U, 9U, 1U, 46U, 54U, 8U, 21U, 61U, 62U, 60U, 34U, 28U, 5U, 18U, 25U, 24U, 23U, 27U, 0U, 3U, 46U, 2U, 22U, 6U, 52U, 53U, 35U, 15U, 14U, 55U, 13U, 39U, 38U, 32U, 41U, 4U, 33U, 36U, 17U, 45U, 46U, 31U, 44U, 30U, 57U, 51U, 7U, 42U, 40U, 29U, 10U, 46U, 50U, 56U, 19U, 43U, 63U, 12U),
-            /* 2C04-0004 */ ubyteArrayOf(24U, 3U, 28U, 40U, 46U, 53U, 1U, 23U, 16U, 31U, 42U, 14U, 54U, 55U, 11U, 57U, 37U, 30U, 18U, 52U, 46U, 29U, 6U, 38U, 62U, 27U, 34U, 25U, 4U, 46U, 58U, 33U, 5U, 10U, 7U, 2U, 19U, 20U, 0U, 21U, 12U, 61U, 17U, 15U, 13U, 56U, 45U, 36U, 51U, 32U, 8U, 22U, 63U, 43U, 32U, 60U, 46U, 39U, 35U, 49U, 41U, 50U, 44U, 9U),
-            /* 2C05-01 */   ubyteArrayOf(0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U, 9U, 10U, 11U, 12U, 13U, 14U, 15U, 16U, 17U, 18U, 19U, 20U, 21U, 22U, 23U, 24U, 25U, 26U, 27U, 28U, 29U, 30U, 31U, 32U, 33U, 34U, 35U, 36U, 37U, 38U, 39U, 40U, 41U, 42U, 43U, 44U, 15U, 46U, 47U, 48U, 49U, 50U, 51U, 52U, 53U, 54U, 55U, 56U, 57U, 58U, 59U, 60U, 15U, 62U, 63U),
-            /* 2C05-02 */   ubyteArrayOf(0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U, 9U, 10U, 11U, 12U, 13U, 14U, 15U, 16U, 17U, 18U, 19U, 20U, 21U, 22U, 23U, 24U, 25U, 26U, 27U, 28U, 29U, 30U, 31U, 32U, 33U, 34U, 35U, 36U, 37U, 38U, 39U, 40U, 41U, 42U, 43U, 44U, 15U, 46U, 47U, 48U, 49U, 50U, 51U, 52U, 53U, 54U, 55U, 56U, 57U, 58U, 59U, 60U, 15U, 62U, 63U),
-            /* 2C05-03 */   ubyteArrayOf(0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U, 9U, 10U, 11U, 12U, 13U, 14U, 15U, 16U, 17U, 18U, 19U, 20U, 21U, 22U, 23U, 24U, 25U, 26U, 27U, 28U, 29U, 30U, 31U, 32U, 33U, 34U, 35U, 36U, 37U, 38U, 39U, 40U, 41U, 42U, 43U, 44U, 15U, 46U, 47U, 48U, 49U, 50U, 51U, 52U, 53U, 54U, 55U, 56U, 57U, 58U, 59U, 60U, 15U, 62U, 63U),
-            /* 2C05-04 */   ubyteArrayOf(0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U, 9U, 10U, 11U, 12U, 13U, 14U, 15U, 16U, 17U, 18U, 19U, 20U, 21U, 22U, 23U, 24U, 25U, 26U, 27U, 28U, 29U, 30U, 31U, 32U, 33U, 34U, 35U, 36U, 37U, 38U, 39U, 40U, 41U, 42U, 43U, 44U, 15U, 46U, 47U, 48U, 49U, 50U, 51U, 52U, 53U, 54U, 55U, 56U, 57U, 58U, 59U, 60U, 15U, 62U, 63U),
-            /* 2C05-05 */   ubyteArrayOf(0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U, 9U, 10U, 11U, 12U, 13U, 14U, 15U, 16U, 17U, 18U, 19U, 20U, 21U, 22U, 23U, 24U, 25U, 26U, 27U, 28U, 29U, 30U, 31U, 32U, 33U, 34U, 35U, 36U, 37U, 38U, 39U, 40U, 41U, 42U, 43U, 44U, 15U, 46U, 47U, 48U, 49U, 50U, 51U, 52U, 53U, 54U, 55U, 56U, 57U, 58U, 59U, 60U, 15U, 62U, 63U),
+            /* 2C02 */      intArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63),
+            /* 2C03 */      intArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 15, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 15, 62, 63),
+            /* 2C04-0001 */ intArrayOf(53, 35, 22, 34, 28, 9, 29, 21, 32, 0, 39, 5, 4, 40, 8, 32, 33, 62, 31, 41, 60, 50, 54, 18, 63, 43, 46, 30, 61, 45, 36, 1, 14, 49, 51, 42, 44, 12, 27, 20, 46, 7, 52, 6, 19, 2, 38, 46, 46, 25, 16, 10, 57, 3, 55, 23, 15, 17, 11, 13, 56, 37, 24, 58),
+            /* 2C04-0002 */ intArrayOf(46, 39, 24, 57, 58, 37, 28, 49, 22, 19, 56, 52, 32, 35, 60, 11, 15, 33, 6, 61, 27, 41, 30, 34, 29, 36, 14, 43, 50, 8, 46, 3, 4, 54, 38, 51, 17, 31, 16, 2, 20, 63, 0, 9, 18, 46, 40, 32, 62, 13, 42, 23, 12, 1, 21, 25, 46, 44, 7, 55, 53, 5, 10, 45),
+            /* 2C04-0003 */ intArrayOf(20, 37, 58, 16, 11, 32, 49, 9, 1, 46, 54, 8, 21, 61, 62, 60, 34, 28, 5, 18, 25, 24, 23, 27, 0, 3, 46, 2, 22, 6, 52, 53, 35, 15, 14, 55, 13, 39, 38, 32, 41, 4, 33, 36, 17, 45, 46, 31, 44, 30, 57, 51, 7, 42, 40, 29, 10, 46, 50, 56, 19, 43, 63, 12),
+            /* 2C04-0004 */ intArrayOf(24, 3, 28, 40, 46, 53, 1, 23, 16, 31, 42, 14, 54, 55, 11, 57, 37, 30, 18, 52, 46, 29, 6, 38, 62, 27, 34, 25, 4, 46, 58, 33, 5, 10, 7, 2, 19, 20, 0, 21, 12, 61, 17, 15, 13, 56, 45, 36, 51, 32, 8, 22, 63, 43, 32, 60, 46, 39, 35, 49, 41, 50, 44, 9),
+            /* 2C05-01 */   intArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 15, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 15, 62, 63),
+            /* 2C05-02 */   intArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 15, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 15, 62, 63),
+            /* 2C05-03 */   intArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 15, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 15, 62, 63),
+            /* 2C05-04 */   intArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 15, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 15, 62, 63),
+            /* 2C05-05 */   intArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 15, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 15, 62, 63),
         )
 
         @JvmStatic private val PPU_PALETTE_ARGB = arrayOf(
-            /* 2C02 */         uintArrayOf(0xFF666666U, 0xFF002A88U, 0xFF1412A7U, 0xFF3B00A4U, 0xFF5C007EU, 0xFF6E0040U, 0xFF6C0600U, 0xFF561D00U, 0xFF333500U, 0xFF0B4800U, 0xFF005200U, 0xFF004F08U, 0xFF00404DU, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFADADADU, 0xFF155FD9U, 0xFF4240FFU, 0xFF7527FEU, 0xFFA01ACCU, 0xFFB71E7BU, 0xFFB53120U, 0xFF994E00U, 0xFF6B6D00U, 0xFF388700U, 0xFF0C9300U, 0xFF008F32U, 0xFF007C8DU, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFFFFEFFU, 0xFF64B0FFU, 0xFF9290FFU, 0xFFC676FFU, 0xFFF36AFFU, 0xFFFE6ECCU, 0xFFFE8170U, 0xFFEA9E22U, 0xFFBCBE00U, 0xFF88D800U, 0xFF5CE430U, 0xFF45E082U, 0xFF48CDDEU, 0xFF4F4F4FU, 0xFF000000U, 0xFF000000U, 0xFFFFFEFFU, 0xFFC0DFFFU, 0xFFD3D2FFU, 0xFFE8C8FFU, 0xFFFBC2FFU, 0xFFFEC4EAU, 0xFFFECCC5U, 0xFFF7D8A5U, 0xFFE4E594U, 0xFFCFEF96U, 0xFFBDF4ABU, 0xFFB3F3CCU, 0xFFB5EBF2U, 0xFFB8B8B8U, 0xFF000000U, 0xFF000000U),
-            /* 2C03 */         uintArrayOf(0xFF6D6D6DU, 0xFF002491U, 0xFF0000DAU, 0xFF6D48DAU, 0xFF91006DU, 0xFFB6006DU, 0xFFB62400U, 0xFF914800U, 0xFF6D4800U, 0xFF244800U, 0xFF006D24U, 0xFF009100U, 0xFF004848U, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFB6B6B6U, 0xFF006DDAU, 0xFF0048FFU, 0xFF9100FFU, 0xFFB600FFU, 0xFFFF0091U, 0xFFFF0000U, 0xFFDA6D00U, 0xFF916D00U, 0xFF249100U, 0xFF009100U, 0xFF00B66DU, 0xFF009191U, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFFFFFFFU, 0xFF6DB6FFU, 0xFF9191FFU, 0xFFDA6DFFU, 0xFFFF00FFU, 0xFFFF6DFFU, 0xFFFF9100U, 0xFFFFB600U, 0xFFDADA00U, 0xFF6DDA00U, 0xFF00FF00U, 0xFF48FFDAU, 0xFF00FFFFU, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFFFFFFFU, 0xFFB6DAFFU, 0xFFDAB6FFU, 0xFFFFB6FFU, 0xFFFF91FFU, 0xFFFFB6B6U, 0xFFFFDA91U, 0xFFFFFF48U, 0xFFFFFF6DU, 0xFFB6FF48U, 0xFF91FF6DU, 0xFF48FFDAU, 0xFF91DAFFU, 0xFF000000U, 0xFF000000U, 0xFF000000U),
-            /* 2C04-0001 */    uintArrayOf(0xFFFFB6B6U, 0xFFDA6DFFU, 0xFFFF0000U, 0xFF9191FFU, 0xFF009191U, 0xFF244800U, 0xFF484848U, 0xFFFF0091U, 0xFFFFFFFFU, 0xFF6D6D6DU, 0xFFFFB600U, 0xFFB6006DU, 0xFF91006DU, 0xFFDADA00U, 0xFF6D4800U, 0xFFFFFFFFU, 0xFF6DB6FFU, 0xFFDAB66DU, 0xFF6D2400U, 0xFF6DDA00U, 0xFF91DAFFU, 0xFFDAB6FFU, 0xFFFFDA91U, 0xFF0048FFU, 0xFFFFDA00U, 0xFF48FFDAU, 0xFF000000U, 0xFF480000U, 0xFFDADADAU, 0xFF919191U, 0xFFFF00FFU, 0xFF002491U, 0xFF00006DU, 0xFFB6DAFFU, 0xFFFFB6FFU, 0xFF00FF00U, 0xFF00FFFFU, 0xFF004848U, 0xFF00B66DU, 0xFFB600FFU, 0xFF000000U, 0xFF914800U, 0xFFFF91FFU, 0xFFB62400U, 0xFF9100FFU, 0xFF0000DAU, 0xFFFF9100U, 0xFF000000U, 0xFF000000U, 0xFF249100U, 0xFFB6B6B6U, 0xFF006D24U, 0xFFB6FF48U, 0xFF6D48DAU, 0xFFFFFF00U, 0xFFDA6D00U, 0xFF004800U, 0xFF006DDAU, 0xFF009100U, 0xFF242424U, 0xFFFFFF6DU, 0xFFFF6DFFU, 0xFF916D00U, 0xFF91FF6DU),
-            /* 2C04-0002 */    uintArrayOf(0xFF000000U, 0xFFFFB600U, 0xFF916D00U, 0xFFB6FF48U, 0xFF91FF6DU, 0xFFFF6DFFU, 0xFF009191U, 0xFFB6DAFFU, 0xFFFF0000U, 0xFF9100FFU, 0xFFFFFF6DU, 0xFFFF91FFU, 0xFFFFFFFFU, 0xFFDA6DFFU, 0xFF91DAFFU, 0xFF009100U, 0xFF004800U, 0xFF6DB6FFU, 0xFFB62400U, 0xFFDADADAU, 0xFF00B66DU, 0xFF6DDA00U, 0xFF480000U, 0xFF9191FFU, 0xFF484848U, 0xFFFF00FFU, 0xFF00006DU, 0xFF48FFDAU, 0xFFDAB6FFU, 0xFF6D4800U, 0xFF000000U, 0xFF6D48DAU, 0xFF91006DU, 0xFFFFDA91U, 0xFFFF9100U, 0xFFFFB6FFU, 0xFF006DDAU, 0xFF6D2400U, 0xFFB6B6B6U, 0xFF0000DAU, 0xFFB600FFU, 0xFFFFDA00U, 0xFF6D6D6DU, 0xFF244800U, 0xFF0048FFU, 0xFF000000U, 0xFFDADA00U, 0xFFFFFFFFU, 0xFFDAB66DU, 0xFF242424U, 0xFF00FF00U, 0xFFDA6D00U, 0xFF004848U, 0xFF002491U, 0xFFFF0091U, 0xFF249100U, 0xFF000000U, 0xFF00FFFFU, 0xFF914800U, 0xFFFFFF00U, 0xFFFFB6B6U, 0xFFB6006DU, 0xFF006D24U, 0xFF919191U),
-            /* 2C04-0003 */    uintArrayOf(0xFFB600FFU, 0xFFFF6DFFU, 0xFF91FF6DU, 0xFFB6B6B6U, 0xFF009100U, 0xFFFFFFFFU, 0xFFB6DAFFU, 0xFF244800U, 0xFF002491U, 0xFF000000U, 0xFFFFDA91U, 0xFF6D4800U, 0xFFFF0091U, 0xFFDADADAU, 0xFFDAB66DU, 0xFF91DAFFU, 0xFF9191FFU, 0xFF009191U, 0xFFB6006DU, 0xFF0048FFU, 0xFF249100U, 0xFF916D00U, 0xFFDA6D00U, 0xFF00B66DU, 0xFF6D6D6DU, 0xFF6D48DAU, 0xFF000000U, 0xFF0000DAU, 0xFFFF0000U, 0xFFB62400U, 0xFFFF91FFU, 0xFFFFB6B6U, 0xFFDA6DFFU, 0xFF004800U, 0xFF00006DU, 0xFFFFFF00U, 0xFF242424U, 0xFFFFB600U, 0xFFFF9100U, 0xFFFFFFFFU, 0xFF6DDA00U, 0xFF91006DU, 0xFF6DB6FFU, 0xFFFF00FFU, 0xFF006DDAU, 0xFF919191U, 0xFF000000U, 0xFF6D2400U, 0xFF00FFFFU, 0xFF480000U, 0xFFB6FF48U, 0xFFFFB6FFU, 0xFF914800U, 0xFF00FF00U, 0xFFDADA00U, 0xFF484848U, 0xFF006D24U, 0xFF000000U, 0xFFDAB6FFU, 0xFFFFFF6DU, 0xFF9100FFU, 0xFF48FFDAU, 0xFFFFDA00U, 0xFF004848U),
-            /* 2C04-0004 */    uintArrayOf(0xFF916D00U, 0xFF6D48DAU, 0xFF009191U, 0xFFDADA00U, 0xFF000000U, 0xFFFFB6B6U, 0xFF002491U, 0xFFDA6D00U, 0xFFB6B6B6U, 0xFF6D2400U, 0xFF00FF00U, 0xFF00006DU, 0xFFFFDA91U, 0xFFFFFF00U, 0xFF009100U, 0xFFB6FF48U, 0xFFFF6DFFU, 0xFF480000U, 0xFF0048FFU, 0xFFFF91FFU, 0xFF000000U, 0xFF484848U, 0xFFB62400U, 0xFFFF9100U, 0xFFDAB66DU, 0xFF00B66DU, 0xFF9191FFU, 0xFF249100U, 0xFF91006DU, 0xFF000000U, 0xFF91FF6DU, 0xFF6DB6FFU, 0xFFB6006DU, 0xFF006D24U, 0xFF914800U, 0xFF0000DAU, 0xFF9100FFU, 0xFFB600FFU, 0xFF6D6D6DU, 0xFFFF0091U, 0xFF004848U, 0xFFDADADAU, 0xFF006DDAU, 0xFF004800U, 0xFF242424U, 0xFFFFFF6DU, 0xFF919191U, 0xFFFF00FFU, 0xFFFFB6FFU, 0xFFFFFFFFU, 0xFF6D4800U, 0xFFFF0000U, 0xFFFFDA00U, 0xFF48FFDAU, 0xFFFFFFFFU, 0xFF91DAFFU, 0xFF000000U, 0xFFFFB600U, 0xFFDA6DFFU, 0xFFB6DAFFU, 0xFF6DDA00U, 0xFFDAB6FFU, 0xFF00FFFFU, 0xFF244800U),
-            /* 2C05-01 */      uintArrayOf(0xFF6D6D6DU, 0xFF002491U, 0xFF0000DAU, 0xFF6D48DAU, 0xFF91006DU, 0xFFB6006DU, 0xFFB62400U, 0xFF914800U, 0xFF6D4800U, 0xFF244800U, 0xFF006D24U, 0xFF009100U, 0xFF004848U, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFB6B6B6U, 0xFF006DDAU, 0xFF0048FFU, 0xFF9100FFU, 0xFFB600FFU, 0xFFFF0091U, 0xFFFF0000U, 0xFFDA6D00U, 0xFF916D00U, 0xFF249100U, 0xFF009100U, 0xFF00B66DU, 0xFF009191U, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFFFFFFFU, 0xFF6DB6FFU, 0xFF9191FFU, 0xFFDA6DFFU, 0xFFFF00FFU, 0xFFFF6DFFU, 0xFFFF9100U, 0xFFFFB600U, 0xFFDADA00U, 0xFF6DDA00U, 0xFF00FF00U, 0xFF48FFDAU, 0xFF00FFFFU, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFFFFFFFU, 0xFFB6DAFFU, 0xFFDAB6FFU, 0xFFFFB6FFU, 0xFFFF91FFU, 0xFFFFB6B6U, 0xFFFFDA91U, 0xFFFFFF48U, 0xFFFFFF6DU, 0xFFB6FF48U, 0xFF91FF6DU, 0xFF48FFDAU, 0xFF91DAFFU, 0xFF000000U, 0xFF000000U, 0xFF000000U),
-            /* 2C05-02 */      uintArrayOf(0xFF6D6D6DU, 0xFF002491U, 0xFF0000DAU, 0xFF6D48DAU, 0xFF91006DU, 0xFFB6006DU, 0xFFB62400U, 0xFF914800U, 0xFF6D4800U, 0xFF244800U, 0xFF006D24U, 0xFF009100U, 0xFF004848U, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFB6B6B6U, 0xFF006DDAU, 0xFF0048FFU, 0xFF9100FFU, 0xFFB600FFU, 0xFFFF0091U, 0xFFFF0000U, 0xFFDA6D00U, 0xFF916D00U, 0xFF249100U, 0xFF009100U, 0xFF00B66DU, 0xFF009191U, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFFFFFFFU, 0xFF6DB6FFU, 0xFF9191FFU, 0xFFDA6DFFU, 0xFFFF00FFU, 0xFFFF6DFFU, 0xFFFF9100U, 0xFFFFB600U, 0xFFDADA00U, 0xFF6DDA00U, 0xFF00FF00U, 0xFF48FFDAU, 0xFF00FFFFU, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFFFFFFFU, 0xFFB6DAFFU, 0xFFDAB6FFU, 0xFFFFB6FFU, 0xFFFF91FFU, 0xFFFFB6B6U, 0xFFFFDA91U, 0xFFFFFF48U, 0xFFFFFF6DU, 0xFFB6FF48U, 0xFF91FF6DU, 0xFF48FFDAU, 0xFF91DAFFU, 0xFF000000U, 0xFF000000U, 0xFF000000U),
-            /* 2C05-03 */      uintArrayOf(0xFF6D6D6DU, 0xFF002491U, 0xFF0000DAU, 0xFF6D48DAU, 0xFF91006DU, 0xFFB6006DU, 0xFFB62400U, 0xFF914800U, 0xFF6D4800U, 0xFF244800U, 0xFF006D24U, 0xFF009100U, 0xFF004848U, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFB6B6B6U, 0xFF006DDAU, 0xFF0048FFU, 0xFF9100FFU, 0xFFB600FFU, 0xFFFF0091U, 0xFFFF0000U, 0xFFDA6D00U, 0xFF916D00U, 0xFF249100U, 0xFF009100U, 0xFF00B66DU, 0xFF009191U, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFFFFFFFU, 0xFF6DB6FFU, 0xFF9191FFU, 0xFFDA6DFFU, 0xFFFF00FFU, 0xFFFF6DFFU, 0xFFFF9100U, 0xFFFFB600U, 0xFFDADA00U, 0xFF6DDA00U, 0xFF00FF00U, 0xFF48FFDAU, 0xFF00FFFFU, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFFFFFFFU, 0xFFB6DAFFU, 0xFFDAB6FFU, 0xFFFFB6FFU, 0xFFFF91FFU, 0xFFFFB6B6U, 0xFFFFDA91U, 0xFFFFFF48U, 0xFFFFFF6DU, 0xFFB6FF48U, 0xFF91FF6DU, 0xFF48FFDAU, 0xFF91DAFFU, 0xFF000000U, 0xFF000000U, 0xFF000000U),
-            /* 2C05-04 */      uintArrayOf(0xFF6D6D6DU, 0xFF002491U, 0xFF0000DAU, 0xFF6D48DAU, 0xFF91006DU, 0xFFB6006DU, 0xFFB62400U, 0xFF914800U, 0xFF6D4800U, 0xFF244800U, 0xFF006D24U, 0xFF009100U, 0xFF004848U, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFB6B6B6U, 0xFF006DDAU, 0xFF0048FFU, 0xFF9100FFU, 0xFFB600FFU, 0xFFFF0091U, 0xFFFF0000U, 0xFFDA6D00U, 0xFF916D00U, 0xFF249100U, 0xFF009100U, 0xFF00B66DU, 0xFF009191U, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFFFFFFFU, 0xFF6DB6FFU, 0xFF9191FFU, 0xFFDA6DFFU, 0xFFFF00FFU, 0xFFFF6DFFU, 0xFFFF9100U, 0xFFFFB600U, 0xFFDADA00U, 0xFF6DDA00U, 0xFF00FF00U, 0xFF48FFDAU, 0xFF00FFFFU, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFFFFFFFU, 0xFFB6DAFFU, 0xFFDAB6FFU, 0xFFFFB6FFU, 0xFFFF91FFU, 0xFFFFB6B6U, 0xFFFFDA91U, 0xFFFFFF48U, 0xFFFFFF6DU, 0xFFB6FF48U, 0xFF91FF6DU, 0xFF48FFDAU, 0xFF91DAFFU, 0xFF000000U, 0xFF000000U, 0xFF000000U),
-            /* 2C05-05 */      uintArrayOf(0xFF6D6D6DU, 0xFF002491U, 0xFF0000DAU, 0xFF6D48DAU, 0xFF91006DU, 0xFFB6006DU, 0xFFB62400U, 0xFF914800U, 0xFF6D4800U, 0xFF244800U, 0xFF006D24U, 0xFF009100U, 0xFF004848U, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFB6B6B6U, 0xFF006DDAU, 0xFF0048FFU, 0xFF9100FFU, 0xFFB600FFU, 0xFFFF0091U, 0xFFFF0000U, 0xFFDA6D00U, 0xFF916D00U, 0xFF249100U, 0xFF009100U, 0xFF00B66DU, 0xFF009191U, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFFFFFFFU, 0xFF6DB6FFU, 0xFF9191FFU, 0xFFDA6DFFU, 0xFFFF00FFU, 0xFFFF6DFFU, 0xFFFF9100U, 0xFFFFB600U, 0xFFDADA00U, 0xFF6DDA00U, 0xFF00FF00U, 0xFF48FFDAU, 0xFF00FFFFU, 0xFF000000U, 0xFF000000U, 0xFF000000U, 0xFFFFFFFFU, 0xFFB6DAFFU, 0xFFDAB6FFU, 0xFFFFB6FFU, 0xFFFF91FFU, 0xFFFFB6B6U, 0xFFFFDA91U, 0xFFFFFF48U, 0xFFFFFF6DU, 0xFFB6FF48U, 0xFF91FF6DU, 0xFF48FFDAU, 0xFF91DAFFU, 0xFF000000U, 0xFF000000U, 0xFF000000U)
+            /* 2C02 */         intArrayOf(0xFF666666.toInt(), 0xFF002A88.toInt(), 0xFF1412A7.toInt(), 0xFF3B00A4.toInt(), 0xFF5C007E.toInt(), 0xFF6E0040.toInt(), 0xFF6C0600.toInt(), 0xFF561D00.toInt(), 0xFF333500.toInt(), 0xFF0B4800.toInt(), 0xFF005200.toInt(), 0xFF004F08.toInt(), 0xFF00404D.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFADADAD.toInt(), 0xFF155FD9.toInt(), 0xFF4240FF.toInt(), 0xFF7527FE.toInt(), 0xFFA01ACC.toInt(), 0xFFB71E7B.toInt(), 0xFFB53120.toInt(), 0xFF994E00.toInt(), 0xFF6B6D00.toInt(), 0xFF388700.toInt(), 0xFF0C9300.toInt(), 0xFF008F32.toInt(), 0xFF007C8D.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFEFF.toInt(), 0xFF64B0FF.toInt(), 0xFF9290FF.toInt(), 0xFFC676FF.toInt(), 0xFFF36AFF.toInt(), 0xFFFE6ECC.toInt(), 0xFFFE8170.toInt(), 0xFFEA9E22.toInt(), 0xFFBCBE00.toInt(), 0xFF88D800.toInt(), 0xFF5CE430.toInt(), 0xFF45E082.toInt(), 0xFF48CDDE.toInt(), 0xFF4F4F4F.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFEFF.toInt(), 0xFFC0DFFF.toInt(), 0xFFD3D2FF.toInt(), 0xFFE8C8FF.toInt(), 0xFFFBC2FF.toInt(), 0xFFFEC4EA.toInt(), 0xFFFECCC5.toInt(), 0xFFF7D8A5.toInt(), 0xFFE4E594.toInt(), 0xFFCFEF96.toInt(), 0xFFBDF4AB.toInt(), 0xFFB3F3CC.toInt(), 0xFFB5EBF2.toInt(), 0xFFB8B8B8.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt()),
+            /* 2C03 */         intArrayOf(0xFF6D6D6D.toInt(), 0xFF002491.toInt(), 0xFF0000DA.toInt(), 0xFF6D48DA.toInt(), 0xFF91006D.toInt(), 0xFFB6006D.toInt(), 0xFFB62400.toInt(), 0xFF914800.toInt(), 0xFF6D4800.toInt(), 0xFF244800.toInt(), 0xFF006D24.toInt(), 0xFF009100.toInt(), 0xFF004848.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFB6B6B6.toInt(), 0xFF006DDA.toInt(), 0xFF0048FF.toInt(), 0xFF9100FF.toInt(), 0xFFB600FF.toInt(), 0xFFFF0091.toInt(), 0xFFFF0000.toInt(), 0xFFDA6D00.toInt(), 0xFF916D00.toInt(), 0xFF249100.toInt(), 0xFF009100.toInt(), 0xFF00B66D.toInt(), 0xFF009191.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFF6DB6FF.toInt(), 0xFF9191FF.toInt(), 0xFFDA6DFF.toInt(), 0xFFFF00FF.toInt(), 0xFFFF6DFF.toInt(), 0xFFFF9100.toInt(), 0xFFFFB600.toInt(), 0xFFDADA00.toInt(), 0xFF6DDA00.toInt(), 0xFF00FF00.toInt(), 0xFF48FFDA.toInt(), 0xFF00FFFF.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFFB6DAFF.toInt(), 0xFFDAB6FF.toInt(), 0xFFFFB6FF.toInt(), 0xFFFF91FF.toInt(), 0xFFFFB6B6.toInt(), 0xFFFFDA91.toInt(), 0xFFFFFF48.toInt(), 0xFFFFFF6D.toInt(), 0xFFB6FF48.toInt(), 0xFF91FF6D.toInt(), 0xFF48FFDA.toInt(), 0xFF91DAFF.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt()),
+            /* 2C04-0001 */    intArrayOf(0xFFFFB6B6.toInt(), 0xFFDA6DFF.toInt(), 0xFFFF0000.toInt(), 0xFF9191FF.toInt(), 0xFF009191.toInt(), 0xFF244800.toInt(), 0xFF484848.toInt(), 0xFFFF0091.toInt(), 0xFFFFFFFF.toInt(), 0xFF6D6D6D.toInt(), 0xFFFFB600.toInt(), 0xFFB6006D.toInt(), 0xFF91006D.toInt(), 0xFFDADA00.toInt(), 0xFF6D4800.toInt(), 0xFFFFFFFF.toInt(), 0xFF6DB6FF.toInt(), 0xFFDAB66D.toInt(), 0xFF6D2400.toInt(), 0xFF6DDA00.toInt(), 0xFF91DAFF.toInt(), 0xFFDAB6FF.toInt(), 0xFFFFDA91.toInt(), 0xFF0048FF.toInt(), 0xFFFFDA00.toInt(), 0xFF48FFDA.toInt(), 0xFF000000.toInt(), 0xFF480000.toInt(), 0xFFDADADA.toInt(), 0xFF919191.toInt(), 0xFFFF00FF.toInt(), 0xFF002491.toInt(), 0xFF00006D.toInt(), 0xFFB6DAFF.toInt(), 0xFFFFB6FF.toInt(), 0xFF00FF00.toInt(), 0xFF00FFFF.toInt(), 0xFF004848.toInt(), 0xFF00B66D.toInt(), 0xFFB600FF.toInt(), 0xFF000000.toInt(), 0xFF914800.toInt(), 0xFFFF91FF.toInt(), 0xFFB62400.toInt(), 0xFF9100FF.toInt(), 0xFF0000DA.toInt(), 0xFFFF9100.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF249100.toInt(), 0xFFB6B6B6.toInt(), 0xFF006D24.toInt(), 0xFFB6FF48.toInt(), 0xFF6D48DA.toInt(), 0xFFFFFF00.toInt(), 0xFFDA6D00.toInt(), 0xFF004800.toInt(), 0xFF006DDA.toInt(), 0xFF009100.toInt(), 0xFF242424.toInt(), 0xFFFFFF6D.toInt(), 0xFFFF6DFF.toInt(), 0xFF916D00.toInt(), 0xFF91FF6D.toInt()),
+            /* 2C04-0002 */    intArrayOf(0xFF000000.toInt(), 0xFFFFB600.toInt(), 0xFF916D00.toInt(), 0xFFB6FF48.toInt(), 0xFF91FF6D.toInt(), 0xFFFF6DFF.toInt(), 0xFF009191.toInt(), 0xFFB6DAFF.toInt(), 0xFFFF0000.toInt(), 0xFF9100FF.toInt(), 0xFFFFFF6D.toInt(), 0xFFFF91FF.toInt(), 0xFFFFFFFF.toInt(), 0xFFDA6DFF.toInt(), 0xFF91DAFF.toInt(), 0xFF009100.toInt(), 0xFF004800.toInt(), 0xFF6DB6FF.toInt(), 0xFFB62400.toInt(), 0xFFDADADA.toInt(), 0xFF00B66D.toInt(), 0xFF6DDA00.toInt(), 0xFF480000.toInt(), 0xFF9191FF.toInt(), 0xFF484848.toInt(), 0xFFFF00FF.toInt(), 0xFF00006D.toInt(), 0xFF48FFDA.toInt(), 0xFFDAB6FF.toInt(), 0xFF6D4800.toInt(), 0xFF000000.toInt(), 0xFF6D48DA.toInt(), 0xFF91006D.toInt(), 0xFFFFDA91.toInt(), 0xFFFF9100.toInt(), 0xFFFFB6FF.toInt(), 0xFF006DDA.toInt(), 0xFF6D2400.toInt(), 0xFFB6B6B6.toInt(), 0xFF0000DA.toInt(), 0xFFB600FF.toInt(), 0xFFFFDA00.toInt(), 0xFF6D6D6D.toInt(), 0xFF244800.toInt(), 0xFF0048FF.toInt(), 0xFF000000.toInt(), 0xFFDADA00.toInt(), 0xFFFFFFFF.toInt(), 0xFFDAB66D.toInt(), 0xFF242424.toInt(), 0xFF00FF00.toInt(), 0xFFDA6D00.toInt(), 0xFF004848.toInt(), 0xFF002491.toInt(), 0xFFFF0091.toInt(), 0xFF249100.toInt(), 0xFF000000.toInt(), 0xFF00FFFF.toInt(), 0xFF914800.toInt(), 0xFFFFFF00.toInt(), 0xFFFFB6B6.toInt(), 0xFFB6006D.toInt(), 0xFF006D24.toInt(), 0xFF919191.toInt()),
+            /* 2C04-0003 */    intArrayOf(0xFFB600FF.toInt(), 0xFFFF6DFF.toInt(), 0xFF91FF6D.toInt(), 0xFFB6B6B6.toInt(), 0xFF009100.toInt(), 0xFFFFFFFF.toInt(), 0xFFB6DAFF.toInt(), 0xFF244800.toInt(), 0xFF002491.toInt(), 0xFF000000.toInt(), 0xFFFFDA91.toInt(), 0xFF6D4800.toInt(), 0xFFFF0091.toInt(), 0xFFDADADA.toInt(), 0xFFDAB66D.toInt(), 0xFF91DAFF.toInt(), 0xFF9191FF.toInt(), 0xFF009191.toInt(), 0xFFB6006D.toInt(), 0xFF0048FF.toInt(), 0xFF249100.toInt(), 0xFF916D00.toInt(), 0xFFDA6D00.toInt(), 0xFF00B66D.toInt(), 0xFF6D6D6D.toInt(), 0xFF6D48DA.toInt(), 0xFF000000.toInt(), 0xFF0000DA.toInt(), 0xFFFF0000.toInt(), 0xFFB62400.toInt(), 0xFFFF91FF.toInt(), 0xFFFFB6B6.toInt(), 0xFFDA6DFF.toInt(), 0xFF004800.toInt(), 0xFF00006D.toInt(), 0xFFFFFF00.toInt(), 0xFF242424.toInt(), 0xFFFFB600.toInt(), 0xFFFF9100.toInt(), 0xFFFFFFFF.toInt(), 0xFF6DDA00.toInt(), 0xFF91006D.toInt(), 0xFF6DB6FF.toInt(), 0xFFFF00FF.toInt(), 0xFF006DDA.toInt(), 0xFF919191.toInt(), 0xFF000000.toInt(), 0xFF6D2400.toInt(), 0xFF00FFFF.toInt(), 0xFF480000.toInt(), 0xFFB6FF48.toInt(), 0xFFFFB6FF.toInt(), 0xFF914800.toInt(), 0xFF00FF00.toInt(), 0xFFDADA00.toInt(), 0xFF484848.toInt(), 0xFF006D24.toInt(), 0xFF000000.toInt(), 0xFFDAB6FF.toInt(), 0xFFFFFF6D.toInt(), 0xFF9100FF.toInt(), 0xFF48FFDA.toInt(), 0xFFFFDA00.toInt(), 0xFF004848.toInt()),
+            /* 2C04-0004 */    intArrayOf(0xFF916D00.toInt(), 0xFF6D48DA.toInt(), 0xFF009191.toInt(), 0xFFDADA00.toInt(), 0xFF000000.toInt(), 0xFFFFB6B6.toInt(), 0xFF002491.toInt(), 0xFFDA6D00.toInt(), 0xFFB6B6B6.toInt(), 0xFF6D2400.toInt(), 0xFF00FF00.toInt(), 0xFF00006D.toInt(), 0xFFFFDA91.toInt(), 0xFFFFFF00.toInt(), 0xFF009100.toInt(), 0xFFB6FF48.toInt(), 0xFFFF6DFF.toInt(), 0xFF480000.toInt(), 0xFF0048FF.toInt(), 0xFFFF91FF.toInt(), 0xFF000000.toInt(), 0xFF484848.toInt(), 0xFFB62400.toInt(), 0xFFFF9100.toInt(), 0xFFDAB66D.toInt(), 0xFF00B66D.toInt(), 0xFF9191FF.toInt(), 0xFF249100.toInt(), 0xFF91006D.toInt(), 0xFF000000.toInt(), 0xFF91FF6D.toInt(), 0xFF6DB6FF.toInt(), 0xFFB6006D.toInt(), 0xFF006D24.toInt(), 0xFF914800.toInt(), 0xFF0000DA.toInt(), 0xFF9100FF.toInt(), 0xFFB600FF.toInt(), 0xFF6D6D6D.toInt(), 0xFFFF0091.toInt(), 0xFF004848.toInt(), 0xFFDADADA.toInt(), 0xFF006DDA.toInt(), 0xFF004800.toInt(), 0xFF242424.toInt(), 0xFFFFFF6D.toInt(), 0xFF919191.toInt(), 0xFFFF00FF.toInt(), 0xFFFFB6FF.toInt(), 0xFFFFFFFF.toInt(), 0xFF6D4800.toInt(), 0xFFFF0000.toInt(), 0xFFFFDA00.toInt(), 0xFF48FFDA.toInt(), 0xFFFFFFFF.toInt(), 0xFF91DAFF.toInt(), 0xFF000000.toInt(), 0xFFFFB600.toInt(), 0xFFDA6DFF.toInt(), 0xFFB6DAFF.toInt(), 0xFF6DDA00.toInt(), 0xFFDAB6FF.toInt(), 0xFF00FFFF.toInt(), 0xFF244800.toInt()),
+            /* 2C05-01 */      intArrayOf(0xFF6D6D6D.toInt(), 0xFF002491.toInt(), 0xFF0000DA.toInt(), 0xFF6D48DA.toInt(), 0xFF91006D.toInt(), 0xFFB6006D.toInt(), 0xFFB62400.toInt(), 0xFF914800.toInt(), 0xFF6D4800.toInt(), 0xFF244800.toInt(), 0xFF006D24.toInt(), 0xFF009100.toInt(), 0xFF004848.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFB6B6B6.toInt(), 0xFF006DDA.toInt(), 0xFF0048FF.toInt(), 0xFF9100FF.toInt(), 0xFFB600FF.toInt(), 0xFFFF0091.toInt(), 0xFFFF0000.toInt(), 0xFFDA6D00.toInt(), 0xFF916D00.toInt(), 0xFF249100.toInt(), 0xFF009100.toInt(), 0xFF00B66D.toInt(), 0xFF009191.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFF6DB6FF.toInt(), 0xFF9191FF.toInt(), 0xFFDA6DFF.toInt(), 0xFFFF00FF.toInt(), 0xFFFF6DFF.toInt(), 0xFFFF9100.toInt(), 0xFFFFB600.toInt(), 0xFFDADA00.toInt(), 0xFF6DDA00.toInt(), 0xFF00FF00.toInt(), 0xFF48FFDA.toInt(), 0xFF00FFFF.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFFB6DAFF.toInt(), 0xFFDAB6FF.toInt(), 0xFFFFB6FF.toInt(), 0xFFFF91FF.toInt(), 0xFFFFB6B6.toInt(), 0xFFFFDA91.toInt(), 0xFFFFFF48.toInt(), 0xFFFFFF6D.toInt(), 0xFFB6FF48.toInt(), 0xFF91FF6D.toInt(), 0xFF48FFDA.toInt(), 0xFF91DAFF.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt()),
+            /* 2C05-02 */      intArrayOf(0xFF6D6D6D.toInt(), 0xFF002491.toInt(), 0xFF0000DA.toInt(), 0xFF6D48DA.toInt(), 0xFF91006D.toInt(), 0xFFB6006D.toInt(), 0xFFB62400.toInt(), 0xFF914800.toInt(), 0xFF6D4800.toInt(), 0xFF244800.toInt(), 0xFF006D24.toInt(), 0xFF009100.toInt(), 0xFF004848.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFB6B6B6.toInt(), 0xFF006DDA.toInt(), 0xFF0048FF.toInt(), 0xFF9100FF.toInt(), 0xFFB600FF.toInt(), 0xFFFF0091.toInt(), 0xFFFF0000.toInt(), 0xFFDA6D00.toInt(), 0xFF916D00.toInt(), 0xFF249100.toInt(), 0xFF009100.toInt(), 0xFF00B66D.toInt(), 0xFF009191.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFF6DB6FF.toInt(), 0xFF9191FF.toInt(), 0xFFDA6DFF.toInt(), 0xFFFF00FF.toInt(), 0xFFFF6DFF.toInt(), 0xFFFF9100.toInt(), 0xFFFFB600.toInt(), 0xFFDADA00.toInt(), 0xFF6DDA00.toInt(), 0xFF00FF00.toInt(), 0xFF48FFDA.toInt(), 0xFF00FFFF.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFFB6DAFF.toInt(), 0xFFDAB6FF.toInt(), 0xFFFFB6FF.toInt(), 0xFFFF91FF.toInt(), 0xFFFFB6B6.toInt(), 0xFFFFDA91.toInt(), 0xFFFFFF48.toInt(), 0xFFFFFF6D.toInt(), 0xFFB6FF48.toInt(), 0xFF91FF6D.toInt(), 0xFF48FFDA.toInt(), 0xFF91DAFF.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt()),
+            /* 2C05-03 */      intArrayOf(0xFF6D6D6D.toInt(), 0xFF002491.toInt(), 0xFF0000DA.toInt(), 0xFF6D48DA.toInt(), 0xFF91006D.toInt(), 0xFFB6006D.toInt(), 0xFFB62400.toInt(), 0xFF914800.toInt(), 0xFF6D4800.toInt(), 0xFF244800.toInt(), 0xFF006D24.toInt(), 0xFF009100.toInt(), 0xFF004848.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFB6B6B6.toInt(), 0xFF006DDA.toInt(), 0xFF0048FF.toInt(), 0xFF9100FF.toInt(), 0xFFB600FF.toInt(), 0xFFFF0091.toInt(), 0xFFFF0000.toInt(), 0xFFDA6D00.toInt(), 0xFF916D00.toInt(), 0xFF249100.toInt(), 0xFF009100.toInt(), 0xFF00B66D.toInt(), 0xFF009191.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFF6DB6FF.toInt(), 0xFF9191FF.toInt(), 0xFFDA6DFF.toInt(), 0xFFFF00FF.toInt(), 0xFFFF6DFF.toInt(), 0xFFFF9100.toInt(), 0xFFFFB600.toInt(), 0xFFDADA00.toInt(), 0xFF6DDA00.toInt(), 0xFF00FF00.toInt(), 0xFF48FFDA.toInt(), 0xFF00FFFF.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFFB6DAFF.toInt(), 0xFFDAB6FF.toInt(), 0xFFFFB6FF.toInt(), 0xFFFF91FF.toInt(), 0xFFFFB6B6.toInt(), 0xFFFFDA91.toInt(), 0xFFFFFF48.toInt(), 0xFFFFFF6D.toInt(), 0xFFB6FF48.toInt(), 0xFF91FF6D.toInt(), 0xFF48FFDA.toInt(), 0xFF91DAFF.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt()),
+            /* 2C05-04 */      intArrayOf(0xFF6D6D6D.toInt(), 0xFF002491.toInt(), 0xFF0000DA.toInt(), 0xFF6D48DA.toInt(), 0xFF91006D.toInt(), 0xFFB6006D.toInt(), 0xFFB62400.toInt(), 0xFF914800.toInt(), 0xFF6D4800.toInt(), 0xFF244800.toInt(), 0xFF006D24.toInt(), 0xFF009100.toInt(), 0xFF004848.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFB6B6B6.toInt(), 0xFF006DDA.toInt(), 0xFF0048FF.toInt(), 0xFF9100FF.toInt(), 0xFFB600FF.toInt(), 0xFFFF0091.toInt(), 0xFFFF0000.toInt(), 0xFFDA6D00.toInt(), 0xFF916D00.toInt(), 0xFF249100.toInt(), 0xFF009100.toInt(), 0xFF00B66D.toInt(), 0xFF009191.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFF6DB6FF.toInt(), 0xFF9191FF.toInt(), 0xFFDA6DFF.toInt(), 0xFFFF00FF.toInt(), 0xFFFF6DFF.toInt(), 0xFFFF9100.toInt(), 0xFFFFB600.toInt(), 0xFFDADA00.toInt(), 0xFF6DDA00.toInt(), 0xFF00FF00.toInt(), 0xFF48FFDA.toInt(), 0xFF00FFFF.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFFB6DAFF.toInt(), 0xFFDAB6FF.toInt(), 0xFFFFB6FF.toInt(), 0xFFFF91FF.toInt(), 0xFFFFB6B6.toInt(), 0xFFFFDA91.toInt(), 0xFFFFFF48.toInt(), 0xFFFFFF6D.toInt(), 0xFFB6FF48.toInt(), 0xFF91FF6D.toInt(), 0xFF48FFDA.toInt(), 0xFF91DAFF.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt()),
+            /* 2C05-05 */      intArrayOf(0xFF6D6D6D.toInt(), 0xFF002491.toInt(), 0xFF0000DA.toInt(), 0xFF6D48DA.toInt(), 0xFF91006D.toInt(), 0xFFB6006D.toInt(), 0xFFB62400.toInt(), 0xFF914800.toInt(), 0xFF6D4800.toInt(), 0xFF244800.toInt(), 0xFF006D24.toInt(), 0xFF009100.toInt(), 0xFF004848.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFB6B6B6.toInt(), 0xFF006DDA.toInt(), 0xFF0048FF.toInt(), 0xFF9100FF.toInt(), 0xFFB600FF.toInt(), 0xFFFF0091.toInt(), 0xFFFF0000.toInt(), 0xFFDA6D00.toInt(), 0xFF916D00.toInt(), 0xFF249100.toInt(), 0xFF009100.toInt(), 0xFF00B66D.toInt(), 0xFF009191.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFF6DB6FF.toInt(), 0xFF9191FF.toInt(), 0xFFDA6DFF.toInt(), 0xFFFF00FF.toInt(), 0xFFFF6DFF.toInt(), 0xFFFF9100.toInt(), 0xFFFFB600.toInt(), 0xFFDADA00.toInt(), 0xFF6DDA00.toInt(), 0xFF00FF00.toInt(), 0xFF48FFDA.toInt(), 0xFF00FFFF.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFFB6DAFF.toInt(), 0xFFDAB6FF.toInt(), 0xFFFFB6FF.toInt(), 0xFFFF91FF.toInt(), 0xFFFFB6B6.toInt(), 0xFFFFDA91.toInt(), 0xFFFFFF48.toInt(), 0xFFFFFF6D.toInt(), 0xFFB6FF48.toInt(), 0xFF91FF6D.toInt(), 0xFF48FFDA.toInt(), 0xFF91DAFF.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt()),
         )
-
         // @formatter:on
 
-        @JvmStatic val DEFAULT_PALETTE = uintArrayOf(
-            0xFF666666U, 0xFF002A88U, 0xFF1412A7U, 0xFF3B00A4U,
-            0xFF5C007EU, 0xFF6E0040U, 0xFF6C0600U, 0xFF561D00U,
-            0xFF333500U, 0xFF0B4800U, 0xFF005200U, 0xFF004F08U,
-            0xFF00404DU, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFADADADU, 0xFF155FD9U, 0xFF4240FFU, 0xFF7527FEU,
-            0xFFA01ACCU, 0xFFB71E7BU, 0xFFB53120U, 0xFF994E00U,
-            0xFF6B6D00U, 0xFF388700U, 0xFF0C9300U, 0xFF008F32U,
-            0xFF007C8DU, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFFFFEFFU, 0xFF64B0FFU, 0xFF9290FFU, 0xFFC676FFU,
-            0xFFF36AFFU, 0xFFFE6ECCU, 0xFFFE8170U, 0xFFEA9E22U,
-            0xFFBCBE00U, 0xFF88D800U, 0xFF5CE430U, 0xFF45E082U,
-            0xFF48CDDEU, 0xFF4F4F4FU, 0xFF000000U, 0xFF000000U,
-            0xFFFFFEFFU, 0xFFC0DFFFU, 0xFFD3D2FFU, 0xFFE8C8FFU,
-            0xFFFBC2FFU, 0xFFFEC4EAU, 0xFFFECCC5U, 0xFFF7D8A5U,
-            0xFFE4E594U, 0xFFCFEF96U, 0xFFBDF4ABU, 0xFFB3F3CCU,
-            0xFFB5EBF2U, 0xFFB8B8B8U, 0xFF000000U, 0xFF000000U
+        @JvmStatic val DEFAULT_PALETTE = intArrayOf(
+            0xFF666666.toInt(), 0xFF002A88.toInt(), 0xFF1412A7.toInt(), 0xFF3B00A4.toInt(),
+            0xFF5C007E.toInt(), 0xFF6E0040.toInt(), 0xFF6C0600.toInt(), 0xFF561D00.toInt(),
+            0xFF333500.toInt(), 0xFF0B4800.toInt(), 0xFF005200.toInt(), 0xFF004F08.toInt(),
+            0xFF00404D.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFADADAD.toInt(), 0xFF155FD9.toInt(), 0xFF4240FF.toInt(), 0xFF7527FE.toInt(),
+            0xFFA01ACC.toInt(), 0xFFB71E7B.toInt(), 0xFFB53120.toInt(), 0xFF994E00.toInt(),
+            0xFF6B6D00.toInt(), 0xFF388700.toInt(), 0xFF0C9300.toInt(), 0xFF008F32.toInt(),
+            0xFF007C8D.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFEFF.toInt(), 0xFF64B0FF.toInt(), 0xFF9290FF.toInt(), 0xFFC676FF.toInt(),
+            0xFFF36AFF.toInt(), 0xFFFE6ECC.toInt(), 0xFFFE8170.toInt(), 0xFFEA9E22.toInt(),
+            0xFFBCBE00.toInt(), 0xFF88D800.toInt(), 0xFF5CE430.toInt(), 0xFF45E082.toInt(),
+            0xFF48CDDE.toInt(), 0xFF4F4F4F.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFEFF.toInt(), 0xFFC0DFFF.toInt(), 0xFFD3D2FF.toInt(), 0xFFE8C8FF.toInt(),
+            0xFFFBC2FF.toInt(), 0xFFFEC4EA.toInt(), 0xFFFECCC5.toInt(), 0xFFF7D8A5.toInt(),
+            0xFFE4E594.toInt(), 0xFFCFEF96.toInt(), 0xFFBDF4AB.toInt(), 0xFFB3F3CC.toInt(),
+            0xFFB5EBF2.toInt(), 0xFFB8B8B8.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val UNSATURATED_PALETTE = uintArrayOf(
-            0xFF6B6B6BU, 0xFF001E87U, 0xFF1F0B96U, 0xFF3B0C87U,
-            0xFF590D61U, 0xFF5E0528U, 0xFF551100U, 0xFF461B00U,
-            0xFF303200U, 0xFF0A4800U, 0xFF004E00U, 0xFF004619U,
-            0xFF003A58U, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFB2B2B2U, 0xFF1A53D1U, 0xFF4835EEU, 0xFF7123ECU,
-            0xFF9A1EB7U, 0xFFA51E62U, 0xFFA52D19U, 0xFF874B00U,
-            0xFF676900U, 0xFF298400U, 0xFF038B00U, 0xFF008240U,
-            0xFF007891U, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFFFFFFFU, 0xFF63ADFDU, 0xFF908AFEU, 0xFFB977FCU,
-            0xFFE771FEU, 0xFFF76FC9U, 0xFFF5836AU, 0xFFDD9C29U,
-            0xFFBDB807U, 0xFF84D107U, 0xFF5BDC3BU, 0xFF48D77DU,
-            0xFF48CCCEU, 0xFF555555U, 0xFF000000U, 0xFF000000U,
-            0xFFFFFFFFU, 0xFFC4E3FEU, 0xFFD7D5FEU, 0xFFE6CDFEU,
-            0xFFF9CAFEU, 0xFFFEC9F0U, 0xFFFED1C7U, 0xFFF7DCACU,
-            0xFFE8E89CU, 0xFFD1F29DU, 0xFFBFF4B1U, 0xFFB7F5CDU,
-            0xFFB7F0EEU, 0xFFBEBEBEU, 0xFF000000U, 0xFF000000U
+        @JvmStatic val UNSATURATED_PALETTE = intArrayOf(
+            0xFF6B6B6B.toInt(), 0xFF001E87.toInt(), 0xFF1F0B96.toInt(), 0xFF3B0C87.toInt(),
+            0xFF590D61.toInt(), 0xFF5E0528.toInt(), 0xFF551100.toInt(), 0xFF461B00.toInt(),
+            0xFF303200.toInt(), 0xFF0A4800.toInt(), 0xFF004E00.toInt(), 0xFF004619.toInt(),
+            0xFF003A58.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFB2B2B2.toInt(), 0xFF1A53D1.toInt(), 0xFF4835EE.toInt(), 0xFF7123EC.toInt(),
+            0xFF9A1EB7.toInt(), 0xFFA51E62.toInt(), 0xFFA52D19.toInt(), 0xFF874B00.toInt(),
+            0xFF676900.toInt(), 0xFF298400.toInt(), 0xFF038B00.toInt(), 0xFF008240.toInt(),
+            0xFF007891.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(), 0xFF63ADFD.toInt(), 0xFF908AFE.toInt(), 0xFFB977FC.toInt(),
+            0xFFE771FE.toInt(), 0xFFF76FC9.toInt(), 0xFFF5836A.toInt(), 0xFFDD9C29.toInt(),
+            0xFFBDB807.toInt(), 0xFF84D107.toInt(), 0xFF5BDC3B.toInt(), 0xFF48D77D.toInt(),
+            0xFF48CCCE.toInt(), 0xFF555555.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(), 0xFFC4E3FE.toInt(), 0xFFD7D5FE.toInt(), 0xFFE6CDFE.toInt(),
+            0xFFF9CAFE.toInt(), 0xFFFEC9F0.toInt(), 0xFFFED1C7.toInt(), 0xFFF7DCAC.toInt(),
+            0xFFE8E89C.toInt(), 0xFFD1F29D.toInt(), 0xFFBFF4B1.toInt(), 0xFFB7F5CD.toInt(),
+            0xFFB7F0EE.toInt(), 0xFFBEBEBE.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val YUV_PALETTE = uintArrayOf(
-            0xFF666666U, 0xFF002A88U, 0xFF1412A7U, 0xFF3B00A4U,
-            0xFF5C007EU, 0xFF6E0040U, 0xFF6C0700U, 0xFF561D00U,
-            0xFF333500U, 0xFF0C4800U, 0xFF005200U, 0xFF004C18U,
-            0xFF003E5BU, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFADADADU, 0xFF155FD9U, 0xFF4240FFU, 0xFF7527FEU,
-            0xFFA01ACCU, 0xFFB71E7BU, 0xFFB53120U, 0xFF994E00U,
-            0xFF6B6D00U, 0xFF388700U, 0xFF0D9300U, 0xFF008C47U,
-            0xFF007AA0U, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFFFFFFFU, 0xFF64B0FFU, 0xFF9290FFU, 0xFFC676FFU,
-            0xFFF26AFFU, 0xFFFF6ECCU, 0xFFFF8170U, 0xFFEA9E22U,
-            0xFFBCBE00U, 0xFF88D800U, 0xFF5CE430U, 0xFF45E082U,
-            0xFF48CDDEU, 0xFF4F4F4FU, 0xFF000000U, 0xFF000000U,
-            0xFFFFFFFFU, 0xFFC0DFFFU, 0xFFD3D2FFU, 0xFFE8C8FFU,
-            0xFFFAC2FFU, 0xFFFFC4EAU, 0xFFFFCCC5U, 0xFFF7D8A5U,
-            0xFFE4E594U, 0xFFCFEF96U, 0xFFBDF4ABU, 0xFFB3F3CCU,
-            0xFFB5EBF2U, 0xFFB8B8B8U, 0xFF000000U, 0xFF000000U
+        @JvmStatic val YUV_PALETTE = intArrayOf(
+            0xFF666666.toInt(), 0xFF002A88.toInt(), 0xFF1412A7.toInt(), 0xFF3B00A4.toInt(),
+            0xFF5C007E.toInt(), 0xFF6E0040.toInt(), 0xFF6C0700.toInt(), 0xFF561D00.toInt(),
+            0xFF333500.toInt(), 0xFF0C4800.toInt(), 0xFF005200.toInt(), 0xFF004C18.toInt(),
+            0xFF003E5B.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFADADAD.toInt(), 0xFF155FD9.toInt(), 0xFF4240FF.toInt(), 0xFF7527FE.toInt(),
+            0xFFA01ACC.toInt(), 0xFFB71E7B.toInt(), 0xFFB53120.toInt(), 0xFF994E00.toInt(),
+            0xFF6B6D00.toInt(), 0xFF388700.toInt(), 0xFF0D9300.toInt(), 0xFF008C47.toInt(),
+            0xFF007AA0.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(), 0xFF64B0FF.toInt(), 0xFF9290FF.toInt(), 0xFFC676FF.toInt(),
+            0xFFF26AFF.toInt(), 0xFFFF6ECC.toInt(), 0xFFFF8170.toInt(), 0xFFEA9E22.toInt(),
+            0xFFBCBE00.toInt(), 0xFF88D800.toInt(), 0xFF5CE430.toInt(), 0xFF45E082.toInt(),
+            0xFF48CDDE.toInt(), 0xFF4F4F4F.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(), 0xFFC0DFFF.toInt(), 0xFFD3D2FF.toInt(), 0xFFE8C8FF.toInt(),
+            0xFFFAC2FF.toInt(), 0xFFFFC4EA.toInt(), 0xFFFFCCC5.toInt(), 0xFFF7D8A5.toInt(),
+            0xFFE4E594.toInt(), 0xFFCFEF96.toInt(), 0xFFBDF4AB.toInt(), 0xFFB3F3CC.toInt(),
+            0xFFB5EBF2.toInt(), 0xFFB8B8B8.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val NESTOPIA_PALETTE = uintArrayOf(
-            0xFF6D6D6DU, 0xFF002492U, 0xFF0000DBU, 0xFF6D49DBU,
-            0xFF92006DU, 0xFFB6006DU, 0xFFB62400U, 0xFF924900U,
-            0xFF6D4900U, 0xFF244900U, 0xFF006D24U, 0xFF009200U,
-            0xFF004949U, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFB6B6B6U, 0xFF006DDBU, 0xFF0049FFU, 0xFF9200FFU,
-            0xFFB600FFU, 0xFFFF0092U, 0xFFFF0000U, 0xFFDB6D00U,
-            0xFF926D00U, 0xFF249200U, 0xFF009200U, 0xFF00B66DU,
-            0xFF009292U, 0xFF242424U, 0xFF000000U, 0xFF000000U,
-            0xFFFFFFFFU, 0xFF6DB6FFU, 0xFF9292FFU, 0xFFDB6DFFU,
-            0xFFFF00FFU, 0xFFFF6DFFU, 0xFFFF9200U, 0xFFFFB600U,
-            0xFFDBDB00U, 0xFF6DDB00U, 0xFF00FF00U, 0xFF49FFDBU,
-            0xFF00FFFFU, 0xFF494949U, 0xFF000000U, 0xFF000000U,
-            0xFFFFFFFFU, 0xFFB6DBFFU, 0xFFDBB6FFU, 0xFFFFB6FFU,
-            0xFFFF92FFU, 0xFFFFB6B6U, 0xFFFFDB92U, 0xFFFFFF49U,
-            0xFFFFFF6DU, 0xFFB6FF49U, 0xFF92FF6DU, 0xFF49FFDBU,
-            0xFF92DBFFU, 0xFF929292U, 0xFF000000U, 0xFF000000U
+        @JvmStatic val NESTOPIA_PALETTE = intArrayOf(
+            0xFF6D6D6D.toInt(), 0xFF002492.toInt(), 0xFF0000DB.toInt(), 0xFF6D49DB.toInt(),
+            0xFF92006D.toInt(), 0xFFB6006D.toInt(), 0xFFB62400.toInt(), 0xFF924900.toInt(),
+            0xFF6D4900.toInt(), 0xFF244900.toInt(), 0xFF006D24.toInt(), 0xFF009200.toInt(),
+            0xFF004949.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFB6B6B6.toInt(), 0xFF006DDB.toInt(), 0xFF0049FF.toInt(), 0xFF9200FF.toInt(),
+            0xFFB600FF.toInt(), 0xFFFF0092.toInt(), 0xFFFF0000.toInt(), 0xFFDB6D00.toInt(),
+            0xFF926D00.toInt(), 0xFF249200.toInt(), 0xFF009200.toInt(), 0xFF00B66D.toInt(),
+            0xFF009292.toInt(), 0xFF242424.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(), 0xFF6DB6FF.toInt(), 0xFF9292FF.toInt(), 0xFFDB6DFF.toInt(),
+            0xFFFF00FF.toInt(), 0xFFFF6DFF.toInt(), 0xFFFF9200.toInt(), 0xFFFFB600.toInt(),
+            0xFFDBDB00.toInt(), 0xFF6DDB00.toInt(), 0xFF00FF00.toInt(), 0xFF49FFDB.toInt(),
+            0xFF00FFFF.toInt(), 0xFF494949.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(), 0xFFB6DBFF.toInt(), 0xFFDBB6FF.toInt(), 0xFFFFB6FF.toInt(),
+            0xFFFF92FF.toInt(), 0xFFFFB6B6.toInt(), 0xFFFFDB92.toInt(), 0xFFFFFF49.toInt(),
+            0xFFFFFF6D.toInt(), 0xFFB6FF49.toInt(), 0xFF92FF6D.toInt(), 0xFF49FFDB.toInt(),
+            0xFF92DBFF.toInt(), 0xFF929292.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val COMPOSITE_DIRECT_PALETTE = uintArrayOf(
-            0xFF656565U, 0xFF00127DU, 0xFF18008EU, 0xFF360082U,
-            0xFF56005DU, 0xFF5A0018U, 0xFF4F0500U, 0xFF381900U,
-            0xFF1D3100U, 0xFF003D00U, 0xFF004100U, 0xFF003B17U,
-            0xFF002E55U, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFAFAFAFU, 0xFF194EC8U, 0xFF472FE3U, 0xFF6B1FD7U,
-            0xFF931BAEU, 0xFF9E1A5EU, 0xFF993200U, 0xFF7B4B00U,
-            0xFF5B6700U, 0xFF267A00U, 0xFF008200U, 0xFF007A3EU,
-            0xFF006E8AU, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFFFFFFFU, 0xFF64A9FFU, 0xFF8E89FFU, 0xFFB676FFU,
-            0xFFE06FFFU, 0xFFEF6CC4U, 0xFFF0806AU, 0xFFD8982CU,
-            0xFFB9B40AU, 0xFF83CB0CU, 0xFF5BD63FU, 0xFF4AD17EU,
-            0xFF4DC7CBU, 0xFF4C4C4CU, 0xFF000000U, 0xFF000000U,
-            0xFFFFFFFFU, 0xFFC7E5FFU, 0xFFD9D9FFU, 0xFFE9D1FFU,
-            0xFFF9CEFFU, 0xFFFFCCF1U, 0xFFFFD4CBU, 0xFFF8DFB1U,
-            0xFFEDEAA4U, 0xFFD6F4A4U, 0xFFC5F8B8U, 0xFFBEF6D3U,
-            0xFFBFF1F1U, 0xFFB9B9B9U, 0xFF000000U, 0xFF000000U
+        @JvmStatic val COMPOSITE_DIRECT_PALETTE = intArrayOf(
+            0xFF656565.toInt(), 0xFF00127D.toInt(), 0xFF18008E.toInt(), 0xFF360082.toInt(),
+            0xFF56005D.toInt(), 0xFF5A0018.toInt(), 0xFF4F0500.toInt(), 0xFF381900.toInt(),
+            0xFF1D3100.toInt(), 0xFF003D00.toInt(), 0xFF004100.toInt(), 0xFF003B17.toInt(),
+            0xFF002E55.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFAFAFAF.toInt(), 0xFF194EC8.toInt(), 0xFF472FE3.toInt(), 0xFF6B1FD7.toInt(),
+            0xFF931BAE.toInt(), 0xFF9E1A5E.toInt(), 0xFF993200.toInt(), 0xFF7B4B00.toInt(),
+            0xFF5B6700.toInt(), 0xFF267A00.toInt(), 0xFF008200.toInt(), 0xFF007A3E.toInt(),
+            0xFF006E8A.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(), 0xFF64A9FF.toInt(), 0xFF8E89FF.toInt(), 0xFFB676FF.toInt(),
+            0xFFE06FFF.toInt(), 0xFFEF6CC4.toInt(), 0xFFF0806A.toInt(), 0xFFD8982C.toInt(),
+            0xFFB9B40A.toInt(), 0xFF83CB0C.toInt(), 0xFF5BD63F.toInt(), 0xFF4AD17E.toInt(),
+            0xFF4DC7CB.toInt(), 0xFF4C4C4C.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(), 0xFFC7E5FF.toInt(), 0xFFD9D9FF.toInt(), 0xFFE9D1FF.toInt(),
+            0xFFF9CEFF.toInt(), 0xFFFFCCF1.toInt(), 0xFFFFD4CB.toInt(), 0xFFF8DFB1.toInt(),
+            0xFFEDEAA4.toInt(), 0xFFD6F4A4.toInt(), 0xFFC5F8B8.toInt(), 0xFFBEF6D3.toInt(),
+            0xFFBFF1F1.toInt(), 0xFFB9B9B9.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val NES_CLASSIC_PALETTE = uintArrayOf(
-            0xFF60615FU, 0xFF000083U, 0xFF1D0195U, 0xFF340875U,
-            0xFF51055EU, 0xFF56000FU, 0xFF4C0700U, 0xFF372308U,
-            0xFF203A0BU, 0xFF0F4B0EU, 0xFF194C16U, 0xFF02421EU,
-            0xFF023154U, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFA9AAA8U, 0xFF104BBFU, 0xFF4712D8U, 0xFF6300CAU,
-            0xFF8800A9U, 0xFF930B46U, 0xFF8A2D04U, 0xFF6F5206U,
-            0xFF5C7114U, 0xFF1B8D12U, 0xFF199509U, 0xFF178448U,
-            0xFF206B8EU, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFFBFBFBU, 0xFF6699F8U, 0xFF8974F9U, 0xFFAB58F8U,
-            0xFFD557EFU, 0xFFDE5FA9U, 0xFFDC7F59U, 0xFFC7A224U,
-            0xFFA7BE03U, 0xFF75D703U, 0xFF60E34FU, 0xFF3CD68DU,
-            0xFF56C9CCU, 0xFF414240U, 0xFF000000U, 0xFF000000U,
-            0xFFFBFBFBU, 0xFFBED4FAU, 0xFFC9C7F9U, 0xFFD7BEFAU,
-            0xFFE8B8F9U, 0xFFF5BAE5U, 0xFFF3CAC2U, 0xFFDFCDA7U,
-            0xFFD9E09CU, 0xFFC9EB9EU, 0xFFC0EDB8U, 0xFFB5F4C7U,
-            0xFFB9EAE9U, 0xFFABABABU, 0xFF000000U, 0xFF000000U
+        @JvmStatic val NES_CLASSIC_PALETTE = intArrayOf(
+            0xFF60615F.toInt(), 0xFF000083.toInt(), 0xFF1D0195.toInt(), 0xFF340875.toInt(),
+            0xFF51055E.toInt(), 0xFF56000F.toInt(), 0xFF4C0700.toInt(), 0xFF372308.toInt(),
+            0xFF203A0B.toInt(), 0xFF0F4B0E.toInt(), 0xFF194C16.toInt(), 0xFF02421E.toInt(),
+            0xFF023154.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFA9AAA8.toInt(), 0xFF104BBF.toInt(), 0xFF4712D8.toInt(), 0xFF6300CA.toInt(),
+            0xFF8800A9.toInt(), 0xFF930B46.toInt(), 0xFF8A2D04.toInt(), 0xFF6F5206.toInt(),
+            0xFF5C7114.toInt(), 0xFF1B8D12.toInt(), 0xFF199509.toInt(), 0xFF178448.toInt(),
+            0xFF206B8E.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFBFBFB.toInt(), 0xFF6699F8.toInt(), 0xFF8974F9.toInt(), 0xFFAB58F8.toInt(),
+            0xFFD557EF.toInt(), 0xFFDE5FA9.toInt(), 0xFFDC7F59.toInt(), 0xFFC7A224.toInt(),
+            0xFFA7BE03.toInt(), 0xFF75D703.toInt(), 0xFF60E34F.toInt(), 0xFF3CD68D.toInt(),
+            0xFF56C9CC.toInt(), 0xFF414240.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFBFBFB.toInt(), 0xFFBED4FA.toInt(), 0xFFC9C7F9.toInt(), 0xFFD7BEFA.toInt(),
+            0xFFE8B8F9.toInt(), 0xFFF5BAE5.toInt(), 0xFFF3CAC2.toInt(), 0xFFDFCDA7.toInt(),
+            0xFFD9E09C.toInt(), 0xFFC9EB9E.toInt(), 0xFFC0EDB8.toInt(), 0xFFB5F4C7.toInt(),
+            0xFFB9EAE9.toInt(), 0xFFABABAB.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val ORIGINAL_HARDWARE_PALETTE = uintArrayOf(
-            0xFF6A6D6AU, 0xFF00127DU, 0xFF1E008AU, 0xFF3B007DU,
-            0xFF56005DU, 0xFF5A0018U, 0xFF4F0D00U, 0xFF381E00U,
-            0xFF203100U, 0xFF003D00U, 0xFF004000U, 0xFF003B1EU,
-            0xFF002E55U, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFB9BCB9U, 0xFF194EC8U, 0xFF472FE3U, 0xFF751FD7U,
-            0xFF931EADU, 0xFF9E245EU, 0xFF963800U, 0xFF7B5000U,
-            0xFF5B6700U, 0xFF267A00U, 0xFF007F00U, 0xFF007842U,
-            0xFF006E8AU, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFFFFFFFU, 0xFF69AEFFU, 0xFF9798FFU, 0xFFB687FFU,
-            0xFFE278FFU, 0xFFF279C7U, 0xFFF58F6FU, 0xFFDDA932U,
-            0xFFBCB70DU, 0xFF88D015U, 0xFF60DB49U, 0xFF4FD687U,
-            0xFF50CACEU, 0xFF515451U, 0xFF000000U, 0xFF000000U,
-            0xFFFFFFFFU, 0xFFCCEAFFU, 0xFFDEE2FFU, 0xFFEEDAFFU,
-            0xFFFAD7FDU, 0xFFFDD7F6U, 0xFFFDDCD0U, 0xFFFAE8B6U,
-            0xFFF2F1A9U, 0xFFDBFBA9U, 0xFFCAFFBDU, 0xFFC3FBD8U,
-            0xFFC4F6F6U, 0xFFBEC1BEU, 0xFF000000U, 0xFF000000U
+        @JvmStatic val ORIGINAL_HARDWARE_PALETTE = intArrayOf(
+            0xFF6A6D6A.toInt(), 0xFF00127D.toInt(), 0xFF1E008A.toInt(), 0xFF3B007D.toInt(),
+            0xFF56005D.toInt(), 0xFF5A0018.toInt(), 0xFF4F0D00.toInt(), 0xFF381E00.toInt(),
+            0xFF203100.toInt(), 0xFF003D00.toInt(), 0xFF004000.toInt(), 0xFF003B1E.toInt(),
+            0xFF002E55.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFB9BCB9.toInt(), 0xFF194EC8.toInt(), 0xFF472FE3.toInt(), 0xFF751FD7.toInt(),
+            0xFF931EAD.toInt(), 0xFF9E245E.toInt(), 0xFF963800.toInt(), 0xFF7B5000.toInt(),
+            0xFF5B6700.toInt(), 0xFF267A00.toInt(), 0xFF007F00.toInt(), 0xFF007842.toInt(),
+            0xFF006E8A.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(), 0xFF69AEFF.toInt(), 0xFF9798FF.toInt(), 0xFFB687FF.toInt(),
+            0xFFE278FF.toInt(), 0xFFF279C7.toInt(), 0xFFF58F6F.toInt(), 0xFFDDA932.toInt(),
+            0xFFBCB70D.toInt(), 0xFF88D015.toInt(), 0xFF60DB49.toInt(), 0xFF4FD687.toInt(),
+            0xFF50CACE.toInt(), 0xFF515451.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(), 0xFFCCEAFF.toInt(), 0xFFDEE2FF.toInt(), 0xFFEEDAFF.toInt(),
+            0xFFFAD7FD.toInt(), 0xFFFDD7F6.toInt(), 0xFFFDDCD0.toInt(), 0xFFFAE8B6.toInt(),
+            0xFFF2F1A9.toInt(), 0xFFDBFBA9.toInt(), 0xFFCAFFBD.toInt(), 0xFFC3FBD8.toInt(),
+            0xFFC4F6F6.toInt(), 0xFFBEC1BE.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val PVM_STYLE_PALETTE = uintArrayOf(
-            0xFF696964U, 0xFF001774U, 0xFF28007DU, 0xFF3E006DU,
-            0xFF560057U, 0xFF5E0013U, 0xFF531A00U, 0xFF3B2400U,
-            0xFF2A3000U, 0xFF143A00U, 0xFF003F00U, 0xFF003B1EU,
-            0xFF003050U, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFB9B9B4U, 0xFF1453B9U, 0xFF4D2CDAU, 0xFF7A1EC8U,
-            0xFF98189CU, 0xFF9D2344U, 0xFFA03E00U, 0xFF8D5500U,
-            0xFF656D00U, 0xFF2C7900U, 0xFF008100U, 0xFF007D42U,
-            0xFF00788AU, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFFFFFFFU, 0xFF69A8FFU, 0xFF9A96FFU, 0xFFC28AFAU,
-            0xFFEA7DFAU, 0xFFF387B4U, 0xFFF1986CU, 0xFFE6B327U,
-            0xFFD7C805U, 0xFF90DF07U, 0xFF64E53CU, 0xFF45E27DU,
-            0xFF48D5D9U, 0xFF4B4B46U, 0xFF000000U, 0xFF000000U,
-            0xFFFFFFFFU, 0xFFD2EAFFU, 0xFFE2E2FFU, 0xFFF2D8FFU,
-            0xFFF8D2FFU, 0xFFF8D9EAU, 0xFFFADEB9U, 0xFFF9E89BU,
-            0xFFF3F28CU, 0xFFD3FA91U, 0xFFB8FCA8U, 0xFFAEFACAU,
-            0xFFCAF3F3U, 0xFFBEBEB9U, 0xFF000000U, 0xFF000000U
+        @JvmStatic val PVM_STYLE_PALETTE = intArrayOf(
+            0xFF696964.toInt(), 0xFF001774.toInt(), 0xFF28007D.toInt(), 0xFF3E006D.toInt(),
+            0xFF560057.toInt(), 0xFF5E0013.toInt(), 0xFF531A00.toInt(), 0xFF3B2400.toInt(),
+            0xFF2A3000.toInt(), 0xFF143A00.toInt(), 0xFF003F00.toInt(), 0xFF003B1E.toInt(),
+            0xFF003050.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFB9B9B4.toInt(), 0xFF1453B9.toInt(), 0xFF4D2CDA.toInt(), 0xFF7A1EC8.toInt(),
+            0xFF98189C.toInt(), 0xFF9D2344.toInt(), 0xFFA03E00.toInt(), 0xFF8D5500.toInt(),
+            0xFF656D00.toInt(), 0xFF2C7900.toInt(), 0xFF008100.toInt(), 0xFF007D42.toInt(),
+            0xFF00788A.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(), 0xFF69A8FF.toInt(), 0xFF9A96FF.toInt(), 0xFFC28AFA.toInt(),
+            0xFFEA7DFA.toInt(), 0xFFF387B4.toInt(), 0xFFF1986C.toInt(), 0xFFE6B327.toInt(),
+            0xFFD7C805.toInt(), 0xFF90DF07.toInt(), 0xFF64E53C.toInt(), 0xFF45E27D.toInt(),
+            0xFF48D5D9.toInt(), 0xFF4B4B46.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(), 0xFFD2EAFF.toInt(), 0xFFE2E2FF.toInt(), 0xFFF2D8FF.toInt(),
+            0xFFF8D2FF.toInt(), 0xFFF8D9EA.toInt(), 0xFFFADEB9.toInt(), 0xFFF9E89B.toInt(),
+            0xFFF3F28C.toInt(), 0xFFD3FA91.toInt(), 0xFFB8FCA8.toInt(), 0xFFAEFACA.toInt(),
+            0xFFCAF3F3.toInt(), 0xFFBEBEB9.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val SONY_CXA_2025_PALETTE = uintArrayOf(
-            0xFF585858U, 0xFF00238CU, 0xFF00139BU, 0xFF2D0585U,
-            0xFF5D0052U, 0xFF7A0017U, 0xFF7A0800U, 0xFF5F1800U,
-            0xFF352A00U, 0xFF093900U, 0xFF003F00U, 0xFF003C22U,
-            0xFF00325DU, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFA1A1A1U, 0xFF0053EEU, 0xFF153CFEU, 0xFF6028E4U,
-            0xFFA91D98U, 0xFFD41E41U, 0xFFD22C00U, 0xFFAA4400U,
-            0xFF6C5E00U, 0xFF2D7300U, 0xFF007D06U, 0xFF007852U,
-            0xFF0069A9U, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFFFFFFFU, 0xFF1FA5FEU, 0xFF5E89FEU, 0xFFB572FEU,
-            0xFFFE65F6U, 0xFFFE6790U, 0xFFFE773CU, 0xFFFE9308U,
-            0xFFC4B200U, 0xFF79CA10U, 0xFF3AD54AU, 0xFF11D1A4U,
-            0xFF06BFFEU, 0xFF424242U, 0xFF000000U, 0xFF000000U,
-            0xFFFFFFFFU, 0xFFA0D9FEU, 0xFFBDCCFEU, 0xFFE1C2FEU,
-            0xFFFEBCFBU, 0xFFFEBDD0U, 0xFFFEC5A9U, 0xFFFED18EU,
-            0xFFE9DE86U, 0xFFC7E992U, 0xFFA8EEB0U, 0xFF95ECD9U,
-            0xFF91E4FEU, 0xFFACACACU, 0xFF000000U, 0xFF000000U
+        @JvmStatic val SONY_CXA_2025_PALETTE = intArrayOf(
+            0xFF585858.toInt(), 0xFF00238C.toInt(), 0xFF00139B.toInt(), 0xFF2D0585.toInt(),
+            0xFF5D0052.toInt(), 0xFF7A0017.toInt(), 0xFF7A0800.toInt(), 0xFF5F1800.toInt(),
+            0xFF352A00.toInt(), 0xFF093900.toInt(), 0xFF003F00.toInt(), 0xFF003C22.toInt(),
+            0xFF00325D.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFA1A1A1.toInt(), 0xFF0053EE.toInt(), 0xFF153CFE.toInt(), 0xFF6028E4.toInt(),
+            0xFFA91D98.toInt(), 0xFFD41E41.toInt(), 0xFFD22C00.toInt(), 0xFFAA4400.toInt(),
+            0xFF6C5E00.toInt(), 0xFF2D7300.toInt(), 0xFF007D06.toInt(), 0xFF007852.toInt(),
+            0xFF0069A9.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(), 0xFF1FA5FE.toInt(), 0xFF5E89FE.toInt(), 0xFFB572FE.toInt(),
+            0xFFFE65F6.toInt(), 0xFFFE6790.toInt(), 0xFFFE773C.toInt(), 0xFFFE9308.toInt(),
+            0xFFC4B200.toInt(), 0xFF79CA10.toInt(), 0xFF3AD54A.toInt(), 0xFF11D1A4.toInt(),
+            0xFF06BFFE.toInt(), 0xFF424242.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(), 0xFFA0D9FE.toInt(), 0xFFBDCCFE.toInt(), 0xFFE1C2FE.toInt(),
+            0xFFFEBCFB.toInt(), 0xFFFEBDD0.toInt(), 0xFFFEC5A9.toInt(), 0xFFFED18E.toInt(),
+            0xFFE9DE86.toInt(), 0xFFC7E992.toInt(), 0xFFA8EEB0.toInt(), 0xFF95ECD9.toInt(),
+            0xFF91E4FE.toInt(), 0xFFACACAC.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val WAVEBEAM_PALETTE = uintArrayOf(
-            0xFF6B6B6BU, 0xFF001B88U, 0xFF21009AU, 0xFF40008CU,
-            0xFF600067U, 0xFF64001EU, 0xFF590800U, 0xFF481600U,
-            0xFF283600U, 0xFF004500U, 0xFF004908U, 0xFF00421DU,
-            0xFF003659U, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFB4B4B4U, 0xFF1555D3U, 0xFF4337EFU, 0xFF7425DFU,
-            0xFF9C19B9U, 0xFFAC0F64U, 0xFFAA2C00U, 0xFF8A4B00U,
-            0xFF666B00U, 0xFF218300U, 0xFF008A00U, 0xFF008144U,
-            0xFF007691U, 0xFF000000U, 0xFF000000U, 0xFF000000U,
-            0xFFFFFFFFU, 0xFF63B2FFU, 0xFF7C9CFFU, 0xFFC07DFEU,
-            0xFFE977FFU, 0xFFF572CDU, 0xFFF4886BU, 0xFFDDA029U,
-            0xFFBDBD0AU, 0xFF89D20EU, 0xFF5CDE3EU, 0xFF4BD886U,
-            0xFF4DCFD2U, 0xFF525252U, 0xFF000000U, 0xFF000000U,
-            0xFFFFFFFFU, 0xFFBCDFFFU, 0xFFD2D2FFU, 0xFFE1C8FFU,
-            0xFFEFC7FFU, 0xFFFFC3E1U, 0xFFFFCAC6U, 0xFFF2DAADU,
-            0xFFEBE3A0U, 0xFFD2EDA2U, 0xFFBCF4B4U, 0xFFB5F1CEU,
-            0xFFB6ECF1U, 0xFFBFBFBFU, 0xFF000000U, 0xFF000000U
+        @JvmStatic val WAVEBEAM_PALETTE = intArrayOf(
+            0xFF6B6B6B.toInt(), 0xFF001B88.toInt(), 0xFF21009A.toInt(), 0xFF40008C.toInt(),
+            0xFF600067.toInt(), 0xFF64001E.toInt(), 0xFF590800.toInt(), 0xFF481600.toInt(),
+            0xFF283600.toInt(), 0xFF004500.toInt(), 0xFF004908.toInt(), 0xFF00421D.toInt(),
+            0xFF003659.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFB4B4B4.toInt(), 0xFF1555D3.toInt(), 0xFF4337EF.toInt(), 0xFF7425DF.toInt(),
+            0xFF9C19B9.toInt(), 0xFFAC0F64.toInt(), 0xFFAA2C00.toInt(), 0xFF8A4B00.toInt(),
+            0xFF666B00.toInt(), 0xFF218300.toInt(), 0xFF008A00.toInt(), 0xFF008144.toInt(),
+            0xFF007691.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(), 0xFF63B2FF.toInt(), 0xFF7C9CFF.toInt(), 0xFFC07DFE.toInt(),
+            0xFFE977FF.toInt(), 0xFFF572CD.toInt(), 0xFFF4886B.toInt(), 0xFFDDA029.toInt(),
+            0xFFBDBD0A.toInt(), 0xFF89D20E.toInt(), 0xFF5CDE3E.toInt(), 0xFF4BD886.toInt(),
+            0xFF4DCFD2.toInt(), 0xFF525252.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(), 0xFFBCDFFF.toInt(), 0xFFD2D2FF.toInt(), 0xFFE1C8FF.toInt(),
+            0xFFEFC7FF.toInt(), 0xFFFFC3E1.toInt(), 0xFFFFCAC6.toInt(), 0xFFF2DAAD.toInt(),
+            0xFFEBE3A0.toInt(), 0xFFD2EDA2.toInt(), 0xFFBCF4B4.toInt(), 0xFFB5F1CE.toInt(),
+            0xFFB6ECF1.toInt(), 0xFFBFBFBF.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
     }
 }

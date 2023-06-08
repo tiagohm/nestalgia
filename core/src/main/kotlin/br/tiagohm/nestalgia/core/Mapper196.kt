@@ -1,46 +1,42 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryOperation.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_196
 
 class Mapper196 : MMC3() {
 
-    private val exReg = UByteArray(2)
+    private val exReg = IntArray(2)
 
-    override fun init() {
-        super.init()
+    override fun initialize() {
+        super.initialize()
 
-        exReg.fill(0U)
+        exReg.fill(0)
 
-        addRegisterRange(0x6000U, 0x6FFFU, MemoryOperation.WRITE)
+        addRegisterRange(0x6000, 0x6FFF, WRITE)
     }
 
     override fun updatePrgMapping() {
-        if (exReg[0].isNonZero) {
+        if (exReg[0] != 0) {
             // Used by Master Fighter II (Unl) (UT1374 PCB)
-            selectPrgPage4x(0U, (exReg[1].toUInt() shl 2).toUShort())
+            selectPrgPage4x(0, exReg[1] shl 2)
         } else {
             super.updatePrgMapping()
         }
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
+    override fun writeRegister(addr: Int, value: Int) {
         when {
-            addr < 0x8000U -> {
-                exReg[0] = 1U
-                exReg[1] = (value and 0x0FU) or (value shr 4)
+            addr < 0x8000 -> {
+                exReg[0] = 1
+                exReg[1] = (value and 0x0F) or (value shr 4)
                 updatePrgMapping()
             }
-            addr >= 0xC000U -> {
-                super.writeRegister(
-                    ((addr.toUInt() and 0xFFFEU) or ((addr.toUInt() shr 2) and 0x01U) or ((addr.toUInt() shr 3) and 0x01U)).toUShort(),
-                    value
-                )
+            addr >= 0xC000 -> {
+                super.writeRegister((addr and 0xFFFE) or (addr shr 2 and 0x01) or (addr shr 3 and 0x01), value)
             }
             else -> {
-                super.writeRegister(
-                    ((addr.toUInt() and 0xFFFEU) or ((addr.toUInt() shr 2) and 0x01U) or ((addr.toUInt() shr 3) and 0x01U) or ((addr.toUInt() shr 1) and 0x01U)).toUShort(),
-                    value
-                )
+                super.writeRegister((addr and 0xFFFE) or (addr shr 2 and 0x01) or (addr shr 3 and 0x01) or (addr shr 1 and 0x01), value)
             }
         }
     }
@@ -54,6 +50,6 @@ class Mapper196 : MMC3() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        s.readUByteArray("exReg")?.copyInto(exReg) ?: exReg.fill(0U)
+        s.readIntArrayOrFill("exReg", exReg, 0)
     }
 }

@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-enum class StandardControllerButton(override val bit: Int) : Button {
+enum class StandardControllerButton(override val bit: Int) : ControllerButton {
     UP(0),
     DOWN(1),
     LEFT(2),

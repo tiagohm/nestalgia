@@ -4,60 +4,61 @@ package br.tiagohm.nestalgia.core
 
 class Waixing178 : Mapper() {
 
-    private var exReg = UByteArray(4)
+    private var exReg = IntArray(4)
 
-    override val prgPageSize = 0x4000U
+    override val prgPageSize = 0x4000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override val workRamSize = 0x8000U
+    override val workRamSize = 0x8000
 
-    override val registerStartAddress: UShort = 0x4800U
+    override val registerStartAddress = 0x4800
 
-    override val registerEndAddress: UShort = 0x4FFFU
+    override val registerEndAddress = 0x4FFF
 
-    override fun init() {
-        exReg.fill(0U)
+    override fun initialize() {
+        exReg.fill(0)
         updateState()
-        selectChrPage(0U, 0U)
+        selectChrPage(0, 0)
     }
 
     private fun updateState() {
-        val sbank = (exReg[1] and 0x07U).toUInt()
-        val bbank = exReg[2].toUInt()
+        val sbank = exReg[1] and 0x07
+        val bbank = exReg[2]
 
         if (exReg[0].bit1) {
-            selectPrgPage(0U, ((bbank shl 3) or sbank).toUShort())
+            selectPrgPage(0, bbank shl 3 or sbank)
 
             if (exReg[0].bit2) {
-                selectPrgPage(1U, ((bbank shl 3) or 0x06U or (sbank and 0x01U)).toUShort())
+                selectPrgPage(1, (bbank shl 3) or 0x06 or (sbank and 0x01))
             } else {
-                selectPrgPage(1U, ((bbank shl 3) or 0x07U).toUShort())
+                selectPrgPage(1, (bbank shl 3) or 0x07)
             }
         } else {
-            val bank = ((bbank shl 3) or sbank).toUShort()
+            val bank = bbank shl 3 or sbank
 
             if (exReg[0].bit2) {
-                selectPrgPage(0U, bank)
-                selectPrgPage(1U, bank)
+                selectPrgPage(0, bank)
+                selectPrgPage(1, bank)
             } else {
-                selectPrgPage2x(0U, bank)
+                selectPrgPage2x(0, bank)
             }
         }
 
-        setCpuMemoryMapping(
-            0x6000U,
-            0x7FFFU,
-            (exReg[3].toInt() and 0x03).toShort(),
+        addCpuMemoryMapping(
+            0x6000,
+            0x7FFF,
+            exReg[3] and 0x03,
             PrgMemoryType.WRAM,
-            MemoryAccessType.READ_WRITE
+            MemoryAccessType.READ_WRITE,
         )
 
-        mirroringType = if (exReg[0].bit0) MirroringType.HORIZONTAL else MirroringType.VERTICAL
+        mirroringType = if (exReg[0].bit0) MirroringType.HORIZONTAL
+        else MirroringType.VERTICAL
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        exReg[addr.toInt() and 0x03] = value
+    override fun writeRegister(addr: Int, value: Int) {
+        exReg[addr and 0x03] = value
         updateState()
     }
 
@@ -70,7 +71,7 @@ class Waixing178 : Mapper() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        s.readUByteArray("exReg")?.copyInto(exReg) ?: exReg.fill(0U)
+        s.readIntArrayOrFill("exReg", exReg, 0)
 
         updateState()
     }

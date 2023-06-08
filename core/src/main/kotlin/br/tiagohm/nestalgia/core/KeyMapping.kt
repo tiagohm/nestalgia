@@ -1,19 +1,20 @@
 package br.tiagohm.nestalgia.core
 
-@Suppress("NOTHING_TO_INLINE")
-class KeyMapping(
-    val a: Int,
-    val b: Int,
-    val up: Int,
-    val down: Int,
-    val left: Int,
-    val right: Int,
-    val start: Int,
-    val select: Int,
-    val microphone: Int = 0,
-) {
+import java.awt.event.KeyEvent
 
-    inline fun getKey(button: Button): Int {
+data class KeyMapping(
+    @JvmField var a: Int = 0,
+    @JvmField var b: Int = 0,
+    @JvmField var up: Int = 0,
+    @JvmField var down: Int = 0,
+    @JvmField var left: Int = 0,
+    @JvmField var right: Int = 0,
+    @JvmField var start: Int = 0,
+    @JvmField var select: Int = 0,
+    @JvmField var microphone: Int = 0,
+) : Snapshotable {
+
+    fun key(button: ControllerButton): Int {
         return when (button) {
             StandardControllerButton.UP -> up
             StandardControllerButton.DOWN -> down
@@ -28,67 +29,59 @@ class KeyMapping(
         }
     }
 
-    fun toSnapshot(): Snapshot {
-        return Snapshot().also { s ->
-            s.write("a", a)
-            s.write("b", b)
-            s.write("up", up)
-            s.write("down", down)
-            s.write("left", left)
-            s.write("right", right)
-            s.write("select", select)
-            s.write("start", start)
-            s.write("microphone", microphone)
-        }
+    fun isEmpty() = a == 0 &&
+        b == 0 &&
+        up == 0 &&
+        down == 0 &&
+        left == 0 &&
+        right == 0 &&
+        start == 0 &&
+        select == 0 &&
+        microphone == 0
+
+    fun copyTo(keyMapping: KeyMapping) {
+        keyMapping.a = a
+        keyMapping.b = b
+        keyMapping.up = up
+        keyMapping.down = down
+        keyMapping.left = left
+        keyMapping.right = right
+        keyMapping.select = select
+        keyMapping.start = start
+        keyMapping.microphone = microphone
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as KeyMapping
-
-        if (a != other.a) return false
-        if (b != other.b) return false
-        if (up != other.up) return false
-        if (down != other.down) return false
-        if (left != other.left) return false
-        if (right != other.right) return false
-        if (start != other.start) return false
-        if (select != other.select) return false
-        if (microphone != other.microphone) return false
-
-        return true
+    override fun saveState(s: Snapshot) {
+        s.write("a", a)
+        s.write("b", b)
+        s.write("up", up)
+        s.write("down", down)
+        s.write("left", left)
+        s.write("right", right)
+        s.write("select", select)
+        s.write("start", start)
+        s.write("microphone", microphone)
     }
 
-    override fun hashCode(): Int {
-        var result = a
-        result = 31 * result + b
-        result = 31 * result + up
-        result = 31 * result + down
-        result = 31 * result + left
-        result = 31 * result + right
-        result = 31 * result + start
-        result = 31 * result + select
-        result = 31 * result + microphone
-        return result
+    override fun restoreState(s: Snapshot) {
+        a = s.readInt("a")
+        b = s.readInt("b")
+        up = s.readInt("up")
+        down = s.readInt("down")
+        left = s.readInt("left")
+        right = s.readInt("right")
+        start = s.readInt("start")
+        select = s.readInt("select")
+        microphone = s.readInt("microphone")
     }
 
     companion object {
 
-        @JvmStatic val NONE = KeyMapping(0, 0, 0, 0, 0, 0, 0, 0, 0)
-
         @JvmStatic
-        fun load(s: Snapshot) = KeyMapping(
-            s.readInt("a") ?: 0,
-            s.readInt("b") ?: 0,
-            s.readInt("up") ?: 0,
-            s.readInt("down") ?: 0,
-            s.readInt("left") ?: 0,
-            s.readInt("right") ?: 0,
-            s.readInt("start") ?: 0,
-            s.readInt("select") ?: 0,
-            s.readInt("microphone") ?: 0,
+        fun defaultKeys() = KeyMapping(
+            KeyEvent.VK_A, KeyEvent.VK_S, // A B
+            KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, // UP DOWN LEFT RIGHT
+            KeyEvent.VK_ENTER, KeyEvent.VK_SPACE, // START SELECT
         )
     }
 }

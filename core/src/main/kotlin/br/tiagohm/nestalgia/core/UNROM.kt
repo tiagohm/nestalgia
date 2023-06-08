@@ -4,23 +4,23 @@ package br.tiagohm.nestalgia.core
 
 class UNROM : Mapper() {
 
-    override val prgPageSize = 0x4000U
+    override val prgPageSize = 0x4000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override val hasBusConflicts: Boolean
+    override val hasBusConflicts
         get() = info.subMapperId == 2
 
-    override fun init() {
+    override fun initialize() {
         // First and last PRG page
-        selectPrgPage(0U, 0U)
-        selectPrgPage(1U, 0xFFFFU)
+        selectPrgPage(0, 0)
+        selectPrgPage(1, -1)
 
-        selectChrPage(0U, 0U)
+        selectChrPage(0, 0)
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
+    override fun writeRegister(addr: Int, value: Int) {
         // Select 16 KB PRG ROM bank for CPU $8000-$BFFF
-        selectPrgPage(0U, value.toUShort())
+        selectPrgPage(0, value)
     }
 }

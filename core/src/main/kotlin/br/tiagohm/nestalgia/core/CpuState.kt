@@ -1,14 +1,14 @@
 package br.tiagohm.nestalgia.core
 
-class CpuState(
-    var pc: UShort = 0U,
-    var sp: UByte = 0U,
-    var a: UByte = 0U,
-    var x: UByte = 0U,
-    var y: UByte = 0U,
-    var ps: UByte = 0U,
-    var irq: UInt = 0U,
-    var nmi: Boolean = false,
+data class CpuState(
+    @JvmField var pc: Int = 0,
+    @JvmField var sp: Int = 0,
+    @JvmField var a: Int = 0,
+    @JvmField var x: Int = 0,
+    @JvmField var y: Int = 0,
+    @JvmField var ps: Int = 0,
+    @JvmField var irq: Int = 0,
+    @JvmField var nmi: Boolean = false,
 ) : Snapshotable {
 
     override fun saveState(s: Snapshot) {
@@ -23,15 +23,13 @@ class CpuState(
     }
 
     override fun restoreState(s: Snapshot) {
-        s.load()
-
-        pc = s.readUShort("pc") ?: 0U
-        sp = s.readUByte("sp") ?: 0U
-        a = s.readUByte("a") ?: 0U
-        x = s.readUByte("x") ?: 0U
-        y = s.readUByte("y") ?: 0U
-        ps = s.readUByte("ps") ?: 0U
-        irq = s.readUInt("irq") ?: 0U
-        nmi = s.readBoolean("nmi") ?: false
+        pc = s.readInt("pc")
+        sp = s.readInt("sp")
+        a = s.readInt("a")
+        x = s.readInt("x")
+        y = s.readInt("y")
+        ps = s.readInt("ps")
+        irq = s.readInt("irq")
+        nmi = s.readBoolean("nmi")
     }
 }

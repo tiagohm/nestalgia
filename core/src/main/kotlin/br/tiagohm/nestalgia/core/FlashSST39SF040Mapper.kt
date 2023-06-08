@@ -3,11 +3,11 @@ package br.tiagohm.nestalgia.core
 abstract class FlashSST39SF040Mapper : Mapper() {
 
     protected lateinit var flash: FlashSST39SF040
-    protected var orgPrgRom = UByteArray(0)
+        private set
 
-    override fun init() {
-        super.init()
+    protected abstract val orgPrgRom: IntArray
 
+    override fun initialize() {
         flash = FlashSST39SF040(prgRom)
     }
 
@@ -20,16 +20,16 @@ abstract class FlashSST39SF040Mapper : Mapper() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        s.readSnapshot("flash")?.also(flash::restoreState)
+        s.readSnapshotable("flash", flash)
     }
 
-    override fun readRegister(addr: UShort): UByte {
-        val data = flash.read(addr.toInt())
-        return if (data >= 0) data.toUByte() else internalRead(addr)
+    override fun readRegister(addr: Int): Int {
+        val data = flash.read(addr)
+        return if (data >= 0) data else internalRead(addr)
     }
 
     override fun saveBattery() {
-        val ipsData = IpsPatcher.createPatch(orgPrgRom, prgRom)
+        val ipsData = IpsPatcher.create(orgPrgRom, prgRom)
 
         if (ipsData.size > 8) {
             console.batteryManager.saveBattery(".ips", ipsData)
@@ -41,15 +41,9 @@ abstract class FlashSST39SF040Mapper : Mapper() {
         applyPatch(ipsData)
     }
 
-    protected fun applyPatch(ipsData: UByteArray) {
+    protected fun applyPatch(ipsData: IntArray) {
         if (ipsData.isNotEmpty()) {
-            val patchedPrgRom = ArrayList<UByte>()
-
-            if (IpsPatcher.patch(ipsData, orgPrgRom, patchedPrgRom)) {
-                for (i in patchedPrgRom.indices) {
-                    prgRom[i] = patchedPrgRom[i]
-                }
-            }
+            IpsPatcher.patch(ipsData, orgPrgRom).copyInto(prgRom)
         }
     }
 }

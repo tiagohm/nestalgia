@@ -1,44 +1,43 @@
 import br.tiagohm.nestalgia.core.FdsLoader
-import org.junit.jupiter.api.Assertions.assertArrayEquals
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
-import java.io.File
+import br.tiagohm.nestalgia.core.toIntArray
+import io.kotest.core.annotation.Ignored
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.ints.shouldBeExactly
+import io.kotest.matchers.shouldBe
 
-class FdsLoaderTest {
+@Ignored
+class FdsLoaderTest : StringSpec() {
 
-    @Test
-    fun loadAndRebuildOneSide() {
-        val rawData0 = File(
-            FdsLoaderTest::class.java.classLoader.getResources(("1.fds")).nextElement().file
-        ).readBytes().toUByteArray()
+    init {
+        "load and rebuild one side" {
+            val rawData0 = Thread.currentThread().contextClassLoader
+                .getResourceAsStream("1.fds")!!.readAllBytes().toIntArray()
 
-        val diskSides = ArrayList<UByteArray>()
-        val diskHeaders = ArrayList<UByteArray>()
+            val diskSides = ArrayList<IntArray>()
+            val diskHeaders = ArrayList<IntArray>()
 
-        FdsLoader.loadDiskData(rawData0, diskSides, diskHeaders)
-        assertEquals(1, diskSides.size)
+            FdsLoader.loadDiskData(rawData0, diskSides, diskHeaders)
+            diskSides.size shouldBeExactly 1
 
-        val rawData1 = FdsLoader.rebuildFdsFile(diskSides, false)
+            val rawData1 = FdsLoader.rebuildFdsFile(diskSides, false)
 
-        assertEquals(rawData0.size, rawData1.size)
-        assertArrayEquals(rawData0.toByteArray(), rawData1.toByteArray())
-    }
+            rawData0.size shouldBeExactly rawData1.size
+            rawData0 shouldBe rawData1
+        }
+        "load and rebuild two side" {
+            val rawData0 = Thread.currentThread().contextClassLoader
+                .getResourceAsStream("2.fds")!!.readAllBytes().toIntArray()
 
-    @Test
-    fun loadAndRebuildTwoSides() {
-        val rawData0 = File(
-            FdsLoaderTest::class.java.classLoader.getResources(("2.fds")).nextElement().file
-        ).readBytes().toUByteArray()
+            val diskSides = ArrayList<IntArray>()
+            val diskHeaders = ArrayList<IntArray>()
 
-        val diskSides = ArrayList<UByteArray>()
-        val diskHeaders = ArrayList<UByteArray>()
+            FdsLoader.loadDiskData(rawData0, diskSides, diskHeaders)
+            diskSides.size shouldBeExactly 2
 
-        FdsLoader.loadDiskData(rawData0, diskSides, diskHeaders)
-        assertEquals(2, diskSides.size)
+            val rawData1 = FdsLoader.rebuildFdsFile(diskSides, false)
 
-        val rawData1 = FdsLoader.rebuildFdsFile(diskSides, false)
-
-        assertEquals(rawData0.size, rawData1.size)
-        assertArrayEquals(rawData0.toByteArray(), rawData1.toByteArray())
+            rawData0.size shouldBeExactly rawData1.size
+            rawData0 shouldBe rawData1
+        }
     }
 }

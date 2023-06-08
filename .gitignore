@@ -75,4 +75,5 @@ gradle-app.setting
 ### Gradle Patch ###
 **/build/
 
-!desktop/nestalgia.jar
+### Gradle Cache ###
+.cache

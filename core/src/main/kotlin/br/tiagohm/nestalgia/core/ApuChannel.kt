@@ -1,67 +1,62 @@
 package br.tiagohm.nestalgia.core
 
 abstract class ApuChannel(
-    val channel: AudioChannel,
-    val console: Console,
-    val mixer: SoundMixer? = null,
-) : MemoryHandler,
-    Resetable,
-    Snapshotable {
+    protected val channel: AudioChannel,
+    protected val console: Console,
+    private val mixer: SoundMixer? = null,
+) : MemoryHandler, Resetable, Snapshotable {
 
     private var previousCycle = 0
-    protected var lastOutput: Byte = 0
+    protected var lastOutput = 0
 
-    var timer: UShort = 0U
+    var timer = 0
         protected set
 
-    open var period: UShort = 0U
+    open var period = 0
         protected set
 
-    private var privateRegion = Region.NTSC
+    private var mRegion = Region.NTSC
+
     var region: Region
-        get() = if (privateRegion == Region.DENDY) Region.NTSC else privateRegion
+        get() = if (mRegion == Region.DENDY) Region.NTSC else mRegion
         set(value) {
-            privateRegion = value
+            mRegion = value
         }
 
-    init {
-        reset(false)
-    }
-
     override fun reset(softReset: Boolean) {
-        timer = 0U
-        period = 0U
+        timer = 0
+        period = 0
         lastOutput = 0
         previousCycle = 0
     }
 
-    abstract fun clock()
+    protected abstract fun clock()
 
     abstract val status: Boolean
 
     abstract val frequency: Double
 
-    abstract val volume: Long
+    abstract val volume: Int
 
-    abstract val isEnabled: Boolean
+    abstract val enabled: Boolean
+
+    abstract val muted: Boolean
 
     fun run(targetCycle: Int) {
         var cyclesToRun = targetCycle - previousCycle
 
-        while (cyclesToRun > timer.toInt()) {
-            cyclesToRun -= (timer + 1U).toInt()
-            previousCycle += (timer + 1U).toInt()
+        while (cyclesToRun > timer) {
+            cyclesToRun -= timer + 1
+            previousCycle += timer + 1
             clock()
             timer = period
         }
 
-        timer = (timer.toInt() - cyclesToRun).toUShort()
+        timer -= cyclesToRun
         previousCycle = targetCycle
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte = 0U
-
-    open fun addOutput(output: Byte) {
+    open fun addOutput(output: Int) {
         if (output != lastOutput) {
             mixer?.addDelta(channel, previousCycle, output - lastOutput)
             lastOutput = output
@@ -76,16 +71,14 @@ abstract class ApuChannel(
         s.write("lastOutput", lastOutput)
         s.write("timer", timer)
         s.write("period", period)
-        s.write("region", privateRegion)
+        s.write("region", mRegion)
     }
 
     override fun restoreState(s: Snapshot) {
-        s.load()
-
         previousCycle = 0
-        lastOutput = s.readByte("lastOutput") ?: 0
-        timer = s.readUShort("timer") ?: 0U
-        period = s.readUShort("period") ?: 0U
-        privateRegion = s.readEnum<Region>("region") ?: Region.AUTO
+        lastOutput = s.readInt("lastOutput")
+        timer = s.readInt("timer")
+        period = s.readInt("period")
+        mRegion = s.readEnum("region", Region.AUTO)
     }
 }

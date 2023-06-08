@@ -4,5 +4,5 @@ enum class ChrMemoryType : MemoryType {
     DEFAULT,
     ROM,
     RAM,
-    NAMETABLE_RAM
+    NAMETABLE_RAM,
 }

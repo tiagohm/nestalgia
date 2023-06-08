@@ -10,15 +10,15 @@ class Fds : Mapper() {
     private var disableAutoInsertDisk = false
 
     // Write registers
-    private var irqReloadValue: UShort = 0U
-    private var irqCounter: UShort = 0U
+    private var irqReloadValue = 0
+    private var irqCounter = 0
     private var irqEnabled = false
     private var irqRepeatEnabled = false
 
     private var diskRegEnabled = true
     private var soundRegEnabled = true
 
-    private var writeDataReg: UByte = 0U
+    private var writeDataReg = 0
 
     private var motorOn = false
     private var resetTransfer = false
@@ -35,94 +35,96 @@ class Fds : Mapper() {
     private var successiveChecks = 0
     private var previousDiskNumber = NO_DISK_INSERTED
 
-    private var extConWriteReg: UByte = 0U
+    private var extConWriteReg = 0
 
     private var badCrc = false
     private var endOfHead = false
     private var readWriteEnabled = false
 
-    private var readDataReg: UByte = 0U
+    private var readDataReg = 0
 
     private var diskWriteProtected = false
 
     private var diskNumber = NO_DISK_INSERTED
     private var diskPosition = 0
     private var delay = 0L
-    private var crcAccumulator: UShort = 0U
+    private var crcAccumulator = 0
     private var previousCrcControlFlag = false
     private var gapEnded = true
     private var scanningDisk = false
     private var transferComplete = false
 
-    private val diskSides = ArrayList<UByteArray>()
-    private val diskHeaders = ArrayList<UByteArray>()
-    private var rawData = UByteArray(0)
+    private val diskSides = ArrayList<IntArray>()
+    private val diskHeaders = ArrayList<IntArray>()
+    private var rawData = IntArray(0)
 
-    private val orgDiskSides = ArrayList<UByteArray>()
-    private val orgDiskHeaders = ArrayList<UByteArray>()
+    private val orgDiskSides = ArrayList<IntArray>()
+    private val orgDiskHeaders = ArrayList<IntArray>()
 
     private var isNeedSave = false
     private var gameStarted = false
 
-    override val prgPageSize = 0x2000U
+    override val prgPageSize = 0x2000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override val workRamPageSize = 0x8000U
+    override val workRamPageSize = 0x8000
 
-    override val workRamSize = 0x8000U
+    override val workRamSize = 0x8000
 
-    override val registerStartAddress: UShort = 0x4020U
+    override val registerStartAddress = 0x4020
 
-    override val registerEndAddress: UShort = 0x4092U
+    override val registerEndAddress = 0x4092
 
     override val allowRegisterRead = true
 
-    val isAutoInsertDiskEnabled: Boolean
-        get() = !disableAutoInsertDisk && console.settings.checkFlag(EmulationFlag.FDS_AUTO_INSERT_DISK)
+    val autoInsertDiskEnabled
+        get() = !disableAutoInsertDisk && console.settings.flag(EmulationFlag.FDS_AUTO_INSERT_DISK)
 
-    val sideCount: Int
+    val sideCount
         get() = diskSides.size
 
-    val isDiskInserted: Boolean
+    val diskInserted
         get() = diskNumber != NO_DISK_INSERTED
 
-    val currentDisk: Int
+    val currentDisk
         get() = diskNumber
 
-    override fun init() {
+    override fun initialize() {
         // FDS BIOS
-        setCpuMemoryMapping(0xE000U, 0xFFFFU, 0, PrgMemoryType.ROM, MemoryAccessType.READ)
+        addCpuMemoryMapping(0xE000, 0xFFFF, 0, PrgMemoryType.ROM, MemoryAccessType.READ)
         // WRAM
-        setCpuMemoryMapping(0x6000U, 0xDFFFU, 0, PrgMemoryType.WRAM, MemoryAccessType.READ_WRITE)
+        addCpuMemoryMapping(0x6000, 0xDFFF, 0, PrgMemoryType.WRAM, MemoryAccessType.READ_WRITE)
         // 8K of CHR RAM
-        selectChrPage(0U, 0U)
+        selectChrPage(0, 0)
 
         audio = FdsAudio(console)
 
-        rawData = data.bytes.toUByteArray()
+        rawData = data.rawData
 
         FdsLoader.loadDiskData(rawData, orgDiskSides, orgDiskHeaders)
         loadDiskData(console.batteryManager.loadBattery(".ips"))
     }
 
-    private fun loadDiskData(ipsData: UByteArray) {
+    private fun loadDiskData(ipsData: IntArray) {
         diskSides.clear()
         diskHeaders.clear()
 
-        val patchedData = ArrayList<UByte>(rawData.size)
+        if (ipsData.isNotEmpty()) {
+            val patchedData = IpsPatcher.patch(ipsData, rawData)
 
-        if (ipsData.isNotEmpty() && IpsPatcher.patch(ipsData, rawData, patchedData)) {
-            FdsLoader.loadDiskData(patchedData.toUByteArray(), diskSides, diskHeaders)
+            if (patchedData.isNotEmpty()) {
+                FdsLoader.loadDiskData(patchedData, diskSides, diskHeaders)
+            }
         } else {
             FdsLoader.loadDiskData(rawData, diskSides, diskHeaders)
         }
     }
 
-    private fun createIpsPatch(): UByteArray {
+    private fun createIpsPatch(): IntArray {
         val needHeader = rawData.startsWith("FDS\u001A")
         val newData = FdsLoader.rebuildFdsFile(diskSides, needHeader)
-        return IpsPatcher.createPatch(rawData, newData)
+        return IpsPatcher.create(rawData, newData)
     }
 
     override fun saveBattery() {
@@ -140,13 +142,13 @@ class Fds : Mapper() {
         gameStarted = false
     }
 
-    private inline fun getFdsDiskSideSize(side: Int): Int {
+    private fun fdsDiskSideSize(side: Int): Int {
         return diskSides[side].size
     }
 
-    private inline fun readFdsDisk() = diskSides[diskNumber][diskPosition]
+    private fun readFdsDisk() = diskSides[diskNumber][diskPosition]
 
-    private inline fun writeFdsDisk(value: UByte) {
+    private fun writeFdsDisk(value: Int) {
         if (diskNumber < diskSides.size &&
             diskPosition >= 2 &&
             diskPosition < diskSides[diskNumber].size
@@ -162,7 +164,7 @@ class Fds : Mapper() {
 
     private inline fun clockIrq() {
         if (irqEnabled) {
-            if (irqCounter.toInt() == 0) {
+            if (irqCounter == 0) {
                 console.cpu.setIRQSource(IRQSource.EXTERNAL)
 
                 irqCounter = irqReloadValue
@@ -176,27 +178,27 @@ class Fds : Mapper() {
         }
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte {
-        if (addr.toInt() == 0xE18C &&
+    override fun read(addr: Int, type: MemoryOperationType): Int {
+        if (addr == 0xE18C &&
             !gameStarted &&
-            (console.memoryManager.peek(0x100U) and 0xC0U).toInt() != 0
+            (console.memoryManager.peek(0x100) and 0xC0) != 0
         ) {
             // $E18B is the NMI entry point (using $E18C due to dummy reads)
             // When NMI occurs while $100 & $C0 != 0, it typically means that the game is starting.
             gameStarted = true
-        } else if (addr.toInt() == 0xE445 && isAutoInsertDiskEnabled) {
+        } else if (addr == 0xE445 && autoInsertDiskEnabled) {
             // Game is trying to check if a specific disk/side is inserted
             // Find the matching disk and insert it automatically
-            val bufferAddr = console.memoryManager.peekWord(0U).toInt()
+            val bufferAddr = console.memoryManager.peekWord(0)
 
-            val buffer = UByteArray(10)
+            val buffer = IntArray(10)
 
             for (i in 0..9) {
-                // Prevent infinite recursion
+                // Prevent infinite recursion.
                 if (bufferAddr + i != 0xE445) {
-                    buffer[i] = console.memoryManager.peek((bufferAddr + i).toUShort())
+                    buffer[i] = console.memoryManager.peek(bufferAddr + i)
                 } else {
-                    buffer[i] = 0U
+                    buffer[i] = 0
                 }
             }
 
@@ -207,7 +209,7 @@ class Fds : Mapper() {
                 var match = true
 
                 for (i in 0..9) {
-                    if (buffer[i].toInt() != 0xFF && buffer[i] != diskHeaders[j][i + 15]) {
+                    if (buffer[i] != 0xFF && buffer[i] != diskHeaders[j][i + 15]) {
                         match = false
                         break
                     }
@@ -225,7 +227,7 @@ class Fds : Mapper() {
             }
 
             if (matchIndex >= 0) {
-                // Found a single match, insert it
+                // Found a single match, insert it.
                 diskNumber = matchIndex
 
                 if (diskNumber != previousDiskNumber) {
@@ -249,7 +251,7 @@ class Fds : Mapper() {
     }
 
     private inline fun processAutoDiskInsert() {
-        if (isAutoInsertDiskEnabled) {
+        if (autoInsertDiskEnabled) {
             val currentFrame = console.ppu.frameCount
 
             if (previousFrame != currentFrame) {
@@ -295,7 +297,7 @@ class Fds : Mapper() {
         clockIrq()
         audio.clock()
 
-        if (!isDiskInserted || !motorOn) {
+        if (!diskInserted || !motorOn) {
             // Disk has been ejected
             endOfHead = true
             scanningDisk = false
@@ -321,7 +323,7 @@ class Fds : Mapper() {
             autoDiskEjectCounter = -1
             autoDiskSwitchCounter = -1
 
-            var diskData: UByte = 0U
+            var diskData = 0
             var needIrq = diskIrqEnabled
 
             if (readMode) {
@@ -333,8 +335,8 @@ class Fds : Mapper() {
 
                 if (!diskReady) {
                     gapEnded = false
-                    crcAccumulator = 0U
-                } else if (diskData > 0U && !gapEnded) {
+                    crcAccumulator = 0
+                } else if (diskData > 0 && !gapEnded) {
                     gapEnded = true
                     needIrq = false
                 }
@@ -358,7 +360,7 @@ class Fds : Mapper() {
                 }
 
                 if (!diskReady) {
-                    diskData = 0x00U
+                    diskData = 0x00
                 }
 
                 if (!crcControl) {
@@ -366,8 +368,8 @@ class Fds : Mapper() {
                 } else {
                     if (!previousCrcControlFlag) {
                         // Finish CRC calculation
-                        updateCrc(0x00U)
-                        updateCrc(0x00U)
+                        updateCrc(0x00)
+                        updateCrc(0x00)
                     }
 
                     diskData = crcAccumulator.loByte
@@ -382,7 +384,7 @@ class Fds : Mapper() {
 
             diskPosition++
 
-            if (diskPosition >= getFdsDiskSideSize(diskNumber)) {
+            if (diskPosition >= fdsDiskSideSize(diskNumber)) {
                 motorOn = false
                 // Wait a bit before ejecting the disk (eject in ~77 frames)
                 autoDiskEjectCounter = 77
@@ -392,7 +394,7 @@ class Fds : Mapper() {
         }
     }
 
-    private inline fun updateCrc(value: UByte) {
+    private inline fun updateCrc(value: Int) {
         var n = 0x01
 
         while (n <= 0x80) {
@@ -401,27 +403,27 @@ class Fds : Mapper() {
             crcAccumulator = crcAccumulator shr 1
 
             if (carry) {
-                crcAccumulator = crcAccumulator xor 0x8408U
+                crcAccumulator = crcAccumulator xor 0x8408
             }
 
-            if ((value.toInt() and n) != 0) {
-                crcAccumulator = crcAccumulator xor 0x8000U
+            if ((value and n) != 0) {
+                crcAccumulator = crcAccumulator xor 0x8000
             }
 
             n = n shl 1
         }
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        if ((!diskRegEnabled && addr in 0x4024U..0x4026U) ||
-            (!soundRegEnabled && addr >= 0x4040U)
+    override fun writeRegister(addr: Int, value: Int) {
+        if ((!diskRegEnabled && addr in 0x4024..0x4026) ||
+            (!soundRegEnabled && addr >= 0x4040)
         ) {
             return
         }
 
-        when (addr.toInt()) {
-            0x4020 -> irqReloadValue = (irqReloadValue and 0xFF00U) or value.toUShort()
-            0x4021 -> irqReloadValue = (irqReloadValue and 0x00FFU) or (value.toInt() shl 8).toUShort()
+        when (addr) {
+            0x4020 -> irqReloadValue = (irqReloadValue and 0xFF00) or value
+            0x4021 -> irqReloadValue = (irqReloadValue and 0x00FF) or (value shl 8)
             0x4022 -> {
                 irqRepeatEnabled = value.bit0
                 irqEnabled = value.bit1 and diskRegEnabled
@@ -465,27 +467,27 @@ class Fds : Mapper() {
             }
             0x4026 -> extConWriteReg = value
             else -> {
-                if (addr >= 0x4040U) audio.write(addr, value)
+                if (addr >= 0x4040) audio.write(addr, value)
             }
         }
     }
 
-    override fun readRegister(addr: UShort): UByte {
-        var value = console.memoryManager.getOpenBus()
+    override fun readRegister(addr: Int): Int {
+        var value = console.memoryManager.openBus()
 
-        if (soundRegEnabled && addr >= 0x4040U) {
+        if (soundRegEnabled && addr >= 0x4040) {
             return audio.read(addr)
-        } else if (diskRegEnabled && addr <= 0x4033U) {
-            when (addr.toInt()) {
+        } else if (diskRegEnabled && addr <= 0x4033) {
+            when (addr) {
                 0x4030 -> {
                     // These 3 pins are open bus
-                    value = value and 0x2CU
+                    value = value and 0x2C
 
-                    if (console.cpu.hasIRQSource(IRQSource.EXTERNAL)) value = value or 0x01U
-                    if (transferComplete) value = value or 0x02U
-                    if (badCrc) value = value or 0x10U
-                    // if(endOfHead) value = value or 0x40U
-                    // if(diskRegEnabled) value = value or 0x80U
+                    if (console.cpu.hasIRQSource(IRQSource.EXTERNAL)) value = value or 0x01
+                    if (transferComplete) value = value or 0x02
+                    if (badCrc) value = value or 0x10
+                    // if (endOfHead) value = value or 0x40
+                    // if (diskRegEnabled) value = value or 0x80
 
                     transferComplete = false
 
@@ -501,13 +503,13 @@ class Fds : Mapper() {
                 }
                 0x4032 -> {
                     //These 5 pins are open bus
-                    value = value and 0xF8U
+                    value = value and 0xF8
 
-                    if (!isDiskInserted) value = value or 0x01U // Disk not in drive
-                    if (!isDiskInserted || !scanningDisk) value = value or 0x02U // Disk not ready
-                    if (!isDiskInserted) value = value or 0x04U // Disk not writable
+                    if (!diskInserted) value = value or 0x01 // Disk not in drive
+                    if (!diskInserted || !scanningDisk) value = value or 0x02 // Disk not ready
+                    if (!diskInserted) value = value or 0x04 // Disk not writable
 
-                    if (isAutoInsertDiskEnabled) {
+                    if (autoInsertDiskEnabled) {
                         if (console.ppu.frameCount - lastDiskCheckFrame < 100) {
                             successiveChecks++
                         } else {
@@ -542,7 +544,7 @@ class Fds : Mapper() {
             }
         }
 
-        return console.memoryManager.getOpenBus()
+        return console.memoryManager.openBus()
     }
 
     override fun saveState(s: Snapshot) {
@@ -585,7 +587,7 @@ class Fds : Mapper() {
         s.write("crcAccumulator", crcAccumulator)
 
         for (i in diskSides.indices) {
-            val ipsData = IpsPatcher.createPatch(orgDiskSides[i], diskSides[i])
+            val ipsData = IpsPatcher.create(orgDiskSides[i], diskSides[i])
             s.write("ipsData$i", ipsData)
         }
     }
@@ -593,48 +595,49 @@ class Fds : Mapper() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        irqReloadValue = s.readUShort("irqReloadValue") ?: 0U
-        irqCounter = s.readUShort("irqCounter") ?: 0U
-        irqEnabled = s.readBoolean("irqEnabled") ?: false
-        irqRepeatEnabled = s.readBoolean("irqRepeatEnabled") ?: false
-        diskRegEnabled = s.readBoolean("diskRegEnabled") ?: true
-        soundRegEnabled = s.readBoolean("soundRegEnabled") ?: true
-        writeDataReg = s.readUByte("writeDataReg") ?: 0U
-        motorOn = s.readBoolean("motorOn") ?: false
-        resetTransfer = s.readBoolean("resetTransfer") ?: false
-        readMode = s.readBoolean("readMode") ?: false
-        crcControl = s.readBoolean("crcControl") ?: false
-        diskReady = s.readBoolean("diskReady") ?: false
-        diskIrqEnabled = s.readBoolean("diskIrqEnabled") ?: false
-        extConWriteReg = s.readUByte("extConWriteReg") ?: 0U
-        badCrc = s.readBoolean("badCrc") ?: false
-        endOfHead = s.readBoolean("endOfHead") ?: false
-        readWriteEnabled = s.readBoolean("readWriteEnabled") ?: false
-        readDataReg = s.readUByte("readDataReg") ?: 0U
-        diskWriteProtected = s.readBoolean("diskWriteProtected") ?: false
-        diskNumber = s.readInt("diskNumber") ?: 0
-        diskPosition = s.readInt("diskPosition") ?: 0
-        delay = s.readLong("delay") ?: 0L
-        previousCrcControlFlag = s.readBoolean("previousCrcControlFlag") ?: false
-        gapEnded = s.readBoolean("gapEnded") ?: true
-        scanningDisk = s.readBoolean("scanningDisk") ?: false
-        transferComplete = s.readBoolean("transferComplete") ?: false
-        s.readSnapshot("audio")?.let { audio.restoreState(it) }
-        autoDiskEjectCounter = s.readInt("autoDiskEjectCounter") ?: -1
-        autoDiskSwitchCounter = s.readInt("autoDiskSwitchCounter") ?: -1
-        restartAutoInsertCounter = s.readInt("restartAutoInsertCounter") ?: -1
-        previousFrame = s.readInt("previousFrame") ?: 0
-        lastDiskCheckFrame = s.readInt("lastDiskCheckFrame") ?: 0
-        successiveChecks = s.readInt("successiveChecks") ?: 0
-        previousDiskNumber = s.readInt("previousDiskNumber") ?: NO_DISK_INSERTED
-        crcAccumulator = s.readUShort("crcAccumulator") ?: 0U
+        irqReloadValue = s.readInt("irqReloadValue")
+        irqCounter = s.readInt("irqCounter")
+        irqEnabled = s.readBoolean("irqEnabled")
+        irqRepeatEnabled = s.readBoolean("irqRepeatEnabled")
+        diskRegEnabled = s.readBoolean("diskRegEnabled", true)
+        soundRegEnabled = s.readBoolean("soundRegEnabled", true)
+        writeDataReg = s.readInt("writeDataReg")
+        motorOn = s.readBoolean("motorOn")
+        resetTransfer = s.readBoolean("resetTransfer")
+        readMode = s.readBoolean("readMode")
+        crcControl = s.readBoolean("crcControl")
+        diskReady = s.readBoolean("diskReady")
+        diskIrqEnabled = s.readBoolean("diskIrqEnabled")
+        extConWriteReg = s.readInt("extConWriteReg")
+        badCrc = s.readBoolean("badCrc")
+        endOfHead = s.readBoolean("endOfHead")
+        readWriteEnabled = s.readBoolean("readWriteEnabled")
+        readDataReg = s.readInt("readDataReg")
+        diskWriteProtected = s.readBoolean("diskWriteProtected")
+        diskNumber = s.readInt("diskNumber")
+        diskPosition = s.readInt("diskPosition")
+        delay = s.readLong("delay")
+        previousCrcControlFlag = s.readBoolean("previousCrcControlFlag")
+        gapEnded = s.readBoolean("gapEnded", true)
+        scanningDisk = s.readBoolean("scanningDisk")
+        transferComplete = s.readBoolean("transferComplete")
+        s.readSnapshotable("audio", audio)
+        autoDiskEjectCounter = s.readInt("autoDiskEjectCounter", -1)
+        autoDiskSwitchCounter = s.readInt("autoDiskSwitchCounter", -1)
+        restartAutoInsertCounter = s.readInt("restartAutoInsertCounter", -1)
+        previousFrame = s.readInt("previousFrame")
+        lastDiskCheckFrame = s.readInt("lastDiskCheckFrame")
+        successiveChecks = s.readInt("successiveChecks")
+        previousDiskNumber = s.readInt("previousDiskNumber", NO_DISK_INSERTED)
+        crcAccumulator = s.readInt("crcAccumulator")
 
         for (i in diskSides.indices) {
-            val ipsData = s.readUByteArray("ipsData$i") ?: continue
-            val output = ArrayList<UByte>(FdsLoader.FDS_DISK_SIDE_CAPACITY)
+            val ipsData = s.readIntArray("ipsData$i") ?: continue
 
-            if (IpsPatcher.patch(ipsData, orgDiskSides[i], output)) {
-                diskSides[i] = output.toUByteArray()
+            val diskSide = IpsPatcher.patch(ipsData, orgDiskSides[i])
+
+            if (diskSide.isNotEmpty()) {
+                diskSides[i] = diskSide
             }
         }
 
@@ -650,7 +653,7 @@ class Fds : Mapper() {
     }
 
     fun insertDisk(diskNumber: Int) {
-        if (!isDiskInserted) this.diskNumber = diskNumber % sideCount
+        if (!diskInserted) this.diskNumber = diskNumber % sideCount
     }
 
     companion object {

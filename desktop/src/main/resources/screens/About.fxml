@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<AnchorPane maxHeight="-Infinity"
+            maxWidth="-Infinity"
+            minHeight="-Infinity"
+            minWidth="-Infinity"
+            xmlns="http://javafx.com/javafx/20"
+            xmlns:fx="http://javafx.com/fxml/1">
+    <VBox alignment="CENTER"
+          spacing="4.0"
+          AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0">
+        <padding>
+            <Insets topRightBottomLeft="32.0"/>
+        </padding>
+        <HBox alignment="TOP_CENTER"
+              spacing="8.0">
+            <ImageView>
+                <Image url="@../icons/mario-256.png"
+                       preserveRatio="true"
+                       requestedWidth="64.0"/>
+            </ImageView>
+            <VBox spacing="2.0">
+                <Label text="Nestalgia"
+                       style="-fx-font-size: 36px; -fx-font-weight: bold"/>
+                <Label fx:id="versionLabel"
+                       text="Version: 0.9.0"
+                       style="-fx-font-size: 14px;"/>
+                <Label text="Copyright © 2021-2023 Tiago Melo"
+                       style="-fx-font-size: 11px;"/>
+                <Label text="GitHub: tiagohm/nestalgia"
+                       style="-fx-font-size: 11px;"/>
+            </VBox>
+        </HBox>
+    </VBox>
+</AnchorPane>

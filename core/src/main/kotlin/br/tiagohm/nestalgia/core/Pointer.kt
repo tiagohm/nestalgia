@@ -2,37 +2,41 @@ package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
 open class Pointer(
-    val data: UByteArray,
-    val offset: Int = 0,
+    @PublishedApi @JvmField internal val data: IntArray,
+    @PublishedApi @JvmField internal val offset: Int = 0,
 ) : Memory {
 
     constructor(pointer: Pointer, offset: Int = 0) : this(pointer.data, pointer.offset + offset)
 
-    val size = data.size
+    inline val size
+        get() = data.size
 
-    val isEmpty = data.isEmpty()
+    operator fun contains(index: Int): Boolean {
+        return offset + index >= 0 && offset + index < data.size
+    }
 
-    val isNotEmpty = !isEmpty
+    inline operator fun get(index: Int): Int {
+        return data[offset + index]
+    }
 
-    inline operator fun contains(index: Int) = offset + index >= 0 && offset + index < data.size
-
-    inline operator fun get(index: Int): UByte = data[offset + index]
-
-    inline operator fun set(index: Int, value: UByte) {
+    inline operator fun set(index: Int, value: Int) {
         data[offset + index] = value
     }
 
-    inline fun slice(range: IntRange) = data.sliceArray(offset + range.first..offset + range.last)
-
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
-        this[addr.toInt()] = value
+    fun slice(range: IntRange): IntArray {
+        // TODO: Remove sliceArray de todo o código.
+        return data.sliceArray(offset + range.first..offset + range.last)
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte {
-        return this[addr.toInt()]
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
+        this[addr] = value
     }
 
-    inline fun fill(value: UByte, length: Int, startIndex: Int = 0) {
+    override fun read(addr: Int, type: MemoryOperationType): Int {
+        return this[addr]
+    }
+
+    fun fill(value: Int, length: Int, startIndex: Int = 0) {
         data.fill(value, offset + startIndex, offset + startIndex + length)
     }
 
@@ -42,20 +46,15 @@ open class Pointer(
 
         other as Pointer
 
-        if (data != other.data) return false
-        if (offset != other.offset) return false
+        println("NUNCA ENTRAR AQUI!!!")
 
-        return true
+        return data.contentEquals(other.data)
     }
 
-    override fun hashCode(): Int {
-        var result = data.hashCode()
-        result = 31 * result + offset
-        return result
-    }
+    override fun hashCode() = data.contentHashCode()
 
     companion object {
 
-        @JvmStatic val NULL = Pointer(UByteArray(0), 0)
+        @JvmStatic val NULL = Pointer(IntArray(0), 0)
     }
 }

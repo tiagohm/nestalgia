@@ -6,52 +6,50 @@ class Bmc235 : Mapper() {
 
     private var openBus = false
 
-    override val prgPageSize = 0x4000U
+    override val prgPageSize = 0x4000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override fun init() {
-        selectPrgPage2x(0U, 0U)
-        selectChrPage(0U, 0U)
+    override fun initialize() {
+        selectPrgPage2x(0, 0)
+        selectChrPage(0, 0)
     }
 
     override fun reset(softReset: Boolean) {
-        selectPrgPage2x(0U, 0U)
+        selectPrgPage2x(0, 0)
         openBus = false
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        val a = addr.toInt()
-
+    override fun writeRegister(addr: Int, value: Int) {
         mirroringType = when {
-            a and 0x0400 != 0 -> MirroringType.SCREEN_A_ONLY
-            a and 0x2000 != 0 -> MirroringType.HORIZONTAL
+            addr and 0x0400 != 0 -> MirroringType.SCREEN_A_ONLY
+            addr and 0x2000 != 0 -> MirroringType.HORIZONTAL
             else -> MirroringType.VERTICAL
         }
 
         val mode = when (prgPageCount) {
-            64U -> 0
-            128U -> 1
-            256U -> 2
+            64 -> 0
+            128 -> 1
+            256 -> 2
             else -> 3
         }
 
-        val i = a shr 8 and 0x03
-        val bank = CONFIG[mode][i][0] or (addr.loByte and 0x1FU)
+        val i = addr shr 8 and 0x03
+        val bank = CONFIG[mode][i][0] or (addr.loByte and 0x1F)
         openBus = false
 
         when {
-            CONFIG[mode][i][1].isOne -> {
+            CONFIG[mode][i][1] == 1 -> {
                 openBus = true
-                removeCpuMemoryMapping(0x8000U, 0xFFFFU)
+                removeCpuMemoryMapping(0x8000, 0xFFFF)
             }
-            a and 0x800 != 0 -> {
-                val b = ((bank.toInt() shl 1) or (a shr 12 and 0x01)).toUShort()
-                selectPrgPage(0U, b)
-                selectPrgPage(1U, b)
+            addr and 0x800 != 0 -> {
+                val b = (bank shl 1) or (addr shr 12 and 0x01)
+                selectPrgPage(0, b)
+                selectPrgPage(1, b)
             }
             else -> {
-                selectPrgPage2x(0U, (bank.toUInt() shl 1).toUShort())
+                selectPrgPage2x(0, bank shl 1)
             }
         }
     }
@@ -65,20 +63,20 @@ class Bmc235 : Mapper() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        openBus = s.readBoolean("openBus") ?: false
+        openBus = s.readBoolean("openBus")
 
         if (openBus) {
-            removeCpuMemoryMapping(0x8000U, 0xFFFFU)
+            removeCpuMemoryMapping(0x8000, 0xFFFF)
         }
     }
 
     companion object {
 
         @JvmStatic private val CONFIG = arrayOf(
-            arrayOf(ubyteArrayOf(0x00U, 0U), ubyteArrayOf(0x00U, 1U), ubyteArrayOf(0x00U, 1U), ubyteArrayOf(0x00U, 1U)),
-            arrayOf(ubyteArrayOf(0x00U, 0U), ubyteArrayOf(0x00U, 1U), ubyteArrayOf(0x20U, 0U), ubyteArrayOf(0x00U, 1U)),
-            arrayOf(ubyteArrayOf(0x00U, 0U), ubyteArrayOf(0x00U, 1U), ubyteArrayOf(0x20U, 0U), ubyteArrayOf(0x40U, 0U)),
-            arrayOf(ubyteArrayOf(0x00U, 0U), ubyteArrayOf(0x20U, 0U), ubyteArrayOf(0x40U, 0U), ubyteArrayOf(0x60U, 0U))
+            arrayOf(intArrayOf(0x00, 0), intArrayOf(0x00, 1), intArrayOf(0x00, 1), intArrayOf(0x00, 1)),
+            arrayOf(intArrayOf(0x00, 0), intArrayOf(0x00, 1), intArrayOf(0x20, 0), intArrayOf(0x00, 1)),
+            arrayOf(intArrayOf(0x00, 0), intArrayOf(0x00, 1), intArrayOf(0x20, 0), intArrayOf(0x40, 0)),
+            arrayOf(intArrayOf(0x00, 0), intArrayOf(0x20, 0), intArrayOf(0x40, 0), intArrayOf(0x60, 0)),
         )
     }
 }

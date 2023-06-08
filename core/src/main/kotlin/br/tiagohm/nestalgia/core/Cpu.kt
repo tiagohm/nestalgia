@@ -1,275 +1,272 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.PSFlag.*
 import kotlin.random.Random
 
 @Suppress("NOTHING_TO_INLINE")
-class Cpu(val console: Console) :
-    Memory,
-    Snapshotable {
+class Cpu(private val console: Console) : Memory, Snapshotable {
 
-    private var startClockCount: UByte = 0U
-    private var endClockCount: UByte = 0U
+    private var startClockCount = 0
+    private var endClockCount = 0
 
-    @PublishedApi
-    internal val state = CpuState()
+    @PublishedApi @JvmField internal val state = CpuState()
 
     private val memoryManager = console.memoryManager
 
     var isCpuWrite = false
         private set
-    var isNeedHalt = false
+
+    var needHalt = false
         private set
-    var isNeedDummyRead = false
+
+    var needDummyRead = false
         private set
+
     var spriteDmaTransfer = false
         private set
+
     var dmcDmaRunning = false
         private set
-    var spriteDmaOffset: UByte = 0U
+
+    var spriteDmaOffset = 0
         private set
 
     var cycleCount = -1L
         private set
+
     var masterClock = 0L
         private set
 
-    var ppuOffset: UByte = 0U
+    var ppuOffset = 0
         private set
 
     var prevRunIrq = false
         private set
+
     var runIrq = false
         private set
 
     var prevNmiFlag = false
         private set
-    var prevIsNeedNmi = false
-        private set
-    var isNeedNmi = false
+
+    var prevNeedNmi = false
         private set
 
-    var irqMask: UByte = 0U
+    var needNmi = false
+        private set
+
+    var irqMask = 0
 
     var addressMode = AddressMode.NONE
         private set
-    var operand: UShort = 0U
+
+    var operand = 0
         private set
 
-    private val opTable: Array<() -> Unit>
+    private val cpuInstruction = CpuInstruction(this)
 
-    init {
-        // @formatter:off
-        opTable = arrayOf(
-            ::brk, ::ora, ::hlt, ::slo, ::nop, ::ora, ::aslMem, ::slo, ::php, ::ora, ::aslAcc, ::aac, ::nop, ::ora, ::aslMem, ::slo,
-            ::bpl, ::ora, ::hlt, ::slo, ::nop, ::ora, ::aslMem, ::slo, ::clc, ::ora, ::nop, ::slo, ::nop, ::ora, ::aslMem, ::slo,
-            ::jsr, ::and, ::hlt, ::rla, ::bit, ::and, ::rolMem, ::rla, ::plp, ::and, ::rolAcc, ::aac, ::bit, ::and, ::rolMem, ::rla,
-            ::bmi, ::and, ::hlt, ::rla, ::nop, ::and, ::rolMem, ::rla, ::sec, ::and, ::nop, ::rla, ::nop, ::and, ::rolMem, ::rla,
-            ::rti, ::eor, ::hlt, ::sre, ::nop, ::eor, ::lsrMem, ::sre, ::pha, ::eor, ::lsrAcc, ::asr, ::jmpAbs, ::eor, ::lsrMem, ::sre,
-            ::bvc, ::eor, ::hlt, ::sre, ::nop, ::eor, ::lsrMem, ::sre, ::cli, ::eor, ::nop, ::sre, ::nop, ::eor, ::lsrMem, ::sre,
-            ::rts, ::adc, ::hlt, ::rra, ::nop, ::adc, ::rorMem, ::rra, ::pla, ::adc, ::rorAcc, ::arr, ::jmpInd, ::adc, ::rorMem, ::rra,
-            ::bvs, ::adc, ::hlt, ::rra, ::nop, ::adc, ::rorMem, ::rra, ::sei, ::adc, ::nop, ::rra, ::nop, ::adc, ::rorMem, ::rra,
-            ::nop, ::sta, ::nop, ::sax, ::sty, ::sta, ::stx, ::sax, ::dey, ::nop, ::txa, ::unk, ::sty, ::sta, ::stx, ::sax,
-            ::bcc, ::sta, ::hlt, ::axa, ::sty, ::sta, ::stx, ::sax, ::tya, ::sta, ::txs, ::tas, ::sya, ::sta, ::sxa, ::axa,
-            ::ldy, ::lda, ::ldx, ::lax, ::ldy, ::lda, ::ldx, ::lax, ::tay, ::lda, ::tax, ::atx, ::ldy, ::lda, ::ldx, ::lax,
-            ::bcs, ::lda, ::hlt, ::lax, ::ldy, ::lda, ::ldx, ::lax, ::clv, ::lda, ::tsx, ::las, ::ldy, ::lda, ::ldx, ::lax,
-            ::cpy, ::cpa, ::nop, ::dcp, ::cpy, ::cpa, ::dec, ::dcp, ::iny, ::cpa, ::dex, ::axs, ::cpy, ::cpa, ::dec, ::dcp,
-            ::bne, ::cpa, ::hlt, ::dcp, ::nop, ::cpa, ::dec, ::dcp, ::cld, ::cpa, ::nop, ::dcp, ::nop, ::cpa, ::dec, ::dcp,
-            ::cpx, ::sbc, ::nop, ::isb, ::cpx, ::sbc, ::inc, ::isb, ::inx, ::sbc, ::nop, ::sbc, ::cpx, ::sbc, ::inc, ::isb,
-            ::beq, ::sbc, ::hlt, ::isb, ::nop, ::sbc, ::inc, ::isb, ::sed, ::sbc, ::nop, ::isb, ::nop, ::sbc, ::inc, ::isb
-        )
-        // @formatter:on
-    }
-
-    inline var a: UByte
+    inline var a
         get() = state.a
         private set(value) {
-            state.a = setRegister(value)
+            state.a = register(value and 0xFF)
         }
 
-    inline var x: UByte
+    inline var x
         get() = state.x
         private set(value) {
-            state.x = setRegister(value)
+            state.x = register(value and 0xFF)
         }
 
-    inline var y: UByte
+    inline var y
         get() = state.y
         private set(value) {
-            state.y = setRegister(value)
+            state.y = register(value and 0xFF)
         }
 
-    inline var ps: UByte
+    inline var ps
         get() = state.ps
         private set(value) {
-            state.ps = value and 0xCFU
+            state.ps = value and 0xCF
         }
 
-    inline var pc: UShort
+    inline var pc
         get() = state.pc
         private set(value) {
-            state.pc = value
+            state.pc = value and 0xFFFF
         }
 
-    inline var sp: UByte
+    inline var sp
         get() = state.sp
         private set(value) {
-            state.sp = value
+            state.sp = value and 0xFF
         }
 
-    private inline fun fetchOperandValue(): UByte {
+    private inline fun fetchOperandValue(): Int {
         return if (addressMode.ordinal >= AddressMode.ZERO.ordinal) read(operand)
-        else operand.toUByte()
+        else operand and 0xFF
     }
 
     inline fun clearIRQSource(source: IRQSource) {
-        state.irq = state.irq and source.code.toUInt().inv()
+        state.irq = state.irq and source.code.inv()
     }
 
     inline fun setIRQSource(source: IRQSource) {
-        state.irq = state.irq or source.code.toUInt()
+        state.irq = state.irq or source.code
     }
 
     inline fun hasIRQSource(source: IRQSource): Boolean {
-        return (state.irq and source.code.toUInt()) != 0U
+        return (state.irq and source.code) != 0
     }
 
-    private inline fun setRegister(value: UByte): UByte {
-        clearFlag(PSFlag.ZERO)
-        clearFlag(PSFlag.NEGATIVE)
-        setZeroNegativeFlags(value)
+    private fun register(value: Int): Int {
+        ZERO.clear()
+        NEGATIVE.clear()
+        zeroNegativeFlags(value)
         return value
     }
 
-    private inline fun setZeroNegativeFlags(value: UByte) {
-        if (value.isZero) {
-            setFlag(PSFlag.ZERO)
+    private fun zeroNegativeFlags(value: Int) {
+        if (value and 0xFF == 0) {
+            ZERO.set()
         } else if (value.bit7) {
-            setFlag(PSFlag.NEGATIVE)
+            NEGATIVE.set()
         }
     }
 
-    private inline fun aac() {
+    internal fun aac() {
+        // println("aac")
         a = a and fetchOperandValue()
 
-        clearFlag(PSFlag.CARRY)
+        CARRY.clear()
 
-        if (checkFlag(PSFlag.NEGATIVE)) {
-            setFlag(PSFlag.CARRY)
+        if (NEGATIVE.isOn()) {
+            CARRY.set()
         }
     }
 
-    private inline fun adc() {
+    internal fun adc() {
+        // println("adc")
         add(fetchOperandValue())
     }
 
-    private inline fun add(value: UByte) {
-        val sum = (a + value + if (checkFlag(PSFlag.CARRY)) 0x01U else 0x00U).toUShort()
-        val result = sum.toUByte()
+    private fun add(value: Int) {
+        // println("add")
+        val sum = a + value + if (CARRY.isOn()) 0x01 else 0x00
+        val result = sum and 0xFF
 
-        clearFlag(PSFlag.CARRY)
-        clearFlag(PSFlag.NEGATIVE)
-        clearFlag(PSFlag.OVERFLOW)
-        clearFlag(PSFlag.ZERO)
+        CARRY.clear()
+        NEGATIVE.clear()
+        OVERFLOW.clear()
+        ZERO.clear()
 
-        setZeroNegativeFlags(result)
+        zeroNegativeFlags(result)
 
         // if(~(A() ^ value) & (A() ^ result) & 0x80)
         if (((a xor value).inv() and (a xor result)).bit7) {
-            setFlag(PSFlag.OVERFLOW)
+            OVERFLOW.set()
         }
-        if (sum > 0xFFU) {
-            setFlag(PSFlag.CARRY)
+        if (sum > 0xFF) {
+            CARRY.set()
         }
 
         a = result
     }
 
-    private inline fun and() {
+    internal fun and() {
+        // println("and")
         a = a and fetchOperandValue()
     }
 
-    private inline fun arr() {
-        a = ((a and fetchOperandValue()) shr 1) or if (checkFlag(PSFlag.CARRY)) 0x80U else 0x00U
+    internal fun arr() {
+        // println("arr")
+        a = (a and fetchOperandValue() shr 1) or if (CARRY.isOn()) 0x80 else 0x00
 
-        clearFlag(PSFlag.CARRY)
-        clearFlag(PSFlag.OVERFLOW)
+        CARRY.clear()
+        OVERFLOW.clear()
 
         if (a.bit6) {
-            setFlag(PSFlag.CARRY)
+            CARRY.set()
         }
 
-        if (checkFlag(PSFlag.CARRY) xor a.bit5) {
-            setFlag(PSFlag.OVERFLOW)
+        if (CARRY.isOn() xor a.bit5) {
+            OVERFLOW.set()
         }
     }
 
-    private inline fun asl(value: UByte): UByte {
-        clearFlag(PSFlag.CARRY)
-        clearFlag(PSFlag.NEGATIVE)
-        clearFlag(PSFlag.ZERO)
+    private fun asl(value: Int): Int {
+        // println("asl")
+        CARRY.clear()
+        NEGATIVE.clear()
+        ZERO.clear()
 
         if (value.bit7) {
-            setFlag(PSFlag.CARRY)
+            CARRY.set()
         }
 
-        val result = (value.toUInt() shl 1).toUByte()
-        setZeroNegativeFlags(result)
+        val result = value shl 1
+        zeroNegativeFlags(result)
         return result
     }
 
-    private inline fun aslAcc() {
+    internal fun aslAcc() {
+        // println("aslAcc")
         a = asl(a)
     }
 
-    private inline fun aslMem() {
+    internal fun aslMem() {
+        // println("aslMem")
         val addr = operand
         val value = read(addr)
         write(addr, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
         write(addr, asl(value))
     }
 
-    private inline fun asr() {
-        clearFlag(PSFlag.CARRY)
+    internal fun asr() {
+        // println("asr")
+        CARRY.clear()
 
         a = a and fetchOperandValue()
 
         if (a.bit0) {
-            setFlag(PSFlag.CARRY)
+            CARRY.set()
         }
 
         a = a shr 1
     }
 
-    private inline fun atx() {
-        // LDA & TAX
+    internal fun atx() {
+        // println("atx")
         a = fetchOperandValue() // LDA
         x = a // TAX
         a = a // Update flags based on A
     }
 
-    private inline fun axa() {
+    internal fun axa() {
+        // println("axa")
         val addr = operand
-        // This opcode stores the result of A AND X AND the high byte of the target address of the operand +1 in memory.
-        // This may not be the actual behavior, but the read/write operations are needed for proper cycle counting
-        write(operand, ((addr.hiByte + 1U) and a.toUInt() and x.toUInt()).toUByte())
+        // This opcode stores the result of A AND X AND the high byte of the
+        // target address of the operand +1 in memory.
+        // This may not be the actual behavior, but the read/write operations are
+        // needed for proper cycle counting.
+        write(addr, (addr.hiByte + 1) and a and x)
     }
 
-    private inline fun axs() {
-        // CMP & DEX
+    internal fun axs() {
+        // println("axs")
         val value = fetchOperandValue()
-        val ax = a and x
-        val result = (ax - value).toUByte()
+        val ax = a and x and 0xFF
+        val result = ax - value
 
-        clearFlag(PSFlag.CARRY)
+        CARRY.clear()
 
         if (ax >= value) {
-            setFlag(PSFlag.CARRY)
+            CARRY.set()
         }
 
         x = result
     }
 
-    private inline fun branchRelative(branch: Boolean) {
+    private fun branchRelative(branch: Boolean) {
         if (branch) {
             val offset = operand.toByte()
 
@@ -281,209 +278,241 @@ class Cpu(val console: Console) :
 
             dummyRead()
 
-            if (isPageCrossed(pc, offset)) {
+            if (isSignedPageCrossed(pc, offset)) {
                 dummyRead()
             }
 
-            pc = (pc.toInt() + offset).toUShort()
+            pc += offset
         }
     }
 
-    private inline fun bcc() {
-        branchRelative(!checkFlag(PSFlag.CARRY))
+    internal fun bcc() {
+        // println("bcc")
+        branchRelative(CARRY.isOff())
     }
 
-    private inline fun bcs() {
-        branchRelative(checkFlag(PSFlag.CARRY))
+    internal fun bcs() {
+        // println("bcs")
+        branchRelative(CARRY.isOn())
     }
 
-    private inline fun beq() {
-        branchRelative(checkFlag(PSFlag.ZERO))
+    internal fun beq() {
+        // println("beq")
+        branchRelative(ZERO.isOn())
     }
 
-    private inline fun bit() {
+    internal fun bit() {
+        // println("bit")
         val value = fetchOperandValue()
 
-        clearFlag(PSFlag.ZERO)
-        clearFlag(PSFlag.OVERFLOW)
-        clearFlag(PSFlag.NEGATIVE)
+        ZERO.clear()
+        OVERFLOW.clear()
+        NEGATIVE.clear()
 
-        if ((a and value).isZero) {
-            setFlag(PSFlag.ZERO)
+        if ((a and value) == 0) {
+            ZERO.set()
         }
         if (value.bit6) {
-            setFlag(PSFlag.OVERFLOW)
+            OVERFLOW.set()
         }
         if (value.bit7) {
-            setFlag(PSFlag.NEGATIVE)
+            NEGATIVE.set()
         }
     }
 
-    private inline fun bmi() {
-        branchRelative(checkFlag(PSFlag.NEGATIVE))
+    internal fun bmi() {
+        // println("bmi")
+        branchRelative(NEGATIVE.isOn())
     }
 
-    private inline fun bne() {
-        branchRelative(!checkFlag(PSFlag.ZERO))
+    internal fun bne() {
+        // println("bne")
+        branchRelative(ZERO.isOff())
     }
 
-    private inline fun bpl() {
-        branchRelative(!checkFlag(PSFlag.NEGATIVE))
+    internal fun bpl() {
+        // println("bpl")
+        branchRelative(NEGATIVE.isOff())
     }
 
-    private inline fun brk() {
-        push(pc.plusOne())
+    internal fun brk() {
+        // println("brk")
+        push16(pc + 1)
 
-        val flags = ps or PSFlag.BREAK.code or PSFlag.RESERVED.code
+        val flags = ps or BREAK.code or RESERVED.code
 
-        if (isNeedNmi) {
-            isNeedNmi = false
+        if (needNmi) {
+            needNmi = false
 
-            push(flags)
-            setFlag(PSFlag.INTERRUPT)
+            push8(flags)
+            INTERRUPT.set()
 
             pc = readWord(NMI_VECTOR)
         } else {
-            push(flags)
-            setFlag(PSFlag.INTERRUPT)
+            push8(flags)
+            INTERRUPT.set()
 
             pc = readWord(IRQ_VECTOR)
         }
 
-        // Ensure we don't start an NMI right after running a BRK instruction (first instruction in IRQ handler must run first - needed for nmi_and_brk test)
-        prevIsNeedNmi = false
+        // Ensure we don't start an NMI right after running a BRK instruction
+        // (first instruction in IRQ handler must run first - needed for nmi_and_brk test).
+        prevNeedNmi = false
     }
 
-    private inline fun bvc() {
-        branchRelative(!checkFlag(PSFlag.OVERFLOW))
+    internal fun bvc() {
+        // println("bvc")
+        branchRelative(OVERFLOW.isOff())
     }
 
-    private inline fun bvs() {
-        branchRelative(checkFlag(PSFlag.OVERFLOW))
+    internal fun bvs() {
+        // println("bvs")
+        branchRelative(OVERFLOW.isOn())
     }
 
-    private inline fun clc() {
-        clearFlag(PSFlag.CARRY)
+    internal fun clc() {
+        // println("clc")
+        CARRY.clear()
     }
 
-    private inline fun cld() {
-        clearFlag(PSFlag.DECIMAL)
+    internal fun cld() {
+        // println("cld")
+        DECIMAL.clear()
     }
 
-    private inline fun cli() {
-        clearFlag(PSFlag.INTERRUPT)
+    internal fun cli() {
+        // println("cli")
+        INTERRUPT.clear()
     }
 
-    private inline fun clv() {
-        clearFlag(PSFlag.OVERFLOW)
+    internal fun clv() {
+        // println("clv")
+        OVERFLOW.clear()
     }
 
-    private inline fun cpa() {
+    internal fun cpa() {
+        // println("cpa")
         cmp(a, fetchOperandValue())
     }
 
-    private inline fun cpx() {
+    internal fun cpx() {
+        // println("cpx")
         cmp(x, fetchOperandValue())
     }
 
-    private inline fun cpy() {
+    internal fun cpy() {
+        // println("cpy")
         cmp(y, fetchOperandValue())
     }
 
-    private inline fun dcp() {
-        //DEC & CMP
+    internal fun dcp() {
+        // println("dcp")
         var value = fetchOperandValue()
         write(operand, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
         value--
-        cmp(a, value)
+        cmp(a, value and 0xFF)
         write(operand, value)
     }
 
-    private inline fun dec() {
+    internal fun dec() {
+        // println("dec")
         val addr = operand
 
-        clearFlag(PSFlag.NEGATIVE)
-        clearFlag(PSFlag.ZERO)
+        NEGATIVE.clear()
+        ZERO.clear()
 
         var value = read(addr)
 
         write(addr, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
 
         value--
-        setZeroNegativeFlags(value)
+
+        zeroNegativeFlags(value)
         write(addr, value)
     }
 
-    private inline fun dex() {
+    internal fun dex() {
+        // println("dex")
         x--
     }
 
-    private inline fun dey() {
+    internal fun dey() {
+        // println("dey")
         y--
     }
 
-    private inline fun eor() {
+    internal fun eor() {
+        // println("eor")
         a = a xor fetchOperandValue()
     }
 
-    @Suppress("UNUSED_VARIABLE")
-    private inline fun hlt() {
-        // Normally freezes the cpu, we can probably assume nothing will ever call this
-        val value = fetchOperandValue()
+    internal fun hlt() {
+        // println("hlt")
+        // Normally freezes the cpu, we can probably assume nothing will ever call this.
+        fetchOperandValue()
     }
 
-    private inline fun inc() {
+    internal fun inc() {
+        // println("inc")
         val addr = operand
 
-        clearFlag(PSFlag.NEGATIVE)
-        clearFlag(PSFlag.ZERO)
+        NEGATIVE.clear()
+        ZERO.clear()
 
         var value = read(addr)
 
         write(addr, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
 
         value++
-        setZeroNegativeFlags(value)
+
+        zeroNegativeFlags(value)
         write(addr, value)
     }
 
-    private inline fun inx() {
+    internal fun inx() {
+        // println("inx")
         x++
     }
 
-    private inline fun iny() {
+    internal fun iny() {
+        // println("iny")
         y++
     }
 
-    private inline fun isb() {
-        // INC & SBC
+    internal fun isb() {
+        // println("isb")
         var value = fetchOperandValue()
         write(operand, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
         value++
-        add(value xor 0xFFU)
+        add(value and 0xFF xor 0xFF) // TODO: VERIFICAR AND 0xFF ESTÁ CORRETO
         write(operand, value)
     }
 
-    private inline fun jmp(addr: UShort) {
+    internal fun jmp(addr: Int) {
+        // println("jmp")
         pc = addr
     }
 
-    private inline fun jmpAbs() {
+    internal fun jmpAbs() {
+        // println("jmpAbs")
         jmp(operand)
     }
 
-    private inline fun jmpInd() {
-        jmp(getInd())
+    internal fun jmpInd() {
+        // println("jmpInd")
+        jmp(readInd())
     }
 
-    private inline fun jsr() {
+    internal fun jsr() {
+        // println("jsr")
         val addr = operand
         dummyRead()
-        push(pc.minusOne())
+        push16(pc - 1)
         jmp(addr)
     }
 
-    private inline fun las() {
+    internal fun las() {
+        // println("las")
         // AND memory with stack pointer, transfer result to accumulator,
         // X register and stack pointer.
         val value = fetchOperandValue()
@@ -492,80 +521,91 @@ class Cpu(val console: Console) :
         sp = a
     }
 
-    private inline fun lax() {
-        // LDA & LDX
+    internal fun lax() {
+        // println("lax")
         val value = fetchOperandValue()
         x = value
         a = value
     }
 
-    private inline fun lda() {
+    internal fun lda() {
+        // println("lda")
         a = fetchOperandValue()
     }
 
-    private inline fun ldx() {
+    internal fun ldx() {
+        // println("ldx")
         x = fetchOperandValue()
     }
 
-    private inline fun ldy() {
+    internal fun ldy() {
+        // println("ldy")
         y = fetchOperandValue()
     }
 
-    private inline fun lsr(value: UByte): UByte {
-        clearFlag(PSFlag.CARRY)
-        clearFlag(PSFlag.NEGATIVE)
-        clearFlag(PSFlag.ZERO)
+    private fun lsr(value: Int): Int {
+        // println("lsr")
+        CARRY.clear()
+        NEGATIVE.clear()
+        ZERO.clear()
 
         if (value.bit0) {
-            setFlag(PSFlag.CARRY)
+            CARRY.set()
         }
 
         val result = value shr 1
-        setZeroNegativeFlags(result)
+        zeroNegativeFlags(result)
         return result
     }
 
-    private inline fun lsrAcc() {
+    internal fun lsrAcc() {
+        // println("lsrAcc")
         a = lsr(a)
     }
 
-    private inline fun lsrMem() {
+    internal fun lsrMem() {
+        // println("lsrMem")
         val addr = operand
         val value = read(addr)
         write(addr, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
         write(addr, lsr(value))
     }
 
-    @Suppress("UNUSED_VARIABLE")
-    private inline fun nop() {
+    internal fun nop() {
+        // println("nop")
         // Make sure the nop operation takes as many cycles as meant to
-        val value = fetchOperandValue()
+        fetchOperandValue()
     }
 
-    private inline fun ora() {
+    internal fun ora() {
+        // println("ora")
         a = a or fetchOperandValue()
     }
 
-    private inline fun pha() {
-        push(a)
+    internal fun pha() {
+        // println("pha")
+        push8(a)
     }
 
-    private inline fun php() {
-        push(ps or PSFlag.BREAK.code or PSFlag.RESERVED.code)
+    internal fun php() {
+        // println("php")
+        push8(ps or BREAK.code or RESERVED.code)
     }
 
-    private inline fun pla() {
+    internal fun pla() {
+        // println("pla")
         dummyRead()
-        a = pop()
+        a = pop8()
     }
 
-    private inline fun plp() {
+    internal fun plp() {
+        // println("plp")
         dummyRead()
-        ps = pop()
+        ps = pop8()
     }
 
-    private inline fun rla() {
-        // LSR & EOR
+    internal fun rla() {
+        // println("rla")
         val value = fetchOperandValue()
         write(operand, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
         val shiftedValue = rol(value)
@@ -573,62 +613,68 @@ class Cpu(val console: Console) :
         write(operand, shiftedValue)
     }
 
-    private inline fun rol(value: UByte): UByte {
-        val isCarry = checkFlag(PSFlag.CARRY)
+    private fun rol(value: Int): Int {
+        // println("rol")
+        val isCarry = CARRY.isOn()
 
-        clearFlag(PSFlag.CARRY)
-        clearFlag(PSFlag.NEGATIVE)
-        clearFlag(PSFlag.ZERO)
+        CARRY.clear()
+        NEGATIVE.clear()
+        ZERO.clear()
 
         if (value.bit7) {
-            setFlag(PSFlag.CARRY)
+            CARRY.set()
         }
 
-        val result = (value.toUInt() shl 1).toUByte() or if (isCarry) 0x01U else 0x00U
-        setZeroNegativeFlags(result)
+        val result = (value shl 1) or if (isCarry) 0x01 else 0x00
+        zeroNegativeFlags(result)
         return result
     }
 
-    private inline fun rolAcc() {
+    internal fun rolAcc() {
+        // println("rolAcc")
         a = rol(a)
     }
 
-    private inline fun rolMem() {
+    internal fun rolMem() {
+        // println("rolMem")
         val addr = operand
         val value = read(addr)
         write(addr, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
         write(addr, rol(value))
     }
 
-    private inline fun ror(value: UByte): UByte {
-        val isCarry = checkFlag(PSFlag.CARRY)
+    private fun ror(value: Int): Int {
+        // println("ror")
+        val carry = CARRY.isOn()
 
-        clearFlag(PSFlag.CARRY)
-        clearFlag(PSFlag.NEGATIVE)
-        clearFlag(PSFlag.ZERO)
+        CARRY.clear()
+        NEGATIVE.clear()
+        ZERO.clear()
 
         if (value.bit0) {
-            setFlag(PSFlag.CARRY)
+            CARRY.set()
         }
 
-        val result = (value shr 1) or if (isCarry) 0x80U else 0x00U
-        setZeroNegativeFlags(result)
+        val result = (value shr 1) or if (carry) 0x80 else 0x00
+        zeroNegativeFlags(result)
         return result
     }
 
-    private inline fun rorAcc() {
+    internal fun rorAcc() {
+        // println("rorAcc")
         a = ror(a)
     }
 
-    private inline fun rorMem() {
+    internal fun rorMem() {
+        // println("rorMem")
         val addr = operand
         val value = read(addr)
         write(addr, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
         write(addr, ror(value))
     }
 
-    private inline fun rra() {
-        // ROR & ADC
+    internal fun rra() {
+        // println("rra")
         val value = fetchOperandValue()
         write(operand, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
         val shiftedValue = ror(value)
@@ -636,42 +682,48 @@ class Cpu(val console: Console) :
         write(operand, shiftedValue)
     }
 
-    private inline fun rti() {
+    internal fun rti() {
+        // println("rti")
         dummyRead()
-        ps = pop()
-        pc = popWord()
+        ps = pop8()
+        pc = pop16()
     }
 
-    private inline fun rts() {
-        val addr = popWord()
+    internal fun rts() {
+        // println("rts")
+        val addr = pop16()
         dummyRead()
         dummyRead()
-        pc = (addr + 1U).toUShort()
+        pc = addr + 1
     }
 
-    private inline fun sax() {
-        // STA & STX
+    internal fun sax() {
+        // println("sax")
         write(operand, a and x)
     }
 
-    private inline fun sbc() {
-        add(fetchOperandValue() xor 0xFFU)
+    internal fun sbc() {
+        // println("sbc")
+        add(fetchOperandValue() xor 0xFF)
     }
 
-    private inline fun sec() {
-        setFlag(PSFlag.CARRY)
+    internal fun sec() {
+        // println("sec")
+        CARRY.set()
     }
 
-    private inline fun sed() {
-        setFlag(PSFlag.DECIMAL)
+    internal fun sed() {
+        // println("sed")
+        DECIMAL.set()
     }
 
-    private inline fun sei() {
-        setFlag(PSFlag.INTERRUPT)
+    internal fun sei() {
+        // println("sei")
+        INTERRUPT.set()
     }
 
-    private inline fun slo() {
-        // ASL & ORA
+    internal fun slo() {
+        // println("slo")
         val value = fetchOperandValue()
         write(operand, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
         val shiftedValue = asl(value)
@@ -679,8 +731,8 @@ class Cpu(val console: Console) :
         write(operand, shiftedValue)
     }
 
-    private inline fun sre() {
-        // ROL & AND
+    internal fun sre() {
+        // println("sre")
         val value = fetchOperandValue()
         write(operand, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
         val shiftedValue = lsr(value)
@@ -688,121 +740,132 @@ class Cpu(val console: Console) :
         write(operand, shiftedValue)
     }
 
-    private inline fun sta() {
+    internal fun sta() {
+        // println("sta")
         write(operand, a)
     }
 
-    private inline fun stx() {
+    internal fun stx() {
+        // println("stx")
         write(operand, x)
     }
 
-    private inline fun sty() {
+    internal fun sty() {
+        // println("sty")
         write(operand, y)
     }
 
-    private inline fun sxa() {
+    internal fun sxa() {
+        // println("sxa")
         val hi = operand.hiByte
         val lo = operand.loByte
-        val value = (x.toUInt() and (hi + 1U)).toUByte()
+        val value = x and (hi + 1)
 
-        write((((x.toUInt() and (hi + 1U)) shl 8) or lo.toUInt()).toUShort(), value)
+        write(x and (hi + 1) shl 8 or lo, value)
     }
 
-    private inline fun sya() {
+    internal fun sya() {
+        // println("sya")
         val hi = operand.hiByte
         val lo = operand.loByte
-        val value = (y.toUInt() and (hi + 1U)).toUByte()
+        val value = y and (hi + 1)
 
         // From here: http://forums.nesdev.com/viewtopic.php?f=3&t=3831&start=30
         // Unsure if this is accurate or not
         // the target address for e.g. SYA becomes ((y & (addr_high + 1)) << 8) | addr_low instead of the normal ((addr_high + 1) << 8) | addr_low
-        write((((y.toUInt() and (hi + 1U)) shl 8) or lo.toUInt()).toUShort(), value)
+        write(y and (hi + 1) shl 8 or lo, value)
     }
 
-    private inline fun tas() {
+    internal fun tas() {
+        // println("tas")
         // AND X register with accumulator and store result in stack
         // pointer, then AND stack pointer with the high byte of the
         // target address of the argument + 1. Store result in memory.
         val addr = operand
         sp = x and a
-        write(addr, (sp.toUInt() and (addr.hiByte + 1U)).toUByte())
+        write(addr, sp and (addr.hiByte + 1) and 0xFFFF)
     }
 
-    private inline fun tax() {
+    internal fun tax() {
+        // println("tax")
         x = a
     }
 
-    private inline fun tay() {
+    internal fun tay() {
+        // println("tay")
         y = a
     }
 
-    private inline fun tsx() {
+    internal fun tsx() {
+        // println("tsx")
         x = sp
     }
 
-    private inline fun txa() {
+    internal fun txa() {
+        // println("txa")
         a = x
     }
 
-    private inline fun txs() {
+    internal fun txs() {
+        // println("txs")
         sp = x
     }
 
-    private inline fun tya() {
+    internal fun tya() {
+        // println("tya")
         a = y
     }
 
-    @Suppress("UNUSED_VARIABLE")
-    private inline fun unk() {
-        // Make sure we take the right amount of cycles (not reliable for operations that write to memory, etc.)
-        val value = fetchOperandValue()
+    internal fun unk() {
+        // println("unk")
+        // Make sure we take the right amount of cycles
+        // (not reliable for operations that write to memory, etc).
+        fetchOperandValue()
     }
 
-    private inline fun cmp(reg: UByte, value: UByte) {
-        clearFlag(PSFlag.CARRY)
-        clearFlag(PSFlag.NEGATIVE)
-        clearFlag(PSFlag.ZERO)
+    private fun cmp(reg: Int, value: Int) {
+        CARRY.clear()
+        NEGATIVE.clear()
+        ZERO.clear()
 
         val result = reg - value
 
         if (reg >= value) {
-            setFlag(PSFlag.CARRY)
+            CARRY.set()
         }
         if (reg == value) {
-            setFlag(PSFlag.ZERO)
+            ZERO.set()
         }
-        if (result and 0x80U == 0x80U) {
-            setFlag(PSFlag.NEGATIVE)
+        if (result.bit7) {
+            NEGATIVE.set()
         }
     }
 
     fun reset(softReset: Boolean, region: Region) {
         state.nmi = false
-        state.irq = 0U
+        state.irq = 0
 
         spriteDmaTransfer = false
-        spriteDmaOffset = 0U
-        isNeedHalt = false
+        spriteDmaOffset = 0
+        needHalt = false
         dmcDmaRunning = false
 
-        // Used by NSF code to disable Frame Counter & DMC interrupts
-        irqMask = 0xFFU
+        // Used by NSF code to disable Frame Counter & DMC interrupts.
+        irqMask = 0xFF
 
-        // Use _memoryManager->Read() directly to prevent clocking the PPU/APU when setting PC at reset
-        state.pc = makeUShort(
-            memoryManager.read(RESET_VECTOR),
-            memoryManager.read(RESET_VECTOR.plusOne())
-        )
+        // Use _memoryManager->Read() directly to prevent clocking the PPU/APU
+        // when setting PC at reset.
+        state.pc = memoryManager.readWord(RESET_VECTOR)
 
         if (softReset) {
-            setFlag(PSFlag.INTERRUPT)
-            state.sp = (state.sp - 0x03U).toUByte()
+            INTERRUPT.set()
+            state.sp = (state.sp - 0x03) and 0xFF
         } else {
-            state.a = 0U
-            state.sp = 0xFDU
-            state.x = 0U
-            state.y = 0U
-            state.ps = PSFlag.INTERRUPT.code
+            state.a = 0
+            state.sp = 0xFD
+            state.x = 0
+            state.y = 0
+            state.ps = INTERRUPT.code
 
             runIrq = false
         }
@@ -830,43 +893,45 @@ class Cpu(val console: Console) :
 
         val cpuOffset: Int
 
-        if (console.settings.checkFlag(EmulationFlag.RANDOMIZE_CPU_PPU_ALIGNMENT)) {
-            ppuOffset = Random.nextInt(ppuDivider).toUByte()
+        if (console.settings.flag(EmulationFlag.RANDOMIZE_CPU_PPU_ALIGNMENT)) {
+            ppuOffset = Random.nextInt(ppuDivider)
             cpuOffset = Random.nextInt(cpuDivider)
         } else {
-            ppuOffset = 1U
+            ppuOffset = 1
             cpuOffset = 0
         }
 
         masterClock += cpuDivider + cpuOffset
 
-        // The CPU takes 8 cycles before it starts executing the ROM's code after a reset/power up
-        for (i in 0..7) {
+        // The CPU takes 8 cycles before it starts executing the ROM's
+        // code after a reset/power up.
+        repeat(8) {
             startCpuCycle(true)
             endCpuCycle(true)
         }
     }
 
-    private inline fun readOpcode(): UByte {
+    private inline fun readOpcode(): Int {
         return read(state.pc++, MemoryOperationType.OPCODE)
     }
 
-    private inline fun dummyRead() {
+    private inline fun dummyRead(): Int {
         read(state.pc, MemoryOperationType.DUMMY_READ)
+        return 0
     }
 
-    private inline fun readByte(): UByte {
+    private inline fun readByte(): Int {
         return read(state.pc++, MemoryOperationType.OPERAND)
     }
 
-    private inline fun readWord(): UShort {
+    private inline fun readWord(): Int {
         val value = readWord(state.pc, MemoryOperationType.OPERAND)
         state.pc++
         state.pc++
         return value
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte {
+    override fun read(addr: Int, type: MemoryOperationType): Int {
         processPendingDma(addr)
         startCpuCycle(true)
         val value = memoryManager.read(addr, type)
@@ -874,7 +939,7 @@ class Cpu(val console: Console) :
         return value
     }
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         isCpuWrite = true
         startCpuCycle(false)
         memoryManager.write(addr, value, type)
@@ -882,72 +947,77 @@ class Cpu(val console: Console) :
         isCpuWrite = false
     }
 
-    private inline fun push(value: UByte) {
-        write((sp + 0x100U).toUShort(), value)
+    private inline fun push8(value: Int) {
+        write(sp + 0x100, value)
         sp--
     }
 
-    private inline fun push(value: UShort) {
-        push(value.hiByte)
-        push(value.loByte)
+    private inline fun push16(value: Int) {
+        push8(value.hiByte)
+        push8(value.loByte)
     }
 
-    private inline fun pop(): UByte {
+    private inline fun pop8(): Int {
         sp++
-        return read((0x100U + sp).toUShort())
+        return read(0x100 + sp)
     }
 
-    private inline fun popWord(): UShort {
-        val lo = pop()
-        val hi = pop()
-        return makeUShort(lo, hi)
+    private inline fun pop16(): Int {
+        val lo = pop8()
+        val hi = pop8()
+        return lo or (hi shl 8)
     }
 
     private inline fun processCycle() {
-        // Sprite DMA cycles count as halt/dummy cycles for the DMC DMA when both run at the same time
-        if (isNeedHalt) {
-            isNeedHalt = false
-        } else if (isNeedDummyRead) {
-            isNeedDummyRead = false
+        // Sprite DMA cycles count as halt/dummy cycles for the DMC DMA when both
+        // run at the same time.
+        if (needHalt) {
+            needHalt = false
+        } else if (needDummyRead) {
+            needDummyRead = false
         }
 
         startCpuCycle(true)
     }
 
-    private inline fun processPendingDma(addr: UShort) {
-        if (!isNeedHalt) return
+    private fun processPendingDma(addr: Int) {
+        if (!needHalt) return
 
         startCpuCycle(true)
         memoryManager.read(addr, MemoryOperationType.DUMMY_READ)
         endCpuCycle(true)
 
-        isNeedHalt = false
+        needHalt = false
 
-        var spriteDmaCounter: UShort = 0U
-        var spriteReadAddr: UByte = 0U
-        var readValue: UByte = 0U
-        val skipDummyReads = addr.toUInt() == 0x4016U || addr.toUInt() == 0x4017U
+        var spriteDmaCounter = 0
+        var spriteReadAddr = 0
+        var readValue = 0
+        val skipDummyReads = addr == 0x4016 || addr == 0x4017
 
         while (dmcDmaRunning || spriteDmaTransfer) {
-            val isCycle = (cycleCount and 0x01) == 0L
+            val cycle = (cycleCount and 0x01) == 0L // TODO: VERIFICAR O Q ACONTECE SE USAR !=
 
-            if (isCycle) {
-                if (dmcDmaRunning && !isNeedHalt && !isNeedDummyRead) {
-                    // DMC DMA is ready to read a byte (both halt and dummy read cycles were performed before this)
+            // println("dma")
+
+            if (cycle) {
+                if (dmcDmaRunning && !needHalt && !needDummyRead) {
+                    // DMC DMA is ready to read a byte (both halt and dummy read
+                    // cycles were performed before this).
                     processCycle()
                     readValue = memoryManager.read(console.apu.dmcReadAddress, MemoryOperationType.DMC_READ)
                     endCpuCycle(true)
-                    console.apu.setDmcReadBuffer(readValue)
+                    console.apu.dmcReadBuffer(readValue)
                     dmcDmaRunning = false
                 } else if (spriteDmaTransfer) {
-                    // DMC DMA is not running, or not ready, run sprite DMA
+                    // DMC DMA is not running, or not ready, run sprite DMA.
                     processCycle()
-                    readValue = memoryManager.read((spriteDmaOffset * 0x100U + spriteReadAddr).toUShort())
+                    readValue = memoryManager.read(spriteDmaOffset * 0x100 + spriteReadAddr)
                     endCpuCycle(true)
                     spriteReadAddr++
                     spriteDmaCounter++
                 } else {
-                    // DMC DMA is running, but not ready (need halt/dummy read) and sprite DMA isn't runnnig, perform a dummy read
+                    // DMC DMA is running, but not ready (need halt/dummy read)
+                    // and sprite DMA isn't runnnig, perform a dummy read.
                     // assert(isNeedHalt || isNeedDummyRead)
                     processCycle()
 
@@ -959,17 +1029,19 @@ class Cpu(val console: Console) :
                 }
             } else {
                 if (spriteDmaTransfer && spriteDmaCounter.bit0) {
-                    //Sprite DMA write cycle (only do this if a sprite dma read was performed last cycle)
+                    //Sprite DMA write cycle (only do this if a sprite dma read
+                    // was performed last cycle).
                     processCycle()
-                    memoryManager.write(0x2004U, readValue)
+                    memoryManager.write(0x2004, readValue)
                     endCpuCycle(true)
                     spriteDmaCounter++
 
-                    if (spriteDmaCounter.toUInt() == 0x200U) {
+                    if (spriteDmaCounter == 0x200) {
                         spriteDmaTransfer = false
                     }
                 } else {
-                    // Align to read cycle before starting sprite DMA (or align to perform DMC read)
+                    // Align to read cycle before starting sprite DMA
+                    // (or align to perform DMC read).
                     processCycle()
 
                     if (!skipDummyReads) {
@@ -982,26 +1054,26 @@ class Cpu(val console: Console) :
         }
     }
 
-    private inline fun startCpuCycle(forRead: Boolean) {
-        masterClock += if (forRead) startClockCount.toInt() - 1 else startClockCount.toInt() + 1
+    private fun startCpuCycle(forRead: Boolean) {
+        masterClock += if (forRead) startClockCount - 1 else startClockCount + 1
         cycleCount++
-        console.ppu.run(masterClock - ppuOffset.toInt())
+        console.ppu.run(masterClock - ppuOffset)
         console.processCpuClock()
     }
 
-    private inline fun endCpuCycle(forRead: Boolean) {
-        masterClock += if (forRead) endClockCount.toInt() + 1 else endClockCount.toInt() - 1
-        console.ppu.run(masterClock - ppuOffset.toInt())
+    private fun endCpuCycle(forRead: Boolean) {
+        masterClock += if (forRead) endClockCount + 1 else endClockCount - 1
+        console.ppu.run(masterClock - ppuOffset)
 
         // The internal signal goes high during φ1 of the cycle that follows the one where the edge is detected,
         // and stays high until the NMI has been handled.
-        prevIsNeedNmi = isNeedNmi
+        prevNeedNmi = needNmi
 
         // This edge detector polls the status of the NMI line during φ2 of each CPU cycle (i.e., during the
         // second half of each cycle) and raises an internal signal if the input goes from being high during
         // one cycle to being low during the next
         if (!prevNmiFlag && state.nmi) {
-            isNeedNmi = true
+            needNmi = true
         }
 
         prevNmiFlag = state.nmi
@@ -1009,225 +1081,222 @@ class Cpu(val console: Console) :
         // it's really the status of the interrupt lines at the end of the second-to-last cycle that matters.
         // Keep the irq lines values from the previous cycle.  The before-to-last cycle's values will be used
         prevRunIrq = runIrq
-        runIrq = (state.irq and irqMask.toUInt()) > 0U && !checkFlag(PSFlag.INTERRUPT)
+        runIrq = (state.irq and irqMask) > 0 && INTERRUPT.isOff()
     }
 
-    private inline fun checkFlag(flag: PSFlag): Boolean {
-        return state.ps and flag.code == flag.code
+    private inline fun PSFlag.isOn(): Boolean {
+        return state.ps and code == code
     }
 
-    private inline fun clearFlag(flag: PSFlag) {
-        state.ps = state.ps and flag.code.inv()
+    private inline fun PSFlag.isOff(): Boolean {
+        return state.ps and code != code
     }
 
-    private inline fun setFlag(flag: PSFlag) {
-        state.ps = state.ps or flag.code
+    private inline fun PSFlag.clear() {
+        state.ps = state.ps and code.inv()
     }
 
-    fun runDmaTransfer(offset: UByte) {
+    private inline fun PSFlag.set() {
+        state.ps = state.ps or code
+    }
+
+    fun runDmaTransfer(offset: Int) {
         spriteDmaTransfer = true
         spriteDmaOffset = offset
-        isNeedHalt = true
+        needHalt = true
     }
 
     fun startDmcTransfer() {
         dmcDmaRunning = true
-        isNeedDummyRead = true
-        isNeedHalt = true
+        needDummyRead = true
+        needHalt = true
     }
 
     fun exec() {
-        val opcode = readOpcode().toInt()
+        val opcode = readOpcode()
         addressMode = ADDRESS_MODES[opcode]
         operand = fetchOperand()
 
-        opTable[opcode]()
+        cpuInstruction.execute(opcode)
 
-        if (prevRunIrq || prevIsNeedNmi) {
+        if (prevRunIrq || prevNeedNmi) {
             irq()
         }
     }
 
-    private inline fun fetchOperand(): UShort {
+    private fun fetchOperand(): Int {
         when (addressMode) {
             AddressMode.ACC,
-            AddressMode.IMP -> {
-                dummyRead()
-                return 0U
-            }
+            AddressMode.IMP -> return dummyRead()
             AddressMode.IMM,
-            AddressMode.REL -> return getImmediate().toUShort()
-            AddressMode.ZERO -> return getZeroAddr().toUShort()
-            AddressMode.ZERO_X -> return getZeroXAddr().toUShort()
-            AddressMode.ZERO_Y -> return getZeroYAddr().toUShort()
-            AddressMode.IND -> return getIndAddr()
-            AddressMode.IND_X -> return getIndXAddr()
-            AddressMode.IND_Y -> return getIndYAddr(false)
-            AddressMode.IND_YW -> return getIndYAddr(true)
-            AddressMode.ABS -> return getAbsAddr()
-            AddressMode.ABS_X -> return getAbsXAddr(false)
-            AddressMode.ABS_XW -> return getAbsXAddr(true)
-            AddressMode.ABS_Y -> return getAbsYAddr(false)
-            AddressMode.ABS_YW -> return getAbsYAddr(true)
-            AddressMode.NONE -> {
-            }
+            AddressMode.REL -> return readImmediate()
+            AddressMode.ZERO -> return readZeroAddr()
+            AddressMode.ZERO_X -> return readZeroXAddr()
+            AddressMode.ZERO_Y -> return readZeroYAddr()
+            AddressMode.IND -> return readIndAddr()
+            AddressMode.IND_X -> return readIndXAddr()
+            AddressMode.IND_Y -> return readIndYAddr(false)
+            AddressMode.IND_YW -> return readIndYAddr(true)
+            AddressMode.ABS -> return readAbsAddr()
+            AddressMode.ABS_X -> return readAbsXAddr(false)
+            AddressMode.ABS_XW -> return readAbsXAddr(true)
+            AddressMode.ABS_Y -> return readAbsYAddr(false)
+            AddressMode.ABS_YW -> return readAbsYAddr(true)
+            AddressMode.NONE -> Unit
         }
 
-        // if (console.settings.checkFlag(EmulationFlag.BreakOnCrash)) {
-        // When "Break on Crash" is enabled, open the debugger and break immediately if a crash occurs
-        // }
-
-        if (console.isNsf) {
+        if (console.nsf) {
             // Don't stop emulation on CPU crash when playing NSFs, reset cpu instead
             console.reset(true)
         }
 
-        return 0U
+        return 0
     }
 
-    private inline fun irq() {
+    private fun irq() {
         // Fetch opcode (and discard it - $00 (BRK) is forced into the opcode register instead)
         dummyRead()
-        // Read next instruction byte (actually the same as above, since PC increment is suppressed. Also discarded.)
+        // Read next instruction byte (actually the same as above,
+        // since PC increment is suppressed. Also discarded).
         dummyRead()
 
-        push(pc)
+        push16(pc)
 
-        if (isNeedNmi) {
-            isNeedNmi = false
+        if (needNmi) {
+            needNmi = false
 
-            push((this.ps or PSFlag.RESERVED.code))
-            setFlag(PSFlag.INTERRUPT)
+            push8(ps or RESERVED.code)
+            INTERRUPT.set()
 
             pc = readWord(NMI_VECTOR)
         } else {
-            push((this.ps or PSFlag.RESERVED.code))
-            setFlag(PSFlag.INTERRUPT)
+            push8(ps or RESERVED.code)
+            INTERRUPT.set()
 
             pc = readWord(IRQ_VECTOR)
         }
     }
 
-    private inline fun getImmediate() = readByte()
+    private inline fun readImmediate() = readByte()
 
-    private inline fun getIndAddr() = readWord()
+    private inline fun readIndAddr() = readWord()
 
-    private inline fun getZeroAddr() = readByte()
+    private inline fun readZeroAddr() = readByte()
 
-    private inline fun getZeroXAddr(): UByte {
+    private fun readZeroXAddr(): Int {
         val value = readByte()
-        read(value.toUShort(), MemoryOperationType.DUMMY_READ)
-        return (value + x).toUByte()
+        read(value, MemoryOperationType.DUMMY_READ)
+        return (value + x) and 0xFF
     }
 
-    private inline fun getZeroYAddr(): UByte {
+    private fun readZeroYAddr(): Int {
         val value = readByte()
-        read(value.toUShort(), MemoryOperationType.DUMMY_READ)
-        return (value + y).toUByte()
+        read(value, MemoryOperationType.DUMMY_READ)
+        return (value + y) and 0xFF
     }
 
-    private inline fun getAbsAddr() = readWord()
+    private inline fun readAbsAddr() = readWord()
 
-    private inline fun getAbsXAddr(dummyRead: Boolean): UShort {
+    private fun readAbsXAddr(dummyRead: Boolean): Int {
         val base = readWord()
         val pageCrossed = isPageCrossed(base, x)
 
         if (pageCrossed || dummyRead) {
             // Dummy read done by the processor (only when page is crossed for READ instructions)
-            read((base + x - if (pageCrossed) 0x100U else 0U).toUShort(), MemoryOperationType.DUMMY_READ)
+            read(base + x - if (pageCrossed) 0x100 else 0, MemoryOperationType.DUMMY_READ)
         }
 
-        return (base + x).toUShort()
+        return (base + x) and 0xFFFF
     }
 
-    private inline fun getAbsYAddr(dummyRead: Boolean): UShort {
+    private fun readAbsYAddr(dummyRead: Boolean): Int {
         val base = readWord()
         val pageCrossed = isPageCrossed(base, y)
 
         if (pageCrossed || dummyRead) {
             // Dummy read done by the processor (only when page is crossed for READ instructions)
-            read((base + y - if (pageCrossed) 0x100U else 0U).toUShort(), MemoryOperationType.DUMMY_READ)
+            read(base + y - if (pageCrossed) 0x100 else 0, MemoryOperationType.DUMMY_READ)
         }
 
-        return (base + y).toUShort()
+        return (base + y) and 0xFFFF
     }
 
-    private inline fun getInd(): UShort {
+    private fun readInd(): Int {
         val addr = operand
 
-        return if (addr.toUInt() and 0xFFU == 0xFFU) {
+        return if (addr and 0xFF == 0xFF) {
             val lo = read(addr)
-            val hi = read((addr - 0xFFU).toUShort())
-            makeUShort(lo, hi)
+            val hi = read(addr - 0xFF)
+            lo or (hi shl 8)
         } else {
             readWord(addr)
         }
     }
 
-    private inline fun getIndXAddr(): UShort {
+    private fun readIndXAddr(): Int {
         var zero = readByte()
 
         // Dummy read
-        read(zero.toUShort(), MemoryOperationType.DUMMY_READ)
+        read(zero, MemoryOperationType.DUMMY_READ)
 
-        zero = (zero + x).toUByte()
+        zero = (zero + x) and 0xFF
 
-        return if (zero.toUInt() == 0xFFU) {
-            val lo = read(0xFFU)
-            val hi = read(0x00U)
-            makeUShort(lo, hi)
+        return if (zero == 0xFF) {
+            val lo = read(0xFF)
+            val hi = read(0x00)
+            lo or (hi shl 8)
         } else {
-            readWord(zero.toUShort())
+            readWord(zero)
         }
     }
 
-    private inline fun getIndYAddr(dummyRead: Boolean): UShort {
+    private fun readIndYAddr(dummyRead: Boolean): Int {
         val zero = readByte()
 
-        val addr = if (zero.toUInt() == 0xFFU) {
-            val lo = read(0xFFU)
-            val hi = read(0x00U)
-            makeUShort(lo, hi)
+        val addr = if (zero == 0xFF) {
+            val lo = read(0xFF)
+            val hi = read(0x00)
+            lo or (hi shl 8)
         } else {
-            readWord(zero.toUShort())
+            readWord(zero)
         }
 
         val pageCrossed = isPageCrossed(addr, y)
 
         if (pageCrossed || dummyRead) {
             // Dummy read done by the processor (only when page is crossed for READ instructions)
-            read((addr + y - if (pageCrossed) 0x100U else 0U).toUShort(), MemoryOperationType.DUMMY_READ)
+            read(addr + y - if (pageCrossed) 0x100 else 0, MemoryOperationType.DUMMY_READ)
         }
 
-        return (addr + y).toUShort()
+        return (addr + y) and 0xFFFF
     }
 
-    private inline fun isPageCrossed(a: UShort, b: Byte): Boolean {
-        return ((a.toInt() + b) and 0xFF00) != (a.toInt() and 0xFF00)
+    private inline fun isSignedPageCrossed(a: Int, b: Byte): Boolean {
+        return ((a + b) and 0xFF00) != (a and 0xFF00)
     }
 
-    private inline fun isPageCrossed(a: UShort, b: UByte): Boolean {
-        return ((a + b) and 0xFF00U) != (a.toUInt() and 0xFF00U)
+    private inline fun isPageCrossed(a: Int, b: Int): Boolean {
+        return ((a + b) and 0xFF00) != (a and 0xFF00)
     }
 
-    fun setMasterClockDivider(region: Region) {
+    fun masterClockDivider(region: Region) {
         when (region) {
             Region.PAL -> {
-                startClockCount = 8U
-                endClockCount = 8U
+                startClockCount = 8
+                endClockCount = 8
             }
             Region.DENDY -> {
-                startClockCount = 7U
-                endClockCount = 8U
+                startClockCount = 7
+                endClockCount = 8
             }
             else -> {
-                startClockCount = 6U
-                endClockCount = 6U
+                startClockCount = 6
+                endClockCount = 6
             }
         }
     }
 
-    inline var nmi: Boolean
+    inline var nmi
         get() = state.nmi
         set(value) {
             state.nmi = value
@@ -1246,36 +1315,34 @@ class Cpu(val console: Console) :
         s.write("extraScanlinesBeforeNmi", extraScanlinesBeforeNmi)
         s.write("extraScanlinesAfterNmi", extraScanlinesAfterNmi)
         s.write("dipSwitches", dipSwitches)
-        s.write("isNeedDummyRead", isNeedDummyRead)
-        s.write("isNeedHalt", isNeedHalt)
+        s.write("needDummyRead", needDummyRead)
+        s.write("needHalt", needHalt)
         s.write("startClockCount", startClockCount)
         s.write("endClockCount", endClockCount)
         s.write("ppuOffset", ppuOffset)
         s.write("masterClock", masterClock)
-        s.write("prevIsNeedNmi", prevIsNeedNmi)
+        s.write("prevNeedNmi", prevNeedNmi)
         s.write("prevNmiFlag", prevNmiFlag)
-        s.write("isNeedNmi", isNeedNmi)
+        s.write("needNmi", needNmi)
     }
 
     override fun restoreState(s: Snapshot) {
-        s.load()
-
-        s.readSnapshot("state")?.let { state.restoreState(it) }
-        cycleCount = s.readLong("cycleCount") ?: -1L
-        dmcDmaRunning = s.readBoolean("dmcDmaRunning") ?: false
-        spriteDmaTransfer = s.readBoolean("spriteDmaTransfer") ?: false
-        val extraScanlinesBeforeNmi = s.readInt("extraScanlinesBeforeNmi") ?: 0
-        val extraScanlinesAfterNmi = s.readInt("extraScanlinesAfterNmi") ?: 0
-        val dipSwitches = s.readInt("dipSwitches") ?: 0
-        isNeedDummyRead = s.readBoolean("isNeedDummyRead") ?: false
-        isNeedHalt = s.readBoolean("isNeedHalt") ?: false
-        startClockCount = s.readUByte("startClockCount") ?: 0U
-        endClockCount = s.readUByte("endClockCount") ?: 0U
-        ppuOffset = s.readUByte("ppuOffset") ?: 0U
-        masterClock = s.readLong("masterClock") ?: 0L
-        prevIsNeedNmi = s.readBoolean("prevIsNeedNmi") ?: false
-        prevNmiFlag = s.readBoolean("prevNmiFlag") ?: false
-        isNeedNmi = s.readBoolean("isNeedNmi") ?: false
+        s.readSnapshotable("state", state)
+        cycleCount = s.readLong("cycleCount", -1L)
+        dmcDmaRunning = s.readBoolean("dmcDmaRunning")
+        spriteDmaTransfer = s.readBoolean("spriteDmaTransfer")
+        val extraScanlinesBeforeNmi = s.readInt("extraScanlinesBeforeNmi")
+        val extraScanlinesAfterNmi = s.readInt("extraScanlinesAfterNmi")
+        val dipSwitches = s.readInt("dipSwitches")
+        needDummyRead = s.readBoolean("needDummyRead")
+        needHalt = s.readBoolean("needHalt")
+        startClockCount = s.readInt("startClockCount")
+        endClockCount = s.readInt("endClockCount")
+        ppuOffset = s.readInt("ppuOffset")
+        masterClock = s.readLong("masterClock")
+        prevNeedNmi = s.readBoolean("prevNeedNmi")
+        prevNmiFlag = s.readBoolean("prevNmiFlag")
+        needNmi = s.readBoolean("needNmi")
 
         console.settings.extraScanlinesAfterNmi = extraScanlinesAfterNmi
         console.settings.extraScanlinesBeforeNmi = extraScanlinesBeforeNmi
@@ -1284,51 +1351,78 @@ class Cpu(val console: Console) :
 
     companion object {
 
-        // @formatter:off
-        @JvmStatic private val ADDRESS_MODES = arrayOf(
-            AddressMode.IMP, AddressMode.IND_X, AddressMode.NONE, AddressMode.IND_X, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.IMP, AddressMode.IMM, AddressMode.ACC, AddressMode.IMM, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS,
-            AddressMode.REL, AddressMode.IND_Y, AddressMode.NONE, AddressMode.IND_YW, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.IMP, AddressMode.ABS_Y, AddressMode.IMP, AddressMode.ABS_YW,AddressMode.ABS_X, AddressMode.ABS_X, AddressMode.ABS_XW, AddressMode.ABS_XW,
-            AddressMode.ABS, AddressMode.IND_X, AddressMode.NONE, AddressMode.IND_X, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.IMP, AddressMode.IMM, AddressMode.ACC, AddressMode.IMM, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS,
-            AddressMode.REL, AddressMode.IND_Y, AddressMode.NONE, AddressMode.IND_YW, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.IMP, AddressMode.ABS_Y, AddressMode.IMP, AddressMode.ABS_YW,AddressMode.ABS_X, AddressMode.ABS_X, AddressMode.ABS_XW, AddressMode.ABS_XW,
-            AddressMode.IMP, AddressMode.IND_X, AddressMode.NONE, AddressMode.IND_X, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.IMP, AddressMode.IMM, AddressMode.ACC, AddressMode.IMM, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS,
-            AddressMode.REL, AddressMode.IND_Y, AddressMode.NONE, AddressMode.IND_YW, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.IMP, AddressMode.ABS_Y, AddressMode.IMP, AddressMode.ABS_YW,AddressMode.ABS_X, AddressMode.ABS_X, AddressMode.ABS_XW, AddressMode.ABS_XW,
-            AddressMode.IMP, AddressMode.IND_X, AddressMode.NONE, AddressMode.IND_X, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.IMP, AddressMode.IMM, AddressMode.ACC, AddressMode.IMM, AddressMode.IND, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS,
-            AddressMode.REL, AddressMode.IND_Y, AddressMode.NONE, AddressMode.IND_YW, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.IMP, AddressMode.ABS_Y, AddressMode.IMP, AddressMode.ABS_YW,AddressMode.ABS_X, AddressMode.ABS_X, AddressMode.ABS_XW, AddressMode.ABS_XW,
-            AddressMode.IMM, AddressMode.IND_X, AddressMode.IMM, AddressMode.IND_X, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.IMP, AddressMode.IMM, AddressMode.IMP, AddressMode.IMM, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS,
-            AddressMode.REL, AddressMode.IND_YW, AddressMode.NONE, AddressMode.IND_YW, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_Y, AddressMode.ZERO_Y, AddressMode.IMP, AddressMode.ABS_YW,AddressMode.IMP, AddressMode.ABS_YW,AddressMode.ABS_XW,AddressMode.ABS_XW,AddressMode.ABS_YW, AddressMode.ABS_YW,
-            AddressMode.IMM, AddressMode.IND_X, AddressMode.IMM, AddressMode.IND_X, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.IMP, AddressMode.IMM, AddressMode.IMP, AddressMode.IMM, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS,
-            AddressMode.REL, AddressMode.IND_Y, AddressMode.NONE, AddressMode.IND_Y, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_Y, AddressMode.ZERO_Y, AddressMode.IMP, AddressMode.ABS_Y, AddressMode.IMP, AddressMode.ABS_Y, AddressMode.ABS_X, AddressMode.ABS_X, AddressMode.ABS_Y, AddressMode.ABS_Y,
-            AddressMode.IMM, AddressMode.IND_X, AddressMode.IMM, AddressMode.IND_X, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.IMP, AddressMode.IMM, AddressMode.IMP, AddressMode.IMM, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS,
-            AddressMode.REL, AddressMode.IND_Y, AddressMode.NONE, AddressMode.IND_YW, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.IMP, AddressMode.ABS_Y, AddressMode.IMP, AddressMode.ABS_YW,AddressMode.ABS_X, AddressMode.ABS_X, AddressMode.ABS_XW, AddressMode.ABS_XW,
-            AddressMode.IMM, AddressMode.IND_X, AddressMode.IMM, AddressMode.IND_X, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.IMP, AddressMode.IMM, AddressMode.IMP, AddressMode.IMM, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS,
-            AddressMode.REL, AddressMode.IND_Y, AddressMode.NONE, AddressMode.IND_YW, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.IMP, AddressMode.ABS_Y, AddressMode.IMP, AddressMode.ABS_YW,AddressMode.ABS_X, AddressMode.ABS_X, AddressMode.ABS_XW, AddressMode.ABS_XW,
-        )
-
-        @JvmStatic val OPCODE_NAMES = listOf(
-            "BRK", "ORA", "STP", "SLO", "NOP", "ORA", "ASL", "SLO", "PHP", "ORA", "ASL", "ANC", "NOP", "ORA", "ASL", "SLO",
-            "BPL", "ORA", "STP", "SLO", "NOP", "ORA", "ASL", "SLO", "CLC", "ORA", "NOP", "SLO", "NOP", "ORA", "ASL", "SLO",
-            "JSR", "AND", "STP", "RLA", "BIT", "AND", "ROL", "RLA", "PLP", "AND", "ROL", "ANC", "BIT", "AND", "ROL", "RLA",
-            "BMI", "AND", "STP", "RLA", "NOP", "AND", "ROL", "RLA", "SEC", "AND", "NOP", "RLA", "NOP", "AND", "ROL", "RLA",
-            "RTI", "EOR", "STP", "SRE", "NOP", "EOR", "LSR", "SRE", "PHA", "EOR", "LSR", "ALR", "JMP", "EOR", "LSR", "SRE",
-            "BVC", "EOR", "STP", "SRE", "NOP", "EOR", "LSR", "SRE", "CLI", "EOR", "NOP", "SRE", "NOP", "EOR", "LSR", "SRE",
-            "RTS", "ADC", "STP", "RRA", "NOP", "ADC", "ROR", "RRA", "PLA", "ADC", "ROR", "ARR", "JMP", "ADC", "ROR", "RRA",
-            "BVS", "ADC", "STP", "RRA", "NOP", "ADC", "ROR", "RRA", "SEI", "ADC", "NOP", "RRA", "NOP", "ADC", "ROR", "RRA",
-            "NOP", "STA", "NOP", "SAX", "STY", "STA", "STX", "SAX", "DEY", "NOP", "TXA", "XAA", "STY", "STA", "STX", "SAX",
-            "BCC", "STA", "STP", "AHX", "STY", "STA", "STX", "SAX", "TYA", "STA", "TXS", "TAS", "SHY", "STA", "SHX", "AXA",
-            "LDY", "LDA", "LDX", "LAX", "LDY", "LDA", "LDX", "LAX", "TAY", "LDA", "TAX", "LAX", "LDY", "LDA", "LDX", "LAX",
-            "BCS", "LDA", "STP", "LAX", "LDY", "LDA", "LDX", "LAX", "CLV", "LDA", "TSX", "LAS", "LDY", "LDA", "LDX", "LAX",
-            "CPY", "CMP", "NOP", "DCP", "CPY", "CMP", "DEC", "DCP", "INY", "CMP", "DEX", "AXS", "CPY", "CMP", "DEC", "DCP",
-            "BNE", "CMP", "STP", "DCP", "NOP", "CMP", "DEC", "DCP", "CLD", "CMP", "NOP", "DCP", "NOP", "CMP", "DEC", "DCP",
-            "CPX", "SBC", "NOP", "ISC", "CPX", "SBC", "INC", "ISC", "INX", "SBC", "NOP", "SBC", "CPX", "SBC", "INC", "ISC",
-            "BEQ", "SBC", "STP", "ISC", "NOP", "SBC", "INC", "ISC", "SED", "SBC", "NOP", "ISC", "NOP", "SBC", "INC", "ISC",
-        )
-        // @formatter:on
-
-        const val NMI_VECTOR: UShort = 0xFFFAU
-        const val RESET_VECTOR: UShort = 0xFFFCU
-        const val IRQ_VECTOR: UShort = 0xFFFEU
+        const val NMI_VECTOR = 0xFFFA
+        const val RESET_VECTOR = 0xFFFC
+        const val IRQ_VECTOR = 0xFFFE
         const val CLOCK_RATE_NTSC = 1789773
         const val CLOCK_RATE_PAL = 1662607
         const val CLOCK_RATE_DENDY = 1773448
+
+        @JvmStatic private val ADDRESS_MODES = arrayOf(
+            AddressMode.IMP, AddressMode.IND_X, AddressMode.NONE, AddressMode.IND_X,
+            AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO,
+            AddressMode.IMP, AddressMode.IMM, AddressMode.ACC, AddressMode.IMM,
+            AddressMode.ABS, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS,
+            AddressMode.REL, AddressMode.IND_Y, AddressMode.NONE, AddressMode.IND_YW,
+            AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X,
+            AddressMode.IMP, AddressMode.ABS_Y, AddressMode.IMP, AddressMode.ABS_YW,
+            AddressMode.ABS_X, AddressMode.ABS_X, AddressMode.ABS_XW, AddressMode.ABS_XW,
+            AddressMode.ABS, AddressMode.IND_X, AddressMode.NONE, AddressMode.IND_X,
+            AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO,
+            AddressMode.IMP, AddressMode.IMM, AddressMode.ACC, AddressMode.IMM,
+            AddressMode.ABS, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS,
+            AddressMode.REL, AddressMode.IND_Y, AddressMode.NONE, AddressMode.IND_YW,
+            AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X,
+            AddressMode.IMP, AddressMode.ABS_Y, AddressMode.IMP, AddressMode.ABS_YW,
+            AddressMode.ABS_X, AddressMode.ABS_X, AddressMode.ABS_XW, AddressMode.ABS_XW,
+            AddressMode.IMP, AddressMode.IND_X, AddressMode.NONE, AddressMode.IND_X,
+            AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO,
+            AddressMode.IMP, AddressMode.IMM, AddressMode.ACC, AddressMode.IMM,
+            AddressMode.ABS, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS,
+            AddressMode.REL, AddressMode.IND_Y, AddressMode.NONE, AddressMode.IND_YW,
+            AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X,
+            AddressMode.IMP, AddressMode.ABS_Y, AddressMode.IMP, AddressMode.ABS_YW,
+            AddressMode.ABS_X, AddressMode.ABS_X, AddressMode.ABS_XW, AddressMode.ABS_XW,
+            AddressMode.IMP, AddressMode.IND_X, AddressMode.NONE, AddressMode.IND_X,
+            AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO,
+            AddressMode.IMP, AddressMode.IMM, AddressMode.ACC, AddressMode.IMM,
+            AddressMode.IND, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS,
+            AddressMode.REL, AddressMode.IND_Y, AddressMode.NONE, AddressMode.IND_YW,
+            AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X,
+            AddressMode.IMP, AddressMode.ABS_Y, AddressMode.IMP, AddressMode.ABS_YW,
+            AddressMode.ABS_X, AddressMode.ABS_X, AddressMode.ABS_XW, AddressMode.ABS_XW,
+            AddressMode.IMM, AddressMode.IND_X, AddressMode.IMM, AddressMode.IND_X,
+            AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO,
+            AddressMode.IMP, AddressMode.IMM, AddressMode.IMP, AddressMode.IMM,
+            AddressMode.ABS, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS,
+            AddressMode.REL, AddressMode.IND_YW, AddressMode.NONE, AddressMode.IND_YW,
+            AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_Y, AddressMode.ZERO_Y,
+            AddressMode.IMP, AddressMode.ABS_YW, AddressMode.IMP, AddressMode.ABS_YW,
+            AddressMode.ABS_XW, AddressMode.ABS_XW, AddressMode.ABS_YW, AddressMode.ABS_YW,
+            AddressMode.IMM, AddressMode.IND_X, AddressMode.IMM, AddressMode.IND_X,
+            AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO,
+            AddressMode.IMP, AddressMode.IMM, AddressMode.IMP, AddressMode.IMM,
+            AddressMode.ABS, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS,
+            AddressMode.REL, AddressMode.IND_Y, AddressMode.NONE, AddressMode.IND_Y,
+            AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_Y, AddressMode.ZERO_Y,
+            AddressMode.IMP, AddressMode.ABS_Y, AddressMode.IMP, AddressMode.ABS_Y,
+            AddressMode.ABS_X, AddressMode.ABS_X, AddressMode.ABS_Y, AddressMode.ABS_Y,
+            AddressMode.IMM, AddressMode.IND_X, AddressMode.IMM, AddressMode.IND_X,
+            AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO,
+            AddressMode.IMP, AddressMode.IMM, AddressMode.IMP, AddressMode.IMM,
+            AddressMode.ABS, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS,
+            AddressMode.REL, AddressMode.IND_Y, AddressMode.NONE, AddressMode.IND_YW,
+            AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X,
+            AddressMode.IMP, AddressMode.ABS_Y, AddressMode.IMP, AddressMode.ABS_YW,
+            AddressMode.ABS_X, AddressMode.ABS_X, AddressMode.ABS_XW, AddressMode.ABS_XW,
+            AddressMode.IMM, AddressMode.IND_X, AddressMode.IMM, AddressMode.IND_X,
+            AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO,
+            AddressMode.IMP, AddressMode.IMM, AddressMode.IMP, AddressMode.IMM,
+            AddressMode.ABS, AddressMode.ABS, AddressMode.ABS, AddressMode.ABS,
+            AddressMode.REL, AddressMode.IND_Y, AddressMode.NONE, AddressMode.IND_YW,
+            AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X, AddressMode.ZERO_X,
+            AddressMode.IMP, AddressMode.ABS_Y, AddressMode.IMP, AddressMode.ABS_YW,
+            AddressMode.ABS_X, AddressMode.ABS_X, AddressMode.ABS_XW, AddressMode.ABS_XW,
+        )
     }
 }

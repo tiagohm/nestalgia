@@ -4,20 +4,20 @@ package br.tiagohm.nestalgia.core
 
 open class ColorDreams : Mapper() {
 
-    override val prgPageSize = 0x8000U
+    override val prgPageSize = 0x8000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
     override val hasBusConflicts = true
 
-    override fun init() {
-        selectPrgPage(0U, 0U)
-        selectChrPage(0U, 0U)
+    override fun initialize() {
+        selectPrgPage(0, 0)
+        selectChrPage(0, 0)
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        // TODO: Re-add size restriction when adding an option to prevent oversized roms
-        selectPrgPage(0U, (value and 0x0FU).toUShort())
-        selectChrPage(0U, (value shr 4 and 0x0FU).toUShort())
+    override fun writeRegister(addr: Int, value: Int) {
+        // TODO: Re-add size restriction when adding an option to prevent oversized roms.
+        selectPrgPage(0, value and 0x0F)
+        selectChrPage(0, value shr 4 and 0x0F)
     }
 }

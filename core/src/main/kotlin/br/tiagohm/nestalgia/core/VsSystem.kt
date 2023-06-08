@@ -4,47 +4,49 @@ package br.tiagohm.nestalgia.core
 
 class VsSystem : Mapper() {
 
-    private var prgChrSelectBit: UByte = 0U
+    private var prgChrSelectBit = 0
 
-    override val prgPageSize = 0x2000U
+    override val prgPageSize = 0x2000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override val workRamSize = 0x800U
+    override val workRamSize = 0x800
+
+    override fun initialize() {}
 
     override fun reset(softReset: Boolean) {
         super.reset(softReset)
-        updateMemoryAccess(0U)
+        updateMemoryAccess(0)
     }
 
-    fun updateMemoryAccess(bit: UByte) {
+    fun updateMemoryAccess(bit: Int) {
         val dualConsole = console.dualConsole
 
         if (console.isMaster && dualConsole != null) {
             val mapper = dualConsole.mapper!! as VsSystem
 
-            // Give memory access to master CPU or slave CPU, based on "bit"
-            if (privateSaveRamSize == 0U && privateWorkRamSize == 0U) {
-                removeCpuMemoryMapping(0x6000U, 0x7FFFU)
-                mapper.removeCpuMemoryMapping(0x6000U, 0x7FFFU)
+            // Give memory access to master CPU or slave CPU, based on "bit".
+            if (mSaveRamSize == 0 && mWorkRamSize == 0) {
+                removeCpuMemoryMapping(0x6000, 0x7FFF)
+                mapper.removeCpuMemoryMapping(0x6000, 0x7FFF)
             }
 
-            for (i in 0U..3U) {
-                val startAddr = (0x6000U + i * 0x800U).toUShort()
-                val endAddr = (0x67FFU + i * 0x800U).toUShort()
+            repeat(4) {
+                val startAddr = 0x6000 + it * 0x800
+                val endAddr = 0x67FF + it * 0x800
 
-                setCpuMemoryMapping(
+                addCpuMemoryMapping(
                     startAddr,
                     endAddr,
                     if (hasBattery) Pointer(saveRam) else Pointer(workRam),
-                    if (bit.toUInt() != 0U) MemoryAccessType.READ_WRITE else MemoryAccessType.NO_ACCESS
+                    if (bit != 0) MemoryAccessType.READ_WRITE else MemoryAccessType.NO_ACCESS,
                 )
 
-                mapper.setCpuMemoryMapping(
+                mapper.addCpuMemoryMapping(
                     startAddr,
                     endAddr,
                     if (hasBattery) Pointer(saveRam) else Pointer(workRam),
-                    if (bit.toUInt() != 0U) MemoryAccessType.NO_ACCESS else MemoryAccessType.READ_WRITE
+                    if (bit != 0) MemoryAccessType.NO_ACCESS else MemoryAccessType.READ_WRITE,
                 )
             }
         }

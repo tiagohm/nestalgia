@@ -1,0 +1,368 @@
+<?import br.tiagohm.nestalgia.core.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.*?>
+<AnchorPane maxHeight="-Infinity"
+            maxWidth="-Infinity"
+            minHeight="-Infinity"
+            minWidth="-Infinity"
+            prefWidth="512.0"
+            xmlns="http://javafx.com/javafx/20"
+            xmlns:fx="http://javafx.com/fxml/1">
+    <VBox spacing="4.0"
+          alignment="TOP_CENTER"
+          AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0">
+        <padding>
+            <Insets bottom="16.0"/>
+        </padding>
+        <TabPane tabClosingPolicy="UNAVAILABLE"
+                 VBox.vgrow="ALWAYS">
+            <Tab text="Controller">
+                <VBox spacing="4.0">
+                    <padding>
+                        <Insets top="16.0"
+                                right="16.0"
+                                left="16.0"/>
+                    </padding>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="automaticallyConfigureControllersWhenLoadingGameCheckBox"
+                                  text="Automatically configure controllers when loading a game"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <Label text="Console type"/>
+                        <ChoiceBox fx:id="consoleTypeChoiceBox"
+                                   minWidth="164.0">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <ConsoleType fx:value="NES"/>
+                                    <ConsoleType fx:value="FAMICOM"/>
+                                </FXCollections>
+                            </items>
+                        </ChoiceBox>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <Label text="Player 1"/>
+                        <ChoiceBox fx:id="player1ChoiceBox"
+                                   minWidth="164.0"/>
+                        <Button text="Settings"
+                                userData="1"
+                                onAction="#openPlayerSettings"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <Label text="Player 2"/>
+                        <ChoiceBox fx:id="player2ChoiceBox"
+                                   minWidth="164.0"/>
+                        <Button text="Settings"
+                                userData="2"
+                                onAction="#openPlayerSettings"/>
+                    </HBox>
+                    <HBox fx:id="expansionPortNesBox"
+                          alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <Label text="Expansion port"/>
+                        <ChoiceBox fx:id="expansionPortNesChoiceBox"
+                                   minWidth="220.0"
+                                   maxWidth="220.0">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <ExpansionPortDevice fx:value="NONE"/>
+                                    <ExpansionPortDevice fx:value="FOUR_PLAYER_ADAPTER"/>
+                                </FXCollections>
+                            </items>
+                        </ChoiceBox>
+                        <Button text="Settings"
+                                userData="NES"
+                                onAction="#openExpansionPortDeviceSettings"/>
+                    </HBox>
+                    <HBox fx:id="expansionPortFamicomBox"
+                          alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <Label text="Expansion port"/>
+                        <ChoiceBox fx:id="expansionPortFamicomChoiceBox"
+                                   minWidth="220.0"
+                                   maxWidth="220.0">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <ExpansionPortDevice fx:value="NONE"/>
+                                    <ExpansionPortDevice fx:value="ZAPPER"/>
+                                    <ExpansionPortDevice fx:value="FOUR_PLAYER_ADAPTER"/>
+                                    <ExpansionPortDevice fx:value="ASCII_TURBO_FILE"/>
+                                    <ExpansionPortDevice fx:value="BATTLE_BOX"/>
+                                </FXCollections>
+                            </items>
+                        </ChoiceBox>
+                        <Button text="Settings"
+                                userData="FAMICOM"
+                                onAction="#openExpansionPortDeviceSettings"/>
+                    </HBox>
+                    <HBox fx:id="player3Box"
+                          alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <Label text="Player 3"/>
+                        <ChoiceBox fx:id="player3ChoiceBox"
+                                   minWidth="164.0"/>
+                        <Button text="Settings"
+                                userData="3"
+                                onAction="#openPlayerSettings"/>
+                    </HBox>
+                    <HBox fx:id="player4Box"
+                          alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <Label text="Player 4"/>
+                        <ChoiceBox fx:id="player4ChoiceBox"
+                                   minWidth="164.0"/>
+                        <Button text="Settings"
+                                userData="4"
+                                onAction="#openPlayerSettings"/>
+                    </HBox>
+                </VBox>
+            </Tab>
+            <Tab text="Audio">
+                <VBox spacing="2.0">
+                    <padding>
+                        <Insets topRightBottomLeft="16.0"/>
+                    </padding>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <Label text="Sample rate (Hz)"/>
+                        <ChoiceBox fx:id="sampleRateChoiceBox"
+                                   minWidth="164.0">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="11025"/>
+                                    <String fx:value="22050"/>
+                                    <String fx:value="44100"/>
+                                    <String fx:value="48000"/>
+                                    <String fx:value="96000"/>
+                                </FXCollections>
+                            </items>
+                        </ChoiceBox>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="disableNoiseChannelModeFlagCheckBox"
+                                  text="Disable noise channel mode flag"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="muteUltrasonicFrequenciesOnTriangleChannelCheckBox"
+                                  text="Mute ultrasonic frequencies on triangle channel (reduces popping)"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="swapSquareChannelsDutyCyclesCheckBox"
+                                  text="Swap square channels duty cycles (Mimics old clones)"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="reducePoppingSoundsOnTheDMCChannelCheckBox"
+                                  text="Reduce popping sounds on the DMC channel"/>
+                    </HBox>
+                </VBox>
+            </Tab>
+            <Tab text="Video">
+                <VBox spacing="2.0">
+                    <padding>
+                        <Insets topRightBottomLeft="16.0"/>
+                    </padding>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="enableIntegerFPSModeCheckBox"
+                                  text="Enable integer FPS mode"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <Label text="Palette"/>
+                        <ChoiceBox fx:id="paletteChoiceBox"
+                                   minWidth="164.0">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <PaletteType fx:value="DEFAULT"/>
+                                    <PaletteType fx:value="UNSATURATED"/>
+                                    <PaletteType fx:value="YUV"/>
+                                    <PaletteType fx:value="NESTOPIA"/>
+                                    <PaletteType fx:value="COMPOSITE_DIRECT"/>
+                                    <PaletteType fx:value="NES_CLASSIC"/>
+                                    <PaletteType fx:value="ORIGINAL_HARDWARE"/>
+                                    <PaletteType fx:value="PVM_STYLE"/>
+                                    <PaletteType fx:value="SONY_CXA_2025"/>
+                                    <PaletteType fx:value="WAVEBEAM"/>
+                                </FXCollections>
+                            </items>
+                        </ChoiceBox>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="removeSpriteLimitCheckBox"
+                                  text="Remove sprite limit (Reduces flashing)"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="autoReenableSpriteLimitAsNeededCheckBox"
+                                  text="Automatically re-enable sprite limit as needed"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="forceSpriteDisplayInFirstColumnCheckBox"
+                                  text="Force sprite display in first column"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="forceBackgroundDisplayInFirstColumnCheckBox"
+                                  text="Force background display in first column"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="disableSpritesCheckBox"
+                                  text="Disable sprites"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="disableBackgroundCheckBox"
+                                  text="Disable background"/>
+                    </HBox>
+                </VBox>
+            </Tab>
+            <Tab text="Emulation">
+                <VBox spacing="2.0">
+                    <padding>
+                        <Insets topRightBottomLeft="16.0"/>
+                    </padding>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="enablePPUOAMRowCorruptionEmulationCheckBox"
+                                  text="Enable PPU OAM row corruption emulation"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="enablePPU200020052006FirstWriteScrollGlitchEmulationCheckBox"
+                                  text="Enable PPU $2000/$2005/$2006 first-write scroll glitch emulation"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="enablePPU2006WriteScrollGlitchEmulationCheckBox"
+                                  text="Enable PPU $2006 write scroll glitch emulation"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="randomizePowerOnCPUPPUAlignmentCheckBox"
+                                  text="Randomize power-on/reset CPU/PPU alignment"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="randomizePowerOnStateForMappersCheckBox"
+                                  text="Randomize power-on state for mappers"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <Label text="Default power-on state for RAM"/>
+                        <ChoiceBox fx:id="defaultPowerOnStateForRAMChoiceBox"
+                                   minWidth="164.0">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <RamPowerOnState fx:value="ALL_ZEROS"/>
+                                    <RamPowerOnState fx:value="ALL_ONES"/>
+                                    <RamPowerOnState fx:value="RANDOM"/>
+                                </FXCollections>
+                            </items>
+                        </ChoiceBox>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="enableOAMRAMDecayCheckBox"
+                                  text="Enable OAM RAM decay"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="disablePPUPaletteReadsCheckBox"
+                                  text="Disable PPU palette reads"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="disablePPUOAMADDRBugEmulationCheckBox"
+                                  text="Disable PPU OAMADDR bug emulation"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="doNotResetPPUWhenResettingConsoleCheckBox"
+                                  text="Do not reset PPU when resetting console (Famicom behavior)"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="disablePPU2004ReadsCheckBox"
+                                  text="Disable PPU $2004 reads (Famicom behavior)"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="useNESHVC101BehaviourCheckBox"
+                                  text="Use NES/HVC-101 (Top-loader / AV Famicom) behavior"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="useAlternativeMMC3IRQBehaviourCheckBox"
+                                  text="Use alternative MMC3 IRQ behavior"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="allowInvalidInputCheckBox"
+                                  text="Allow invalid input (e.g Down + Up or Left + Right at the same time)"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <Label text="Additional scanlines before NMI"/>
+                        <Spinner fx:id="additionalScanlinesBeforeNMISpinner"
+                                 maxWidth="92.0"
+                                 max="1000.0"
+                                 min="0.0"
+                                 initialValue="0.0"
+                                 amountToStepBy="1.0"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <Label text="Additional scanlines after NMI"/>
+                        <Spinner fx:id="additionalScanlinesAfterNMISpinner"
+                                 maxWidth="92.0"
+                                 max="1000.0"
+                                 min="0.0"
+                                 initialValue="0.0"
+                                 amountToStepBy="1.0"/>
+                    </HBox>
+                </VBox>
+            </Tab>
+            <Tab text="FDS">
+                <VBox spacing="2.0">
+                    <padding>
+                        <Insets topRightBottomLeft="16.0"/>
+                    </padding>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="autoInsertDisk1SideAWhenStartingCheckBox"
+                                  text="Automatically insert disk 1 side A when starting FDS games"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <CheckBox fx:id="autoSwitchDisksCheckBox"
+                                  text="Automatically switch disks for FDS games"/>
+                    </HBox>
+                </VBox>
+            </Tab>
+        </TabPane>
+        <HBox spacing="4.0"
+              alignment="CENTER">
+            <Button text="Reset"
+                    onAction="#reset"/>
+
+            <Button text="OK"
+                    onAction="#save"/>
+        </HBox>
+    </VBox>
+</AnchorPane>

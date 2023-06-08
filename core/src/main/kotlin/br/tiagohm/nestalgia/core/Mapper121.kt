@@ -1,18 +1,20 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryOperation.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_121
 
 class Mapper121 : MMC3() {
 
-    private val exReg = UByteArray(8)
+    private val exReg = IntArray(8)
 
     override val allowRegisterRead = true
 
-    override fun init() {
-        super.init()
+    override fun initialize() {
+        super.initialize()
 
-        addRegisterRange(0x5000U, 0x5FFFU)
-        removeRegisterRange(0x8000U, 0xFFFFU, MemoryOperation.READ)
+        addRegisterRange(0x5000, 0x5FFF)
+        removeRegisterRange(0x8000, 0xFFFF, READ)
     }
 
     override fun reset(softReset: Boolean) {
@@ -22,49 +24,46 @@ class Mapper121 : MMC3() {
     }
 
     private fun resetExRegs() {
-        exReg.fill(0U)
-        exReg[3] = 0x80U
+        exReg.fill(0)
+        exReg[3] = 0x80
     }
 
-    override fun readRegister(addr: UShort) = exReg[4]
+    override fun readRegister(addr: Int) = exReg[4]
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        if (addr < 0x8000U) {
+    override fun writeRegister(addr: Int, value: Int) {
+        if (addr < 0x8000) {
             // $5000-$5FFF
-            exReg[4] = LOOKUP[value.toInt() and 0x03]
+            exReg[4] = LOOKUP[value and 0x03]
 
-            if ((addr.toInt() and 0x5180) == 0x5180) {
+            if ((addr and 0x5180) == 0x5180) {
                 // Hack for Super 3-in-1
                 exReg[3] = value
                 updateState()
             }
-        } else if (addr < 0xA000U) {
+        } else if (addr < 0xA000) {
             // $8000-$9FFF
             when {
-                (addr.toInt() and 0x03) == 0x03 -> {
+                (addr and 0x03) == 0x03 -> {
                     exReg[5] = value
                     updateExRegs()
-                    super.writeRegister(0x8000U, value)
+                    super.writeRegister(0x8000, value)
                 }
                 addr.loByte.bit0 -> {
-                    val i = value.toInt()
+                    exReg[6] = (value and 0x01 shl 5) or
+                        (value and 0x02 shl 3) or
+                        (value and 0x04 shl 1) or
+                        (value and 0x08 shr 1) or
+                        (value and 0x10 shr 3) or
+                        (value and 0x20 shr 5)
 
-                    exReg[6] = (((i and 0x01) shl 5) or
-                        ((i and 0x02) shl 3) or
-                        ((i and 0x04) shl 1) or
-                        ((i and 0x08) shr 1) or
-                        ((i and 0x10) shr 3) or
-                        ((i and 0x20) shr 5)
-                        ).toUByte()
-
-                    if (exReg[7].isZero) {
+                    if (exReg[7] == 0) {
                         updateExRegs()
                     }
 
-                    super.writeRegister(0x8001U, value)
+                    super.writeRegister(0x8001, value)
                 }
                 else -> {
-                    super.writeRegister(0x8000U, value)
+                    super.writeRegister(0x8000, value)
                 }
             }
         } else {
@@ -72,61 +71,60 @@ class Mapper121 : MMC3() {
         }
     }
 
-    override fun selectPrgPage(slot: UShort, page: UShort, memoryType: PrgMemoryType) {
-        val o = (exReg[3] and 0x80U) shr 2
+    override fun selectPrgPage(slot: Int, page: Int, memoryType: PrgMemoryType) {
+        val o = exReg[3] and 0x80 shr 2
 
-        super.selectPrgPage(slot, (page and 0x1FU) or o.toUShort(), memoryType)
+        super.selectPrgPage(slot, (page and 0x1F) or o, memoryType)
 
-        if ((exReg[5] and 0x3FU).isNonZero) {
-            super.selectPrgPage(1U, (exReg[2] or o).toUShort(), memoryType)
-            super.selectPrgPage(2U, (exReg[1] or o).toUShort(), memoryType)
-            super.selectPrgPage(3U, (exReg[0] or o).toUShort(), memoryType)
+        if ((exReg[5] and 0x3F) != 0) {
+            super.selectPrgPage(1, exReg[2] or o, memoryType)
+            super.selectPrgPage(2, exReg[1] or o, memoryType)
+            super.selectPrgPage(3, exReg[0] or o, memoryType)
         }
     }
 
-    override fun selectChrPage(slot: UShort, page: UShort, memoryType: ChrMemoryType) {
-        if (privatePrgSize == privateChrRomSize) {
+    override fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType) {
+        if (mPrgSize == mChrRomSize) {
             // Hack for Super 3-in-1
-            super.selectChrPage(slot, page or ((exReg[3] and 0x80U).toUInt() shl 1).toUShort(), memoryType)
-        } else if ((slot < 4U && chrMode.isZero) || (slot >= 4U && chrMode.isOne)) {
-            super.selectChrPage(slot, page or 0x100U, memoryType)
+            super.selectChrPage(slot, page or (exReg[3] and 0x80 shl 1), memoryType)
+        } else if ((slot < 4 && chrMode == 0) || (slot >= 4 && chrMode == 1)) {
+            super.selectChrPage(slot, page or 0x100, memoryType)
         } else {
             super.selectChrPage(slot, page, memoryType)
         }
     }
 
     private fun updateExRegs() {
-        when ((exReg[5] and 0x3FU).toInt()) {
+        when (exReg[5] and 0x3F) {
             0x20,
             0x29,
             0x2B,
             0x3C,
             0x3F -> {
-                exReg[7] = 1U
+                exReg[7] = 1
                 exReg[0] = exReg[6]
             }
             0x26 -> {
-                exReg[7] = 0U
+                exReg[7] = 0
                 exReg[0] = exReg[6]
             }
             0x2C -> {
-                exReg[7] = 1U
+                exReg[7] = 1
 
-                if (exReg[6].isNonZero) {
+                if (exReg[6] != 0) {
                     exReg[0] = exReg[6]
                 }
             }
             0x28 -> {
-                exReg[7] = 0U
+                exReg[7] = 0
                 exReg[1] = exReg[6]
             }
             0x2A -> {
-                exReg[7] = 0U
+                exReg[7] = 0
                 exReg[2] = exReg[6]
             }
-            0x2F -> {
-            }
-            else -> exReg[5] = 0U
+            0x2F -> Unit
+            else -> exReg[5] = 0
         }
     }
 
@@ -139,11 +137,11 @@ class Mapper121 : MMC3() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        s.readUByteArray("exReg")?.copyInto(exReg) ?: resetExRegs()
+        s.readIntArray("exReg", exReg) ?: resetExRegs()
     }
 
     companion object {
 
-        @JvmStatic private val LOOKUP = ubyteArrayOf(0x83U, 0x83U, 0x42U, 0x00U)
+        @JvmStatic private val LOOKUP = intArrayOf(0x83, 0x83, 0x42, 0x00)
     }
 }

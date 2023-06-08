@@ -1,33 +1,30 @@
 package br.tiagohm.nestalgia.core
 
+import java.io.Closeable
 import java.util.concurrent.Semaphore
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-@Suppress("NOTHING_TO_INLINE")
-class VideoDecoder(val console: Console) :
-    Disposable,
-    Resetable {
+class VideoDecoder(private val console: Console) : Closeable, Resetable {
 
-    private var stop = AtomicBoolean()
-    private val videoFilter = DefaultVideoFilter(console)
-    private var outputBuffer = UShortArray(Ppu.PIXEL_COUNT)
-    private var frameNumber = 0
-    private var decodeThread: Thread? = null
+    private val stop = AtomicBoolean()
+    private val decoder = DecoderVideoFilter(console)
+    @Volatile private var outputBuffer = IntArray(Ppu.PIXEL_COUNT)
+    @Volatile private var decodeThread: Thread? = null
     private val waitForFrame = Semaphore(1)
 
-    var width: Int = Ppu.SCREEN_WIDTH
+    var width = Ppu.SCREEN_WIDTH
         private set
 
-    var height: Int = Ppu.SCREEN_HEIGHT
+    var height = Ppu.SCREEN_HEIGHT
         private set
 
-    val isRunning: Boolean
+    val running
         get() = decodeThread != null
 
-    override fun dispose() {
+    override fun close() {
         stopThread()
-        videoFilter.dispose()
+        decoder.close()
     }
 
     fun stopThread() {
@@ -40,7 +37,7 @@ class VideoDecoder(val console: Console) :
             console.settings.ppuModel = PpuModel.PPU_2C02
 
             // Clear whole screen
-            outputBuffer.fill(14U) // Black
+            outputBuffer.fill(14) // Black
             decodeFrame()
         }
     }
@@ -64,7 +61,7 @@ class VideoDecoder(val console: Console) :
         while (!stop.get()) {
             try {
                 waitForFrame.acquire()
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 break
             }
 
@@ -76,18 +73,17 @@ class VideoDecoder(val console: Console) :
         }
     }
 
-    fun updateFrame(outputBuffer: UShortArray) {
-        frameNumber = console.frameCount
+    fun updateFrame(outputBuffer: IntArray) {
         this.outputBuffer = outputBuffer
         waitForFrame.release()
     }
 
-    private inline fun decodeFrame() {
-        val output = videoFilter.sendFrame(outputBuffer, frameNumber)
+    private fun decodeFrame() {
+        val output = decoder.sendFrame(outputBuffer)
         console.videoRenderer.updateFrame(output, width, height)
     }
 
     fun takeScreenshot(): IntArray {
-        return videoFilter.takeScreenshot()
+        return decoder.takeScreenshot()
     }
 }

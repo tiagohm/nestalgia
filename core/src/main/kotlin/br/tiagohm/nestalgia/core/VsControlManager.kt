@@ -7,24 +7,25 @@ class VsControlManager(
 ) : ControlManager(console, systemActionManager, mapperControlDevice),
     InputProvider {
 
-    private var protectionCounter = 0U
+    private var protectionCounter = 0
     private var vsSystemType = VsSystemType.DEFAULT
-    private var prgChrSelectBit: UByte = 0U
-    private var slaveMasterBit: UByte = 0U
+    private var prgChrSelectBit = 0
+    private var slaveMasterBit = 0
     private var refreshState = false
 
-    override fun getControllerType(port: Int): ControllerType {
-        val type = super.getControllerType(port)
-        return if (type == ControllerType.ZAPPER) ControllerType.VS_ZAPPER else type
+    override fun controllerType(port: Int): ControllerType {
+        val type = super.controllerType(port)
+        return if (type == ControllerType.ZAPPER) ControllerType.VS_ZAPPER
+        else type
     }
 
     override fun reset(softReset: Boolean) {
         super.reset(softReset)
 
-        protectionCounter = 0U
+        protectionCounter = 0
 
         // Unsure about this, needed for VS Wrecking Crew
-        updateSlaveMasterBit(if (console.isMaster) 0x00U else 0x02U)
+        updateSlaveMasterBit(if (console.isMaster) 0x00 else 0x02)
 
         vsSystemType = console.mapper!!.info.vsType
 
@@ -37,7 +38,7 @@ class VsControlManager(
         }
     }
 
-    override fun dispose() {
+    override fun close() {
         unregisterInputProvider(this)
     }
 
@@ -46,7 +47,7 @@ class VsControlManager(
         val masterControlManager = console.dualConsole?.controlManager
 
         if (masterControlManager != null && port <= 1) {
-            val controlDevice = masterControlManager.getControlDevice(port + 2)
+            val controlDevice = masterControlManager.controlDevice(port + 2)
             controlDevice?.state?.state?.copyInto(device.state.state)
         }
 
@@ -57,22 +58,22 @@ class VsControlManager(
         // TODO:
     }
 
-    override fun getMemoryRanges(ranges: MemoryRanges) {
-        super.getMemoryRanges(ranges)
-        ranges.addHandler(MemoryOperation.READ, 0x4020U, 0x5FFFU)
-        ranges.addHandler(MemoryOperation.WRITE, 0x4020U, 0x5FFFU)
+    override fun memoryRanges(ranges: MemoryRanges) {
+        super.memoryRanges(ranges)
+        ranges.addHandler(MemoryOperation.READ, 0x4020, 0x5FFF)
+        ranges.addHandler(MemoryOperation.WRITE, 0x4020, 0x5FFF)
     }
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         super.write(addr, value, type)
 
         refreshState = value.bit0
 
-        if (addr.toUInt() == 0x4016U) {
-            prgChrSelectBit = (value shr 2) and 0x01U
+        if (addr == 0x4016) {
+            prgChrSelectBit = (value shr 2) and 0x01
 
             // Bit 2: DualSystem-only
-            val bit = value and 0x02U
+            val bit = value and 0x02
 
             if (bit != slaveMasterBit) {
                 updateSlaveMasterBit(bit)
@@ -80,9 +81,9 @@ class VsControlManager(
         }
     }
 
-    override fun getOpenBusMask(port: UByte): UByte = 0x00U
+    override fun openBusMask(port: Int) = 0x00
 
-    private fun updateSlaveMasterBit(bit: UByte) {
+    private fun updateSlaveMasterBit(bit: Int) {
         val dualConsole = console.dualConsole
 
         if (dualConsole != null) {
@@ -92,7 +93,7 @@ class VsControlManager(
                 mapper.updateMemoryAccess(bit)
             }
 
-            if (bit.toUInt() != 0U) {
+            if (bit != 0) {
                 dualConsole.cpu.clearIRQSource(IRQSource.EXTERNAL)
             } else {
                 // When low, asserts /IRQ on the other CPU

@@ -13,8 +13,6 @@ data class CheatInfo(
     val description: String,
 ) {
 
-    override fun toString() = description
-
     companion object {
 
         @JvmStatic
@@ -37,7 +35,7 @@ data class CheatInfo(
 
             return CheatInfo(
                 hash.toLong(16), name, type,
-                if (genie.isBlank()) null else genie,
+                genie.ifBlank { null },
                 if (rocky.isBlank()) null else rocky.toInt(16),
                 if (address.isBlank()) null else address.toInt(16),
                 if (value.isBlank()) null else value.toInt(16),

@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-class FlashSST39SF040(private val data: UByteArray) : Snapshotable, Resetable {
+class FlashSST39SF040(private val data: IntArray) : Snapshotable, Resetable {
 
     private enum class ChipMode {
         WAITING,
@@ -19,9 +19,9 @@ class FlashSST39SF040(private val data: UByteArray) : Snapshotable, Resetable {
     }
 
     override fun restoreState(s: Snapshot) {
-        mode = s.readEnum<ChipMode>("mode") ?: ChipMode.WAITING
-        cycle = s.readInt("cycle") ?: 0
-        softwareId = s.readBoolean("softwareId") ?: false
+        mode = s.readEnum("mode", ChipMode.WAITING)
+        cycle = s.readInt("cycle")
+        softwareId = s.readBoolean("softwareId")
     }
 
     fun read(addr: Int): Int {
@@ -32,27 +32,27 @@ class FlashSST39SF040(private val data: UByteArray) : Snapshotable, Resetable {
         } else -1
     }
 
-    fun write(addr: Int, value: UByte) {
+    fun write(addr: Int, value: Int) {
         val cmd = addr and 0x7FFF
 
         if (mode == ChipMode.WAITING) {
             if (cycle == 0) {
-                if (cmd == 0x5555 && value.toInt() == 0xAA) {
+                if (cmd == 0x5555 && value == 0xAA) {
                     // 1st write, $5555 = $AA.
                     cycle++
-                } else if (value.toInt() == 0xF0) {
+                } else if (value == 0xF0) {
                     // Software ID exit.
                     reset()
                     softwareId = false
                 }
-            } else if (cycle == 1 && cmd == 0x2AAA && value.toInt() == 0x55) {
+            } else if (cycle == 1 && cmd == 0x2AAA && value == 0x55) {
                 // 2nd write, $2AAA = $55.
                 cycle++
             } else if (cycle == 2 && cmd == 0x5555) {
                 // 3rd write, determines command type.
                 cycle++
 
-                when (value.toInt()) {
+                when (value) {
                     0x80 -> mode = ChipMode.ERASE
                     0x90 -> {
                         reset()
@@ -77,28 +77,28 @@ class FlashSST39SF040(private val data: UByteArray) : Snapshotable, Resetable {
         } else if (mode == ChipMode.ERASE) {
             if (cycle == 3) {
                 // 4th write for erase command, $5555 = $AA.
-                if (cmd == 0x5555 && value.toInt() == 0xAA) {
+                if (cmd == 0x5555 && value == 0xAA) {
                     cycle++
                 } else {
                     reset()
                 }
             } else if (cycle == 4) {
                 // 5th write for erase command, $2AAA = $55.
-                if (cmd == 0x2AAA && value.toInt() == 0x55) {
+                if (cmd == 0x2AAA && value == 0x55) {
                     cycle++
                 } else {
                     reset()
                 }
             } else if (cycle == 5) {
-                if (cmd == 0x5555 && value.toInt() == 0x10) {
+                if (cmd == 0x5555 && value == 0x10) {
                     // Chip erase.
-                    data.fill(0xFF.toUByte())
-                } else if (value.toInt() == 0x30) {
+                    data.fill(0xFF)
+                } else if (value == 0x30) {
                     // Sector erase.
                     val offset = addr and 0x7F000
 
                     if (offset + 0x1000 <= data.size) {
-                        data.fill(0xFF.toUByte(), offset, offset + 0x1000)
+                        data.fill(0xFF, offset, offset + 0x1000)
                     }
                 }
 

@@ -1,10 +1,7 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.IRQSource.EXTERNAL
-import br.tiagohm.nestalgia.core.MirroringType.HORIZONTAL
-import br.tiagohm.nestalgia.core.MirroringType.SCREEN_A_ONLY
-import br.tiagohm.nestalgia.core.MirroringType.SCREEN_B_ONLY
-import br.tiagohm.nestalgia.core.MirroringType.VERTICAL
+import br.tiagohm.nestalgia.core.IRQSource.*
+import br.tiagohm.nestalgia.core.MirroringType.*
 
 abstract class FrontFareast : Mapper() {
 
@@ -12,15 +9,15 @@ abstract class FrontFareast : Mapper() {
     protected var irqEnabled = false
     protected var ffeAltMode = true
 
-    final override val prgPageSize = 0x2000U
+    final override val prgPageSize = 0x2000
 
-    final override val chrPageSize = 0x400U
+    final override val chrPageSize = 0x400
 
-    final override val chrRamSize = 0x8000U
+    final override val chrRamSize = 0x8000
 
-    final override val registerStartAddress: UShort = 0x42FEU
+    final override val registerStartAddress = 0x42FE
 
-    final override val registerEndAddress: UShort = 0x4517U
+    final override val registerEndAddress = 0x4517
 
     final override fun saveState(s: Snapshot) {
         super.saveState(s)
@@ -33,9 +30,9 @@ abstract class FrontFareast : Mapper() {
     final override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        irqCounter = s.readInt("irqCounter") ?: 0
-        irqEnabled = s.readBoolean("irqEnabled") ?: false
-        ffeAltMode = s.readBoolean("ffeAltMode") ?: true
+        irqCounter = s.readInt("irqCounter")
+        irqEnabled = s.readBoolean("irqEnabled")
+        ffeAltMode = s.readBoolean("ffeAltMode", true)
     }
 
     final override fun processCpuClock() {
@@ -49,10 +46,10 @@ abstract class FrontFareast : Mapper() {
         }
     }
 
-    protected abstract fun handleWriteRegister(addr: UShort, value: UByte)
+    protected abstract fun handleWriteRegister(addr: Int, value: Int)
 
-    final override fun writeRegister(addr: UShort, value: UByte) {
-        when (addr.toInt()) {
+    final override fun writeRegister(addr: Int, value: Int) {
+        when (addr) {
             0x42FE -> {
                 ffeAltMode = !value.bit7
                 mirroringType = if (value.bit4) SCREEN_B_ONLY else SCREEN_A_ONLY
@@ -65,11 +62,11 @@ abstract class FrontFareast : Mapper() {
                 console.cpu.clearIRQSource(EXTERNAL)
             }
             0x4502 -> {
-                irqCounter = (irqCounter and 0xFF00) or value.toInt()
+                irqCounter = (irqCounter and 0xFF00) or value
                 console.cpu.clearIRQSource(EXTERNAL)
             }
             0x4503 -> {
-                irqCounter = (irqCounter and 0x00FF) or (value.toInt() shl 8)
+                irqCounter = (irqCounter and 0x00FF) or (value shl 8)
                 irqEnabled = true
                 console.cpu.clearIRQSource(EXTERNAL)
             }

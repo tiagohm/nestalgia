@@ -7,36 +7,36 @@ class Sachen147 : Mapper() {
 
     private val txChip = TxcChip(true)
 
-    override val prgPageSize = 0x8000U
+    override val prgPageSize = 0x8000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override val registerStartAddress: UShort = 0x8000U
+    override val registerStartAddress = 0x8000
 
-    override val registerEndAddress: UShort = 0xFFFFU
+    override val registerEndAddress = 0xFFFF
 
     override val allowRegisterRead = true
 
-    override fun init() {
-        addRegisterRange(0x4020U, 0x5FFFU, MemoryOperation.ANY)
-        removeRegisterRange(0x8000U, 0xFFFFU, MemoryOperation.READ)
+    override fun initialize() {
+        addRegisterRange(0x4020, 0x5FFF, MemoryOperation.ANY)
+        removeRegisterRange(0x8000, 0xFFFF, MemoryOperation.READ)
 
-        selectPrgPage(0U, 0U)
-        selectChrPage(0U, 0U)
+        selectPrgPage(0, 0)
+        selectChrPage(0, 0)
     }
 
     private inline fun updateState() {
-        val out = txChip.output.toUShort()
-        selectPrgPage(0U, ((out and 0x20U) shr 4) or (out and 0x01U))
-        selectChrPage(0U, (out and 0x1EU) shr 1)
+        val out = txChip.output
+        selectPrgPage(0, (out and 0x20 shr 4) or (out and 0x01))
+        selectChrPage(0, out and 0x1E shr 1)
     }
 
-    override fun readRegister(addr: UShort): UByte {
-        val value = if (addr.toInt() and 0x103 == 0x100) {
-            val v = txChip.read(addr).toUInt()
-            (((v and 0x3FU) shl 2) or ((v and 0xC0U) shr 6)).toUByte()
+    override fun readRegister(addr: Int): Int {
+        val value = if (addr and 0x103 == 0x100) {
+            val v = txChip.read(addr)
+            (v and 0x3F shl 2) or (v and 0xC0 shr 6)
         } else {
-            console.memoryManager.getOpenBus()
+            console.memoryManager.openBus()
         }
 
         updateState()
@@ -44,10 +44,10 @@ class Sachen147 : Mapper() {
         return value
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        txChip.write(addr, ((value and 0xFCU) shr 2) or ((value and 0x03U).toUInt() shl 6).toUByte())
+    override fun writeRegister(addr: Int, value: Int) {
+        txChip.write(addr, (value and 0xFC shr 2) or (value and 0x03 shl 6))
 
-        if (addr >= 0x8000U) {
+        if (addr >= 0x8000) {
             updateState()
         }
     }
@@ -61,6 +61,6 @@ class Sachen147 : Mapper() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        s.readSnapshot("txChip")?.let { txChip.restoreState(it) } ?: txChip.reset(false)
+        s.readSnapshotable("txChip", txChip) { txChip.reset(false) }
     }
 }

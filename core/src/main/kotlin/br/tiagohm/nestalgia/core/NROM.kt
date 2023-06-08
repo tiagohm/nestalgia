@@ -4,14 +4,14 @@ package br.tiagohm.nestalgia.core
 
 open class NROM : Mapper() {
 
-    override val prgPageSize = 0x4000U
+    override val prgPageSize = 0x4000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override fun init() {
-        selectPrgPage(0U, 0U)
-        selectPrgPage(1U, 1U)
+    override fun initialize() {
+        selectPrgPage(0, 0)
+        selectPrgPage(1, 1)
 
-        selectChrPage(0U, 0U)
+        selectChrPage(0, 0)
     }
 }

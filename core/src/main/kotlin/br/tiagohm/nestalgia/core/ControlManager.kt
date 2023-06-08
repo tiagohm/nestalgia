@@ -1,38 +1,33 @@
 package br.tiagohm.nestalgia.core
 
+import java.io.Closeable
+
 open class ControlManager(
-    val console: Console,
-    val systemActionManager: ControlDevice,
-    val mapperControlDevice: ControlDevice?,
-) : MemoryHandler,
-    Resetable,
-    Snapshotable,
-    Disposable {
+    protected val console: Console,
+    private val systemActionManager: ControlDevice,
+    private val mapperControlDevice: ControlDevice?,
+) : MemoryHandler, Resetable, Snapshotable, Closeable {
 
-    private var isLagging = false
-    private val inputProviders = ArrayList<InputProvider>()
-    private val inputRecorders = ArrayList<InputRecorder>()
-    private val controlDevices = ArrayList<ControlDevice>()
+    private var lagging = false
+    private val inputProviders = HashSet<InputProvider>()
+    private val inputRecorders = HashSet<InputRecorder>()
+    private val controlDevices = HashSet<ControlDevice>()
 
-    var pollCounter = 0U
-    var lagCounter = 0U
+    @JvmField var pollCounter = 0
+    @JvmField var lagCounter = 0
 
-    @Synchronized
     fun registerInputProvider(inputProvider: InputProvider) {
         inputProviders.add(inputProvider)
     }
 
-    @Synchronized
     fun unregisterInputProvider(inputProvider: InputProvider) {
         inputProviders.remove(inputProvider)
     }
 
-    @Synchronized
     fun registerInputRecorder(inputRecorder: InputRecorder) {
         inputRecorders.add(inputRecorder)
     }
 
-    @Synchronized
     fun unregisterInputRecorder(inputRecorder: InputRecorder) {
         inputRecorders.remove(inputRecorder)
     }
@@ -42,7 +37,7 @@ open class ControlManager(
             val states = ArrayList<ControlDeviceState>(4)
 
             for (i in 0..3) {
-                val device = getControlDevice(i)
+                val device = controlDevice(i)
                 states.add(device?.state ?: ControlDeviceState())
             }
 
@@ -50,16 +45,16 @@ open class ControlManager(
         }
 
     override fun reset(softReset: Boolean) {
-        lagCounter = 0U
+        lagCounter = 0
     }
 
-    override fun dispose() {
+    override fun close() {
         inputProviders.clear()
         inputRecorders.clear()
         controlDevices.clear()
     }
 
-    open fun updateControlDevices() {
+    fun updateControlDevices() {
         val settings = console.settings
 
         settings.needControllerUpdate()
@@ -70,22 +65,19 @@ open class ControlManager(
 
         registerControlDevice(systemActionManager)
 
-        var fourScore = settings.checkFlag(EmulationFlag.HAS_FOUR_SCORE)
+        var fourScore = settings.flag(EmulationFlag.HAS_FOUR_SCORE)
         val consoleType = settings.consoleType
-        var expansionDevice = settings.expansionDevice
+        var expansionPortDevice = settings.expansionPortDevice
 
         if (consoleType != ConsoleType.FAMICOM) {
-            expansionDevice = ExpansionPortDevice.NONE
-        } else if (expansionDevice != ExpansionPortDevice.FOUR_PLAYER_ADAPTER) {
+            expansionPortDevice = ExpansionPortDevice.NONE
+        } else if (expansionPortDevice != ExpansionPortDevice.FOUR_PLAYER_ADAPTER) {
             fourScore = false
         }
 
-        for (i in 0 until if (fourScore) 4 else 2) {
-            val device = createControllerDevice(getControllerType(i), i, console)
-
-            if (device != null) {
-                registerControlDevice(device)
-            }
+        repeat(if (fourScore) 4 else 2) {
+            createControllerDevice(controllerType(it), it, console)
+                ?.also(::registerControlDevice)
         }
 
         if (fourScore && consoleType == ConsoleType.NES) {
@@ -93,17 +85,14 @@ open class ControlManager(
             registerControlDevice(FourScore(console))
         }
 
-        val expDevice = createExpansionDevice(expansionDevice, console)
-
-        if (expDevice != null) {
-            registerControlDevice(expDevice)
-        }
+        createExpansionDevice(expansionPortDevice, console)
+            ?.also(::registerControlDevice)
 
         val hasKeyboard = this.hasKeyboard
 
         if (!hasKeyboard) {
             settings.isKeyboardMode = false
-        } else if (!hadKeyboard && hasKeyboard) {
+        } else if (!hadKeyboard) {
             settings.isKeyboardMode = true
         }
 
@@ -136,9 +125,8 @@ open class ControlManager(
         }
     }
 
-    @Synchronized
     fun updateInputState() {
-        if (isLagging) lagCounter++ else isLagging = true
+        if (lagging) lagCounter++ else lagging = true
 
         console.keyManager?.refreshKeyState()
 
@@ -162,42 +150,42 @@ open class ControlManager(
         pollCounter++
     }
 
-    protected open fun remapControllerButtons() {
-    }
+    protected open fun remapControllerButtons() {}
 
-    inline val hasKeyboard: Boolean
-        get() = getControlDevice(ControlDevice.EXP_DEVICE_PORT)?.isKeyboard ?: false
+    val hasKeyboard
+        get() = controlDevice(ControlDevice.EXP_DEVICE_PORT)?.keyboard ?: false
 
-    protected open fun getOpenBusMask(port: UByte): UByte {
+    protected open fun openBusMask(port: Int): Int {
         // In the NES and Famicom, the top three (or five) bits are not driven, and so retain the bits of the previous byte on the bus.
         // Usually this is the most significant byte of the address of the controller port - 0x40.
         // Paperboy relies on this behavior and requires that reads from the controller ports return exactly $40 or $41 as appropriate.
         when (console.settings.consoleType) {
             ConsoleType.FAMICOM -> {
-                return if (console.settings.checkFlag(EmulationFlag.USE_NES_101_HVC_101_BEHAVIOR)) {
-                    if (port.isZero) 0xF8U else 0xE0U
+                return if (console.settings.flag(EmulationFlag.USE_NES_101_HVC_101_BEHAVIOR)) {
+                    if (port == 0) 0xF8 else 0xE0
                 } else {
-                    if (port.isZero) 0xF8U else 0xE0U
+                    if (port == 0) 0xF8 else 0xE0
                 }
             }
             else -> {
-                return if (console.settings.checkFlag(EmulationFlag.USE_NES_101_HVC_101_BEHAVIOR)) {
-                    if (port.isZero) 0xE4U else 0xE0U
+                return if (console.settings.flag(EmulationFlag.USE_NES_101_HVC_101_BEHAVIOR)) {
+                    if (port == 0) 0xE4 else 0xE0
                 } else {
-                    0xE0U
+                    0xE0
                 }
             }
         }
     }
 
-    override fun getMemoryRanges(ranges: MemoryRanges) {
-        ranges.addHandler(MemoryOperation.READ, 0x4016U, 0x4017U)
-        ranges.addHandler(MemoryOperation.WRITE, 0x4016U)
+    override fun memoryRanges(ranges: MemoryRanges) {
+        ranges.addHandler(MemoryOperation.READ, 0x4016, 0x4017)
+        ranges.addHandler(MemoryOperation.WRITE, 0x4016)
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte {
-        isLagging = false
-        var value = console.memoryManager.getOpenBus(getOpenBusMask((addr - 0x4016U).toUByte()))
+    override fun read(addr: Int, type: MemoryOperationType): Int {
+        lagging = false
+
+        var value = console.memoryManager.openBus(openBusMask(addr - 0x4016))
 
         for (device in controlDevices) {
             value = value or device.read(addr, type)
@@ -206,13 +194,13 @@ open class ControlManager(
         return value
     }
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         for (device in controlDevices) {
             device.write(addr, value, type)
         }
     }
 
-    fun getControlDevice(port: Int): ControlDevice? {
+    fun controlDevice(port: Int): ControlDevice? {
         return controlDevices.firstOrNull { it.port == port }
     }
 
@@ -220,21 +208,21 @@ open class ControlManager(
         controlDevices.add(device)
     }
 
-    protected open fun getControllerType(port: Int): ControllerType {
-        return console.settings.getControllerType(port)
+    protected open fun controllerType(port: Int): ControllerType {
+        return console.settings.controllerType(port)
     }
 
     override fun saveState(s: Snapshot) {
         val region = console.region
-        val expansionDevice = console.settings.expansionDevice
+        val expansionPortDevice = console.settings.expansionPortDevice
         val consoleType = console.settings.consoleType
-        val hasFourScore = console.settings.checkFlag(EmulationFlag.HAS_FOUR_SCORE)
-        val useNes101Hvc101Behavior = console.settings.checkFlag(EmulationFlag.USE_NES_101_HVC_101_BEHAVIOR)
+        val hasFourScore = console.settings.flag(EmulationFlag.HAS_FOUR_SCORE)
+        val useNes101Hvc101Behavior = console.settings.flag(EmulationFlag.USE_NES_101_HVC_101_BEHAVIOR)
         val asciiTurboFileSlot = console.settings.asciiTurboFileSlot
-        val controllerTypes = Array(4) { console.settings.getControllerType(it) }
+        val controllerTypes = Array(4) { console.settings.controllerType(it) }
 
         s.write("region", region)
-        s.write("expansionDevice", expansionDevice)
+        s.write("expansionPortDevice", expansionPortDevice)
         s.write("consoleType", consoleType)
         s.write("hasFourScore", hasFourScore)
         s.write("useNes101Hvc101Behavior", useNes101Hvc101Behavior)
@@ -243,34 +231,25 @@ open class ControlManager(
         s.write("lagCounter", lagCounter)
         s.write("pollCounter", pollCounter)
 
-        for (i in controlDevices.indices) {
-            s.write("controlDevice$i", controlDevices[i])
-        }
+        controlDevices.forEachIndexed { i, c -> s.write("controlDevice$i", c) }
     }
 
     override fun restoreState(s: Snapshot) {
-        s.load()
+        console.settings.region = s.readEnum("region", Region.AUTO)
+        console.settings.expansionPortDevice = s.readEnum("expansionPortDevice", ExpansionPortDevice.NONE)
+        console.settings.consoleType = s.readEnum("consoleType", ConsoleType.NES)
+        val hasFourScore = s.readBoolean("hasFourScore")
+        val useNes101Hvc101Behavior = s.readBoolean("useNes101Hvc101Behavior")
+        console.settings.asciiTurboFileSlot = s.readInt("asciiTurboFileSlot")
+        val controllerTypes = s.readArray<ControllerType>("controllerTypes")
+        lagCounter = s.readInt("lagCounter")
+        pollCounter = s.readInt("pollCounter")
 
-        console.settings.region = s.readEnum<Region>("region") ?: Region.AUTO
-        console.settings.expansionDevice = s.readEnum<ExpansionPortDevice>("expansionDevice") ?: ExpansionPortDevice.NONE
-        console.settings.consoleType = s.readEnum<ConsoleType>("consoleType") ?: ConsoleType.NES
-        val hasFourScore = s.readBoolean("hasFourScore") ?: false
-        val useNes101Hvc101Behavior = s.readBoolean("useNes101Hvc101Behavior") ?: false
-        console.settings.asciiTurboFileSlot = s.readInt("asciiTurboFileSlot") ?: 0
-        val controllerTypes = s.readEnumArray<ControllerType>("controllerTypes")
-        lagCounter = s.readUInt("lagCounter") ?: 0U
-        pollCounter = s.readUInt("pollCounter") ?: 0U
+        controllerTypes?.forEachIndexed { i, c -> console.settings.controllerType(i, c) }
 
-        controllerTypes?.forEachIndexed { i, c -> console.settings.setControllerType(i, c) }
+        console.settings.flag(EmulationFlag.HAS_FOUR_SCORE, hasFourScore)
+        console.settings.flag(EmulationFlag.USE_NES_101_HVC_101_BEHAVIOR, useNes101Hvc101Behavior)
 
-        if (hasFourScore) console.settings.setFlag(EmulationFlag.HAS_FOUR_SCORE)
-        else console.settings.clearFlag(EmulationFlag.HAS_FOUR_SCORE)
-
-        if (useNes101Hvc101Behavior) console.settings.setFlag(EmulationFlag.USE_NES_101_HVC_101_BEHAVIOR)
-        else console.settings.clearFlag(EmulationFlag.USE_NES_101_HVC_101_BEHAVIOR)
-
-        for (i in controlDevices.indices) {
-            s.readSnapshot("controlDevice$i")?.let { controlDevices[i].restoreState(it) }
-        }
+        controlDevices.forEachIndexed { i, c -> s.readSnapshotable("controlDevice$i", c) }
     }
 }

@@ -4,13 +4,13 @@ package br.tiagohm.nestalgia.core
 
 class Sachen143 : NROM() {
 
-    override val registerStartAddress: UShort = 0x4100U
+    override val registerStartAddress = 0x4100
 
-    override val registerEndAddress: UShort = 0x5FFFU
+    override val registerEndAddress = 0x5FFF
 
     override val allowRegisterRead = true
 
-    override fun readRegister(addr: UShort): UByte {
-        return ((addr.inv() and 0x3FU) or 0x40U).toUByte()
+    override fun readRegister(addr: Int): Int {
+        return (addr.inv() and 0x3F) or 0x40
     }
 }

@@ -5,64 +5,64 @@ open class SquareChannel(
     channel: AudioChannel,
     console: Console,
     mixer: SoundMixer?,
-    val isChannel1: Boolean,
-    val isMmc5: Boolean = false,
+    private val channel1: Boolean,
+    private val isMmc5: Boolean = false,
 ) : ApuEnvelope(channel, console, mixer) {
 
-    var duty: UByte = 0U
+    var duty = 0
         protected set
-    var dutyPos: UByte = 0U
+
+    var dutyPos = 0
         protected set
 
     protected var sweepEnabled = false
-    protected var sweepPeriod: UByte = 0U
+    protected var sweepPeriod = 0
     protected var sweepNegate = false
-    protected var sweepShift: UByte = 0U
+    protected var sweepShift = 0
     protected var reloadSweep = false
-    protected var sweepDivider: UByte = 0U
-    protected var sweepTargetPeriod = 0U
-    protected var realPeriod: UShort = 0U
+    protected var sweepDivider = 0
+    protected var sweepTargetPeriod = 0
+    protected var realPeriod = 0
 
-    override val frequency: Double
-        get() = region.clockRate / 16.0 / (realPeriod.toInt() + 1)
+    override val frequency
+        get() = region.clockRate / 16.0 / (realPeriod + 1)
 
     override fun clock() {
-        dutyPos = ((dutyPos - 1U) and 0x07U).toUByte()
+        dutyPos = (dutyPos - 1) and 0x07
         updateOutput()
     }
 
-    val isMuted: Boolean
-        get() {
-            // A period of t < 8, either set explicitly or via a sweep period update, silences the corresponding pulse channel.
-            return realPeriod < 8U || (!sweepNegate && sweepTargetPeriod > 0x7FFU)
-        }
+    override val muted
+        // A period of t < 8, either set explicitly or via a sweep period update,
+        // silences the corresponding pulse channel.
+        get() = realPeriod < 8 || (!sweepNegate && sweepTargetPeriod > 0x7FF)
 
     override fun reset(softReset: Boolean) {
         super.reset(softReset)
 
-        duty = 0U
-        dutyPos = 0U
+        duty = 0
+        dutyPos = 0
 
-        realPeriod = 0U
+        realPeriod = 0
 
         sweepEnabled = false
-        sweepPeriod = 0U
+        sweepPeriod = 0
         sweepNegate = false
-        sweepShift = 0U
+        sweepShift = 0
         reloadSweep = false
-        sweepDivider = 0U
-        sweepTargetPeriod = 0U
+        sweepDivider = 0
+        sweepTargetPeriod = 0
 
         updateTargetPeriod()
     }
 
     open fun updateTargetPeriod() {
-        val shiftResult = realPeriod shr sweepShift.toInt()
+        val shiftResult = realPeriod shr sweepShift
 
         if (sweepNegate) {
             sweepTargetPeriod = realPeriod - shiftResult
 
-            if (isChannel1) {
+            if (channel1) {
                 // As a result, a negative sweep on pulse channel 1 will subtract the shifted period value minus 1
                 sweepTargetPeriod--
             }
@@ -71,67 +71,67 @@ open class SquareChannel(
         }
     }
 
-    override fun getMemoryRanges(ranges: MemoryRanges) {
-        if (isChannel1) {
-            ranges.addHandler(MemoryOperation.WRITE, 0x4000U, 0x4003U)
+    override fun memoryRanges(ranges: MemoryRanges) {
+        if (channel1) {
+            ranges.addHandler(MemoryOperation.WRITE, 0x4000, 0x4003)
         } else {
-            ranges.addHandler(MemoryOperation.WRITE, 0x4004U, 0x4007U)
+            ranges.addHandler(MemoryOperation.WRITE, 0x4004, 0x4007)
         }
     }
 
-    open fun initializeSweep(value: UByte) {
+    open fun initializeSweep(value: Int) {
         sweepEnabled = value.bit7
         sweepNegate = value.bit3
 
         // The divider's period is set to P + 1
-        sweepPeriod = (((value and 0x70U) shr 4) + 1U).toUByte()
-        sweepShift = value and 0x07U
+        sweepPeriod = (value and 0x70 shr 4) + 1
+        sweepShift = value and 0x07
 
         updateTargetPeriod()
 
-        // Side effects: Sets the reload flag
+        // Side effects: Sets the reload flag.
         reloadSweep = true
     }
 
     inline fun updateOutput() {
-        if (isMuted) {
+        if (muted) {
             addOutput(0)
         } else {
-            addOutput((DUTY_SEQUENCES[duty.toInt()][dutyPos.toInt()].toInt() * volume).toByte())
+            addOutput(DUTY_SEQUENCES[duty][dutyPos] * volume)
         }
     }
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         console.apu.run()
 
-        when ((addr and 0x03U).toUInt()) {
+        when (addr and 0x03) {
             // 4000/4004
-            0U -> {
+            0 -> {
                 initializeLengthCounter(value.bit5)
                 initializeEnvelope(value)
 
-                duty = (value and 0xC0U) shr 6
+                duty = (value and 0xC0) shr 6
 
-                if (console.settings.checkFlag(EmulationFlag.SWAP_DUTY_CYCLES)) {
-                    duty = ((if (duty.bit1) 0x01U else 0x00U) or (if (duty.bit0) 0x02U else 0x00U)).toUByte()
+                if (console.settings.flag(EmulationFlag.SWAP_DUTY_CYCLES)) {
+                    duty = (if (duty.bit1) 0x01 else 0x00) or (if (duty.bit0) 0x02 else 0x00)
                 }
             }
             // 4001/4005
-            1U -> {
+            1 -> {
                 initializeSweep(value)
             }
             // 4002/4006
-            2U -> {
-                period = ((realPeriod and 0x0700U) or value.toUShort())
+            2 -> {
+                period = (realPeriod and 0x0700) or value
             }
             // 4003/4007
-            3U -> {
+            3 -> {
                 loadLengthCounter(value shr 3)
 
-                period = (realPeriod and 0xFFU) or ((value.toUInt() and 0x07U) shl 8).toUShort()
+                period = (realPeriod and 0xFF) or (value and 0x07 shl 8)
 
                 // The sequencer is restarted at the first value of the current sequence.
-                dutyPos = 0U
+                dutyPos = 0
 
                 //The envelope is also restarted.
                 resetEnvelope()
@@ -146,13 +146,13 @@ open class SquareChannel(
     fun tickSweep() {
         sweepDivider--
 
-        if (sweepDivider.isZero) {
-            if (sweepShift > 0U &&
+        if (sweepDivider == 0) {
+            if (sweepShift > 0 &&
                 sweepEnabled &&
-                realPeriod >= 8U &&
-                sweepTargetPeriod <= 0x7FFU
+                realPeriod >= 8 &&
+                sweepTargetPeriod <= 0x7FF
             ) {
-                period = sweepTargetPeriod.toUShort()
+                period = sweepTargetPeriod
             }
 
             sweepDivider = sweepPeriod
@@ -164,11 +164,11 @@ open class SquareChannel(
         }
     }
 
-    override var period: UShort
+    override var period
         get() = super.period
         set(value) {
             realPeriod = value
-            super.period = (realPeriod * 2U + 1U).toUShort()
+            super.period = realPeriod * 2 + 1
             updateTargetPeriod()
         }
 
@@ -190,25 +190,25 @@ open class SquareChannel(
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        realPeriod = s.readUShort("realPeriod") ?: 0U
-        duty = s.readUByte("duty") ?: 0U
-        dutyPos = s.readUByte("dutyPos") ?: 0U
-        sweepEnabled = s.readBoolean("sweepEnabled") ?: false
-        sweepPeriod = s.readUByte("sweepPeriod") ?: 0U
-        sweepNegate = s.readBoolean("sweepNegate") ?: false
-        sweepShift = s.readUByte("sweepShift") ?: 0U
-        reloadSweep = s.readBoolean("reloadSweep") ?: false
-        sweepDivider = s.readUByte("sweepDivider") ?: 0U
-        sweepTargetPeriod = s.readUInt("sweepTargetPeriod") ?: 0U
+        realPeriod = s.readInt("realPeriod")
+        duty = s.readInt("duty")
+        dutyPos = s.readInt("dutyPos")
+        sweepEnabled = s.readBoolean("sweepEnabled")
+        sweepPeriod = s.readInt("sweepPeriod")
+        sweepNegate = s.readBoolean("sweepNegate")
+        sweepShift = s.readInt("sweepShift")
+        reloadSweep = s.readBoolean("reloadSweep")
+        sweepDivider = s.readInt("sweepDivider")
+        sweepTargetPeriod = s.readInt("sweepTargetPeriod")
     }
 
     companion object {
 
         @JvmStatic val DUTY_SEQUENCES = arrayOf(
-            ubyteArrayOf(0U, 0U, 0U, 0U, 0U, 0U, 0U, 1U),
-            ubyteArrayOf(0U, 0U, 0U, 0U, 0U, 0U, 1U, 1U),
-            ubyteArrayOf(0U, 0U, 0U, 0U, 1U, 1U, 1U, 1U),
-            ubyteArrayOf(1U, 1U, 1U, 1U, 1U, 1U, 0U, 0U),
+            intArrayOf(0, 0, 0, 0, 0, 0, 0, 1),
+            intArrayOf(0, 0, 0, 0, 0, 0, 1, 1),
+            intArrayOf(0, 0, 0, 0, 1, 1, 1, 1),
+            intArrayOf(1, 1, 1, 1, 1, 1, 0, 0),
         )
     }
 }

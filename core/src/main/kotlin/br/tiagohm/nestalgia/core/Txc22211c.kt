@@ -5,19 +5,19 @@ package br.tiagohm.nestalgia.core
 class Txc22211c : Txc22211a() {
 
     override fun updateState() {
-        selectPrgPage(0U, 0U)
+        selectPrgPage(0, 0)
 
         when {
-            privateChrRomSize > 0x2000U -> {
+            mChrRomSize > 0x2000 -> {
                 selectChrPage(
-                    0U,
-                    ((if (txChip.output.bit0) 0x01U else 0x00U) or
-                        (if (txChip.y) 0x02U else 0U) or
-                        (if (txChip.output.bit1) 0x04U else 0x00U)).toUShort()
+                    0,
+                    (if (txChip.output.bit0) 0x01 else 0x00) or
+                        (if (txChip.y) 0x02 else 0) or
+                        (if (txChip.output.bit1) 0x04 else 0x00)
                 )
             }
-            txChip.y -> selectChrPage(0U, 0U)
-            else -> removePpuMemoryMapping(0U, 0x1FFFU)
+            txChip.y -> selectChrPage(0, 0)
+            else -> removePpuMemoryMapping(0, 0x1FFF)
         }
     }
 }

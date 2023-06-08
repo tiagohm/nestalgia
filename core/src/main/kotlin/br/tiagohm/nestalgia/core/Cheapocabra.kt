@@ -1,56 +1,58 @@
 package br.tiagohm.nestalgia.core
 
-
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_111
 // Único jogo "Ninja Ryukenden (China)" e não roda (tela verde).
 
 class Cheapocabra : FlashSST39SF040Mapper() {
 
-    override val prgPageSize = 0x8000U
+    override val prgPageSize = 0x8000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override val workRamSize = 0U
+    override val workRamSize = 0
 
-    override val saveRamSize = 0U
+    override val saveRamSize = 0
 
-    override val registerStartAddress: UShort = 0x5000U
+    override val registerStartAddress = 0x5000
 
-    override val registerEndAddress: UShort = 0x5FFFU
+    override val registerEndAddress = 0x5FFF
 
-    override val chrRamSize = 0x4000U
+    override val chrRamSize = 0x4000
 
     override val allowRegisterRead = true
 
-    private var prgReg: UByte = 0U
+    private var prgReg = 0
 
-    override fun init() {
-        super.init()
+    override lateinit var orgPrgRom: IntArray
 
-        addRegisterRange(0x7000U, 0x7FFFU, MemoryOperation.WRITE)
+    override fun initialize() {
+        super.initialize()
 
-        addRegisterRange(0x8000U, 0xFFFFU, MemoryOperation.ANY)
-        removeRegisterRange(0x5000U, 0x5FFFU, MemoryOperation.READ)
+        addRegisterRange(0x7000, 0x7FFF, MemoryOperation.WRITE)
 
-        writeRegister(0x5000U, getPowerOnByte())
+        addRegisterRange(0x8000, 0xFFFF, MemoryOperation.ANY)
+        removeRegisterRange(0x5000, 0x5FFF, MemoryOperation.READ)
+
+        writeRegister(0x5000, powerOnByte())
 
         orgPrgRom = prgRom.copyOf()
+
         applySaveData()
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        if (addr.toInt() < 0x8000) {
-            prgReg = value and 0x0FU
+    override fun writeRegister(addr: Int, value: Int) {
+        if (addr < 0x8000) {
+            prgReg = value and 0x0F
 
-            selectPrgPage(0U, prgReg.toUShort())
-            selectChrPage(0U, (value.toUShort() shr 4) and 0x01U)
+            selectPrgPage(0, prgReg)
+            selectChrPage(0, value shr 4 and 0x01)
 
             // TODO: Mesen itera até 8, mas causa erro de "Invalid PPU address range".
             repeat(4) {
-                setNametable(it, (if (value.bit5) 8 else 0) + it)
+                nametable(it, (if (value.bit5) 8 else 0) + it)
             }
         } else {
-            flash.write((prgReg.toInt() shl 15) or (addr.toInt() and 0x7FFF), value)
+            flash.write((prgReg shl 15) or (addr and 0x7FFF), value)
         }
     }
 }

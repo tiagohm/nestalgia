@@ -1,62 +1,42 @@
-import br.tiagohm.nestalgia.core.bit0
-import br.tiagohm.nestalgia.core.bit1
-import br.tiagohm.nestalgia.core.bit2
-import br.tiagohm.nestalgia.core.bit3
-import br.tiagohm.nestalgia.core.bit4
-import br.tiagohm.nestalgia.core.bit5
-import br.tiagohm.nestalgia.core.bit6
-import br.tiagohm.nestalgia.core.bit7
-import br.tiagohm.nestalgia.core.hiByte
-import br.tiagohm.nestalgia.core.loByte
-import br.tiagohm.nestalgia.core.makeUShort
-import br.tiagohm.nestalgia.core.shr
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
+import br.tiagohm.nestalgia.core.*
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.ints.shouldBeExactly
 
-class BitwiseTest {
-    @Test
-    fun makeUshort() {
-        assertEquals(0xFFFFU.toUShort(), makeUShort(0xFFU, 0xFFU))
-    }
+class BitwiseTest : StringSpec() {
 
-    @Test
-    fun bit() {
-        var byte: UByte = 0x55U
-        assertEquals(true, byte.bit0)
-        assertEquals(false, byte.bit1)
-        assertEquals(true, byte.bit2)
-        assertEquals(false, byte.bit3)
-        assertEquals(true, byte.bit4)
-        assertEquals(false, byte.bit5)
-        assertEquals(true, byte.bit6)
-        assertEquals(false, byte.bit7)
+    init {
+        "bit" {
+            0x55.bit0.shouldBeTrue()
+            0x55.bit1.shouldBeFalse()
+            0x55.bit2.shouldBeTrue()
+            0x55.bit3.shouldBeFalse()
+            0x55.bit4.shouldBeTrue()
+            0x55.bit5.shouldBeFalse()
+            0x55.bit6.shouldBeTrue()
+            0x55.bit7.shouldBeFalse()
 
-        byte = 0xAAU
-        assertEquals(false, byte.bit0)
-        assertEquals(true, byte.bit1)
-        assertEquals(false, byte.bit2)
-        assertEquals(true, byte.bit3)
-        assertEquals(false, byte.bit4)
-        assertEquals(true, byte.bit5)
-        assertEquals(false, byte.bit6)
-        assertEquals(true, byte.bit7)
-    }
-
-    @Test
-    fun lo() {
-        val a: UShort = 0xFFAAU
-        assertEquals(0xAAU.toUByte(), a.loByte)
-    }
-
-    @Test
-    fun hi() {
-        val a: UShort = 0x55AAU
-        assertEquals(0x55U.toUByte(), a.hiByte)
-    }
-
-    @Test
-    fun shr() {
-        val a: UByte = 0xFFU
-        assertEquals(0x7F.toUByte(), a shr 1)
+            0xAA.bit0.shouldBeFalse()
+            0xAA.bit1.shouldBeTrue()
+            0xAA.bit2.shouldBeFalse()
+            0xAA.bit3.shouldBeTrue()
+            0xAA.bit4.shouldBeFalse()
+            0xAA.bit5.shouldBeTrue()
+            0xAA.bit6.shouldBeFalse()
+            0xAA.bit7.shouldBeTrue()
+        }
+        "loByte" {
+            0x55AA33BB.loByte shouldBeExactly 0xBB
+        }
+        "hiByte" {
+            0x55AA33BB.hiByte shouldBeExactly 0x33
+        }
+        "higherByte" {
+            0x55AA33BB.higherByte shouldBeExactly 0xAA
+        }
+        "highestByte" {
+            0x55AA33BB.highestByte shouldBeExactly 0x55
+        }
     }
 }

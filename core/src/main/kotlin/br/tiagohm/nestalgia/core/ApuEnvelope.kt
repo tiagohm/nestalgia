@@ -7,31 +7,31 @@ abstract class ApuEnvelope(
 ) : ApuLengthCounter(channel, console, mixer) {
 
     private var constantVolume = false
-    private var envelopeCounter: UByte = 0U
+    private var envelopeCounter = 0
     private var start = false
-    private var divider: Byte = 0
-    private var counter: UByte = 0U
-    private var privateVolume: UByte = 0U
+    private var divider = 0
+    private var counter = 0
+    private var mVolume = 0
 
-    fun initializeEnvelope(regValue: UByte) {
+    fun initializeEnvelope(regValue: Int) {
         constantVolume = regValue.bit4
-        privateVolume = regValue and 0x0FU
+        mVolume = regValue and 0x0F
     }
 
     fun resetEnvelope() {
         start = true
     }
 
-    override val volume: Long
+    override val volume: Int
         get() {
-            return if (lengthCounter > 0U) {
+            return if (lengthCounter > 0) {
                 if (constantVolume) {
-                    privateVolume.toLong()
+                    mVolume
                 } else {
-                    counter.toLong()
+                    counter
                 }
             } else {
-                0L
+                0
             }
         }
 
@@ -39,11 +39,11 @@ abstract class ApuEnvelope(
         super.reset(softReset)
 
         constantVolume = false
-        privateVolume = 0U
-        envelopeCounter = 0U
+        mVolume = 0
+        envelopeCounter = 0
         start = false
         divider = 0
-        counter = 0U
+        counter = 0
     }
 
     fun tickEnvelope() {
@@ -51,17 +51,17 @@ abstract class ApuEnvelope(
             divider--
 
             if (divider < 0) {
-                divider = privateVolume.toByte()
-                if (counter > 0U) {
+                divider = mVolume
+                if (counter > 0) {
                     counter--
                 } else if (lengthCounterHalt) {
-                    counter = 15U
+                    counter = 15
                 }
             }
         } else {
             start = false
-            counter = 15U
-            divider = privateVolume.toByte()
+            counter = 15
+            divider = mVolume
         }
     }
 
@@ -69,7 +69,7 @@ abstract class ApuEnvelope(
         super.saveState(s)
 
         s.write("constantVolume", constantVolume)
-        s.write("privateVolume", privateVolume)
+        s.write("volume", mVolume)
         s.write("envelopeCounter", envelopeCounter)
         s.write("start", start)
         s.write("divider", divider)
@@ -79,11 +79,11 @@ abstract class ApuEnvelope(
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        constantVolume = s.readBoolean("constantVolume") ?: false
-        privateVolume = s.readUByte("privateVolume") ?: 0U
-        envelopeCounter = s.readUByte("envelopeCounter") ?: 0U
-        start = s.readBoolean("start") ?: false
-        divider = s.readByte("divider") ?: 0
-        counter = s.readUByte("counter") ?: 0U
+        constantVolume = s.readBoolean("constantVolume")
+        mVolume = s.readInt("volume")
+        envelopeCounter = s.readInt("envelopeCounter")
+        start = s.readBoolean("start")
+        divider = s.readInt("divider")
+        counter = s.readInt("counter")
     }
 }

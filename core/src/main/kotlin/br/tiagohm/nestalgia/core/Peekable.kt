@@ -1,9 +1,8 @@
 package br.tiagohm.nestalgia.core
 
 interface Peekable {
-    fun peek(addr: UShort): UByte = 0U
 
-    fun peekWord(addr: UShort): UShort {
-        return makeUShort(peek(addr), peek(addr.plusOne()))
-    }
+    fun peek(addr: Int) = 0
+
+    fun peekWord(addr: Int) = peek(addr) or (peek(addr + 1) shl 8)
 }

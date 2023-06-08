@@ -4,28 +4,28 @@ package br.tiagohm.nestalgia.core
 
 class FourScore(console: Console) : ControlDevice(console, EXP_DEVICE_PORT) {
 
-    private var signature4016 = 0U
-    private var signature4017 = 0U
+    private var signature4016 = 0
+    private var signature4017 = 0
 
     override fun refreshStateBuffer() {
         // Signature for port 0 = 0x10, reversed bit order => 0x08
         // Signature for port 1 = 0x20, reversed bit order => 0x04
-        signature4016 = 0x08U shl 16
-        signature4017 = 0x04U shl 16
+        signature4016 = 0x08 shl 16
+        signature4017 = 0x04 shl 16
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte {
+    override fun read(addr: Int, type: MemoryOperationType): Int {
         strobeOnRead()
 
-        var output: UByte = 0U
+        var output = 0
 
-        when (addr.toUInt()) {
-            0x4016U -> {
-                output = (signature4016 and 0x01U).toUByte()
+        when (addr) {
+            0x4016 -> {
+                output = signature4016 and 0x01
                 signature4016 = signature4016 shr 1
             }
-            0x4017U -> {
-                output = (signature4017 and 0x01U).toUByte()
+            0x4017 -> {
+                output = signature4017 and 0x01
                 signature4017 = signature4017 shr 1
             }
         }
@@ -33,7 +33,7 @@ class FourScore(console: Console) : ControlDevice(console, EXP_DEVICE_PORT) {
         return output
     }
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         strobeOnWrite(value)
     }
 
@@ -47,7 +47,7 @@ class FourScore(console: Console) : ControlDevice(console, EXP_DEVICE_PORT) {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        signature4016 = s.readUInt("signature4016") ?: 0U
-        signature4017 = s.readUInt("signature4017") ?: 0U
+        signature4016 = s.readInt("signature4016")
+        signature4017 = s.readInt("signature4017")
     }
 }

@@ -5,14 +5,14 @@ package br.tiagohm.nestalgia.core
 class Mapper197 : MMC3() {
 
     override fun updateChrMapping() {
-        if (chrMode.isZero) {
-            selectChrPage4x(0U, (registers[0].toUInt() shl 1).toUShort())
-            selectChrPage2x(2U, (registers[2].toUInt() shl 1).toUShort())
-            selectChrPage2x(3U, (registers[3].toUInt() shl 1).toUShort())
-        } else if (chrMode.isOne) {
-            selectChrPage4x(0U, (registers[2].toUInt() shl 1).toUShort())
-            selectChrPage2x(2U, (registers[0].toUInt() shl 1).toUShort())
-            selectChrPage2x(3U, (registers[0].toUInt() shl 1).toUShort())
+        if (chrMode == 0) {
+            selectChrPage4x(0, registers[0] shl 1)
+            selectChrPage2x(2, registers[2] shl 1)
+            selectChrPage2x(3, registers[3] shl 1)
+        } else if (chrMode == 1) {
+            selectChrPage4x(0, registers[2] shl 1)
+            selectChrPage2x(2, registers[0] shl 1)
+            selectChrPage2x(3, registers[0] shl 1)
         }
     }
 }
