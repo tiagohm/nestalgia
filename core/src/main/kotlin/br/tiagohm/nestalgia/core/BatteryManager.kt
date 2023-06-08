@@ -2,51 +2,44 @@ package br.tiagohm.nestalgia.core
 
 import kotlin.math.min
 
-class BatteryManager(val console: Console) {
+class BatteryManager(private val console: Console) {
 
-    var isSaveEnabled = false
-
+    var saveEnabled = false
     var provider: BatteryProvider? = null
 
     fun initialize() {
-        isSaveEnabled = true
+        saveEnabled = true
     }
 
-    fun loadBattery(name: String, length: Int = -1): UByteArray {
+    fun loadBattery(name: String, length: Int = -1): IntArray {
         val batteryName = "${console.mapper!!.name}$name"
 
         try {
             if (provider != null) {
                 return if (length >= 0) {
-                    val data = UByteArray(length)
                     val batteryData = provider!!.loadBattery(batteryName)
-
-                    for (i in 0 until min(data.size, batteryData.size)) {
-                        data[i] = batteryData[i]
-                    }
-
-                    data
+                    batteryData.copyOfRange(0, min(length, batteryData.size))
                 } else {
                     provider!!.loadBattery(batteryName)
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             console.notificationManager.sendNotification(
                 NotificationType.ERROR,
                 "Cannot load battery from $batteryName"
             )
         }
 
-        return UByteArray(0)
+        return IntArray(0)
     }
 
-    fun saveBattery(name: String, data: UByteArray) {
-        if (isSaveEnabled && provider != null) {
+    fun saveBattery(name: String, data: IntArray) {
+        if (saveEnabled && provider != null) {
             val batteryName = "${console.mapper!!.name}$name"
 
             try {
                 provider!!.saveBattery(batteryName, data)
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 console.notificationManager.sendNotification(
                     NotificationType.ERROR,
                     "Cannot save battery at $batteryName"

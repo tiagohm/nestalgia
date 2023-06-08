@@ -1,22 +1,26 @@
 package br.tiagohm.nestalgia.core
 
-import java.util.*
+import org.slf4j.LoggerFactory
+import java.util.stream.Stream
 
 object GameDatabase {
 
-    private val entries = HashMap<Long, GameInfo>(8192)
+    const val FILENAME = "NesDB.csv"
 
-    fun get(crc: Long) = entries[crc]
+    @JvmStatic private val ENTRIES = HashMap<Long, GameInfo>(8192)
+    @JvmStatic private val LOG = LoggerFactory.getLogger(GameDatabase::class.java)
 
-    fun load(data: List<String>) {
+    @JvmStatic
+    operator fun get(crc: Long) = ENTRIES[crc]
+
+    @JvmStatic
+    fun load(data: Stream<String>) {
         for (line in data) {
             if (line.isEmpty() || line.startsWith("#")) continue
             val game = GameInfo.parse(line)
-            entries[game.crc] = game
+            ENTRIES[game.crc] = game
         }
 
-        System.err.println("${entries.size} games loaded in the database!!!")
+        LOG.info("{} games loaded in the database", ENTRIES.size)
     }
-
-    const val NES_DB_FILENAME = "NesDB.csv"
 }

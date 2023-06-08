@@ -13,9 +13,7 @@ data class StudyBoxData(
 
         if (fileName != other.fileName) return false
         if (!audioFile.contentEquals(other.audioFile)) return false
-        if (!pages.contentEquals(other.pages)) return false
-
-        return true
+        return pages.contentEquals(other.pages)
     }
 
     override fun hashCode(): Int {
@@ -26,6 +24,7 @@ data class StudyBoxData(
     }
 
     companion object {
-        val EMPTY = StudyBoxData()
+
+        @JvmStatic val EMPTY = StudyBoxData()
     }
 }

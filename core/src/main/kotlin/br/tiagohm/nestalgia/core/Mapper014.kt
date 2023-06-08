@@ -1,45 +1,47 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MirroringType.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_047
 
-@Suppress("NOTHING_TO_INLINE")
 class Mapper014 : MMC3() {
 
-    private val vrcChrRegs = UByteArray(8)
-    private val vrcPrgRegs = UByteArray(2)
-    private var vrcMirroring: UByte = 0U
-    private var mode: UByte = 0U
+    private val vrcChrRegs = IntArray(8)
+    private val vrcPrgRegs = IntArray(2)
+    private var vrcMirroring = 0
+    private var mode = 0
 
     override fun updateChrMapping() {
-        val slotSwap = if (state8000.bit7) 4U else 0U
-        val outerBank0: UShort = if (mode.bit3) 0x100U else 0U
-        val outerBank1: UShort = if (mode.bit5) 0x100U else 0U
-        val outerBank2: UShort = if (mode.bit7) 0x100U else 0U
-        selectChrPage((0U xor slotSwap).toUShort(), outerBank0 or (registers[0].toUShort() and 0xFFFEU))
-        selectChrPage((1U xor slotSwap).toUShort(), outerBank0 or registers[0].toUShort() or 1U)
-        selectChrPage((2U xor slotSwap).toUShort(), outerBank0 or (registers[1].toUShort() and 0xFFFEU))
-        selectChrPage((3U xor slotSwap).toUShort(), outerBank0 or registers[1].toUShort() or 1U)
-        selectChrPage((4U xor slotSwap).toUShort(), outerBank1 or registers[2].toUShort())
-        selectChrPage((5U xor slotSwap).toUShort(), outerBank1 or registers[3].toUShort())
-        selectChrPage((6U xor slotSwap).toUShort(), outerBank2 or registers[4].toUShort())
-        selectChrPage((7U xor slotSwap).toUShort(), outerBank2 or registers[5].toUShort())
+        val slotSwap = if (state8000.bit7) 4 else 0
+        val outerBank0 = if (mode.bit3) 0x100 else 0
+        val outerBank1 = if (mode.bit5) 0x100 else 0
+        val outerBank2 = if (mode.bit7) 0x100 else 0
+        selectChrPage(0 xor slotSwap, outerBank0 or (registers[0] and 0xFFFE))
+        selectChrPage(1 xor slotSwap, outerBank0 or registers[0] or 1)
+        selectChrPage(2 xor slotSwap, outerBank0 or (registers[1] and 0xFFFE))
+        selectChrPage(3 xor slotSwap, outerBank0 or registers[1] or 1)
+        selectChrPage(4 xor slotSwap, outerBank1 or registers[2])
+        selectChrPage(5 xor slotSwap, outerBank1 or registers[3])
+        selectChrPage(6 xor slotSwap, outerBank2 or registers[4])
+        selectChrPage(7 xor slotSwap, outerBank2 or registers[5])
     }
 
-    private inline fun updateVrcState() {
-        selectPrgPage(0U, vrcPrgRegs[0].toUShort())
-        selectPrgPage(1U, vrcPrgRegs[1].toUShort())
-        selectPrgPage(2U, 0xFFFEU)
-        selectPrgPage(3U, 0xFFFFU)
+    private fun updateVrcState() {
+        selectPrgPage(0, vrcPrgRegs[0])
+        selectPrgPage(1, vrcPrgRegs[1])
+        selectPrgPage(2, -2)
+        selectPrgPage(3, -1)
 
-        for (i in 0..7) {
-            selectChrPage(i.toUShort(), vrcChrRegs[i].toUShort())
+        repeat(8) {
+            selectChrPage(it, vrcChrRegs[it])
         }
 
-        mirroringType = if (vrcMirroring.bit0) MirroringType.HORIZONTAL else MirroringType.VERTICAL
+        mirroringType = if (vrcMirroring.bit0) HORIZONTAL
+        else VERTICAL
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        if (addr.toInt() == 0xA131) {
+    override fun writeRegister(addr: Int, value: Int) {
+        if (addr == 0xA131) {
             mode = value
         }
 
@@ -47,18 +49,17 @@ class Mapper014 : MMC3() {
             updateState()
             super.writeRegister(addr, value)
         } else {
-            if (addr >= 0xB000U && addr <= 0xEFFFU) {
-                val regNumber = ((((addr.toInt() shr 12) and 0x07) - 3) shl 1) + ((addr.toInt() shr 1) and 0x01)
-                val lowBits = addr.toInt() and 0x01 == 0x00
+            if (addr in 0xB000..0xEFFF) {
+                val regNumber = (((addr shr 12 and 0x07) - 3) shl 1) + (addr shr 1 and 0x01)
+                val lowBits = !addr.bit0
 
                 if (lowBits) {
-                    vrcChrRegs[regNumber] = (vrcChrRegs[regNumber] and 0xF0U) or (value and 0x0FU)
+                    vrcChrRegs[regNumber] = (vrcChrRegs[regNumber] and 0xF0) or (value and 0x0F)
                 } else {
-                    vrcChrRegs[regNumber] =
-                        (vrcChrRegs[regNumber] and 0x0FU) or ((value.toUInt() and 0x0FU) shl 4).toUByte()
+                    vrcChrRegs[regNumber] = (vrcChrRegs[regNumber] and 0x0F) or (value and 0x0F shl 4)
                 }
             } else {
-                when (addr.toInt() and 0xF003) {
+                when (addr and 0xF003) {
                     0x8000 -> vrcPrgRegs[0] = value
                     0x9000 -> vrcMirroring = value
                     0xA000 -> vrcPrgRegs[1] = value
@@ -81,9 +82,9 @@ class Mapper014 : MMC3() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        mode = s.readUByte("mode") ?: 0U
-        vrcMirroring = s.readUByte("vrcMirroring") ?: 0U
-        s.readUByteArray("vrcChrRegs")?.copyInto(vrcChrRegs) ?: vrcChrRegs.fill(0U)
-        s.readUByteArray("vrcPrgRegs")?.copyInto(vrcPrgRegs) ?: vrcPrgRegs.fill(0U)
+        mode = s.readInt("mode")
+        vrcMirroring = s.readInt("vrcMirroring")
+        s.readIntArrayOrFill("vrcChrRegs", vrcChrRegs, 0)
+        s.readIntArrayOrFill("vrcPrgRegs", vrcPrgRegs, 0)
     }
 }

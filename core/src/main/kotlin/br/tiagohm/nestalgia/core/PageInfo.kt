@@ -14,9 +14,7 @@ data class PageInfo(
 
         if (leadInOffset != other.leadInOffset) return false
         if (audioOffset != other.audioOffset) return false
-        if (!data.contentEquals(other.data)) return false
-
-        return true
+        return data.contentEquals(other.data)
     }
 
     override fun hashCode(): Int {

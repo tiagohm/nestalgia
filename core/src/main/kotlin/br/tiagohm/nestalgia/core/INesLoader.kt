@@ -4,43 +4,45 @@ import java.io.IOException
 
 object INesLoader {
 
-    fun load(rom: ByteArray, name: String, preloadedHeader: NesHeader? = null): RomData {
-        var dataSize = rom.size.toUInt()
+    @JvmStatic
+    fun load(rom: IntArray, name: String, preloadedHeader: NesHeader? = null): RomData {
+        var dataSize = rom.size
         var offset = 0
 
         val header = if (preloadedHeader != null) {
             preloadedHeader
         } else {
             offset = 16
-            dataSize -= 16U
+            dataSize -= 16
+
             NesHeader(
                 String(rom, 0, 4),
-                rom[4].toUByte(),
-                rom[5].toUByte(),
-                rom[6].toUByte(),
-                rom[7].toUByte(),
-                rom[8].toUByte(),
-                rom[9].toUByte(),
-                rom[10].toUByte(),
-                rom[11].toUByte(),
-                rom[12].toUByte(),
-                rom[13].toUByte(),
-                rom[14].toUByte(),
-                rom[15].toUByte(),
+                rom[4],
+                rom[5],
+                rom[6],
+                rom[7],
+                rom[8],
+                rom[9],
+                rom[10],
+                rom[11],
+                rom[12],
+                rom[13],
+                rom[14],
+                rom[15],
             )
         }
 
         val treinerData = if (header.hasTrainer) {
-            if (dataSize >= 512U) {
-                val bytes = UByteArray(512) { i -> rom[offset + i].toUByte() }
+            if (dataSize >= 512) {
+                val bytes = IntArray(512) { i -> rom[offset + i] }
                 offset += 512
-                dataSize -= 512U
+                dataSize -= 512
                 bytes
             } else {
                 throw IOException("File length does not match header information")
             }
         } else {
-            UByteArray(0)
+            IntArray(0)
         }
 
         val romCrc32 = rom.crc32(offset until rom.size)
@@ -49,14 +51,14 @@ object INesLoader {
         val romSha256 = rom.sha256(offset until rom.size)
         val romCrcHex = String.format("%08X", romCrc32)
 
-        val db = GameDatabase.get(romCrc32)
-        val prgSize: UInt
-        val chrSize: UInt
+        val db = GameDatabase[romCrc32]
+        val prgSize: Int
+        val chrSize: Int
 
         if (db != null) {
             System.err.println("$name: $romCrcHex")
-            prgSize = db.prgRomSize.toUInt()
-            chrSize = db.chrRomSize.toUInt()
+            prgSize = db.prgRomSize
+            chrSize = db.chrRomSize
         } else {
             System.err.println("The game $name ($romCrcHex) is not in database")
             prgSize = header.prgSize
@@ -69,19 +71,19 @@ object INesLoader {
             System.err.println("WARNING: File is larger than excepted")
         }
 
-        val prgRom = UByteArray(prgSize.toInt()) { i -> if (offset + i < rom.size) rom[offset + i].toUByte() else 0U }
-        val prgCrc32 = rom.crc32(offset until offset + prgSize.toInt())
-        val prgMd5 = rom.md5(offset until offset + prgSize.toInt())
-        val prgSha1 = rom.sha1(offset until offset + prgSize.toInt())
-        val prgSha256 = rom.sha256(offset until offset + prgSize.toInt())
+        val prgRom = IntArray(prgSize) { i -> if (offset + i < rom.size) rom[offset + i] else 0 }
+        val prgCrc32 = rom.crc32(offset until offset + prgSize)
+        val prgMd5 = rom.md5(offset until offset + prgSize)
+        val prgSha1 = rom.sha1(offset until offset + prgSize)
+        val prgSha256 = rom.sha256(offset until offset + prgSize)
 
-        offset += prgSize.toInt()
+        offset += prgSize
 
-        val chrRom = UByteArray(chrSize.toInt()) { i -> if (offset + i < rom.size) rom[offset + i].toUByte() else 0U }
-        val chrCrc32 = rom.crc32(offset until offset + chrSize.toInt())
-        val chrMd5 = rom.md5(offset until offset + chrSize.toInt())
-        val chrSha1 = rom.sha1(offset until offset + chrSize.toInt())
-        val chrSha256 = rom.sha256(offset until offset + chrSize.toInt())
+        val chrRom = IntArray(chrSize) { i -> if (offset + i < rom.size) rom[offset + i] else 0 }
+        val chrCrc32 = rom.crc32(offset until offset + chrSize)
+        val chrMd5 = rom.md5(offset until offset + chrSize)
+        val chrSha1 = rom.sha1(offset until offset + chrSize)
+        val chrSha256 = rom.sha256(offset until offset + chrSize)
 
         val hash = HashInfo(
             prgCrc32,
@@ -131,7 +133,7 @@ object INesLoader {
             prgRom,
             chrRom,
             treinerData,
-            bytes = rom,
+            rawData = rom,
         )
 
         return db?.update(data, preloadedHeader != null) ?: data

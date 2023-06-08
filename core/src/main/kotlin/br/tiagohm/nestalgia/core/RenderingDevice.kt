@@ -1,9 +1,8 @@
 package br.tiagohm.nestalgia.core
 
-interface RenderingDevice : Resetable, Disposable {
-    val screenWidth: Int
+import java.io.Closeable
 
-    val screenHeight: Int
+interface RenderingDevice : Resetable, Closeable {
 
     fun updateFrame(buffer: IntArray, width: Int, height: Int)
 

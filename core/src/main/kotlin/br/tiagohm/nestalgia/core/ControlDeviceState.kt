@@ -1,7 +1,9 @@
 package br.tiagohm.nestalgia.core
 
-@Suppress("NOTHING_TO_INLINE")
-data class ControlDeviceState(val state: UByteArray = UByteArray(8)) {
+@Suppress("ArrayInDataClass")
+data class ControlDeviceState(@JvmField val state: IntArray = IntArray(8)) {
 
-    inline fun clear() = state.fill(0U)
+    fun clear() {
+        state.fill(0)
+    }
 }

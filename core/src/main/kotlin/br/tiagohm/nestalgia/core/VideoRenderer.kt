@@ -1,22 +1,22 @@
 package br.tiagohm.nestalgia.core
 
-import java.util.*
+import java.io.Closeable
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-class VideoRenderer(val console: Console) : Disposable {
+class VideoRenderer(private val console: Console) : Closeable {
 
     private var stop = AtomicBoolean(false)
     private var renderThread: Thread? = null
     private var rendereres = ArrayList<RenderingDevice>()
     private var waitForRender = Semaphore(1)
 
-    override fun dispose() {
+    override fun close() {
         stop.set(true)
         stopThread()
-        rendereres.forEach { it.dispose() }
+        rendereres.forEach { it.close() }
     }
 
     fun startThread() {
@@ -39,17 +39,16 @@ class VideoRenderer(val console: Console) : Disposable {
             try {
                 // Wait until a frame is ready, or until 16ms have passed (to allow UI to run at a minimum of 60fps)
                 waitForRender.tryAcquire(16, TimeUnit.MILLISECONDS)
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 break
             } finally {
-                if (console.isRunning) {
+                if (console.running) {
                     rendereres.forEach { it.render() }
                 }
             }
         }
     }
 
-    @Synchronized
     fun updateFrame(frame: IntArray, width: Int, height: Int) {
         if (rendereres.isNotEmpty()) {
             rendereres.forEach { it.updateFrame(frame, width, height) }

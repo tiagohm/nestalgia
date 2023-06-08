@@ -1,24 +1,12 @@
 package br.tiagohm.nestalgia.core
 
-@Suppress("NOTHING_TO_INLINE")
-abstract class VideoFilter(val console: Console) : Disposable {
+import java.io.Closeable
 
-    protected val buffer: IntArray = IntArray(Ppu.PIXEL_COUNT)
+interface VideoFilter : Closeable {
 
-    override fun dispose() {
-    }
+    fun sendFrame(input: IntArray): IntArray
 
-    open fun applyFilter(outputBuffer: UShortArray) {
-    }
+    fun takeScreenshot(): IntArray
 
-    open fun onBeforeApplyFilter() {
-    }
-
-    fun sendFrame(outputBuffer: UShortArray, frameNumber: Int): IntArray {
-        onBeforeApplyFilter()
-        applyFilter(outputBuffer)
-        return buffer
-    }
-
-    open fun takeScreenshot() = buffer
+    override fun close() {}
 }

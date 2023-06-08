@@ -1,27 +1,29 @@
 package br.tiagohm.nestalgia.core
 
-data class IpsRecord(
-    var address: Int = 0,
-    var length: Int = 0,
-    var replacement: UByteArray = UByteArray(0),
-    var repeatCount: Int = 0,
-    var value: UByte = 0U,
+import java.io.OutputStream
+
+internal class IpsRecord(
+    @JvmField var address: Int = 0,
+    @JvmField var length: Int = 0,
+    @JvmField var replacement: IntArray = IntArray(0),
+    @JvmField var repeatCount: Int = 0,
+    @JvmField var value: Int = 0,
 ) {
 
     fun read(data: Pointer): Int {
         // EOF
-        return if (data[0].toInt() == 69 &&
-            data[1].toInt() == 79 &&
-            data[2].toInt() == 70
+        return if (data[0] == 69 &&
+            data[1] == 79 &&
+            data[2] == 70
         ) {
             -1
         } else {
-            address = data[2].toInt() + (data[1].toInt() shl 8) + (data[0].toInt() shl 16)
-            length = data[4].toInt() + (data[3].toInt() shl 8)
+            address = data[2] or (data[1] shl 8) or (data[0] shl 16)
+            length = data[4] or (data[3] shl 8)
 
             return if (length == 0) {
                 // RLE record
-                repeatCount = data[6].toInt() + (data[5].toInt() shl 8)
+                repeatCount = data[6] or (data[5] shl 8)
                 value = data[7]
                 8
             } else {
@@ -31,20 +33,20 @@ data class IpsRecord(
         }
     }
 
-    fun write(output: MutableList<UByte>) {
-        output.add((address shr 16).toUByte())
-        output.add((address shr 8).toUByte())
-        output.add(address.toUByte())
+    fun write(output: OutputStream) {
+        output.write(address shr 16 and 0xFF)
+        output.write(address shr 8 and 0xFF)
+        output.write(address and 0xFF)
 
-        output.add((length shr 8).toUByte())
-        output.add((length).toUByte())
+        output.write(length shr 8 and 0xFF)
+        output.write(length and 0xFF)
 
         if (length == 0) {
-            output.add((repeatCount shr 8).toUByte())
-            output.add((repeatCount).toUByte())
-            output.add(value)
+            output.write(repeatCount shr 8 and 0xFF)
+            output.write(repeatCount and 0xFF)
+            output.write(value)
         } else {
-            output.addAll(replacement)
+            replacement.forEach(output::write)
         }
     }
 }

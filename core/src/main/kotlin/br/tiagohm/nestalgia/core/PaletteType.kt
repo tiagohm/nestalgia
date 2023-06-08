@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-enum class PaletteType(override val data: UIntArray) : Palette {
+enum class PaletteType(override val data: IntArray) : Palette {
     DEFAULT(EmulationSettings.DEFAULT_PALETTE),
     UNSATURATED(EmulationSettings.UNSATURATED_PALETTE),
     YUV(EmulationSettings.YUV_PALETTE),
@@ -11,8 +11,4 @@ enum class PaletteType(override val data: UIntArray) : Palette {
     PVM_STYLE(EmulationSettings.PVM_STYLE_PALETTE),
     SONY_CXA_2025(EmulationSettings.SONY_CXA_2025_PALETTE),
     WAVEBEAM(EmulationSettings.WAVEBEAM_PALETTE);
-
-    override val size = data.size
-
-    override val isFullColorPalette = size == 512
 }

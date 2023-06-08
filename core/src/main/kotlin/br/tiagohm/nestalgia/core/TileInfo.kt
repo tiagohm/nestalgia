@@ -2,11 +2,11 @@ package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
 data class TileInfo(
-    var lowByte: UByte = 0U,
-    var highByte: UByte = 0U,
-    var paletteOffset: UInt = 0U,
-    var tileAddr: UShort = 0U,
-    var offsetY: UByte = 0U,
+    var lowByte: Int = 0,
+    var highByte: Int = 0,
+    var paletteOffset: Int = 0,
+    var tileAddr: Int = 0,
+    var offsetY: Int = 0,
 ) : Snapshotable {
 
     inline fun copyFrom(tile: TileInfo) {
@@ -26,12 +26,10 @@ data class TileInfo(
     }
 
     override fun restoreState(s: Snapshot) {
-        s.load()
-
-        lowByte = s.readUByte("lowByte") ?: 0U
-        highByte = s.readUByte("highByte") ?: 0U
-        paletteOffset = s.readUInt("paletteOffset") ?: 0U
-        tileAddr = s.readUShort("tileAddr") ?: 0U
-        offsetY = s.readUByte("offsetY") ?: 0U
+        lowByte = s.readInt("lowByte")
+        highByte = s.readInt("highByte")
+        paletteOffset = s.readInt("paletteOffset")
+        tileAddr = s.readInt("tileAddr")
+        offsetY = s.readInt("offsetY")
     }
 }

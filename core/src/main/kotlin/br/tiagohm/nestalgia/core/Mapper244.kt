@@ -4,43 +4,41 @@ package br.tiagohm.nestalgia.core
 
 class Mapper244 : Mapper() {
 
-    override val prgPageSize = 0x8000U
+    override val prgPageSize = 0x8000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override fun init() {
-        selectPrgPage(0U, 0U)
-        selectChrPage(0U, 0U)
+    override fun initialize() {
+        selectPrgPage(0, 0)
+        selectChrPage(0, 0)
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        val v = value.toInt()
-
+    override fun writeRegister(addr: Int, value: Int) {
         if (value.bit3) {
-            selectChrPage(0U, LUT_CHR[((v shr 4) and 0x07)][(v and 0x07)])
+            selectChrPage(0, LUT_CHR[value shr 4 and 0x07][value and 0x07])
         } else {
-            selectPrgPage(0U, LUT_PRG[((v shr 4) and 0x03)][(v and 0x03)])
+            selectPrgPage(0, LUT_PRG[value shr 4 and 0x03][value and 0x03])
         }
     }
 
     companion object {
 
-        private val LUT_PRG = arrayOf(
-            ushortArrayOf(0U, 1U, 2U, 3U),
-            ushortArrayOf(3U, 2U, 1U, 0U),
-            ushortArrayOf(0U, 2U, 1U, 3U),
-            ushortArrayOf(3U, 1U, 2U, 0U),
+        @JvmStatic private val LUT_PRG = arrayOf(
+            intArrayOf(0, 1, 2, 3),
+            intArrayOf(3, 2, 1, 0),
+            intArrayOf(0, 2, 1, 3),
+            intArrayOf(3, 1, 2, 0),
         )
 
-        private val LUT_CHR = arrayOf(
-            ushortArrayOf(0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U),
-            ushortArrayOf(0U, 2U, 1U, 3U, 4U, 6U, 5U, 7U),
-            ushortArrayOf(0U, 1U, 4U, 5U, 2U, 3U, 6U, 7U),
-            ushortArrayOf(0U, 4U, 1U, 5U, 2U, 6U, 3U, 7U),
-            ushortArrayOf(0U, 4U, 2U, 6U, 1U, 5U, 3U, 7U),
-            ushortArrayOf(0U, 2U, 4U, 6U, 1U, 3U, 5U, 7U),
-            ushortArrayOf(7U, 6U, 5U, 4U, 3U, 2U, 1U, 0U),
-            ushortArrayOf(7U, 6U, 5U, 4U, 3U, 2U, 1U, 0U),
+        @JvmStatic private val LUT_CHR = arrayOf(
+            intArrayOf(0, 1, 2, 3, 4, 5, 6, 7),
+            intArrayOf(0, 2, 1, 3, 4, 6, 5, 7),
+            intArrayOf(0, 1, 4, 5, 2, 3, 6, 7),
+            intArrayOf(0, 4, 1, 5, 2, 6, 3, 7),
+            intArrayOf(0, 4, 2, 6, 1, 5, 3, 7),
+            intArrayOf(0, 2, 4, 6, 1, 3, 5, 7),
+            intArrayOf(7, 6, 5, 4, 3, 2, 1, 0),
+            intArrayOf(7, 6, 5, 4, 3, 2, 1, 0),
         )
     }
 }

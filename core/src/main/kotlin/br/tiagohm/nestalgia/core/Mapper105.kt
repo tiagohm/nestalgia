@@ -1,5 +1,10 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.IRQSource.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
+import br.tiagohm.nestalgia.core.MirroringType.*
+import br.tiagohm.nestalgia.core.PrgMemoryType.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_105
 
 class Mapper105 : MMC1() {
@@ -10,13 +15,13 @@ class Mapper105 : MMC1() {
 
     override val dipSwitchCount = 4
 
-    override fun init() {
-        super.init()
+    override fun initialize() {
+        super.initialize()
 
         initState = 0
         irqCounter = 0L
         irqEnabled = false
-        stateA000 = stateA000 or 0x10U // Set I bit to 1
+        stateA000 = stateA000 or 0x10 // Set I bit to 1
     }
 
     override fun processCpuClock() {
@@ -26,7 +31,7 @@ class Mapper105 : MMC1() {
             val maxCounter = 0x20000000 or (dipSwitches shl 25)
 
             if (irqCounter >= maxCounter) {
-                console.cpu.setIRQSource(IRQSource.EXTERNAL)
+                console.cpu.setIRQSource(EXTERNAL)
                 irqEnabled = false
             }
         }
@@ -42,42 +47,42 @@ class Mapper105 : MMC1() {
         if (stateA000.bit4) {
             irqEnabled = false
             irqCounter = 0
-            console.cpu.clearIRQSource(IRQSource.EXTERNAL)
+            console.cpu.clearIRQSource(EXTERNAL)
         } else {
             irqEnabled = true
         }
 
-        mirroringType = when (state8000.toInt() and 3) {
-            0 -> MirroringType.SCREEN_A_ONLY
-            1 -> MirroringType.SCREEN_B_ONLY
-            2 -> MirroringType.VERTICAL
-            else -> MirroringType.HORIZONTAL
+        mirroringType = when (state8000 and 3) {
+            0 -> SCREEN_A_ONLY
+            1 -> SCREEN_B_ONLY
+            2 -> VERTICAL
+            else -> HORIZONTAL
         }
 
-        val access = if (stateE000.bit4) MemoryAccessType.NO_ACCESS else MemoryAccessType.READ_WRITE
-        setCpuMemoryMapping(0x6000U, 0x7FFFU, 0, if (hasBattery) PrgMemoryType.SRAM else PrgMemoryType.WRAM, access)
+        val access = if (stateE000.bit4) NO_ACCESS else READ_WRITE
+        addCpuMemoryMapping(0x6000, 0x7FFF, 0, if (hasBattery) SRAM else WRAM, access)
 
         if (initState == 2) {
             if (stateA000.bit3) {
                 // MMC1 mode
-                val prgReg = ((stateE000 and 0x07U) or 0x08U).toUShort()
+                val prgReg = (stateE000 and 0x07) or 0x08
 
                 if (state8000.bit3) {
                     if (state8000.bit2) {
-                        selectPrgPage(0U, prgReg)
-                        selectPrgPage(1U, 0x0FU)
+                        selectPrgPage(0, prgReg)
+                        selectPrgPage(1, 0x0F)
                     } else {
-                        selectPrgPage(0U, 0x08U)
-                        selectPrgPage(1U, prgReg)
+                        selectPrgPage(0, 0x08)
+                        selectPrgPage(1, prgReg)
                     }
                 } else {
-                    selectPrgPage2x(0U, prgReg and 0xFEU)
+                    selectPrgPage2x(0, prgReg and 0xFE)
                 }
             } else {
-                selectPrgPage2x(0U, (stateA000 and 0x06U).toUShort())
+                selectPrgPage2x(0, stateA000 and 0x06)
             }
         } else {
-            selectPrgPage2x(0U, 0U)
+            selectPrgPage2x(0, 0)
         }
     }
 
@@ -92,8 +97,8 @@ class Mapper105 : MMC1() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        initState = s.readInt("initState") ?: 0
-        irqCounter = s.readLong("irqCounter") ?: 0
-        irqEnabled = s.readBoolean("irqEnabled") ?: false
+        initState = s.readInt("initState")
+        irqCounter = s.readLong("irqCounter")
+        irqEnabled = s.readBoolean("irqEnabled")
     }
 }

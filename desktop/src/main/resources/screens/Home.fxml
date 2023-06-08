@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import br.tiagohm.nestalgia.desktop.video.Television?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.input.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane maxHeight="-Infinity"
+            maxWidth="-Infinity"
+            minHeight="-Infinity"
+            minWidth="-Infinity"
+            prefHeight="528.0"
+            prefWidth="512.0"
+            xmlns="http://javafx.com/javafx/20"
+            xmlns:fx="http://javafx.com/fxml/1">
+    <VBox AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0">
+        <padding>
+            <Insets topRightBottomLeft="0.0"/>
+        </padding>
+        <MenuBar fx:id="menuBar">
+            <Menu text="File">
+                <MenuItem fx:id="openROMMenuItem"
+                          text="Open ROM"
+                          onAction="#openROM">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP"
+                                            code="O"
+                                            control="DOWN"
+                                            meta="UP"
+                                            shift="UP"
+                                            shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+                <Menu fx:id="recentGamesMenu"
+                      text="Recent games"/>
+                <MenuItem fx:id="saveStateMenuItem"
+                          text="Save state"
+                          onAction="#saveState">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP"
+                                            code="S"
+                                            control="DOWN"
+                                            meta="UP"
+                                            shift="UP"
+                                            shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+                <Menu fx:id="restoreStateMenu"
+                      text="Restore state">
+                    <MenuItem fx:id="openRestoreStateMenuItem"
+                              text="Open"
+                              onAction="#openRestoreState">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP"
+                                                code="R"
+                                                control="DOWN"
+                                                meta="UP"
+                                                shift="UP"
+                                                shortcut="UP"/>
+                        </accelerator>
+                    </MenuItem>
+                </Menu>
+                <MenuItem fx:id="screenshotMenuItem"
+                          text="Screenshot"
+                          onAction="#takeScreenshot">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP"
+                                            code="F12"
+                                            control="UP"
+                                            meta="UP"
+                                            shift="UP"
+                                            shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+            </Menu>
+            <Menu text="Game">
+                <MenuItem fx:id="hardResetMenuItem"
+                          text="Hard reset"
+                          onAction="#hardReset">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP"
+                                            code="F5"
+                                            control="UP"
+                                            meta="UP"
+                                            shift="UP"
+                                            shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+                <MenuItem fx:id="softResetMenuItem"
+                          text="Soft reset"
+                          onAction="#softReset">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP"
+                                            code="F6"
+                                            control="UP"
+                                            meta="UP"
+                                            shift="UP"
+                                            shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+                <MenuItem fx:id="pauseMenuItem"
+                          text="Pause"
+                          onAction="#pause">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP"
+                                            code="F7"
+                                            control="UP"
+                                            meta="UP"
+                                            shift="UP"
+                                            shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+                <MenuItem fx:id="resumeMenuItem"
+                          text="Resume"
+                          onAction="#resume">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP"
+                                            code="F8"
+                                            control="UP"
+                                            meta="UP"
+                                            shift="UP"
+                                            shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+                <MenuItem fx:id="powerOffMenuItem"
+                          text="Power off"
+                          onAction="#powerOff">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP"
+                                            code="F9"
+                                            control="UP"
+                                            meta="UP"
+                                            shift="UP"
+                                            shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+                <Menu fx:id="regionMenu"
+                      text="Region">
+                    <fx:define>
+                        <ToggleGroup fx:id="regionToggleGroup"/>
+                    </fx:define>
+                    <RadioMenuItem text="Auto"
+                                   userData="AUTO"
+                                   toggleGroup="$regionToggleGroup"
+                                   onAction="#chooseRegion"/>
+                    <RadioMenuItem text="NTSC"
+                                   userData="NTSC"
+                                   toggleGroup="$regionToggleGroup"
+                                   onAction="#chooseRegion"/>
+                    <RadioMenuItem text="PAL"
+                                   userData="PAL"
+                                   toggleGroup="$regionToggleGroup"
+                                   onAction="#chooseRegion"/>
+                    <RadioMenuItem text="DENDY"
+                                   userData="DENDY"
+                                   toggleGroup="$regionToggleGroup"
+                                   onAction="#chooseRegion"/>
+                </Menu>
+                <Menu fx:id="speedMenu"
+                      text="Speed">
+                    <fx:define>
+                        <ToggleGroup fx:id="speedToggleGroup"/>
+                    </fx:define>
+                    <RadioMenuItem text="Normal (100%)"
+                                   userData="100"
+                                   toggleGroup="$speedToggleGroup"
+                                   onAction="#chooseSpeed"/>
+                    <RadioMenuItem text="Double (200%)"
+                                   userData="200"
+                                   toggleGroup="$speedToggleGroup"
+                                   onAction="#chooseSpeed"/>
+                    <RadioMenuItem text="Triple (300%)"
+                                   userData="300"
+                                   toggleGroup="$speedToggleGroup"
+                                   onAction="#chooseSpeed"/>
+                    <RadioMenuItem text="Half (50%)"
+                                   userData="50"
+                                   toggleGroup="$speedToggleGroup"
+                                   onAction="#chooseSpeed"/>
+                    <RadioMenuItem text="Quarter (25%)"
+                                   userData="25"
+                                   toggleGroup="$speedToggleGroup"
+                                   onAction="#chooseSpeed"/>
+                </Menu>
+                <MenuItem fx:id="settingsMenu"
+                          text="Settings"
+                          onAction="#openSettings">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP"
+                                            code="F10"
+                                            control="UP"
+                                            meta="UP"
+                                            shift="UP"
+                                            shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+                <MenuItem fx:id="cheatsMenuItem"
+                          text="Cheats"
+                          onAction="#openCheats">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP"
+                                            code="F2"
+                                            control="UP"
+                                            meta="UP"
+                                            shift="UP"
+                                            shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+                <MenuItem fx:id="fullscreenMenuItem"
+                          text="Fullscreen"
+                          onAction="#toggleFullscreen">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP"
+                                            code="F11"
+                                            control="UP"
+                                            meta="UP"
+                                            shift="UP"
+                                            shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+            </Menu>
+            <Menu text="Help">
+                <MenuItem fx:id="aboutMenuItem"
+                          text="About"
+                          onAction="#openAbout">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP"
+                                            code="F1"
+                                            control="UP"
+                                            meta="UP"
+                                            shift="UP"
+                                            shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+            </Menu>
+        </MenuBar>
+        <Television fx:id="television"
+                    style="--fx-background-color: #000"
+                    VBox.vgrow="ALWAYS"/>
+    </VBox>
+</AnchorPane>

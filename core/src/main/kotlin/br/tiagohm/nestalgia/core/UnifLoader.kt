@@ -4,40 +4,38 @@ import java.io.IOException
 
 object UnifLoader {
 
-    fun load(rom: ByteArray, name: String) = read(rom, name)
+    @JvmStatic
+    fun load(rom: IntArray, name: String) = read(rom, name)
 
-    private fun read(rom: ByteArray, name: String): RomData {
+    @JvmStatic
+    private fun read(rom: IntArray, name: String): RomData {
         // Skip header, version & null bytes, start reading at first chunk
         var offset = 32
 
-        fun readFourCC() = String(ByteArray(4) { rom[offset++] })
+        fun readFourCC() = String(rom, offset, 4).also { offset += 4 }
 
-        fun readByte() = rom[offset++].toInt()
+        fun readByte() = rom[offset++]
 
-        fun readInt() = (rom[offset++].toInt() and 0xFF) or
-                ((rom[offset++].toInt() and 0xFF) shl 8) or
-                ((rom[offset++].toInt() and 0xFF) shl 16) or
-                ((rom[offset++].toInt() and 0xFF) shl 24)
+        fun readInt() = (rom[offset++] and 0xFF) or
+            (rom[offset++] and 0xFF shl 8) or
+            (rom[offset++] and 0xFF shl 16) or
+            (rom[offset++] and 0xFF shl 24)
 
         fun readString(): String {
             val res = StringBuilder()
 
             while (offset < rom.size) {
                 // End of string
-                if (rom[offset].toInt() == 0) {
+                if (rom[offset] == 0) {
                     offset++
                     break
                 } else {
                     // Ignore spaces
-                    res.append(rom[offset++].toInt().toChar())
+                    res.append(rom[offset++].toChar())
                 }
             }
 
             return "$res"
-        }
-
-        fun readByteArray(output: ByteArray) {
-            for (i in output.indices) output[i] = rom[offset++]
         }
 
         var board = ""
@@ -45,8 +43,8 @@ object UnifLoader {
         var system = GameSystem.UNKNOWN
         var hasBattety = false
         var mirroring = MirroringType.HORIZONTAL
-        val prgChunks = Array(16) { ByteArray(0) }
-        val chrChunks = Array(16) { ByteArray(0) }
+        val prgChunks = Array(16) { IntArray(0) }
+        val chrChunks = Array(16) { IntArray(0) }
 
         while (offset < rom.size) {
             // FourCC + Length
@@ -85,14 +83,16 @@ object UnifLoader {
                 // PRG
                 fourCC.startsWith("PRG") -> {
                     val chunkNumber = fourCC[3].toString().toInt(16)
-                    prgChunks[chunkNumber] = ByteArray(length)
-                    readByteArray(prgChunks[chunkNumber])
+                    prgChunks[chunkNumber] = IntArray(length)
+                    rom.copyInto(prgChunks[chunkNumber], 0, offset, offset + length)
+                    offset += length
                 }
                 // CHR
                 fourCC.startsWith("CHR") -> {
                     val chunkNumber = fourCC[3].toString().toInt(16)
-                    chrChunks[chunkNumber] = ByteArray(length)
-                    readByteArray(chrChunks[chunkNumber])
+                    chrChunks[chunkNumber] = IntArray(length)
+                    rom.copyInto(chrChunks[chunkNumber], 0, offset, offset + length)
+                    offset += length
                 }
                 // System
                 fourCC == "TVCI" -> {
@@ -132,43 +132,34 @@ object UnifLoader {
             }
         }
 
-        val prgRom = UByteArray(prgChunks.sumOf { it.size })
-        val chrRom = UByteArray(chrChunks.sumOf { it.size })
+        val prgRom = IntArray(prgChunks.sumOf { it.size })
+        val chrRom = IntArray(chrChunks.sumOf { it.size })
 
         var prgRomOffset = 0
         var chrRomOffset = 0
 
-        for (i in 0..15) {
-            prgChunks[i].forEach { prgRom[prgRomOffset++] = it.toUByte() }
-            chrChunks[i].forEach { chrRom[chrRomOffset++] = it.toUByte() }
+        for (i in prgChunks.indices) {
+            prgChunks[i].forEach { prgRom[prgRomOffset++] = it }
+            chrChunks[i].forEach { chrRom[chrRomOffset++] = it }
         }
 
         if (prgRom.isEmpty()) {
             throw IOException("[UNIF]: PRG ROM is empty")
         }
 
-        val prgChr = UByteArray(prgRom.size + chrRom.size)
+        val prgChr = IntArray(prgRom.size + chrRom.size)
         var romOffset = 0
 
         prgRom.forEach { prgChr[romOffset++] = it }
         chrRom.forEach { prgChr[romOffset++] = it }
 
         val hash = HashInfo(
-            prgRom.crc32(),
-            prgRom.md5(),
-            prgRom.sha1(),
-            prgRom.sha256(),
-            chrRom.crc32(),
-            chrRom.md5(),
-            chrRom.sha1(),
-            chrRom.sha256(),
-            prgChr.crc32(),
-            prgChr.md5(),
-            prgChr.sha1(),
-            prgChr.sha256(),
+            prgRom.crc32(), prgRom.md5(), prgRom.sha1(), prgRom.sha256(),
+            chrRom.crc32(), chrRom.md5(), chrRom.sha1(), chrRom.sha256(),
+            prgChr.crc32(), prgChr.md5(), prgChr.sha1(), prgChr.sha256(),
         )
 
-        val db = GameDatabase.get(hash.crc32)
+        val db = GameDatabase[hash.crc32]
 
         val info = RomInfo(
             name,
@@ -186,7 +177,7 @@ object UnifLoader {
             info,
             prgRom = prgRom,
             chrRom = chrRom,
-            bytes = rom,
+            rawData = rom,
         )
 
         return db?.update(data, false) ?: data

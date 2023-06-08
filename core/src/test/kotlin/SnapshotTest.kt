@@ -1,106 +1,118 @@
-import br.tiagohm.nestalgia.core.ConsoleType
+import br.tiagohm.nestalgia.core.CpuState
 import br.tiagohm.nestalgia.core.Region
 import br.tiagohm.nestalgia.core.Snapshot
-import org.junit.jupiter.api.Assertions.assertArrayEquals
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
+import br.tiagohm.nestalgia.core.Snapshotable
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.ints.shouldBeExactly
+import io.kotest.matchers.longs.shouldBeExactly
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 
-class SnapshotTest {
+class SnapshotTest : StringSpec() {
 
-    fun makeSnapshot(): Snapshot {
-        val s = Snapshot()
+    init {
+        "write and read boolean" {
+            snapshot("a" to true) {
+                readBoolean("a").shouldBeTrue()
+                readBoolean("b").shouldBeFalse()
+            }
+        }
+        "write and read int" {
+            snapshot("a" to 22) {
+                readInt("a") shouldBeExactly 22
+                readInt("b") shouldBeExactly 0
+            }
+        }
+        "write and read long" {
+            snapshot("a" to 22L) {
+                readLong("a") shouldBeExactly 22L
+                readLong("b") shouldBeExactly 0L
+            }
+        }
+        "write and read snapshotable" {
+            val state0 = CpuState(1, 2, 3, 4, 5, 6, 7, true)
 
-        s.write("a", false)
-        s.write("b", Byte.MAX_VALUE)
-        s.write("c", UByte.MAX_VALUE)
-        s.write("d", Short.MAX_VALUE)
-        s.write("e", UShort.MAX_VALUE)
-        s.write("f", Int.MAX_VALUE)
-        s.write("g", UInt.MAX_VALUE)
-        s.write("h", Long.MAX_VALUE)
-        s.write("i", ULong.MAX_VALUE)
-        s.write("j", Float.MAX_VALUE)
-        s.write("k", Double.MAX_VALUE)
+            snapshot("a" to state0) {
+                val state1 = CpuState()
+                state1 shouldNotBe state0
+                readSnapshotable("a", state1).shouldBeTrue()
+                state1 shouldBe state0
+                readSnapshotable("b", state1).shouldBeFalse()
+            }
+        }
+        "write and read snapshot" {
+            val snapshot = Snapshot()
+            snapshot.write("c", "1")
 
-        s.writeAscii("l", "Tiago")
-        s.writeUtf8("m", "Giovanna")
-        s.write("n", ConsoleType.FAMICOM)
-
-        s.write("o", booleanArrayOf(true, false))
-        s.write("p", byteArrayOf(Byte.MIN_VALUE, Byte.MAX_VALUE))
-        s.write("q", ubyteArrayOf(UByte.MIN_VALUE, UByte.MAX_VALUE))
-        s.write("r", shortArrayOf(Short.MIN_VALUE, Short.MAX_VALUE))
-        s.write("s", ushortArrayOf(UShort.MIN_VALUE, UShort.MAX_VALUE))
-        s.write("t", intArrayOf(Int.MIN_VALUE, Int.MAX_VALUE))
-        s.write("u", uintArrayOf(UInt.MIN_VALUE, UInt.MAX_VALUE))
-        s.write("v", longArrayOf(Long.MIN_VALUE, Long.MAX_VALUE))
-        s.write("w", ulongArrayOf(ULong.MIN_VALUE, ULong.MAX_VALUE))
-        s.write("x", floatArrayOf(Float.MIN_VALUE, Float.MAX_VALUE))
-        s.write("y", doubleArrayOf(Double.MIN_VALUE, Double.MAX_VALUE))
-        s.write("z", arrayOf(Region.NTSC, Region.DENDY))
-
-        return s
+            snapshot("a" to snapshot) {
+                readSnapshot("a").shouldNotBeNull() shouldBe snapshot
+                readSnapshot("b").shouldBeNull()
+            }
+        }
+        "write and read enum" {
+            snapshot("a" to Region.DENDY) {
+                readEnum("a", Region.NTSC) shouldBe Region.DENDY
+                readEnum("b", Region.NTSC) shouldBe Region.NTSC
+            }
+        }
+        "write and read short array" {
+            snapshot("a" to shortArrayOf(10, 20)) {
+                readShortArray("a") shouldBe shortArrayOf(10, 20)
+                readShortArray("b").shouldBeNull()
+            }
+        }
+        "write and read int array" {
+            snapshot("a" to intArrayOf(10, 20)) {
+                readIntArray("a") shouldBe intArrayOf(10, 20)
+                readIntArray("b").shouldBeNull()
+            }
+        }
+        "write and read enum array" {
+            snapshot("a" to Region.values()) {
+                readArray<Region>("a") shouldBe Region.values()
+                readArray<Region>("b").shouldBeNull()
+            }
+        }
+        "write and read string" {
+            snapshot("a" to "b") {
+                readString("a") shouldBe "b"
+                readString("b") shouldBe ""
+            }
+        }
     }
 
-    @Test
-    fun writeAndRead() {
-        val s0 = makeSnapshot()
-        val s1 = makeSnapshot()
+    companion object {
 
-        s0.write("aa", s1)
+        private inline fun snapshot(
+            vararg data: Pair<String, Any>,
+            action: Snapshot.() -> Unit,
+        ) {
+            val snapshot = Snapshot()
 
-        assertEquals(27, s0.load())
-        assertEquals(26, s1.load())
+            for ((key, value) in data) {
+                when (value) {
+                    is Boolean -> snapshot.write(key, value)
+                    is Int -> snapshot.write(key, value)
+                    is Long -> snapshot.write(key, value)
+                    is Snapshotable -> snapshot.write(key, value)
+                    is Snapshot -> snapshot.write(key, value)
+                    is Enum<*> -> snapshot.write(key, value)
+                    is ShortArray -> snapshot.write(key, value)
+                    is IntArray -> snapshot.write(key, value)
+                    is Array<*> -> snapshot.write(key, value)
+                    is String -> snapshot.write(key, value)
+                }
+            }
 
-        val s2 = s0.readSnapshot("aa")!!
-        assertEquals(26, s2.load())
+            snapshot.action()
 
-        testRead(s0)
-        testRead(s1)
-        testRead(s2)
-    }
-
-    fun testRead(s: Snapshot) {
-        assertEquals(false, s.readBoolean("a"))
-        assertEquals(Byte.MAX_VALUE, s.readByte("b"))
-        assertEquals(UByte.MAX_VALUE, s.readUByte("c"))
-        assertEquals(Short.MAX_VALUE, s.readShort("d"))
-        assertEquals(UShort.MAX_VALUE, s.readUShort("e"))
-        assertEquals(Int.MAX_VALUE, s.readInt("f"))
-        assertEquals(UInt.MAX_VALUE, s.readUInt("g"))
-        assertEquals(Long.MAX_VALUE, s.readLong("h"))
-        assertEquals(ULong.MAX_VALUE, s.readULong("i"))
-        assertEquals(Float.MAX_VALUE, s.readFloat("j"))
-        assertEquals(Double.MAX_VALUE, s.readDouble("k"))
-
-        assertEquals("Tiago", s.readAscii("l"))
-        assertEquals("Giovanna", s.readUtf8("m"))
-        assertEquals(ConsoleType.FAMICOM, s.readEnum<ConsoleType>("n"))
-
-        assertArrayEquals(booleanArrayOf(true, false), s.readBooleanArray("o"))
-        assertArrayEquals(byteArrayOf(Byte.MIN_VALUE, Byte.MAX_VALUE), s.readByteArray("p"))
-        assertArrayEquals(
-            byteArrayOf(UByte.MIN_VALUE.toByte(), UByte.MAX_VALUE.toByte()),
-            s.readUByteArray("q")?.toByteArray()
-        )
-        assertArrayEquals(shortArrayOf(Short.MIN_VALUE, Short.MAX_VALUE), s.readShortArray("r"))
-        assertArrayEquals(
-            shortArrayOf(UShort.MIN_VALUE.toShort(), UShort.MAX_VALUE.toShort()),
-            s.readUShortArray("s")?.toShortArray()
-        )
-        assertArrayEquals(intArrayOf(Int.MIN_VALUE, Int.MAX_VALUE), s.readIntArray("t"))
-        assertArrayEquals(
-            intArrayOf(UInt.MIN_VALUE.toInt(), UInt.MAX_VALUE.toInt()),
-            s.readUIntArray("u")?.toIntArray()
-        )
-        assertArrayEquals(longArrayOf(Long.MIN_VALUE, Long.MAX_VALUE), s.readLongArray("v"))
-        assertArrayEquals(
-            longArrayOf(ULong.MIN_VALUE.toLong(), ULong.MAX_VALUE.toLong()),
-            s.readULongArray("w")?.toLongArray()
-        )
-        assertArrayEquals(floatArrayOf(Float.MIN_VALUE, Float.MAX_VALUE), s.readFloatArray("x"))
-        assertArrayEquals(doubleArrayOf(Double.MIN_VALUE, Double.MAX_VALUE), s.readDoubleArray("y"))
-
-        assertArrayEquals(arrayOf(Region.NTSC, Region.DENDY), s.readEnumArray<Region>("z"))
+            with(Snapshot.from(snapshot.bytes())) {
+                action()
+            }
+        }
     }
 }

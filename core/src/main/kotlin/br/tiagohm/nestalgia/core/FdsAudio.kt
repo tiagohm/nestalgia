@@ -4,12 +4,9 @@ import kotlin.math.min
 
 // https://wiki.nesdev.com/w/index.php/FDS_audio
 
-@Suppress("NOTHING_TO_INLINE")
-class FdsAudio(console: Console) :
-    ExpansionAudio(console),
-    Memory {
+class FdsAudio(console: Console) : ExpansionAudio(console), Memory {
 
-    private val waveTable = UByteArray(64)
+    private val waveTable = IntArray(64)
     private var waveWriteEnabled = false
 
     private val volume = FdsChannel()
@@ -18,12 +15,12 @@ class FdsAudio(console: Console) :
     private var disableEnvelopes = false
     private var haltWaveform = false
 
-    private var masterVolume: UByte = 0U
+    private var masterVolume = 0
 
     // Internal values
     private var waveOverflowCounter = 0
     private var wavePitch = 0
-    private var wavePosition: UByte = 0U
+    private var wavePosition = 0
 
     private var lastOutput = 0
 
@@ -44,24 +41,24 @@ class FdsAudio(console: Console) :
         }
 
         if (haltWaveform) {
-            wavePosition = 0U
+            wavePosition = 0
             updateOutput()
         } else {
             updateOutput()
 
-            if ((frequency.toInt() + mod.output) > 0 && !waveWriteEnabled) {
-                waveOverflowCounter += frequency.toInt() + mod.output
+            if ((frequency + mod.output) > 0 && !waveWriteEnabled) {
+                waveOverflowCounter += frequency + mod.output
 
-                if (waveOverflowCounter < frequency.toInt() + mod.output) {
-                    wavePosition = ((wavePosition + 1U) and 0x3FU).toUByte()
+                if (waveOverflowCounter < frequency + mod.output) {
+                    wavePosition = (wavePosition + 1) and 0x3F
                 }
             }
         }
     }
 
-    private inline fun updateOutput() {
-        val level = min(volume.gain.toUInt(), 32U) * WAVE_VOLUME_TABLE[masterVolume.toInt()]
-        val outputLevel = ((waveTable[wavePosition.toInt()] * level) / 1152U).toInt() and 0xFF
+    private fun updateOutput() {
+        val level = min(volume.gain, 32) * WAVE_VOLUME_TABLE[masterVolume]
+        val outputLevel = (waveTable[wavePosition] * level / 1152) and 0xFF
 
         if (lastOutput != outputLevel) {
             console.apu.addExpansionAudioDelta(AudioChannel.FDS, outputLevel - lastOutput)
@@ -69,20 +66,20 @@ class FdsAudio(console: Console) :
         }
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte {
-        var value = console.memoryManager.getOpenBus()
+    override fun read(addr: Int, type: MemoryOperationType): Int {
+        var value = console.memoryManager.openBus()
 
         when {
-            addr <= 0x407FU -> {
-                value = value and 0xC0U
-                value = value or waveTable[addr.toInt() and 0x3F]
+            addr <= 0x407F -> {
+                value = value and 0xC0
+                value = value or waveTable[addr and 0x3F]
             }
-            addr.toInt() == 0x4090 -> {
-                value = value and 0xC0U
+            addr == 0x4090 -> {
+                value = value and 0xC0
                 value = value or volume.gain
             }
-            addr.toInt() == 0x4092 -> {
-                value = value and 0xC0U
+            addr == 0x4092 -> {
+                value = value and 0xC0
                 value = value or mod.gain
             }
         }
@@ -90,13 +87,13 @@ class FdsAudio(console: Console) :
         return value
     }
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
-        if (addr <= 0x407FU) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
+        if (addr <= 0x407F) {
             if (waveWriteEnabled) {
-                waveTable[addr.toInt() and 0x3F] = value and 0x3FU
+                waveTable[addr and 0x3F] = value and 0x3F
             }
         } else {
-            when (addr.toInt()) {
+            when (addr) {
                 0x4080, 0x4082 -> volume.write(addr, value, type)
                 0x4083 -> {
                     disableEnvelopes = value.bit6
@@ -112,7 +109,7 @@ class FdsAudio(console: Console) :
                 0x4084, 0x4085, 0x4086, 0x4087 -> mod.write(addr, value, type)
                 0x4088 -> mod.writeModulationTable(value)
                 0x4089 -> {
-                    masterVolume = value and 0x03U
+                    masterVolume = value and 0x03
                     waveWriteEnabled = value.bit7
                 }
                 0x408A -> {
@@ -142,20 +139,21 @@ class FdsAudio(console: Console) :
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        s.readSnapshot("volume")?.let { volume.restoreState(it) }
-        s.readSnapshot("mod")?.let { mod.restoreState(it) }
-        waveWriteEnabled = s.readBoolean("waveWriteEnabled") ?: false
-        disableEnvelopes = s.readBoolean("disableEnvelopes") ?: false
-        haltWaveform = s.readBoolean("haltWaveform") ?: false
-        masterVolume = s.readUByte("masterVolume") ?: 0U
-        waveOverflowCounter = s.readInt("waveOverflowCounter") ?: 0
-        wavePitch = s.readInt("wavePitch") ?: 0
-        wavePosition = s.readUByte("wavePosition") ?: 0U
-        lastOutput = s.readInt("lastOutput") ?: 0
-        s.readUByteArray("waveTable")?.copyInto(waveTable) ?: waveTable.fill(0U)
+        s.readSnapshotable("volume", volume)
+        s.readSnapshotable("mod", mod)
+        waveWriteEnabled = s.readBoolean("waveWriteEnabled")
+        disableEnvelopes = s.readBoolean("disableEnvelopes")
+        haltWaveform = s.readBoolean("haltWaveform")
+        masterVolume = s.readInt("masterVolume")
+        waveOverflowCounter = s.readInt("waveOverflowCounter")
+        wavePitch = s.readInt("wavePitch")
+        wavePosition = s.readInt("wavePosition")
+        lastOutput = s.readInt("lastOutput")
+        s.readIntArrayOrFill("waveTable", waveTable, 0)
     }
 
     companion object {
-        private val WAVE_VOLUME_TABLE = uintArrayOf(36U, 24U, 17U, 14U)
+
+        @JvmStatic private val WAVE_VOLUME_TABLE = intArrayOf(36, 24, 17, 14)
     }
 }

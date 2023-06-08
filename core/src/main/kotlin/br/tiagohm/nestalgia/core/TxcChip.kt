@@ -1,18 +1,15 @@
 package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
-class TxcChip(val isJv001: Boolean) :
-    Memory,
-    Resetable,
-    Snapshotable {
+class TxcChip(val isJv001: Boolean) : Memory, Resetable, Snapshotable {
 
-    private var accumulator: UByte = 0U
-    private var inverter: UByte = 0U
-    private var staging: UByte = 0U
+    private var accumulator = 0
+    private var inverter = 0
+    private var staging = 0
     private var increase = false
 
-    private val mask: UByte = if (isJv001) 0x0FU else 0x07U
-    private val maskInv = mask.inv()
+    private val mask = if (isJv001) 0x0F else 0x07
+    private val maskInv = mask.inv() and 0xFF
 
     var invert = isJv001
         private set
@@ -20,37 +17,37 @@ class TxcChip(val isJv001: Boolean) :
     var y = false
         private set
 
-    var output: UByte = 0U
+    var output = 0
         private set
 
     override fun reset(softReset: Boolean) {
-        accumulator = 0U
-        inverter = 0U
-        staging = 0U
+        accumulator = 0
+        inverter = 0
+        staging = 0
         increase = false
         invert = isJv001
-        output = 0U
+        output = 0
         y = false
     }
 
-    private inline fun updateYFlag(value: UByte) {
+    private inline fun updateYFlag(value: Int) {
         y = !invert || value.bit4
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte {
-        val value = (accumulator and mask) or ((inverter xor if (invert) 0xFFU else 0U) and maskInv)
+    override fun read(addr: Int, type: MemoryOperationType): Int {
+        val value = (accumulator and mask) or ((inverter xor if (invert) 0xFF else 0) and maskInv)
         updateYFlag(value)
         return value
     }
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         when {
-            addr.toInt() < 0x8000 -> {
-                when (addr.toInt() and 0xE103) {
+            addr < 0x8000 -> {
+                when (addr and 0xE103) {
                     0x4100 -> if (increase) {
                         accumulator++
                     } else {
-                        accumulator = (accumulator and maskInv) or (staging and mask) xor (if (invert) 0xFFU else 0U)
+                        accumulator = (accumulator and maskInv) or (staging and mask) xor (if (invert) 0xFF else 0)
                     }
                     0x4101 -> invert = value.bit0
                     0x4102 -> {
@@ -61,10 +58,10 @@ class TxcChip(val isJv001: Boolean) :
                 }
             }
             isJv001 -> {
-                output = (accumulator and 0x0FU) or (inverter and 0xF0U)
+                output = (accumulator and 0x0F) or (inverter and 0xF0)
             }
             else -> {
-                output = (accumulator and 0x0FU) or ((inverter and 0x08U).toUInt() shl 1).toUByte()
+                output = (accumulator and 0x0F) or (inverter and 0x08 shl 1)
             }
         }
 
@@ -82,12 +79,12 @@ class TxcChip(val isJv001: Boolean) :
     }
 
     override fun restoreState(s: Snapshot) {
-        accumulator = s.readUByte("accumulator") ?: 0U
-        invert = s.readBoolean("invert") ?: isJv001
-        inverter = s.readUByte("inverter") ?: 0U
-        staging = s.readUByte("staging") ?: 0U
-        output = s.readUByte("output") ?: 0U
-        increase = s.readBoolean("increase") ?: false
-        y = s.readBoolean("yFlag") ?: false
+        accumulator = s.readInt("accumulator")
+        invert = s.readBoolean("invert", isJv001)
+        inverter = s.readInt("inverter")
+        staging = s.readInt("staging")
+        output = s.readInt("output")
+        increase = s.readBoolean("increase")
+        y = s.readBoolean("yFlag")
     }
 }

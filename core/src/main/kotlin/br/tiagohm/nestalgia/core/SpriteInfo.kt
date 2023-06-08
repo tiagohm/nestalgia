@@ -1,13 +1,13 @@
 package br.tiagohm.nestalgia.core
 
 data class SpriteInfo(
-    var lowByte: UByte = 0U,
-    var highByte: UByte = 0U,
-    var paletteOffset: UInt = 0U,
-    var tileAddr: UShort = 0U,
+    var lowByte: Int = 0,
+    var highByte: Int = 0,
+    var paletteOffset: Int = 0,
+    var tileAddr: Int = 0,
     var horizontalMirror: Boolean = false,
     var backgroundPriority: Boolean = false,
-    var spriteX: UByte = 0U,
+    var spriteX: Int = 0,
     var verticalMirror: Boolean = false, // HD PPU
 ) : Snapshotable {
 
@@ -23,15 +23,13 @@ data class SpriteInfo(
     }
 
     override fun restoreState(s: Snapshot) {
-        s.load()
-
-        lowByte = s.readUByte("lowByte") ?: 0U
-        highByte = s.readUByte("highByte") ?: 0U
-        paletteOffset = s.readUInt("paletteOffset") ?: 0U
-        tileAddr = s.readUShort("tileAddr") ?: 0U
-        horizontalMirror = s.readBoolean("horizontalMirror") ?: false
-        backgroundPriority = s.readBoolean("backgroundPriority") ?: false
-        spriteX = s.readUByte("spriteX") ?: 0U
-        verticalMirror = s.readBoolean("verticalMirror") ?: false
+        lowByte = s.readInt("lowByte")
+        highByte = s.readInt("highByte")
+        paletteOffset = s.readInt("paletteOffset")
+        tileAddr = s.readInt("tileAddr")
+        horizontalMirror = s.readBoolean("horizontalMirror")
+        backgroundPriority = s.readBoolean("backgroundPriority")
+        spriteX = s.readInt("spriteX")
+        verticalMirror = s.readBoolean("verticalMirror")
     }
 }

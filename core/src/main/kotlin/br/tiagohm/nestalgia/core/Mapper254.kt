@@ -1,28 +1,30 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryOperation.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_254
 
 class Mapper254 : MMC3() {
 
-    private val exReg = UByteArray(2)
+    private val exReg = IntArray(2)
 
     override val allowRegisterRead = true
 
-    override fun init() {
-        super.init()
+    override fun initialize() {
+        super.initialize()
 
-        addRegisterRange(0x6000U, 0x7FFFU, MemoryOperation.READ)
-        removeRegisterRange(0x8000U, 0xFFFFU, MemoryOperation.READ)
+        addRegisterRange(0x6000, 0x7FFF, READ)
+        removeRegisterRange(0x8000, 0xFFFF, READ)
     }
 
-    override fun readRegister(addr: UShort): UByte {
+    override fun readRegister(addr: Int): Int {
         val value = internalRead(addr)
-        return if (exReg[0].isNonZero) value else value xor exReg[1]
+        return if (exReg[0] != 0) value else value xor exReg[1]
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        when (addr.toInt()) {
-            0x8000 -> exReg[0] = 0xFFU
+    override fun writeRegister(addr: Int, value: Int) {
+        when (addr) {
+            0x8000 -> exReg[0] = 0xFF
             0xA001 -> exReg[1] = value
         }
 
@@ -38,6 +40,6 @@ class Mapper254 : MMC3() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        s.readUByteArray("exReg")?.copyInto(exReg) ?: exReg.fill(0U)
+        s.readIntArrayOrFill("exReg", exReg, 0)
     }
 }

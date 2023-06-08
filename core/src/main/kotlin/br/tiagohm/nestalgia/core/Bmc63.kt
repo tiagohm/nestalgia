@@ -6,42 +6,41 @@ class Bmc63 : Mapper() {
 
     private var openBus = false
 
-    override val prgPageSize = 0x2000U
+    override val prgPageSize = 0x2000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override fun init() {
-        writeRegister(0x8000U, 0U)
+    override fun initialize() {
+        writeRegister(0x8000, 0)
     }
 
     override fun reset(softReset: Boolean) {
         openBus = false
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        val a = addr.toInt()
-        val b = a shr 1 and 0x1FC
-        val c = a shr 1 and 0x02
+    override fun writeRegister(addr: Int, value: Int) {
+        val b = addr shr 1 and 0x1FC
+        val c = addr shr 1 and 0x02
 
-        val bit1 = a and 0x2 != 0
+        val bit1 = addr.bit1
 
-        openBus = (a and 0x0300) == 0x0300
+        openBus = (addr and 0x0300) == 0x0300
 
         if (openBus) {
-            removeCpuMemoryMapping(0x8000U, 0xBFFFU)
+            removeCpuMemoryMapping(0x8000, 0xBFFF)
         } else {
-            selectPrgPage(0U, (b or if (bit1) 0 else (c or 0)).toUShort())
-            selectPrgPage(1U, (b or if (bit1) 1 else (c or 1)).toUShort())
+            selectPrgPage(0, b or if (bit1) 0 else (c or 0))
+            selectPrgPage(1, b or if (bit1) 1 else (c or 1))
         }
 
-        selectPrgPage(2U, (b or if (bit1) 2 else (c or 0)).toUShort())
+        selectPrgPage(2, b or if (bit1) 2 else (c or 0))
         selectPrgPage(
-            3U,
-            (if (a and 0x800 != 0) (a and 0x07C) or if (a and 0x06 != 0) 3 else 1
-            else b or if (bit1) 3 else c or 1).toUShort()
+            3,
+            if (addr and 0x800 != 0) (addr and 0x07C) or (if (addr and 0x06 != 0) 3 else 1)
+            else b or if (bit1) 3 else (c or 1)
         )
 
-        mirroringType = if (a and 1 != 0) MirroringType.HORIZONTAL else MirroringType.VERTICAL
+        mirroringType = if (addr.bit0) MirroringType.HORIZONTAL else MirroringType.VERTICAL
     }
 
     override fun saveState(s: Snapshot) {
@@ -53,10 +52,10 @@ class Bmc63 : Mapper() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        openBus = s.readBoolean("openBus") ?: false
+        openBus = s.readBoolean("openBus")
 
         if (openBus) {
-            removeCpuMemoryMapping(0x8000U, 0xBFFFU)
+            removeCpuMemoryMapping(0x8000, 0xBFFF)
         }
     }
 }

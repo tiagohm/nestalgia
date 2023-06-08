@@ -4,31 +4,31 @@ package br.tiagohm.nestalgia.core
 
 class Waixing164 : Mapper() {
 
-    private var prgBank: UShort = 0U
+    private var prgBank = 0
 
-    override val prgPageSize = 0x8000U
+    override val prgPageSize = 0x8000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override val registerStartAddress: UShort = 0x5000U
+    override val registerStartAddress = 0x5000
 
-    override val registerEndAddress: UShort = 0x5FFFU
+    override val registerEndAddress = 0x5FFF
 
-    override fun init() {
-        prgBank = 0x0FU
-        selectPrgPage(0U, prgBank)
-        selectChrPage(0U, 0U)
+    override fun initialize() {
+        prgBank = 0x0F
+        selectPrgPage(0, prgBank)
+        selectChrPage(0, 0)
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        when (addr.toInt() and 0x7300) {
+    override fun writeRegister(addr: Int, value: Int) {
+        when (addr and 0x7300) {
             0x5000 -> {
-                prgBank = (prgBank and 0xF0U) or (value and 0x0FU).toUShort()
-                selectPrgPage(0U, prgBank)
+                prgBank = (prgBank and 0xF0) or (value and 0x0F)
+                selectPrgPage(0, prgBank)
             }
             0x5100 -> {
-                prgBank = (prgBank and 0x0FU) or ((value and 0x0FU).toUInt() shl 4).toUShort()
-                selectPrgPage(0U, prgBank)
+                prgBank = (prgBank and 0x0F) or (value and 0x0F shl 4)
+                selectPrgPage(0, prgBank)
             }
         }
     }
@@ -42,6 +42,6 @@ class Waixing164 : Mapper() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        prgBank = s.readUShort("prgBank") ?: 0x0FU
+        prgBank = s.readInt("prgBank", 0x0F)
     }
 }

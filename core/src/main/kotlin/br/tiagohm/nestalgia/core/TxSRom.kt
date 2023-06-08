@@ -5,30 +5,30 @@ package br.tiagohm.nestalgia.core
 class TxSRom : MMC3() {
 
     override fun updateMirroring() {
-        // This is disabled, 8001 writes are used to setup mirroring instead
+        // This is disabled, 8001 writes are used to setup mirroring instead.
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        if (addr.toUInt() and 0xE001U == 0x8001U) {
-            val nametable = value.toInt() shr 7
+    override fun writeRegister(addr: Int, value: Int) {
+        if (addr and 0xE001 == 0x8001) {
+            val nametable = value shr 7
 
-            if (chrMode.isZero) {
-                when (currentRegister.toInt()) {
+            if (chrMode == 0) {
+                when (currentRegister) {
                     0 -> {
-                        setNametable(0, nametable)
-                        setNametable(1, nametable)
+                        nametable(0, nametable)
+                        nametable(1, nametable)
                     }
                     1 -> {
-                        setNametable(2, nametable)
-                        setNametable(3, nametable)
+                        nametable(2, nametable)
+                        nametable(3, nametable)
                     }
                 }
             } else {
-                when (currentRegister.toInt()) {
-                    2 -> setNametable(0, nametable)
-                    3 -> setNametable(1, nametable)
-                    4 -> setNametable(2, nametable)
-                    5 -> setNametable(3, nametable)
+                when (currentRegister) {
+                    2 -> nametable(0, nametable)
+                    3 -> nametable(1, nametable)
+                    4 -> nametable(2, nametable)
+                    5 -> nametable(3, nametable)
                 }
             }
         }

@@ -1,18 +1,24 @@
 package br.tiagohm.nestalgia.core
 
+import java.io.ByteArrayOutputStream
+import java.nio.IntBuffer
+
 object IpsPatcher {
 
+    @JvmStatic private val PATCH_BYTES = "PATCH".toByteArray(Charsets.US_ASCII)
+    @JvmStatic private val EOF_BYTES = "EOF".toByteArray(Charsets.US_ASCII)
+
+    @JvmStatic
     fun patch(
-        ipsData: UByteArray,
-        input: UByteArray,
-        output: MutableList<UByte>,
-    ): Boolean {
+        ipsData: IntArray,
+        input: IntArray,
+    ): IntArray {
         // "PATCH"
-        return if (ipsData[0].toInt() == 80 &&
-            ipsData[1].toInt() == 65 &&
-            ipsData[2].toInt() == 84 &&
-            ipsData[3].toInt() == 67 &&
-            ipsData[4].toInt() == 72
+        return if (ipsData[0] == 80 &&
+            ipsData[1] == 65 &&
+            ipsData[2] == 84 &&
+            ipsData[3] == 67 &&
+            ipsData[4] == 72
         ) {
             val records = ArrayList<IpsRecord>()
             var truncateOffset = -1
@@ -32,48 +38,53 @@ object IpsPatcher {
 
                     records.add(record)
                 }
-                // EOF, try to read truncate offset record if it exists
+                // EOF, try to read truncate offset record if it exists.
                 else {
                     offset += 3
 
                     if (offset + 4 < ipsData.size) {
-                        truncateOffset =
-                            ipsData[offset + 2].toInt() and (ipsData[offset + 1].toInt() shl 8) and (ipsData[offset].toInt() shl 16)
+                        truncateOffset = ipsData[offset + 2] or (ipsData[offset + 1] shl 8) or (ipsData[offset] shl 16)
                     }
 
                     break
                 }
             }
 
-            if (maxOutputSize >= output.size) for (i in 0 until maxOutputSize - output.size) output.add(0U)
-            else for (i in 0 until output.size - maxOutputSize) output.removeLastOrNull()
-
-            for (i in input.indices) output[i] = input[i]
+            val output = IntBuffer.allocate(maxOutputSize)
+            output.put(input)
 
             for (record in records) {
                 if (record.length == 0) {
-                    for (i in record.address until record.address + record.repeatCount) output[i] = record.value
+                    for (i in record.address until record.address + record.repeatCount) {
+                        output.put(i, record.value)
+                    }
                 } else {
-                    for (i in record.replacement.indices) output[record.address + i] = record.replacement[i]
+                    for (i in record.replacement.indices) {
+                        output.put(record.address + i, record.replacement[i])
+                    }
                 }
             }
 
-            if (truncateOffset != -1 && output.size > truncateOffset) {
-                for (i in 0 until truncateOffset - output.size) output.removeLastOrNull()
-            }
+            output.flip()
 
-            true
+            if (truncateOffset != -1 && output.position() > truncateOffset) {
+                val size = truncateOffset - output.position()
+                IntArray(size).also(output::get)
+            } else {
+                IntArray(output.remaining()).also(output::get)
+            }
         } else {
-            false
+            IntArray(0)
         }
     }
 
-    fun createPatch(originalData: UByteArray, newData: UByteArray): UByteArray {
-        assert(originalData.size == newData.size)
+    fun create(originalData: IntArray, newData: IntArray): IntArray {
+        val patchFile = object : ByteArrayOutputStream(originalData.size) {
 
-        val patchFile = ArrayList<UByte>(originalData.size)
+            fun toIntArray() = buf.toIntArray(count)
+        }
 
-        patchFile.addAll(PATCH_BYTES)
+        patchFile.write(PATCH_BYTES)
 
         var i = 0
         val length = originalData.size
@@ -106,7 +117,7 @@ object IpsPatcher {
 
                     if ((recordLength == rleCount && rleCount > 3) || rleCount > 13) {
                         if (recordLength == rleCount) {
-                            // Same character since the start of this entry, make the RLE entry now
+                            // Same character since the start of this entry, make the RLE entry now.
                             createRleRecord = true
                         } else {
                             recordLength -= rleCount
@@ -119,6 +130,7 @@ object IpsPatcher {
                 val record = if (createRleRecord) {
                     IpsRecord(recordAddress, 0, repeatCount = rleCount, value = rleByte)
                 } else {
+                    // TODO: Optimize sliceArray using an wrapper like ByteBuffer.
                     val replacement = newData.sliceArray(recordAddress until recordAddress + recordLength)
                     IpsRecord(recordAddress, recordLength, replacement)
                 }
@@ -127,11 +139,8 @@ object IpsPatcher {
             }
         }
 
-        patchFile.addAll(EOF_BYTES)
+        patchFile.writeBytes(EOF_BYTES)
 
-        return patchFile.toUByteArray()
+        return patchFile.toIntArray()
     }
-
-    private val PATCH_BYTES = ubyteArrayOf(80U, 65U, 84U, 67U, 72U)
-    private val EOF_BYTES = ubyteArrayOf(69U, 79U, 70U)
 }

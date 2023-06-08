@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_004
 
-@Suppress("NOTHING_TO_INLINE")
 open class MMC3 : Mapper() {
 
     private var wramEnabled = false
@@ -10,82 +9,82 @@ open class MMC3 : Mapper() {
     private var privateForceMmc3RevAIrqs = false
     private val a12Watcher = A12Watcher()
 
-    protected var irqReloadValue: UByte = 0U
-    protected var irqCounter: UByte = 0U
+    protected var irqReloadValue = 0
+    protected var irqCounter = 0
     protected var irqReload = false
     protected var irqEnabled = false
-    protected var prgMode: UByte = 0U
-    protected var chrMode: UByte = 0U
-    protected val registers = UByteArray(8)
+    protected var prgMode = 0
+    protected var chrMode = 0
+    protected val registers = IntArray(8)
 
-    protected val state = UByteArray(3)
+    protected val state = IntArray(3)
 
-    protected var currentRegister: UByte = 0U
+    protected var currentRegister = 0
         private set
 
-    protected open val forceMmc3RevAIrqs: Boolean
+    protected open val forceMmc3RevAIrqs
         get() = privateForceMmc3RevAIrqs
 
-    protected inline var state8000: UByte
+    protected inline var state8000
         get() = state[0]
         set(value) {
             state[0] = value
         }
 
-    protected inline var stateA000: UByte
+    protected inline var stateA000
         get() = state[1]
         set(value) {
             state[1] = value
         }
 
-    protected inline var stateA001: UByte
+    protected inline var stateA001
         get() = state[2]
         set(value) {
             state[2] = value
         }
 
-    override val prgPageSize = 0x2000U
+    override val prgPageSize = 0x2000
 
-    override val chrPageSize = 0x400U
+    override val chrPageSize = 0x400
 
-    override val saveRamPageSize: UInt
-        get() = if (info.subMapperId == 1) 0x200U else 0x2000U
+    override val saveRamPageSize
+        get() = if (info.subMapperId == 1) 0x200 else 0x2000
 
-    override val saveRamSize: UInt
-        get() = if (info.subMapperId == 1) 0x400U else 0x2000U
+    override val saveRamSize
+        get() = if (info.subMapperId == 1) 0x400 else 0x2000
 
     protected fun resetMMC3() {
         resetState()
 
-        chrMode = getPowerOnByte() and 0x01U
-        prgMode = getPowerOnByte() and 0x01U
+        chrMode = powerOnByte() and 0x01
+        prgMode = powerOnByte() and 0x01
 
-        currentRegister = getPowerOnByte()
+        currentRegister = powerOnByte()
 
         resetRegisters()
 
-        irqCounter = getPowerOnByte()
-        irqReloadValue = getPowerOnByte()
-        irqReload = getPowerOnByte().bit0
-        irqEnabled = getPowerOnByte().bit0
+        irqCounter = powerOnByte()
+        irqReloadValue = powerOnByte()
+        irqReload = powerOnByte().bit0
+        irqEnabled = powerOnByte().bit0
 
-        wramEnabled = getPowerOnByte().bit0
-        wramWriteProtected = getPowerOnByte().bit0
+        wramEnabled = powerOnByte().bit0
+        wramWriteProtected = powerOnByte().bit0
     }
 
     private fun resetState() {
-        for (i in state.indices) state[i] = getPowerOnByte()
+        for (i in state.indices) state[i] = powerOnByte()
     }
 
     private fun resetRegisters() {
-        registers[0] = getPowerOnByte(0U)
-        registers[1] = getPowerOnByte(2U)
-        registers[2] = getPowerOnByte(4U)
-        registers[3] = getPowerOnByte(5U)
-        registers[4] = getPowerOnByte(6U)
-        registers[5] = getPowerOnByte(7U)
-        registers[6] = getPowerOnByte(0U)
-        registers[7] = getPowerOnByte(1U)
+        registers[0] = powerOnByte(0)
+        registers[1] = powerOnByte(2)
+        registers[2] = powerOnByte(4)
+        registers[3] = powerOnByte(5)
+        registers[4] = powerOnByte(6)
+        registers[5] = powerOnByte(7)
+        registers[6] = powerOnByte(0)
+        registers[7] = powerOnByte(1)
     }
 
     protected open fun updateMirroring() {
@@ -95,50 +94,50 @@ open class MMC3 : Mapper() {
     }
 
     protected open fun updateChrMapping() {
-        if (chrMode.isZero) {
-            selectChrPage(0U, (registers[0] and 0xFEU).toUShort())
-            selectChrPage(1U, (registers[0] or 0x01U).toUShort())
-            selectChrPage(2U, (registers[1] and 0xFEU).toUShort())
-            selectChrPage(3U, (registers[1] or 0x01U).toUShort())
+        if (chrMode == 0) {
+            selectChrPage(0, registers[0] and 0xFE)
+            selectChrPage(1, registers[0] or 0x01)
+            selectChrPage(2, registers[1] and 0xFE)
+            selectChrPage(3, registers[1] or 0x01)
 
-            selectChrPage(4U, registers[2].toUShort())
-            selectChrPage(5U, registers[3].toUShort())
-            selectChrPage(6U, registers[4].toUShort())
-            selectChrPage(7U, registers[5].toUShort())
-        } else if (chrMode.isOne) {
-            selectChrPage(0U, registers[2].toUShort())
-            selectChrPage(1U, registers[3].toUShort())
-            selectChrPage(2U, registers[4].toUShort())
-            selectChrPage(3U, registers[5].toUShort())
+            selectChrPage(4, registers[2])
+            selectChrPage(5, registers[3])
+            selectChrPage(6, registers[4])
+            selectChrPage(7, registers[5])
+        } else if (chrMode == 1) {
+            selectChrPage(0, registers[2])
+            selectChrPage(1, registers[3])
+            selectChrPage(2, registers[4])
+            selectChrPage(3, registers[5])
 
-            selectChrPage(4U, (registers[0] and 0xFEU).toUShort())
-            selectChrPage(5U, (registers[0] or 0x01U).toUShort())
-            selectChrPage(6U, (registers[1] and 0xFEU).toUShort())
-            selectChrPage(7U, (registers[1] or 0x01U).toUShort())
+            selectChrPage(4, registers[0] and 0xFE)
+            selectChrPage(5, registers[0] or 0x01)
+            selectChrPage(6, registers[1] and 0xFE)
+            selectChrPage(7, registers[1] or 0x01)
         }
     }
 
     protected open fun updatePrgMapping() {
-        if (prgMode.isZero) {
-            selectPrgPage(0U, registers[6].toUShort())
-            selectPrgPage(1U, registers[7].toUShort())
-            selectPrgPage(2U, 0xFFFEU)
-            selectPrgPage(3U, 0xFFFFU)
-        } else if (prgMode.isOne) {
-            selectPrgPage(0U, 0xFFFEU)
-            selectPrgPage(1U, registers[7].toUShort())
-            selectPrgPage(2U, registers[6].toUShort())
-            selectPrgPage(3U, 0xFFFFU)
+        if (prgMode == 0) {
+            selectPrgPage(0, registers[6])
+            selectPrgPage(1, registers[7])
+            selectPrgPage(2, 0xFFFE)
+            selectPrgPage(3, 0xFFFF)
+        } else if (prgMode == 1) {
+            selectPrgPage(0, 0xFFFE)
+            selectPrgPage(1, registers[7])
+            selectPrgPage(2, registers[6])
+            selectPrgPage(3, 0xFFFF)
         }
     }
 
-    protected val canWriteToWram: Boolean
+    protected val canWriteToWram
         get() = wramEnabled && !wramWriteProtected
 
     protected open fun updateState() {
-        currentRegister = state8000 and 0x07U
-        chrMode = (state8000 and 0x80U) shr 7
-        prgMode = (state8000 and 0x40U) shr 6
+        currentRegister = state8000 and 0x07
+        chrMode = state8000 and 0x80 shr 7
+        prgMode = state8000 and 0x40 shr 6
 
         if (info.mapperId == 4 && info.subMapperId == 1) {
             // MMC6
@@ -151,20 +150,20 @@ open class MMC3 : Mapper() {
                 lastBankAccess = 0x00
             }
 
-            for (i in 0U..3U) {
-                setCpuMemoryMapping(
-                    (0x7000U + i * 0x400U).toUShort(),
-                    (0x71FFU + i * 0x400U).toUShort(),
-                    0.toShort(),
+            for (i in 0..3) {
+                addCpuMemoryMapping(
+                    0x7000 + i * 0x400,
+                    0x71FF + i * 0x400,
+                    0,
                     PrgMemoryType.SRAM,
-                    MEMORY_ACCESS_TYPES[firstBankAccess]
+                    MEMORY_ACCESS_TYPES[firstBankAccess],
                 )
-                setCpuMemoryMapping(
-                    (0x7200U + i * 0x400U).toUShort(),
-                    (0x73FFU + i * 0x400U).toUShort(),
-                    1.toShort(),
+                addCpuMemoryMapping(
+                    0x7200 + i * 0x400,
+                    0x73FF + i * 0x400,
+                    1,
                     PrgMemoryType.SRAM,
-                    MEMORY_ACCESS_TYPES[lastBankAccess]
+                    MEMORY_ACCESS_TYPES[lastBankAccess],
                 )
             }
         } else {
@@ -175,12 +174,12 @@ open class MMC3 : Mapper() {
                 val access = if (wramEnabled) if (canWriteToWram) MemoryAccessType.READ_WRITE else MemoryAccessType.READ
                 else MemoryAccessType.NO_ACCESS
 
-                setCpuMemoryMapping(
-                    0x6000U,
-                    0x7FFFU,
-                    0.toShort(),
+                addCpuMemoryMapping(
+                    0x6000,
+                    0x7FFF,
+                    0,
                     if (hasBattery) PrgMemoryType.SRAM else PrgMemoryType.WRAM,
-                    access
+                    access,
                 )
             }
         }
@@ -189,34 +188,34 @@ open class MMC3 : Mapper() {
         updateChrMapping()
     }
 
-    override fun init() {
+    override fun initialize() {
         privateForceMmc3RevAIrqs = info.gameInfo?.chip == "MMC3A"
 
         resetMMC3()
 
-        setCpuMemoryMapping(
-            0x6000U,
-            0x7FFFU,
-            0.toShort(),
-            if (hasBattery) PrgMemoryType.SRAM else PrgMemoryType.WRAM
+        addCpuMemoryMapping(
+            0x6000,
+            0x7FFF,
+            0,
+            if (hasBattery) PrgMemoryType.SRAM else PrgMemoryType.WRAM,
         )
 
         updateState()
         updateMirroring()
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        when (addr.toInt() and 0xE001) {
+    override fun writeRegister(addr: Int, value: Int) {
+        when (addr and 0xE001) {
             0x8000 -> {
                 state8000 = value
                 updateState()
             }
             0x8001 -> {
-                if (currentRegister <= 1U) {
+                if (currentRegister <= 1) {
                     // Writes to registers 0 and 1 always ignore bit 0
-                    registers[currentRegister.toInt()] = value and 0xFEU
+                    registers[currentRegister] = value and 0xFE
                 } else {
-                    registers[currentRegister.toInt()] = value
+                    registers[currentRegister] = value
                 }
 
                 updateState()
@@ -231,7 +230,7 @@ open class MMC3 : Mapper() {
             }
             0xC000 -> irqReloadValue = value
             0xC001 -> {
-                irqCounter = 0U
+                irqCounter = 0
                 irqReload = true
             }
             0xE000 -> {
@@ -246,22 +245,22 @@ open class MMC3 : Mapper() {
         console.cpu.setIRQSource(IRQSource.EXTERNAL)
     }
 
-    override fun notifyVRAMAddressChange(addr: UShort) {
+    override fun notifyVRAMAddressChange(addr: Int) {
         if (a12Watcher.updateVRAMAddress(addr, console.ppu.frameCycle) == A12StateChange.RISE) {
             val count = irqCounter
 
-            if (irqCounter.isZero || irqReload) {
+            if (irqCounter == 0 || irqReload) {
                 irqCounter = irqReloadValue
             } else {
                 irqCounter--
             }
 
-            if (forceMmc3RevAIrqs || console.settings.checkFlag(EmulationFlag.MMC3_IRQ_ALT_BEHAVIOR)) {
+            if (forceMmc3RevAIrqs || console.settings.flag(EmulationFlag.MMC3_IRQ_ALT_BEHAVIOR)) {
                 // MMC3 Revision A behavior
-                if (((count > 0U && irqReloadValue > 0U) || irqReload) && irqCounter.isZero && irqEnabled) {
+                if (((count > 0 && irqReloadValue > 0) || irqReload) && irqCounter == 0 && irqEnabled) {
                     triggerIrq()
                 }
-            } else if (irqCounter.isZero && irqEnabled) {
+            } else if (irqCounter == 0 && irqEnabled) {
                 triggerIrq()
             }
 
@@ -289,27 +288,27 @@ open class MMC3 : Mapper() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        s.readUByteArray("registers")?.copyInto(registers) ?: resetRegisters()
-        s.readSnapshot("a12Watcher")?.let { a12Watcher.restoreState(it) } ?: a12Watcher.reset(false)
-        s.readUByteArray("state")?.copyInto(state) ?: resetState()
-        currentRegister = s.readUByte("currentRegister") ?: 0U
-        chrMode = s.readUByte("chrMode") ?: 0U
-        prgMode = s.readUByte("prgMode") ?: 0U
-        irqReloadValue = s.readUByte("irqReloadValue") ?: 0U
-        irqCounter = s.readUByte("irqCounter") ?: 0U
-        irqReload = s.readBoolean("irqReload") ?: false
-        irqEnabled = s.readBoolean("irqEnabled") ?: false
-        wramEnabled = s.readBoolean("wramEnabled") ?: false
-        wramWriteProtected = s.readBoolean("wramWriteProtected") ?: false
+        s.readIntArray("registers", registers) ?: resetRegisters()
+        s.readSnapshotable("a12Watcher", a12Watcher) { a12Watcher.reset(false) }
+        s.readIntArray("state", state) ?: resetState()
+        currentRegister = s.readInt("currentRegister")
+        chrMode = s.readInt("chrMode")
+        prgMode = s.readInt("prgMode")
+        irqReloadValue = s.readInt("irqReloadValue")
+        irqCounter = s.readInt("irqCounter")
+        irqReload = s.readBoolean("irqReload")
+        irqEnabled = s.readBoolean("irqEnabled")
+        wramEnabled = s.readBoolean("wramEnabled")
+        wramWriteProtected = s.readBoolean("wramWriteProtected")
     }
 
     companion object {
 
-        protected val MEMORY_ACCESS_TYPES = arrayOf(
+        @JvmStatic protected val MEMORY_ACCESS_TYPES = arrayOf(
             MemoryAccessType.NO_ACCESS,
             MemoryAccessType.READ,
             MemoryAccessType.WRITE,
-            MemoryAccessType.READ_WRITE
+            MemoryAccessType.READ_WRITE,
         )
     }
 }

@@ -5,22 +5,22 @@ package br.tiagohm.nestalgia.core
 class Mapper045 : MMC3() {
 
     private var regIndex = 0
-    private val reg = UByteArray(4)
+    private val reg = IntArray(4)
 
-    override val registerStartAddress: UShort = 0x8000U
+    override val registerStartAddress = 0x8000
 
-    override val registerEndAddress: UShort = 0xFFFFU
+    override val registerEndAddress = 0xFFFF
 
-    override fun init() {
-        super.init()
+    override fun initialize() {
+        super.initialize()
 
         // Needed by Famicom Yarou Vol 1 - Game apparently writes to CHR RAM before initializing the registers
-        registers[0] = 0U
-        registers[1] = 2U
-        registers[2] = 4U
-        registers[3] = 5U
-        registers[4] = 6U
-        registers[5] = 7U
+        registers[0] = 0
+        registers[1] = 2
+        registers[2] = 4
+        registers[3] = 5
+        registers[4] = 6
+        registers[5] = 7
 
         updateChrMapping()
     }
@@ -28,7 +28,7 @@ class Mapper045 : MMC3() {
     override fun reset(softReset: Boolean) {
         super.reset(softReset)
 
-        addRegisterRange(0x6000U, 0x7FFFU)
+        addRegisterRange(0x6000, 0x7FFF)
 
         regIndex = 0
         resetReg()
@@ -37,18 +37,18 @@ class Mapper045 : MMC3() {
     }
 
     private fun resetReg() {
-        reg[0] = 0U
-        reg[1] = 0U
-        reg[2] = 0x0FU
-        reg[3] = 0U
+        reg[0] = 0
+        reg[1] = 0
+        reg[2] = 0x0F
+        reg[3] = 0
     }
 
-    override fun selectChrPage(slot: UShort, page: UShort, memoryType: ChrMemoryType) {
+    override fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType) {
         super.selectChrPage(
             slot,
             if (!hasChrRam) {
-                val p = page and (0xFFU shr (0x0F - (reg[2].toInt() and 0x0F))).toUShort()
-                p or (reg[0].toUInt() or ((reg[2].toUInt() and 0xF0U) shl 4)).toUShort()
+                val p = page and (0xFF shr (0x0F - (reg[2] and 0x0F)))
+                p or (reg[0] or ((reg[2] and 0xF0) shl 4))
             } else {
                 page
             },
@@ -56,21 +56,17 @@ class Mapper045 : MMC3() {
         )
     }
 
-    override fun selectPrgPage(slot: UShort, page: UShort, memoryType: PrgMemoryType) {
-        super.selectPrgPage(
-            slot,
-            ((page.toUInt() and (0x3FU xor (reg[3].toUInt() and 0x3FU))) or reg[1].toUInt()).toUShort(),
-            memoryType
-        )
+    override fun selectPrgPage(slot: Int, page: Int, memoryType: PrgMemoryType) {
+        super.selectPrgPage(slot, page and (0x3F xor (reg[3] and 0x3F)) or reg[1], memoryType)
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        if (addr < 0x8000U) {
+    override fun writeRegister(addr: Int, value: Int) {
+        if (addr < 0x8000) {
             if (!reg[3].bit6) {
                 reg[regIndex] = value
                 regIndex = (regIndex + 1) and 0x03
             } else {
-                removeRegisterRange(0x6000U, 0x7FFFU)
+                removeRegisterRange(0x6000, 0x7FFF)
             }
 
             updateState()
@@ -89,11 +85,11 @@ class Mapper045 : MMC3() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        regIndex = s.readInt("regIndex") ?: 0
-        s.readUByteArray("reg")?.copyInto(reg) ?: resetReg()
+        regIndex = s.readInt("regIndex")
+        s.readIntArray("reg", reg) ?: resetReg()
 
         if (reg[3].bit6) {
-            removeRegisterRange(0x6000U, 0x7FFFU)
+            removeRegisterRange(0x6000, 0x7FFF)
         }
     }
 }

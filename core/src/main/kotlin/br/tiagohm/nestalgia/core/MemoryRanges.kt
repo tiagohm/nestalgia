@@ -1,26 +1,44 @@
 package br.tiagohm.nestalgia.core
 
-import java.util.*
-
 class MemoryRanges {
 
-    val ramReadAddresses = ArrayList<UShort>()
-    val ramWriteAddresses = ArrayList<UShort>()
-    var allowOverride = false
+    @JvmField @Volatile internal var ramReadAddresses = IntArray(1024)
+    @JvmField @Volatile internal var ramWriteAddresses = IntArray(1024)
+    @JvmField @Volatile internal var allowOverride = false
+    @JvmField @Volatile internal var readSize = 0
+    @JvmField @Volatile internal var writeSize = 0
 
-    fun addHandler(operation: MemoryOperation, start: UShort, end: UShort = 0U) {
-        val b = if (end.toUInt() == 0U) start else end
+    fun addHandler(operation: MemoryOperation, start: Int, end: Int = 0) {
+        val b = if (end == 0) start else end
 
-        if (operation.isRead) {
+        if (operation.read) {
             for (i in start..b) {
-                ramReadAddresses.add(i.toUShort())
+                ensureReadSize(b - start + 1)
+                ramReadAddresses[readSize++] = i
             }
         }
 
-        if (operation.isWrite) {
+        if (operation.write) {
             for (i in start..b) {
-                ramWriteAddresses.add(i.toUShort())
+                ensureWriteSize(b - start + 1)
+                ramWriteAddresses[writeSize++] = i
             }
+        }
+    }
+
+    private fun ensureReadSize(size: Int) {
+        if (readSize + size >= ramReadAddresses.size) {
+            val data = IntArray(ramReadAddresses.size * 2)
+            ramReadAddresses.copyInto(data)
+            ramReadAddresses = data
+        }
+    }
+
+    private fun ensureWriteSize(size: Int) {
+        if (writeSize + size >= ramWriteAddresses.size) {
+            val data = IntArray(ramWriteAddresses.size * 2)
+            ramWriteAddresses.copyInto(data)
+            ramWriteAddresses = data
         }
     }
 }

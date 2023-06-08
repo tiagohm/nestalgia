@@ -4,37 +4,37 @@ package br.tiagohm.nestalgia.core
 
 class Mapper037 : MMC3() {
 
-    private var selectedBlock: UByte = 0U
+    private var selectedBlock = 0
 
-    override val registerStartAddress: UShort = 0x6000U
+    override val registerStartAddress = 0x6000
 
-    override val registerEndAddress: UShort = 0xFFFFU
+    override val registerEndAddress = 0xFFFF
 
     override fun reset(softReset: Boolean) {
         super.reset(softReset)
 
-        selectedBlock = 0U
+        selectedBlock = 0
         updateState()
     }
 
-    override fun selectChrPage(slot: UShort, page: UShort, memoryType: ChrMemoryType) {
-        super.selectChrPage(slot, if (selectedBlock >= 4U) (page or 0x80U) else page, memoryType)
+    override fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType) {
+        super.selectChrPage(slot, if (selectedBlock >= 4) (page or 0x80) else page, memoryType)
     }
 
-    override fun selectPrgPage(slot: UShort, page: UShort, memoryType: PrgMemoryType) {
+    override fun selectPrgPage(slot: Int, page: Int, memoryType: PrgMemoryType) {
         when {
-            selectedBlock <= 2U -> super.selectPrgPage(slot, page and 0x07U, memoryType)
-            selectedBlock.toUInt() == 3U -> super.selectPrgPage(slot, (page and 0x07U) or 0x08U, memoryType)
-            selectedBlock.toUInt() == 7U -> super.selectPrgPage(slot, (page and 0x07U) or 0x20U, memoryType)
-            selectedBlock >= 4U -> super.selectPrgPage(slot, (page and 0x0FU) or 0x10U, memoryType)
-            else -> super.selectPrgPage(slot, page, memoryType)
+            selectedBlock <= 2 -> super.selectPrgPage(slot, page and 0x07, memoryType)
+            selectedBlock == 3 -> super.selectPrgPage(slot, (page and 0x07) or 0x08, memoryType)
+            selectedBlock == 7 -> super.selectPrgPage(slot, (page and 0x07) or 0x20, memoryType)
+            else -> super.selectPrgPage(slot, (page and 0x0F) or 0x10, memoryType)
+            // else -> super.selectPrgPage(slot, page, memoryType)
         }
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        if (addr < 0x8000U) {
+    override fun writeRegister(addr: Int, value: Int) {
+        if (addr < 0x8000) {
             if (canWriteToWram) {
-                selectedBlock = value and 0x07U
+                selectedBlock = value and 0x07
                 updateState()
             }
         } else {
@@ -51,6 +51,6 @@ class Mapper037 : MMC3() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        selectedBlock = s.readUByte("selectedBlock") ?: 0U
+        selectedBlock = s.readInt("selectedBlock")
     }
 }

@@ -1,7 +1,8 @@
 package br.tiagohm.nestalgia.core
 
 interface BatteryProvider {
-    fun loadBattery(name: String): UByteArray
 
-    fun saveBattery(name: String, data: UByteArray)
+    fun loadBattery(name: String): IntArray
+
+    fun saveBattery(name: String, data: IntArray)
 }

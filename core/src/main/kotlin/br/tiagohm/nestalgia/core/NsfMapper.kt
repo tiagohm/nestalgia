@@ -8,16 +8,18 @@ class NsfMapper : Mapper() {
     override val dipSwitchCount: Int
         get() = TODO("Not yet implemented")
 
-    override fun dispose() {
+    override fun initialize() {}
+
+    override fun close() {
         console.settings.disableOverclocking = false
-        console.settings.clearFlag(EmulationFlag.NSF_PLAYER_ENABLED)
+        console.settings.flag(EmulationFlag.NSF_PLAYER_ENABLED, false)
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte {
+    override fun read(addr: Int, type: MemoryOperationType): Int {
         TODO("Not yet implemented")
     }
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         TODO("Not yet implemented")
     }
 }

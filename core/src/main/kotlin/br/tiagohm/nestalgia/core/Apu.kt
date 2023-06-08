@@ -1,24 +1,22 @@
 package br.tiagohm.nestalgia.core
 
-@Suppress("NOTHING_TO_INLINE")
-class Apu(val console: Console) :
-    MemoryHandler,
-    Resetable,
-    Snapshotable {
+class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, Snapshotable, Runnable {
 
-    private val mixer = console.soundMixer
     private var currentCycle = 0
     private var previousCycle = 0
 
-    val squareChannel1 = SquareChannel(AudioChannel.SQUARE_1, console, mixer, true)
-    val squareChannel2 = SquareChannel(AudioChannel.SQUARE_2, console, mixer, false)
-    val noiseChannel = NoiseChannel(AudioChannel.NOISE, console, mixer)
-    val triangleChannel = TriangleChannel(AudioChannel.TRIANGLE, console, mixer)
-    val deltaModulationChannel = DeltaModulationChannel(AudioChannel.DMC, console, mixer)
+    val squareChannel1 = SquareChannel(AudioChannel.SQUARE_1, console, console.soundMixer, true)
+    val squareChannel2 = SquareChannel(AudioChannel.SQUARE_2, console, console.soundMixer, false)
+    val noiseChannel = NoiseChannel(AudioChannel.NOISE, console, console.soundMixer)
+    val triangleChannel = TriangleChannel(AudioChannel.TRIANGLE, console, console.soundMixer)
+    val deltaModulationChannel = DeltaModulationChannel(AudioChannel.DMC, console, console.soundMixer)
     val frameCounter = ApuFrameCounter(console)
 
-    var isEnabled = true
-    var isNeedToRun = false
+    var enabled = true
+        internal set
+
+    var needToRun = false
+        internal set
 
     init {
         console.memoryManager.registerIODevice(squareChannel1)
@@ -31,21 +29,22 @@ class Apu(val console: Console) :
         reset(false)
     }
 
-    inline val dmcReadAddress: UShort
+    val dmcReadAddress
         get() = deltaModulationChannel.dmcReadAddress
 
-    inline fun setDmcReadBuffer(value: UByte) {
-        deltaModulationChannel.setDmcReadBuffer(value)
+    fun dmcReadBuffer(value: Int) {
+        deltaModulationChannel.dmcReadBuffer(value)
     }
 
-    private var privateRegion = Region.AUTO
-    var region: Region
-        get() = privateRegion
+    private var mRegion = Region.AUTO
+
+    var region
+        get() = mRegion
         set(value) {
-            // Finish the current apu frame before switching region
+            // Finish the current apu frame before switching region.
             run()
 
-            privateRegion = value
+            mRegion = value
 
             squareChannel1.region = region
             squareChannel2.region = region
@@ -54,11 +53,11 @@ class Apu(val console: Console) :
             deltaModulationChannel.region = region
             frameCounter.region = region
 
-            mixer.region = region
+            console.soundMixer.region = region
         }
 
     override fun reset(softReset: Boolean) {
-        isEnabled = true
+        enabled = true
         currentCycle = 0
         previousCycle = 0
 
@@ -71,12 +70,12 @@ class Apu(val console: Console) :
     }
 
     fun processCpuClock() {
-        if (isEnabled) {
+        if (enabled) {
             exec()
         }
     }
 
-    private inline fun exec() {
+    private fun exec() {
         currentCycle++
 
         if (currentCycle == SoundMixer.CYCLE_LENGTH - 1) {
@@ -86,11 +85,11 @@ class Apu(val console: Console) :
         }
     }
 
-    private inline fun needToRun(currentCycle: Int): Boolean {
-        if (deltaModulationChannel.needToRun() || isNeedToRun) {
+    private fun needToRun(currentCycle: Int): Boolean {
+        if (deltaModulationChannel.needToRun() || needToRun) {
             // Need to run whenever we alter the length counters
             // Need to run every cycle when DMC is running to get accurate emulation (CPU stalling, interaction with sprite DMA, etc.)
-            isNeedToRun = false
+            needToRun = false
             return true
         }
 
@@ -108,28 +107,28 @@ class Apu(val console: Console) :
         noiseChannel.endFrame()
         deltaModulationChannel.endFrame()
 
-        mixer.playAudioBuffer(currentCycle)
+        console.soundMixer.playAudioBuffer(currentCycle)
 
         currentCycle = 0
         previousCycle = 0
     }
 
-    override fun getMemoryRanges(ranges: MemoryRanges) {
-        ranges.addHandler(MemoryOperation.READ, 0x4015U)
-        ranges.addHandler(MemoryOperation.WRITE, 0x4015U)
+    override fun memoryRanges(ranges: MemoryRanges) {
+        ranges.addHandler(MemoryOperation.READ, 0x4015)
+        ranges.addHandler(MemoryOperation.WRITE, 0x4015)
     }
 
-    val status: UByte
+    val status: Int
         get() {
-            var status: UByte = 0U
+            var status = 0
 
-            status = status or (if (squareChannel1.status) 0x01U else 0x00U)
-            status = status or (if (squareChannel2.status) 0x02U else 0x00U)
-            status = status or (if (triangleChannel.status) 0x04U else 0x00U)
-            status = status or (if (noiseChannel.status) 0x08U else 0x00U)
-            status = status or (if (deltaModulationChannel.status) 0x10U else 0x00U)
-            status = status or (if (console.cpu.hasIRQSource(IRQSource.FRAME_COUNTER)) 0x40U else 0x00U)
-            status = status or (if (console.cpu.hasIRQSource(IRQSource.DMC)) 0x80U else 0x00U)
+            status = status or (if (squareChannel1.status) 0x01 else 0x00)
+            status = status or (if (squareChannel2.status) 0x02 else 0x00)
+            status = status or (if (triangleChannel.status) 0x04 else 0x00)
+            status = status or (if (noiseChannel.status) 0x08 else 0x00)
+            status = status or (if (deltaModulationChannel.status) 0x10 else 0x00)
+            status = status or (if (console.cpu.hasIRQSource(IRQSource.FRAME_COUNTER)) 0x40 else 0x00)
+            status = status or (if (console.cpu.hasIRQSource(IRQSource.DMC)) 0x80 else 0x00)
 
             return status
         }
@@ -153,18 +152,14 @@ class Apu(val console: Console) :
         }
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte {
+    override fun read(addr: Int, type: MemoryOperationType): Int {
         run()
 
-        val status = this.status
-
         // Reading $4015 clears the Frame Counter interrupt flag.
-        console.cpu.clearIRQSource(IRQSource.FRAME_COUNTER)
-
-        return status
+        return status.also { console.cpu.clearIRQSource(IRQSource.FRAME_COUNTER) }
     }
 
-    override fun peek(addr: UShort): UByte {
+    override fun peek(addr: Int): Int {
         // Only run the APU (to catch up) if we're running this in the emulation thread
         // (not 100% accurate, but we can't run the APU from any other thread without locking)
         if (console.emulationThreadId == Thread.currentThread().id) {
@@ -174,21 +169,22 @@ class Apu(val console: Console) :
         return status
     }
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         run()
 
         // Writing to $4015 clears the DMC interrupt flag.
-        // This needs to be done before setting the enabled flag for the DMC (because doing so can trigger an IRQ)
+        // This needs to be done before setting the enabled flag for the
+        // DMC (because doing so can trigger an IRQ).
         console.cpu.clearIRQSource(IRQSource.DMC)
 
-        squareChannel1.isEnabled = value.bit0
-        squareChannel2.isEnabled = value.bit1
-        triangleChannel.isEnabled = value.bit2
-        noiseChannel.isEnabled = value.bit3
-        deltaModulationChannel.setEnabled(value.bit4)
+        squareChannel1.enabled = value.bit0
+        squareChannel2.enabled = value.bit1
+        triangleChannel.enabled = value.bit2
+        noiseChannel.enabled = value.bit3
+        deltaModulationChannel.enable(value.bit4)
     }
 
-    fun run() {
+    override fun run() {
         // Update framecounter and all channels
         // This is called:
         // - At the end of a frame
@@ -220,35 +216,33 @@ class Apu(val console: Console) :
     }
 
     fun addExpansionAudioDelta(channel: AudioChannel, delta: Int) {
-        mixer.addDelta(channel, currentCycle, delta)
+        console.soundMixer.addDelta(channel, currentCycle, delta)
     }
 
     override fun saveState(s: Snapshot) {
-        // End the APU frame - makes it simpler to restore sound after a state reload
+        // End the APU frame - makes it simpler to restore sound after a state reload.
         endFrame()
 
-        s.write("region", privateRegion)
+        s.write("region", mRegion)
         s.write("square1", squareChannel1)
         s.write("square2", squareChannel2)
         s.write("triangle", triangleChannel)
         s.write("noise", noiseChannel)
         s.write("dmc", deltaModulationChannel)
         s.write("frameCounter", frameCounter)
-        s.write("mixer", mixer)
+        s.write("mixer", console.soundMixer)
     }
 
     override fun restoreState(s: Snapshot) {
-        s.load()
-
         previousCycle = 0
         currentCycle = 0
-        privateRegion = s.readEnum<Region>("region") ?: Region.AUTO
-        s.readSnapshot("square1")?.let { squareChannel1.restoreState(it) }
-        s.readSnapshot("square2")?.let { squareChannel2.restoreState(it) }
-        s.readSnapshot("triangle")?.let { triangleChannel.restoreState(it) }
-        s.readSnapshot("noise")?.let { noiseChannel.restoreState(it) }
-        s.readSnapshot("dmc")?.let { deltaModulationChannel.restoreState(it) }
-        s.readSnapshot("frameCounter")?.let { frameCounter.restoreState(it) }
-        s.readSnapshot("mixer")?.let { mixer.restoreState(it) }
+        mRegion = s.readEnum("region", Region.AUTO)
+        s.readSnapshotable("square1", squareChannel1)
+        s.readSnapshotable("square2", squareChannel2)
+        s.readSnapshotable("triangle", triangleChannel)
+        s.readSnapshotable("noise", noiseChannel)
+        s.readSnapshotable("dmc", deltaModulationChannel)
+        s.readSnapshotable("frameCounter", frameCounter)
+        s.readSnapshotable("mixer", console.soundMixer)
     }
 }

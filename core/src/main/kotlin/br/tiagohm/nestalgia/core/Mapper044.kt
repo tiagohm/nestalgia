@@ -4,37 +4,37 @@ package br.tiagohm.nestalgia.core
 
 class Mapper044 : MMC3() {
 
-    private var selectedBlock: UByte = 0U
+    private var selectedBlock = 0
 
     override fun reset(softReset: Boolean) {
         super.reset(softReset)
 
-        selectedBlock = 0U
+        selectedBlock = 0
         updateState()
     }
 
-    override fun selectChrPage(slot: UShort, page: UShort, memoryType: ChrMemoryType) {
+    override fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType) {
         super.selectChrPage(
             slot,
-            (page and if (selectedBlock <= 5U) 0x7FU else 0xFFU) or (selectedBlock * 0x80U).toUShort(),
-            memoryType
+            (page and if (selectedBlock <= 5) 0x7F else 0xFF) or (selectedBlock * 0x80),
+            memoryType,
         )
     }
 
-    override fun selectPrgPage(slot: UShort, page: UShort, memoryType: PrgMemoryType) {
+    override fun selectPrgPage(slot: Int, page: Int, memoryType: PrgMemoryType) {
         super.selectPrgPage(
             slot,
-            (page and if (selectedBlock <= 5U) 0x0FU else 0x1FU) or (selectedBlock * 0x10U).toUShort(),
-            memoryType
+            (page and if (selectedBlock <= 5) 0x0F else 0x1F) or (selectedBlock * 0x10),
+            memoryType,
         )
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        if ((addr.toUInt() and 0xE001U) == 0xA001U) {
-            selectedBlock = value and 0x07U
+    override fun writeRegister(addr: Int, value: Int) {
+        if ((addr and 0xE001) == 0xA001) {
+            selectedBlock = value and 0x07
 
-            if (selectedBlock.toUInt() == 7U) {
-                selectedBlock = 6U
+            if (selectedBlock == 7) {
+                selectedBlock = 6
             }
         }
 
@@ -50,6 +50,6 @@ class Mapper044 : MMC3() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        selectedBlock = s.readUByte("selectedBlock") ?: 0U
+        selectedBlock = s.readInt("selectedBlock")
     }
 }

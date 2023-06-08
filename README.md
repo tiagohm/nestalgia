@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://github.com/tiagohm/nestalgia/blob/master/docs/logo.png?raw=true" height="64" alt="Nestalgia" />
+<img src="https://github.com/tiagohm/nestalgia/blob/master/docs/mario-256.png?raw=true" height="64" alt="Nestalgia" />
 </p>
 
 <h1 align="center">Nestalgia</h1>
@@ -23,21 +23,9 @@ It implements only the emulator (no debugging tools).
 
 <p align="center">
 <img src="https://github.com/tiagohm/nestalgia/blob/master/docs/1.png?raw=true" height="400" alt="Nestalgia" />
-<img src="https://github.com/tiagohm/nestalgia/blob/master/docs/2.png?raw=true" height="400" alt="Nestalgia" />
 </p>
 
-## Supported Mappers
-
-Each mapper number represents a different cartridge type. Not all mappers are as important - some are used by hundreds
-of games, others are used by a single game. For example, mapper `#4` is used by over 500 licensed games, while
-mapper `#9` is used by a single game. Not all numbers from `0` to `255` have been assigned to specific cartridge models,
-some are still unused (gray).
-
-![](ines.png)
-
-![](unif.png)
-
-## Core
+## Library
 
 ### Install
 
@@ -57,12 +45,13 @@ dependencies {
 }
 ```
 
-## Desktop Version
+## Desktop
 
-[DOWNLOAD](https://raw.githubusercontent.com/tiagohm/nestalgia/master/desktop/nestalgia.jar)
+* [Windows](https://raw.githubusercontent.com/tiagohm/nestalgia/master/desktop/nestalgia.jar)
+* [Linux](https://raw.githubusercontent.com/tiagohm/nestalgia/master/desktop/nestalgia.jar)
+* [Mac](https://raw.githubusercontent.com/tiagohm/nestalgia/master/desktop/nestalgia.jar)
 
-> Before running, check if you have Java 8 or newer installed. Linux users will need to set execute permissions on the
-JAR.
+> Before running, check if you have Java 17 or newer installed.
 
 ### Player 1 Controller Keys
 
@@ -71,12 +60,6 @@ JAR.
 * A Button: A
 * Select: Space
 * Start: Enter
-
-## Android Version
-
-[DOWNLOAD]()
-
-> Coming soon...
 
 ## Gamepad Support
 

@@ -9,14 +9,19 @@
 
     <link rel="preconnect" href="https://fonts.gstatic.com" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous" />
 
     <link rel="icon" type="image/png" href="logo.png" />
 
     <style>
         * {
             font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: #212529;
+            color: #EEE;
         }
 
         .grid span.badge {
@@ -46,7 +51,7 @@
         }
 
         .yet {
-            opacity: 0.40;
+            opacity: 0.20;
         }
 
         .unknown {
@@ -54,7 +59,7 @@
         }
 
         .unused {
-            opacity: 0.20;
+            opacity: 0.03;
         }
 
         .badge {
@@ -94,7 +99,34 @@
         }
 
         .light {
-            font-weight: 300
+            font-weight: 300;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        table td {
+            border-top: 1px solid #eceeef;
+        }
+
+        table td:first-child {
+            font-size: 0.9em;
+        }
+
+        table td:last-child {
+            text-align: right;
+        }
+
+        a.download {
+            background: #323232;
+            padding: 12px 8px 12px 8px !important;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #CCC;
+            font-size: small;
+            cursor: pointer;
+            text-align: center;
         }
     </style>
 </head>
@@ -102,14 +134,14 @@
 <body>
     <div id="header" class="container-fluid">
         <div class="row mt-4">
-            <div class="col-sm-12 text-center bold" style="font-size: 18pt;">
+            <div class="col-sm-12 text-center bold" style="font-size: 34px;">
                 NESTALGIA
             </div>
             <div class="col-sm-12 text-center text-small">
                 NES and Famicom Emulator
             </div>
             <div class="col-sm-12 text-center mt-4">
-                <img src="logo.png" />
+                <img src="mario-256.png" width="64" alt="logo"/>
             </div>
         </div>
     </div>
@@ -147,7 +179,6 @@
         <div class="row mt-4">
             <div class="col-sm-12 text-center">
                 <img src="1.png" style="width: 400px; height: 400px" />
-                <img src="2.png" style="width: 400px; height: 400px" />
             </div>
         </div>
 
@@ -157,25 +188,30 @@
             </div>
 
             <div class="col-sm-12 light">
-                <a target="_blank" href="https://raw.githubusercontent.com/tiagohm/nestalgia/master/desktop/nestalgia.jar">
-                    DESKTOP
+                <a target="_blank" class="download mx-1" href="https://raw.githubusercontent.com/tiagohm/nestalgia/master/desktop/nestalgia.jar">
+                    <i class="fab fa-windows"></i> Windows
+                </a>
+                <a target="_blank" class="download mx-1" href="https://raw.githubusercontent.com/tiagohm/nestalgia/master/desktop/nestalgia.jar">
+                    <i class="fab fa-linux"></i> Linux
+                </a>
+                <a target="_blank" class="download mx-1" href="https://raw.githubusercontent.com/tiagohm/nestalgia/master/desktop/nestalgia.jar">
+                    <i class="fab fa-apple"></i> Mac
                 </a>
             </div>
             <div class="col-sm-12 light mt-4">
                 <p>
-                    Before running, check if you have Java 8 or newer installed. Linux users will need to set
-                    execute permissions on the JAR.
+                    Before running, check if you have Java 17 or newer installed.
                 </p>
             </div>
 
             <div class="col-sm-12 light mt-4">
-                <a target="_blank" href="">
-                    ANDROID
+                <a target="_blank" class="download mx-1" href="#">
+                    <i class="fab fa-android"></i> Android
                 </a>
             </div>
             <div class="col-sm-12 light mt-4">
                 <p>
-                    Coming soon...
+                    Coming soon...or not :(
                 </p>
             </div>
         </div>
@@ -186,7 +222,7 @@
             <div class="col-sm-12 bold">
                 <p>Supported Mappers</p>
             </div>
-            <div class="col-lg-7 col-md-12 mb-4 text-center">
+            <div class="col-lg-8 col-md-12 mb-4 text-center">
                 <div class="grid">
                     <h5>iNES</h5>
                     <div class="row">
@@ -197,9 +233,9 @@
                             <span class="badge badge-success"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_003">003</a></span>
                             <span class="badge badge-success"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_004">004</a></span>
                             <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_005">005</a></span>
-                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_006">006</a></span>
+                            <span class="badge badge-success"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_006">006</a></span>
                             <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_007">007</a></span>
-                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_008">008</a></span>
+                            <span class="badge badge-success"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_008">008</a></span>
                             <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_009">009</a></span>
                             <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_010">010</a></span>
                             <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_011">011</a></span>
@@ -210,7 +246,7 @@
                         </div>
                         <div class="col-lg-12">
                             <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_016">016</a></span>
-                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_017">017</a></span>
+                            <span class="badge badge-success"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_017">017</a></span>
                             <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_018">018</a></span>
                             <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_019">019</a></span>
                             <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_020">020</a></span>
@@ -223,7 +259,7 @@
                             <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_027">027</a></span>
                             <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_028">028</a></span>
                             <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_029">029</a></span>
-                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_030">030</a></span>
+                            <span class="badge badge-success"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_030">030</a></span>
                             <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_031">031</a></span>
                         </div>
                         <div class="col-lg-12">
@@ -314,7 +350,7 @@
                             <span class="badge badge-success"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_108">108</a></span>
                             <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_109">109</a></span>
                             <span class="unused badge badge-default"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_110">110</a></span>
-                            <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_111">111</a></span>
+                            <span class="badge badge-success"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_111">111</a></span>
                         </div>
                         <div class="col-lg-12">
                             <span class="badge badge-success yet"><a target="_blank" href="https://wiki.nesdev.com/w/index.php/INES_Mapper_112">112</a></span>
@@ -481,7 +517,7 @@
                     </div>
                 </div>
             </div>
-            <div class="grid col-lg-5 col-md-12" style="font-size: small;">
+            <div class="grid col-lg-4 col-md-12" style="font-size: small;">
                 <h5>Legend</h5>
                 <div><span class="badge badge-success">0</span> Supported mapper</div>
                 <div><span class="badge badge-success yet">0</span> Supported mapper (but not implemented yet)</div>
@@ -581,6 +617,371 @@
                 <span class="badge badge-success yet" title="UNL-VRC7">UNL-VRC7</span>
                 <span class="badge badge-success yet" title="UNL-YOKO">UNL-YOKO</span>
                 <span class="badge badge-warning" title="WAIXING-FS005">WAIXING-FS005</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="accuracy" class="container">
+        <h3>Accuracy Tests</h3>
+
+        Test ROMs are programs created to test and validate some of the NES' behavior. They are used by emulators to ensure that the emulated console
+        behaves as much as possible like a NES. While they are not perfect for assessing an emulator's overall accuracy, they still provide a decent
+        estimate. The following tables list the majority of existing test ROMs and whether or not Nestalgia passes each test.
+        All the testing ROMs can be found at <a target="_blank" href="https://www.nesdev.org/wiki/Emulator_tests">Nesdev Wiki</a>.
+
+        <div class="row p-3">
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <table>
+                    <tr>
+                        <th>CPU</th>
+                    </tr>
+                    <tr>
+                        <td>branch_timing_tests/branch_basics</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>branch_timing_tests/backward_branch</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>branch_timing_tests/forward_branch</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>cpu_dummy_reads</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>cpu_dummy_writes_oam</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>cpu_dummy_writes_ppumem</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>cpu_exec_space_apu</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>cpu_exec_space_ppuio</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>cpu_flag_concurrency</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>cpu_interrupts_v2</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>cpu_reset/ram_after_reset</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>cpu_reset/registers</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>cpu_timing_test</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>instr_misc</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>instr_test_v5/all_instrs</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>instr_test_v5/official_only</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>dmc_dma_during_read4/dma_2007_read</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>dmc_dma_during_read4/dma_2007_write</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>dmc_dma_during_read4/dma_4016_read</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>dmc_dma_during_read4/double_2007_read</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>dmc_dma_during_read4/read_write_2007</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprdma_and_dmc_dma</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprdma_and_dmc_dma_512</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>instr_timing</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>nestest</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <table>
+                    <tr>
+                        <th>Video</th>
+                    </tr>
+                    <tr>
+                        <td>ppu_read_buffer</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>ppu_open_bus</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>ppu_vbl_nmi</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprite_overflow/basics</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprite_overflow/details</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprite_overflow/emulator</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprite_overflow/obscure</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprite_overflow/timing</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprite_hit/basics</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprite_hit/alignment</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprite_hit/corners</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprite_hit/flip</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprite_hit/left_clip</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprite_hit/right_edge</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprite_hit/screen_bottom</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprite_hit/double_height</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprite_hit/timing_basics</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprite_hit/timing_order</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>sprite_hit/edge_timing</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>nmi_sync/ntsc</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>nmi_sync/pal</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_ppu/palette_ram</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_ppu/power_up_palette</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_ppu/sprite_ram</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_ppu/vbl_clear_time</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_ppu/vram_access</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>palette</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>palette_pal</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>oam_read</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>oam_stress</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <table>
+                    <tr>
+                        <th>Audio</th>
+                    </tr>
+                    <tr>
+                        <td>apu_reset/4015_cleared</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>apu_reset/4017_timing</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>apu_reset/4017_written</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>apu_reset/irq_flag_cleared</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>apu_reset/len_ctrs_enabled</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>apu_reset/works_immediately</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/len_ctr</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/len_table</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/irq_flag</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/clock_jitter</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/len_timing_mode0</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/len_timing_mode1</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/irq_flag_timing</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/irq_timing</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/reset_timing</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/len_halt_timing</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/len_reload_timing</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>apu_test</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/pal/len_ctr</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/pal/len_table</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/pal/irq_flag</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/pal/clock_jitter</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/pal/len_timing_mode0</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/pal/len_timing_mode1</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/pal/irq_flag_timing</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/pal/irq_timing</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/pal/len_halt_timing</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_apu/pal/len_reload_timing</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>

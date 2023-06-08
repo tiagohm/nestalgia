@@ -4,21 +4,21 @@ package br.tiagohm.nestalgia.core
 
 class Mapper240 : Mapper() {
 
-    override val prgPageSize = 0x8000U
+    override val prgPageSize = 0x8000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override val registerStartAddress: UShort = 0x4020U
+    override val registerStartAddress = 0x4020
 
-    override val registerEndAddress: UShort = 0x5FFFU
+    override val registerEndAddress = 0x5FFF
 
-    override fun init() {
-        selectPrgPage(0U, 0U)
-        selectChrPage(0U, 0U)
+    override fun initialize() {
+        selectPrgPage(0, 0)
+        selectChrPage(0, 0)
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        selectPrgPage(0U, ((value shr 4) and 0x0FU).toUShort())
-        selectChrPage(0U, value.toUShort() and 0x0FU)
+    override fun writeRegister(addr: Int, value: Int) {
+        selectPrgPage(0, value shr 4 and 0x0F)
+        selectChrPage(0, value and 0x0F)
     }
 }

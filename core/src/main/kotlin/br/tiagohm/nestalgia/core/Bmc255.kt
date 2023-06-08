@@ -4,21 +4,23 @@ package br.tiagohm.nestalgia.core
 
 class Bmc255 : Mapper() {
 
-    override val prgPageSize = 0x4000U
+    override val prgPageSize = 0x4000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override fun init() {
-        writeRegister(0x8000U, 0x00U)
+    override fun initialize() {
+        writeRegister(0x8000, 0x00)
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        val prgBit: UShort = if (addr.toInt() and 0x1000 != 0) 0U else 1U
-        val bank = (addr shr 8 and 0x40U) or (addr shr 6 and 0x3FU)
+    override fun writeRegister(addr: Int, value: Int) {
+        val prgBit = if (addr and 0x1000 != 0) 0 else 1
+        val bank = (addr shr 8 and 0x40) or (addr shr 6 and 0x3F)
 
-        selectPrgPage(0U, bank and prgBit.inv())
-        selectPrgPage(1U, bank or prgBit)
-        selectChrPage(0U, (addr shr 8 and 0x40U) or (addr and 0x3FU))
-        mirroringType = if (addr.toInt() and 0x2000 != 0) MirroringType.HORIZONTAL else MirroringType.VERTICAL
+        selectPrgPage(0, bank and prgBit.inv())
+        selectPrgPage(1, bank or prgBit)
+        selectChrPage(0, (addr shr 8 and 0x40) or (addr and 0x3F))
+
+        mirroringType = if (addr and 0x2000 != 0) MirroringType.HORIZONTAL
+        else MirroringType.VERTICAL
     }
 }

@@ -4,30 +4,30 @@ package br.tiagohm.nestalgia.core
 
 class Mapper012 : MMC3() {
 
-    private var chrSelection: UByte = 0U
+    private var chrSelection = 0
 
     override val forceMmc3RevAIrqs = true
 
-    override fun init() {
-        addRegisterRange(0x4020U, 0x5FFFU)
+    override fun initialize() {
+        addRegisterRange(0x4020, 0x5FFF)
 
-        super.init()
+        super.initialize()
     }
 
-    override fun selectChrPage(slot: UShort, page: UShort, memoryType: ChrMemoryType) {
-        if (slot < 4U && chrSelection.bit0) {
+    override fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType) {
+        if (slot < 4 && chrSelection.bit0) {
             // 0x0000 to 0x0FFF
-            super.selectChrPage(slot, page or 0x100U, memoryType)
-        } else if (slot >= 4U && chrSelection.bit4) {
+            super.selectChrPage(slot, page or 0x100, memoryType)
+        } else if (slot >= 4 && chrSelection.bit4) {
             // 0x1000 to 0x1FFF
-            super.selectChrPage(slot, page or 0x100U, memoryType)
+            super.selectChrPage(slot, page or 0x100, memoryType)
         } else {
             super.selectChrPage(slot, page, memoryType)
         }
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        if (addr <= 0x5FFFU) {
+    override fun writeRegister(addr: Int, value: Int) {
+        if (addr <= 0x5FFF) {
             chrSelection = value
             updateState()
         } else {
@@ -44,6 +44,6 @@ class Mapper012 : MMC3() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        chrSelection = s.readUByte("chrSelection") ?: 0U
+        chrSelection = s.readInt("chrSelection")
     }
 }

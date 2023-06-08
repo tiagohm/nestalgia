@@ -38,9 +38,7 @@ data class NsfHeader(
         if (!bankSetup.contentEquals(other.bankSetup)) return false
         if (playSpeedPal != other.playSpeedPal) return false
         if (flags != other.flags) return false
-        if (soundChips != other.soundChips) return false
-
-        return true
+        return soundChips == other.soundChips
     }
 
     override fun hashCode(): Int {

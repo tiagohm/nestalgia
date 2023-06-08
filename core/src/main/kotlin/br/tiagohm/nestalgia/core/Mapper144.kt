@@ -4,8 +4,8 @@ package br.tiagohm.nestalgia.core
 
 class Mapper144 : ColorDreams() {
 
-    override fun writeRegister(addr: UShort, value: UByte) {
+    override fun writeRegister(addr: Int, value: Int) {
         // This addition means that only the ROM's least significant bit always wins bus conflicts.
-        super.writeRegister(addr, value or (read(addr) and 0x01U))
+        super.writeRegister(addr, value or (read(addr) and 0x01))
     }
 }

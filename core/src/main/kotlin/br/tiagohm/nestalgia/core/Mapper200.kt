@@ -1,26 +1,29 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MirroringType.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_164
 
-@Suppress("NOTHING_TO_INLINE")
 class Mapper200 : Mapper() {
 
-    override val prgPageSize = 0x4000U
+    override val prgPageSize = 0x4000
 
-    override val chrPageSize = 0x2000U
+    override val chrPageSize = 0x2000
 
-    override fun init() {
-        setBank(0U)
+    override fun initialize() {
+        bank(0)
     }
 
-    private inline fun setBank(bank: UShort) {
-        selectPrgPage(0U, bank)
-        selectPrgPage(1U, bank)
-        selectChrPage(0U, bank)
+    private fun bank(bank: Int) {
+        selectPrgPage(0, bank)
+        selectPrgPage(1, bank)
+        selectChrPage(0, bank)
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        setBank(addr and 0x07U)
-        mirroringType = if (value.bit3) MirroringType.VERTICAL else MirroringType.HORIZONTAL
+    override fun writeRegister(addr: Int, value: Int) {
+        bank(addr and 0x07)
+
+        mirroringType = if (value.bit3) VERTICAL
+        else HORIZONTAL
     }
 }

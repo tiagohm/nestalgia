@@ -1,23 +1,27 @@
 package br.tiagohm.nestalgia.core
 
-import java.util.*
+import org.slf4j.LoggerFactory
+import java.util.stream.Stream
 
 object CheatDatabase {
 
-    private val entries = ArrayList<CheatInfo>(16384)
+    const val FILENAME = "CheatDB.csv"
 
-    fun getByGame(crc: Long): List<CheatInfo> {
-        return entries.filter { it.crc == crc }
+    @JvmStatic private val ENTRIES = ArrayList<CheatInfo>(16384)
+    @JvmStatic private val LOG = LoggerFactory.getLogger(CheatDatabase::class.java)
+
+    @JvmStatic
+    operator fun get(crc: Long): List<CheatInfo> {
+        return ENTRIES.filter { it.crc == crc }
     }
 
-    fun load(data: List<String>) {
+    @JvmStatic
+    fun load(data: Stream<String>) {
         for (line in data) {
             if (line.isEmpty() || line.startsWith("#")) continue
-            CheatInfo.parse(line)?.let { entries.add(it) }
+            CheatInfo.parse(line)?.let { ENTRIES.add(it) }
         }
 
-        System.err.println("${entries.size} cheats loaded in the database!!!")
+        LOG.info("{} cheats loaded in the database", ENTRIES.size)
     }
-
-    const val CHEAT_DB_FILENAME = "CheatDB.csv"
 }

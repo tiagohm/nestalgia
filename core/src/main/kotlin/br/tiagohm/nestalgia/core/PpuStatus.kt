@@ -13,10 +13,8 @@ data class PpuStatus(
     }
 
     override fun restoreState(s: Snapshot) {
-        s.load()
-
-        spriteOverflow = s.readBoolean("spriteOverflow") ?: false
-        sprite0Hit = s.readBoolean("sprite0Hit") ?: false
-        verticalBlank = s.readBoolean("verticalBlank") ?: false
+        spriteOverflow = s.readBoolean("spriteOverflow")
+        sprite0Hit = s.readBoolean("sprite0Hit")
+        verticalBlank = s.readBoolean("verticalBlank")
     }
 }

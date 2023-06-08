@@ -1,7 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-interface MemoryHandler :
-    Memory,
-    Peekable {
-    fun getMemoryRanges(ranges: MemoryRanges)
+interface MemoryHandler : Memory, Peekable {
+
+    fun memoryRanges(ranges: MemoryRanges)
 }

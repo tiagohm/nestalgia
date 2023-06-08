@@ -1,29 +1,23 @@
 package br.tiagohm.nestalgia.core
 
+import java.io.Closeable
 import java.io.IOException
 import kotlin.math.min
 import kotlin.random.Random
 
 // https://wiki.nesdev.com/w/index.php/Mapper
 
-@Suppress("NOTHING_TO_INLINE")
-abstract class Mapper :
-    Resetable,
-    Battery,
-    Peekable,
-    MemoryHandler,
-    Disposable,
-    Snapshotable {
+abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, Snapshotable {
 
-    open var region: Region = Region.AUTO
+    open var region = Region.AUTO
 
     open val controlDevice: ControlDevice? = null
 
-    open val prgPageSize = 0U
+    open val prgPageSize = 0
 
-    open val chrPageSize = 0U
+    open val chrPageSize = 0
 
-    open val chrRamSize = 0U
+    open val chrRamSize = 0
 
     open val dipSwitchCount = 0
 
@@ -36,72 +30,71 @@ abstract class Mapper :
     open val allowRegisterRead = false
 
     open val saveRamSize
-        get() = if (hasBattery) 0x2000U else 0U
+        get() = if (hasBattery) 0x2000 else 0
 
-    open val saveRamPageSize = 0x2000U
+    open val saveRamPageSize = 0x2000
 
     open val workRamSize
-        get() = if (hasBattery) 0U else 0x2000U
+        get() = if (hasBattery) 0 else 0x2000
 
-    open val workRamPageSize = 0x2000U
+    open val workRamPageSize = 0x2000
 
-    open val registerStartAddress: UShort = 0x8000U
+    open val registerStartAddress = 0x8000
 
-    open val registerEndAddress: UShort = 0xFFFFU
+    open val registerEndAddress = 0xFFFF
 
     open val hasBusConflicts = false
 
-    open val chrRamPageSize = 0x2000U
+    open val chrRamPageSize = 0x2000
 
     private val isReadRegisterAddr = BooleanArray(0x10000)
     private val isWriteRegisterAddr = BooleanArray(0x10000)
 
-    protected var privateSaveRamSize = 0U
+    protected var mSaveRamSize = 0
         private set
-    protected var privateWorkRamSize = 0U
+
+    protected var mWorkRamSize = 0
         private set
-    protected var privatePrgSize = 0U
+
+    protected var mPrgSize = 0
         private set
-    protected var privateChrRomSize = 0U
+
+    protected var mChrRomSize = 0
         private set
-    protected var privateChrRamSize = 0U
+
+    protected var mChrRamSize = 0
         private set
+
     protected var onlyChrRam = false
         private set
 
-    protected var vramOpenBusValue: Short = -1
+    protected var vramOpenBusValue = -1
 
     // Make sure the page size is no bigger than the size of the ROM itself
     // Otherwise we will end up reading from unallocated memory
 
-    private inline val internalPrgPageSize: UInt
-        get() = min(prgPageSize, privatePrgSize)
+    private val mPrgPageSize
+        get() = min(prgPageSize, mPrgSize)
 
-    private inline val internalSaveRamPageSize: UInt
-        get() = min(saveRamPageSize, privateSaveRamSize)
+    private val mSaveRamPageSize
+        get() = min(saveRamPageSize, mSaveRamSize)
 
-    private inline val internalWorkRamPageSize: UInt
-        get() = min(workRamPageSize, privateWorkRamSize)
+    private val mWorkRamPageSize
+        get() = min(workRamPageSize, mWorkRamSize)
 
-    private inline val internalChrPageSize: UInt
-        get() = min(chrPageSize, privateChrRomSize)
+    private val mChrPageSize
+        get() = min(chrPageSize, mChrRomSize)
 
-    private inline val internalChrRamPageSize: UInt
-        get() = min(chrRamPageSize, privateChrRamSize)
+    private val mChrRamPageSize
+        get() = min(chrRamPageSize, mChrRamSize)
 
-    protected val prgPageCount: UInt
-        get() {
-            val pageSize = internalPrgPageSize
-            return if (pageSize > 0U) privatePrgSize / pageSize else 0U
-        }
+    protected val prgPageCount
+        get() = mPrgPageSize.let { if (it > 0) mPrgSize / it else 0 }
 
-    protected val chrPageCount: UInt
-        get() {
-            val pageSize = internalChrPageSize
-            return if (pageSize > 0U) privateChrRomSize / pageSize else 0U
-        }
+    protected val chrPageCount
+        get() = mChrPageSize.let { if (it > 0) mChrRomSize / it else 0 }
 
-    open val hasBattery: Boolean
+    open val hasBattery
         get() = info.hasBattery
 
     lateinit var console: Console
@@ -110,29 +103,34 @@ abstract class Mapper :
     lateinit var data: RomData
         private set
 
-    inline val info: RomInfo
+    val info
         get() = data.info
 
-    val name: String
+    val name
         get() = if (::data.isInitialized) info.name else ""
 
-    val hasChrRam: Boolean
-        get() = privateChrRamSize > 0U
+    val hasChrRam
+        get() = mChrRamSize > 0
 
-    val hasChrRom: Boolean
+    val hasChrRom
         get() = !onlyChrRam
 
-    protected var prgRom = UByteArray(0)
+    protected var prgRom = IntArray(0)
         private set
-    protected var chrRom = UByteArray(0)
+
+    protected var chrRom = IntArray(0)
         private set
-    protected var chrRam = UByteArray(0)
+
+    protected var chrRam = IntArray(0)
         private set
-    protected var saveRam = UByteArray(0)
+
+    protected var saveRam = IntArray(0)
         private set
-    protected var workRam = UByteArray(0)
+
+    protected var workRam = IntArray(0)
         private set
-    protected var nametableRam = UByteArray(0)
+
+    protected var nametableRam = IntArray(0)
         private set
 
     private var hasChrBattery = false
@@ -147,101 +145,94 @@ abstract class Mapper :
     private val chrMemoryOffset = IntArray(0x100)
     private val chrMemoryType = Array(0x100) { ChrMemoryType.DEFAULT }
 
-    open fun init() {
-    }
+    abstract fun initialize()
 
-    override fun dispose() {
-    }
+    override fun close() {}
 
-    override fun reset(softReset: Boolean) {
-    }
+    override fun reset(softReset: Boolean) {}
 
-    protected open fun writeRegister(addr: UShort, value: UByte) {
-    }
+    protected open fun writeRegister(addr: Int, value: Int) {}
 
-    protected open fun readRegister(addr: UShort): UByte = 0U
+    protected open fun readRegister(addr: Int) = 0
 
     override fun saveBattery() {
-        if (hasBattery && privateSaveRamSize > 0U) {
+        if (hasBattery && mSaveRamSize > 0) {
             console.batteryManager.saveBattery(".sav", saveRam)
         }
-        if (hasChrBattery && privateChrRamSize > 0U) {
+        if (hasChrBattery && mChrRamSize > 0) {
             console.batteryManager.saveBattery(".sav.chr", chrRam)
         }
     }
 
     override fun loadBattery() {
-        if (hasBattery && privateSaveRamSize > 0U) {
-            saveRam = console.batteryManager.loadBattery(".sav", privateSaveRamSize.toInt())
+        if (hasBattery && mSaveRamSize > 0) {
+            saveRam = console.batteryManager.loadBattery(".sav", mSaveRamSize)
         }
-        if (hasChrBattery && privateChrRamSize > 0U) {
-            chrRam = console.batteryManager.loadBattery(".sav.chr", privateChrRamSize.toInt())
+        if (hasChrBattery && mChrRamSize > 0) {
+            chrRam = console.batteryManager.loadBattery(".sav.chr", mChrRamSize)
         }
     }
 
-    open fun processCpuClock() {
-    }
+    open fun processCpuClock() {}
 
     fun copyPrgChrRom(mapper: Mapper) {
-        if (privatePrgSize == mapper.privatePrgSize &&
-            privateChrRomSize == mapper.privateChrRomSize
+        if (mPrgSize == mapper.mPrgSize &&
+            mChrRomSize == mapper.mChrRomSize
         ) {
-            mapper.prgRom.copyInto(prgRom, 0, 0, privatePrgSize.toInt())
+            mapper.prgRom.copyInto(prgRom, 0, 0, mPrgSize)
 
             if (!onlyChrRam) {
-                mapper.chrRom.copyInto(chrRom, 0, 0, privateChrRomSize.toInt())
+                mapper.chrRom.copyInto(chrRom, 0, 0, mChrRomSize)
             }
         }
     }
 
-    private var privateMirroringType: MirroringType? = null
+    private var mMirroringType = MirroringType.HORIZONTAL
 
-    var mirroringType: MirroringType?
-        get() = privateMirroringType
+    var mirroringType: MirroringType
+        get() = mMirroringType
         set(value) {
-            if (value != null) {
-                privateMirroringType = value
+            mMirroringType = value
 
-                when (value) {
-                    MirroringType.VERTICAL -> setNametables(0, 1, 0, 1)
-                    MirroringType.HORIZONTAL -> setNametables(0, 0, 1, 1)
-                    MirroringType.FOUR_SCREENS -> setNametables(0, 1, 2, 3)
-                    MirroringType.SCREEN_A_ONLY -> setNametables(0, 0, 0, 0)
-                    MirroringType.SCREEN_B_ONLY -> setNametables(1, 1, 1, 1)
-                }
+            when (value) {
+                MirroringType.VERTICAL -> nametables(0, 1, 0, 1)
+                MirroringType.HORIZONTAL -> nametables(0, 0, 1, 1)
+                MirroringType.FOUR_SCREENS -> nametables(0, 1, 2, 3)
+                MirroringType.SCREEN_A_ONLY -> nametables(0, 0, 0, 0)
+                MirroringType.SCREEN_B_ONLY -> nametables(1, 1, 1, 1)
             }
         }
 
-    inline fun setNametables(a: Int, b: Int, c: Int, d: Int) {
-        setNametable(0, a)
-        setNametable(1, b)
-        setNametable(2, c)
-        setNametable(3, d)
+    fun nametables(a: Int, b: Int, c: Int, d: Int) {
+        nametable(0, a)
+        nametable(1, b)
+        nametable(2, c)
+        nametable(3, d)
     }
 
-    fun setNametable(index: Int, nametableIndex: Int) {
+    fun nametable(index: Int, nametableIndex: Int) {
         if (nametableIndex in 0 until NAMETABLE_COUNT) {
-            setPpuMemoryMapping(
-                (0x2000 + index * 0x400).toUShort(),
-                (0x2000 + (index + 1) * 0x400 - 1).toUShort(),
-                nametableIndex.toUShort(),
-                ChrMemoryType.NAMETABLE_RAM
+            addPpuMemoryMapping(
+                0x2000 + index * 0x400,
+                0x2000 + (index + 1) * 0x400 - 1,
+                nametableIndex,
+                ChrMemoryType.NAMETABLE_RAM,
             )
             // Mirror $2000-$2FFF to $3000-$3FFF, while keeping a distinction between the addresses
             // Previously, $3000-$3FFF was being "redirected" to $2000-$2FFF to avoid MMC3 IRQ issues (which is incorrect)
             // More info here: https://forums.nesdev.com/viewtopic.php?p=132145#p132145
-            setPpuMemoryMapping(
-                (0x3000 + index * 0x400).toUShort(),
-                (0x3000 + (index + 1) * 0x400 - 1).toUShort(),
-                nametableIndex.toUShort(),
-                ChrMemoryType.NAMETABLE_RAM
+            addPpuMemoryMapping(
+                0x3000 + index * 0x400,
+                0x3000 + (index + 1) * 0x400 - 1,
+                nametableIndex,
+                ChrMemoryType.NAMETABLE_RAM,
             )
         } else {
             throw IllegalArgumentException("Invalid nametable index")
         }
     }
 
-    fun getNametable(nametableIndex: Int): Pointer {
+    fun nametableAt(nametableIndex: Int): Pointer {
         if (nametableIndex in 0 until NAMETABLE_COUNT) {
             return Pointer(nametableRam, nametableIndex * NAMETABLE_SIZE)
         } else {
@@ -252,28 +243,22 @@ abstract class Mapper :
     fun initialize(data: RomData) {
         this.data = data
 
-        privateSaveRamSize = if (data.saveRamSize == -1 || isForceSaveRamSize) {
-            saveRamSize
-        } else {
-            data.saveRamSize.toUInt()
-        }
+        mSaveRamSize = (if (data.saveRamSize == -1 || isForceSaveRamSize) saveRamSize
+        else data.saveRamSize)
 
-        privateWorkRamSize = if (data.workRamSize == -1 || isForceWorkRamSize) {
-            workRamSize
-        } else {
-            data.workRamSize.toUInt()
-        }
+        mWorkRamSize = (if (data.workRamSize == -1 || isForceWorkRamSize) workRamSize
+        else data.workRamSize)
 
         isReadRegisterAddr.fill(false)
         isWriteRegisterAddr.fill(false)
 
         addRegisterRange(registerStartAddress, registerEndAddress, MemoryOperation.ANY)
 
-        privatePrgSize = data.prgRom.size.toUInt()
-        privateChrRomSize = data.chrRom.size.toUInt()
+        mPrgSize = data.prgRom.size
+        mChrRomSize = data.chrRom.size
 
-        prgRom = UByteArray(privatePrgSize.toInt())
-        chrRom = UByteArray(privateChrRomSize.toInt())
+        prgRom = IntArray(mPrgSize)
+        chrRom = IntArray(mChrRomSize)
 
         data.prgRom.copyInto(prgRom)
         data.chrRom.copyInto(chrRom)
@@ -290,16 +275,16 @@ abstract class Mapper :
             System.err.println("Bus conflicts enabled")
         }
 
-        saveRam = UByteArray(privateSaveRamSize.toInt())
-        workRam = UByteArray(privateWorkRamSize.toInt())
+        saveRam = IntArray(mSaveRamSize)
+        workRam = IntArray(mWorkRamSize)
 
         console.initializeRam(saveRam)
         console.initializeRam(workRam)
 
-        nametableRam = UByteArray(NAMETABLE_SIZE * NAMETABLE_COUNT)
+        nametableRam = IntArray(NAMETABLE_SIZE * NAMETABLE_COUNT)
         console.initializeRam(nametableRam)
 
-        for (i in 0..0xff) {
+        for (i in 0..0xFF) {
             // Allow us to map a different page every 256 bytes
             prgPages[i] = Pointer.NULL
             prgMemoryOffset[i] = -1
@@ -313,26 +298,26 @@ abstract class Mapper :
         }
 
         when {
-            privateChrRomSize == 0U -> {
+            mChrRomSize == 0 -> {
                 // Assume there is CHR RAM if no CHR ROM exists
                 onlyChrRam = true
                 initializeChrRam(data.chrRamSize)
                 // Map CHR RAM to 0x0000-0x1FFF by default when no CHR ROM exists
-                setPpuMemoryMapping(0x0000U, 0x1FFFU, 0U, ChrMemoryType.RAM)
-                privateChrRomSize = privateChrRamSize
+                addPpuMemoryMapping(0x0000, 0x1FFF, 0, ChrMemoryType.RAM)
+                mChrRomSize = mChrRamSize
             }
             data.chrRamSize >= 0 -> {
                 initializeChrRam(data.chrRamSize)
             }
-            chrRamSize > 0U -> {
+            chrRamSize > 0 -> {
                 initializeChrRam()
             }
         }
 
         if (info.hasTreiner) {
-            if (privateWorkRamSize >= 0x2000U) {
+            if (mWorkRamSize >= 0x2000) {
                 data.treinerData.copyInto(workRam, 0x1000, 0, 512)
-            } else if (privateSaveRamSize >= 0x2000U) {
+            } else if (mSaveRamSize >= 0x2000) {
                 data.treinerData.copyInto(saveRam, 0x1000, 0, 512)
             }
         }
@@ -348,69 +333,70 @@ abstract class Mapper :
 
         this.data = data.copy(info = info)
 
-        init()
+        initialize()
 
         loadBattery()
     }
 
-    override fun getMemoryRanges(ranges: MemoryRanges) {
+    override fun memoryRanges(ranges: MemoryRanges) {
         if (info.system == GameSystem.VS_SYSTEM) {
-            ranges.addHandler(MemoryOperation.READ, 0x6000U, 0xFFFFU)
-            ranges.addHandler(MemoryOperation.WRITE, 0x6000U, 0xFFFFU)
+            ranges.addHandler(MemoryOperation.READ, 0x6000, 0xFFFF)
+            ranges.addHandler(MemoryOperation.WRITE, 0x6000, 0xFFFF)
         } else {
-            ranges.addHandler(MemoryOperation.READ, 0x4018U, 0xFFFFU)
-            ranges.addHandler(MemoryOperation.WRITE, 0x4018U, 0xFFFFU)
+            ranges.addHandler(MemoryOperation.READ, 0x4018, 0xFFFF)
+            ranges.addHandler(MemoryOperation.WRITE, 0x4018, 0xFFFF)
         }
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte {
-        return if (allowRegisterRead && isReadRegisterAddr[addr.toInt()]) {
+    override fun read(addr: Int, type: MemoryOperationType): Int {
+        return if (allowRegisterRead && isReadRegisterAddr[addr]) {
             readRegister(addr)
         } else {
-            val hi = addr.hiByte.toInt()
+            val hi = addr.hiByte
 
-            if (prgMemoryAccess[hi].isRead) {
-                prgPages[hi][addr.loByte.toInt()]
+            if (prgMemoryAccess[hi].read) {
+                prgPages[hi][addr.loByte]
             } else {
-                console.memoryManager.getOpenBus()
+                console.memoryManager.openBus()
             }
         }
     }
 
-    override fun peek(addr: UShort): UByte {
-        val hi = addr.hiByte.toInt()
-        return if (prgMemoryAccess[hi].isRead) prgPages[hi][addr.loByte.toInt()] else (addr shr 8).toUByte()
+    override fun peek(addr: Int): Int {
+        val hi = addr.hiByte
+        return if (prgMemoryAccess[hi].read) prgPages[hi][addr.loByte]
+        else addr shr 8
     }
 
-    protected fun internalRead(addr: UShort): UByte {
-        val hi = addr.hiByte.toInt()
+    protected fun internalRead(addr: Int): Int {
+        val hi = addr.hiByte
         val page = prgPages[hi]
-        return if (page != Pointer.NULL) page[addr.loByte.toInt()] else 0U
+        return if (page !== Pointer.NULL) page[addr.loByte] else 0
     }
 
-    inline fun readVRAM(addr: UShort) = mapperReadVRAM(addr)
+    fun readVRAM(addr: Int) = mapperReadVRAM(addr)
 
-    @PublishedApi
-    internal open fun mapperReadVRAM(addr: UShort) = internalReadVRAM(addr)
+    open fun mapperReadVRAM(addr: Int) = internalReadVRAM(addr)
 
-    @PublishedApi
-    internal fun internalReadVRAM(addr: UShort): UByte {
-        val hi = addr.hiByte.toInt()
+    fun internalReadVRAM(addr: Int): Int {
+        val hi = addr.hiByte
 
-        if (chrMemoryAccess[hi].isRead) {
-            return chrPages[hi][addr.loByte.toInt()]
+        if (chrMemoryAccess[hi].read) {
+            return chrPages[hi][addr.loByte]
         }
 
         // Open bus - "When CHR is disabled, the pattern tables are open bus.
-        // Theoretically, this should return the LSB of the address read, but real-world behavior varies."
-        return if (vramOpenBusValue >= 0) vramOpenBusValue.toUByte() else addr.toUByte()
+        // Theoretically, this should return the LSB of the address read,
+        // but real-world behavior varies."
+        // return if (vramOpenBusValue >= 0) vramOpenBusValue else addr
+        return addr // vramOpenBusValue is always -1 ??
     }
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
-        if (isWriteRegisterAddr[addr.toInt()]) {
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
+        if (isWriteRegisterAddr[addr]) {
             if (privateHasBusConflicts) {
-                val hi = addr.hiByte.toInt()
-                val lo = addr.loByte.toInt()
+                val hi = addr.hiByte
+                val lo = addr.loByte
                 writeRegister(addr, value and prgPages[hi][lo])
             } else {
                 writeRegister(addr, value)
@@ -420,94 +406,96 @@ abstract class Mapper :
         }
     }
 
-    open fun writePrgRam(addr: UShort, value: UByte) {
-        val hi = addr.hiByte.toInt()
+    open fun writePrgRam(addr: Int, value: Int) {
+        val hi = addr.hiByte
 
-        if (prgMemoryAccess[hi].isWrite) {
+        if (prgMemoryAccess[hi].write) {
             val page = prgPages[hi]
-            page[addr.loByte.toInt()] = value
+            page[addr.loByte] = value
         }
     }
 
-    fun writeVRAM(addr: UShort, value: UByte) {
-        val hi = addr.hiByte.toInt()
+    fun writeVRAM(addr: Int, value: Int) {
+        val hi = addr.hiByte
 
-        if (chrMemoryAccess[hi].isWrite) {
+        if (chrMemoryAccess[hi].write) {
             val page = chrPages[hi]
-            page[addr.loByte.toInt()] = value
+            page[addr.loByte] = value
         }
     }
 
-    protected fun validateAddressRange(start: UShort, end: UShort): Boolean {
+    protected fun validateAddressRange(start: Int, end: Int): Boolean {
         // Start/End address must be multiples of 256/0x100
-        return start.loByte.isZero && end.loByte.isFilled
+        return start.loByte == 0 && end.loByte == 0xFF
     }
 
     private fun setupDefaultWorkRam() {
         // Setup a default work/save ram in 0x6000-0x7FFF space
-        if (hasBattery && privateSaveRamSize > 0U) {
-            setCpuMemoryMapping(0x6000U, 0x7FFFU, 0, PrgMemoryType.SRAM)
-        } else if (privateWorkRamSize > 0U) {
-            setCpuMemoryMapping(0x6000U, 0x7FFFU, 0, PrgMemoryType.WRAM)
+        if (hasBattery && mSaveRamSize > 0) {
+            addCpuMemoryMapping(0x6000, 0x7FFF, 0, PrgMemoryType.SRAM)
+        } else if (mWorkRamSize > 0) {
+            addCpuMemoryMapping(0x6000, 0x7FFF, 0, PrgMemoryType.WRAM)
         }
     }
 
-    protected fun setCpuMemoryMapping(
-        start: UShort,
-        end: UShort,
-        pageNumber: Short,
+    protected fun addCpuMemoryMapping(
+        start: Int,
+        end: Int,
+        pageNumber: Int,
         type: PrgMemoryType,
         accessType: MemoryAccessType = MemoryAccessType.UNSPECIFIED,
     ) {
-        if (!validateAddressRange(start, end) || start > 0xFF00U || end <= start) {
-            System.err.println("Invalid address range")
+        if (!validateAddressRange(start, end) || start > 0xFF00 || end <= start) {
+            System.err.println("Invalid CPU address range")
             return
         }
 
-        val pageCount: UInt
-        val pageSize: UInt
+        val pageCount: Int
+        val pageSize: Int
         var defaultAccessType = MemoryAccessType.READ
 
         when (type) {
             PrgMemoryType.ROM -> {
                 pageCount = prgPageCount
-                pageSize = internalPrgPageSize
+                pageSize = mPrgPageSize
             }
             PrgMemoryType.SRAM -> {
-                pageSize = internalSaveRamPageSize
+                pageSize = mSaveRamPageSize
 
-                if (pageSize == 0U) {
+                if (pageSize == 0) {
                     // System.err.println("DEBUG: Tried to map undefined save ram.")
                     return
                 }
 
-                pageCount = privateSaveRamSize / pageSize
+                pageCount = mSaveRamSize / pageSize
                 defaultAccessType = MemoryAccessType.READ_WRITE
             }
             else -> {
-                pageSize = internalWorkRamPageSize
+                pageSize = mWorkRamPageSize
 
-                if (pageSize == 0U) {
+                if (pageSize == 0) {
                     // System.err.println("DEBUG: Tried to map undefined work ram.")
                     return
                 }
 
-                pageCount = privateWorkRamSize / pageSize
+                pageCount = mWorkRamSize / pageSize
                 defaultAccessType = MemoryAccessType.READ_WRITE
             }
         }
 
-        if (pageCount == 0U) {
+        if (pageCount == 0) {
             // System.err.println("DEBUG: Tried to map undefined save/work ram.")
             return
         }
 
-        fun wrapPageNumber(page: Short): Short {
+        // TODO: VER NO MASEN QUAIS MAPPERS USAM SelectPRGPage\(\d, -\d\)
+        fun wrapPageNumber(page: Int): Int {
             return if (page < 0) {
-                // Can't use modulo for negative number because pageCount is sometimes not a power of 2.  (Fixes some Mapper 191 games)
-                (pageCount.toInt() + page).toShort()
+                // Can't use modulo for negative number because pageCount
+                // is sometimes not a power of 2. (Fixes some Mapper 191 games).
+                pageCount + page
             } else {
-                (page % pageCount.toInt()).toShort()
+                page % pageCount
             }
         }
 
@@ -516,34 +504,35 @@ abstract class Mapper :
         if (end - start >= pageSize) {
             // System.err.println("DEBUG: Tried to map undefined prg - page size too small for selected range.")
 
-            var addr = start.toUInt()
+            var addr = start
 
             // If range is bigger than a single page, keep going until we reach the last page
-            while (addr <= end - pageSize + 1U) {
-                setCpuMemoryMapping(
-                    addr.toUShort(),
-                    (addr + pageSize - 1U).toUShort(),
+            while (addr <= end - pageSize + 1) {
+                addCpuMemoryMapping(
+                    addr,
+                    addr + pageSize - 1,
                     type,
-                    page * pageSize.toInt(),
-                    if (accessType == MemoryAccessType.UNSPECIFIED) defaultAccessType else accessType
+                    page * pageSize,
+                    if (accessType == MemoryAccessType.UNSPECIFIED) defaultAccessType else accessType,
                 )
+
                 addr += pageSize
-                page = wrapPageNumber((page + 1).toShort())
+                page = wrapPageNumber(page + 1)
             }
         } else {
-            setCpuMemoryMapping(
+            addCpuMemoryMapping(
                 start,
                 end,
                 type,
-                page * pageSize.toInt(),
-                if (accessType == MemoryAccessType.UNSPECIFIED) defaultAccessType else accessType
+                page * pageSize,
+                if (accessType == MemoryAccessType.UNSPECIFIED) defaultAccessType else accessType,
             )
         }
     }
 
-    protected fun setCpuMemoryMapping(
-        start: UShort,
-        end: UShort,
+    protected fun addCpuMemoryMapping(
+        start: Int,
+        end: Int,
         type: PrgMemoryType,
         sourceOffset: Int,
         accessType: MemoryAccessType,
@@ -554,8 +543,8 @@ abstract class Mapper :
             else -> Pointer(workRam)
         }
 
-        val firstSlot = start.toInt() shr 8
-        val slotCount = (end.toInt() - start.toInt() + 1) shr 8
+        val firstSlot = start shr 8
+        val slotCount = (end - start + 1) shr 8
 
         for (i in 0 until slotCount) {
             prgMemoryOffset[firstSlot + i] = sourceOffset + i * 0x100
@@ -563,12 +552,12 @@ abstract class Mapper :
             prgMemoryAccess[firstSlot + i] = accessType
         }
 
-        setCpuMemoryMapping(start, end, Pointer(sourceMemory, sourceOffset), accessType)
+        addCpuMemoryMapping(start, end, Pointer(sourceMemory, sourceOffset), accessType)
     }
 
-    protected fun setCpuMemoryMapping(
-        start: UShort,
-        end: UShort,
+    protected fun addCpuMemoryMapping(
+        start: Int,
+        end: Int,
         pointer: Pointer,
         accessType: MemoryAccessType = MemoryAccessType.UNSPECIFIED,
     ) {
@@ -576,24 +565,25 @@ abstract class Mapper :
             return
         }
 
-        val a = start.toInt() shr 8
-        val b = end.toInt() shr 8
+        val a = start shr 8
+        val b = end shr 8
         var source = pointer
 
         for (i in a..b) {
             prgPages[i] = source
-            prgMemoryAccess[i] =
-                if (accessType != MemoryAccessType.UNSPECIFIED) accessType else MemoryAccessType.READ
 
-            if (source != Pointer.NULL) {
+            prgMemoryAccess[i] = if (accessType != MemoryAccessType.UNSPECIFIED) accessType
+            else MemoryAccessType.READ
+
+            if (source !== Pointer.NULL) {
                 source = Pointer(source, 0x100)
             }
         }
     }
 
-    protected fun removeCpuMemoryMapping(start: UShort, end: UShort) {
-        val firstSlot = start.toInt() shr 8
-        val slotCount = (end.toInt() - start.toInt() + 1) shr 8
+    protected fun removeCpuMemoryMapping(start: Int, end: Int) {
+        val firstSlot = start shr 8
+        val slotCount = (end - start + 1) shr 8
 
         // Unmap this section of memory (causing open bus behavior)
         for (i in 0 until slotCount) {
@@ -602,30 +592,30 @@ abstract class Mapper :
             prgMemoryAccess[firstSlot + i] = MemoryAccessType.NO_ACCESS
         }
 
-        setCpuMemoryMapping(start, end, Pointer.NULL, MemoryAccessType.NO_ACCESS)
+        addCpuMemoryMapping(start, end, Pointer.NULL, MemoryAccessType.NO_ACCESS)
     }
 
-    protected fun setPpuMemoryMapping(
-        start: UShort,
-        end: UShort,
-        pageNumber: UShort,
+    protected fun addPpuMemoryMapping(
+        start: Int,
+        end: Int,
+        pageNumber: Int,
         type: ChrMemoryType,
         accessType: MemoryAccessType = MemoryAccessType.UNSPECIFIED,
     ) {
-        if (!validateAddressRange(start, end) || start > 0x3F00U || end > 0x3FFFU || end <= start) {
-            System.err.println("Invalid address range")
+        if (!validateAddressRange(start, end) || start > 0x3F00 || end > 0x3FFF || end <= start) {
+            System.err.println("Invalid PPU address range")
             return
         }
 
-        val pageCount: UInt
-        val pageSize: UInt
+        val pageCount: Int
+        val pageSize: Int
         var defaultAccessType = MemoryAccessType.READ
 
         when (type) {
             ChrMemoryType.DEFAULT -> {
-                pageSize = internalChrPageSize
+                pageSize = mChrPageSize
 
-                if (pageSize == 0U) {
+                if (pageSize == 0) {
                     // System.err.println("DEBUG: Tried to map undefined chr rom/ram.")
                     return
                 }
@@ -637,9 +627,9 @@ abstract class Mapper :
                 }
             }
             ChrMemoryType.ROM -> {
-                pageSize = internalChrPageSize
+                pageSize = mChrPageSize
 
-                if (pageSize == 0U) {
+                if (pageSize == 0) {
                     // System.err.println("DEBUG: Tried to map undefined chr rom.")
                     return
                 }
@@ -647,58 +637,59 @@ abstract class Mapper :
                 pageCount = chrPageCount
             }
             ChrMemoryType.RAM -> {
-                pageSize = internalChrRamPageSize
+                pageSize = mChrRamPageSize
 
-                if (pageSize == 0U) {
+                if (pageSize == 0) {
                     // System.err.println("DEBUG: Tried to map undefined chr ram.")
                     return
                 }
 
-                pageCount = privateChrRamSize / pageSize
+                pageCount = mChrRamSize / pageSize
                 defaultAccessType = MemoryAccessType.READ_WRITE
             }
             else -> {
-                pageSize = NAMETABLE_SIZE.toUInt()
-                pageCount = NAMETABLE_COUNT.toUInt()
+                pageSize = NAMETABLE_SIZE
+                pageCount = NAMETABLE_COUNT
                 defaultAccessType = MemoryAccessType.READ_WRITE
             }
         }
 
-        if (pageCount == 0U) {
+        if (pageCount == 0) {
             // System.err.println("DEBUG: Tried to map undefined chr ram/ram.")
             return
         }
 
-        var page = (pageNumber % pageCount).toInt()
+        var page = pageNumber % pageCount
 
         if (end - start >= pageSize) {
-            var addr = start.toUInt()
+            var addr = start
 
-            while (addr <= end - pageSize + 1U) {
-                setPpuMemoryMapping(
-                    addr.toUShort(),
-                    (addr + pageSize - 1U).toUShort(),
+            while (addr <= end - pageSize + 1) {
+                addPpuMemoryMapping(
+                    addr,
+                    addr + pageSize - 1,
                     type,
-                    page * pageSize.toInt(),
+                    page * pageSize,
                     accessType
                 )
+
                 addr += pageSize
-                page = (page + 1) % pageCount.toInt()
+                page = (page + 1) % pageCount
             }
         } else {
-            setPpuMemoryMapping(
+            addPpuMemoryMapping(
                 start,
                 end,
                 type,
-                page * pageSize.toInt(),
-                if (accessType == MemoryAccessType.UNSPECIFIED) defaultAccessType else accessType
+                page * pageSize,
+                if (accessType == MemoryAccessType.UNSPECIFIED) defaultAccessType else accessType,
             )
         }
     }
 
-    protected fun setPpuMemoryMapping(
-        start: UShort,
-        end: UShort,
+    protected fun addPpuMemoryMapping(
+        start: Int,
+        end: Int,
         type: ChrMemoryType,
         sourceOffset: Int,
         accessType: MemoryAccessType,
@@ -708,8 +699,7 @@ abstract class Mapper :
 
         when (sourceType) {
             ChrMemoryType.DEFAULT -> {
-                sourceMemory =
-                    if (onlyChrRam) Pointer(chrRam) else Pointer(chrRom)
+                sourceMemory = if (onlyChrRam) Pointer(chrRam) else Pointer(chrRom)
                 sourceType = if (onlyChrRam) ChrMemoryType.RAM else ChrMemoryType.ROM
             }
             ChrMemoryType.ROM -> sourceMemory = Pointer(chrRom)
@@ -717,8 +707,8 @@ abstract class Mapper :
             else -> sourceMemory = Pointer(nametableRam)
         }
 
-        val firstSlot = start.toInt() shr 8
-        val slotCount = (end.toInt() - start.toInt() + 1) shr 8
+        val firstSlot = start shr 8
+        val slotCount = (end - start + 1) shr 8
 
         for (i in 0 until slotCount) {
             chrMemoryOffset[firstSlot + i] = sourceOffset + i * 256
@@ -726,12 +716,12 @@ abstract class Mapper :
             chrMemoryAccess[firstSlot + i] = accessType
         }
 
-        setPpuMemoryMapping(start, end, Pointer(sourceMemory, sourceOffset), accessType)
+        addPpuMemoryMapping(start, end, Pointer(sourceMemory, sourceOffset), accessType)
     }
 
-    protected fun setPpuMemoryMapping(
-        start: UShort,
-        end: UShort,
+    protected fun addPpuMemoryMapping(
+        start: Int,
+        end: Int,
         pointer: Pointer,
         accessType: MemoryAccessType = MemoryAccessType.UNSPECIFIED,
     ) {
@@ -739,24 +729,24 @@ abstract class Mapper :
             return
         }
 
-        val a = start.toInt() shr 8
-        val b = end.toInt() shr 8
+        val a = start shr 8
+        val b = end shr 8
         var sourceMemory = pointer
 
         for (i in a..b) {
             chrPages[i] = sourceMemory
-            chrMemoryAccess[i] =
-                if (accessType != MemoryAccessType.UNSPECIFIED) accessType else MemoryAccessType.READ_WRITE
+            chrMemoryAccess[i] = if (accessType != MemoryAccessType.UNSPECIFIED) accessType
+            else MemoryAccessType.READ_WRITE
 
-            if (sourceMemory != Pointer.NULL) {
+            if (sourceMemory !== Pointer.NULL) {
                 sourceMemory = Pointer(sourceMemory, 0x100)
             }
         }
     }
 
-    protected fun removePpuMemoryMapping(start: UShort, end: UShort) {
-        val firstSlot = start.toInt() shr 8
-        val slotCount = (end.toInt() - start.toInt() + 1) shr 8
+    protected fun removePpuMemoryMapping(start: Int, end: Int) {
+        val firstSlot = start shr 8
+        val slotCount = (end - start + 1) shr 8
 
         // Unmap this section of memory (causing open bus behavior)
         for (i in 0 until slotCount) {
@@ -765,138 +755,132 @@ abstract class Mapper :
             chrMemoryAccess[firstSlot + i] = MemoryAccessType.NO_ACCESS
         }
 
-        setPpuMemoryMapping(start, end, Pointer.NULL, MemoryAccessType.NO_ACCESS)
+        addPpuMemoryMapping(start, end, Pointer.NULL, MemoryAccessType.NO_ACCESS)
     }
 
     private fun initializeChrRam(size: Int = -1) {
-        val defaultRamSize = if (chrRamSize > 0U) chrRamSize else 0x2000U
-        privateChrRamSize = if (size >= 0) size.toUInt() else defaultRamSize
+        val defaultRamSize = if (chrRamSize > 0) chrRamSize else 0x2000
+        mChrRamSize = if (size >= 0) size else defaultRamSize
 
-        if (privateChrRamSize > 0U) {
-            chrRam = UByteArray(privateChrRamSize.toInt())
+        if (mChrRamSize > 0) {
+            chrRam = IntArray(mChrRamSize)
             console.initializeRam(chrRam)
         }
     }
 
-    protected fun addRegisterRange(start: UShort, end: UShort, operation: MemoryOperation = MemoryOperation.ANY) {
+    protected fun addRegisterRange(start: Int, end: Int, operation: MemoryOperation = MemoryOperation.ANY) {
         for (i in start..end) {
-            if (operation.isRead) {
-                isReadRegisterAddr[i.toInt()] = true
+            if (operation.read) {
+                isReadRegisterAddr[i] = true
             }
-            if (operation.isWrite) {
-                isWriteRegisterAddr[i.toInt()] = true
+            if (operation.write) {
+                isWriteRegisterAddr[i] = true
             }
         }
     }
 
-    protected fun removeRegisterRange(start: UShort, end: UShort, operation: MemoryOperation = MemoryOperation.ANY) {
+    protected fun removeRegisterRange(start: Int, end: Int, operation: MemoryOperation = MemoryOperation.ANY) {
         for (i in start..end) {
-            if (operation.isRead) {
-                isReadRegisterAddr[i.toInt()] = false
+            if (operation.read) {
+                isReadRegisterAddr[i] = false
             }
-            if (operation.isWrite) {
-                isWriteRegisterAddr[i.toInt()] = false
+            if (operation.write) {
+                isWriteRegisterAddr[i] = false
             }
         }
     }
 
-    open fun selectPrgPage(slot: UShort, page: UShort, memoryType: PrgMemoryType = PrgMemoryType.ROM) {
-        if (privatePrgSize < 0x8000U && prgPageSize > privatePrgSize) {
+    open fun selectPrgPage(slot: Int, page: Int, memoryType: PrgMemoryType = PrgMemoryType.ROM) {
+        if (mPrgSize < 0x8000 && prgPageSize > mPrgSize) {
             // System.err.println("DEBUG: Total PRG size is smaller than available memory range")
             // Total PRG size is smaller than available memory range, map the entire PRG to all slots
             // i.e same logic as NROM (mapper 0) when PRG is 16kb
             // Needed by "Pyramid" (mapper 79)
-            var i = 0U
+            var i = 0
 
-            while (i < 0x8000U / privatePrgSize) {
-                val start = 0x8000U + i * privatePrgSize
-                val end = start + privatePrgSize - 1U
-                setCpuMemoryMapping(start.toUShort(), end.toUShort(), 0, memoryType)
+            while (i < 0x8000 / mPrgSize) {
+                val start = 0x8000 + i * mPrgSize
+                val end = start + mPrgSize - 1
+                addCpuMemoryMapping(start, end, 0, memoryType)
                 i++
             }
         } else {
-            val start = 0x8000U + slot * internalPrgPageSize
-            val end = start + internalPrgPageSize - 1U
-            setCpuMemoryMapping(start.toUShort(), end.toUShort(), page.toShort(), memoryType)
+            val start = 0x8000 + slot * mPrgPageSize
+            val end = start + mPrgPageSize - 1
+            addCpuMemoryMapping(start, end, page, memoryType)
         }
     }
 
-    protected fun readRam(addr: UShort): UByte {
-        val page = prgPages[addr.hiByte.toInt()]
-        return if (page != Pointer.NULL) page[addr.loByte.toInt()] else 0U
+    fun selectPrgPage4x(slot: Int, page: Int, memoryType: PrgMemoryType = PrgMemoryType.ROM) {
+        selectPrgPage2x(slot * 2, page, memoryType)
+        selectPrgPage2x(slot * 2 + 1, page + 2, memoryType)
     }
 
-    fun selectPrgPage4x(slot: UShort, page: UShort, memoryType: PrgMemoryType = PrgMemoryType.ROM) {
-        selectPrgPage2x((slot * 2U).toUShort(), page, memoryType)
-        selectPrgPage2x((slot * 2U + 1U).toUShort(), (page + 2U).toUShort(), memoryType)
+    fun selectPrgPage2x(slot: Int, page: Int, memoryType: PrgMemoryType = PrgMemoryType.ROM) {
+        selectPrgPage(slot * 2, page, memoryType)
+        selectPrgPage(slot * 2 + 1, page + 1, memoryType)
     }
 
-    fun selectPrgPage2x(slot: UShort, page: UShort, memoryType: PrgMemoryType = PrgMemoryType.ROM) {
-        selectPrgPage((slot * 2U).toUShort(), page, memoryType)
-        selectPrgPage((slot * 2U + 1U).toUShort(), (page + 1U).toUShort(), memoryType)
-    }
-
-    open fun selectChrPage(slot: UShort, page: UShort, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
+    open fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
         val pageSize = when (memoryType) {
-            ChrMemoryType.NAMETABLE_RAM -> NAMETABLE_SIZE.toUInt()
-            ChrMemoryType.RAM -> internalChrRamPageSize
-            else -> internalChrPageSize
+            ChrMemoryType.NAMETABLE_RAM -> NAMETABLE_SIZE
+            ChrMemoryType.RAM -> mChrRamPageSize
+            else -> mChrPageSize
         }
 
         val start = slot * pageSize
-        val end = start + pageSize - 1U
+        val end = start + pageSize - 1
 
-        setPpuMemoryMapping(start.toUShort(), end.toUShort(), page, memoryType)
+        addPpuMemoryMapping(start, end, page, memoryType)
     }
 
-    fun selectChrPage8x(slot: UShort, page: UShort, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
+    fun selectChrPage8x(slot: Int, page: Int, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
         selectChrPage4x(slot, page, memoryType)
-        selectChrPage4x((slot * 2U + 1U).toUShort(), (page + 4U).toUShort(), memoryType)
+        selectChrPage4x(slot * 2 + 1, page + 4, memoryType)
     }
 
-    fun selectChrPage4x(slot: UShort, page: UShort, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
-        selectChrPage2x((slot * 2U).toUShort(), page, memoryType)
-        selectChrPage2x((slot * 2U + 1U).toUShort(), (page + 2U).toUShort(), memoryType)
+    fun selectChrPage4x(slot: Int, page: Int, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
+        selectChrPage2x(slot * 2, page, memoryType)
+        selectChrPage2x(slot * 2 + 1, page + 2, memoryType)
     }
 
-    fun selectChrPage2x(slot: UShort, page: UShort, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
-        selectChrPage((slot * 2U).toUShort(), page, memoryType)
-        selectChrPage((slot * 2U + 1U).toUShort(), (page + 1U).toUShort(), memoryType)
+    fun selectChrPage2x(slot: Int, page: Int, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
+        selectChrPage(slot * 2, page, memoryType)
+        selectChrPage(slot * 2 + 1, page + 1, memoryType)
     }
 
-    fun getPowerOnByte(default: UByte = 0U): UByte {
-        return if (console.settings.checkFlag(EmulationFlag.RANDOMIZE_MAPPER_POWER_ON_STATE)) {
-            Random.nextInt(256).toUByte()
+    fun powerOnByte(default: Int = 0): Int {
+        return if (console.settings.flag(EmulationFlag.RANDOMIZE_MAPPER_POWER_ON_STATE)) {
+            Random.nextInt(256)
         } else {
             default
         }
     }
 
-    open fun notifyVRAMAddressChange(addr: UShort) {
+    open fun notifyVRAMAddressChange(addr: Int) {
         // This is called when the VRAM addr on the PPU memory bus changes
         // Used by MMC3/MMC5/etc
     }
 
-    inline fun debugReadVRAM(addr: UShort, disableSideEffects: Boolean = true): UByte {
-        val a = addr and 0x3FFFU
+    fun debugReadVRAM(addr: Int, disableSideEffects: Boolean = true): Int {
+        val a = addr and 0x3FFF
         if (!disableSideEffects) notifyVRAMAddressChange(a)
         return internalReadVRAM(a)
     }
 
-    open fun applySamples(buffer: ShortArray, sampleCount: Int, volume: Double) {
-    }
+    open fun applySamples(buffer: ShortArray, sampleCount: Int, volume: Double) {}
 
-    inline val dipSwitches: Int
+    val dipSwitches: Int
         get() {
             val mask = (1 shl dipSwitchCount) - 1
             return console.settings.dipSwitches and mask
         }
 
-    inline val isNes20: Boolean
+    val nes20
         get() = info.isNes20Header
 
     override fun saveState(s: Snapshot) {
-        privateMirroringType?.let { s.write("mirroringType", it) }
+        s.write("mirroringType", mMirroringType)
         s.write("chrRam", chrRam)
         s.write("workRam", workRam)
         s.write("saveRam", saveRam)
@@ -910,76 +894,75 @@ abstract class Mapper :
     }
 
     override fun restoreState(s: Snapshot) {
-        s.load()
-
-        privateMirroringType = s.readEnum<MirroringType>("mirroringType")
-        s.readUByteArray("chrRam")?.copyInto(chrRam)
-        s.readUByteArray("workRam")?.copyInto(workRam)
-        s.readUByteArray("saveRam")?.copyInto(saveRam)
-        s.readUByteArray("nametableRam")?.copyInto(nametableRam)
-        s.readIntArray("prgMemoryOffset")?.copyInto(prgMemoryOffset)
-        s.readIntArray("chrMemoryOffset")?.copyInto(chrMemoryOffset)
-        s.readEnumArray<PrgMemoryType>("prgMemoryType")?.copyInto(prgMemoryType)
-        s.readEnumArray<ChrMemoryType>("chrMemoryType")?.copyInto(chrMemoryType)
-        s.readEnumArray<MemoryAccessType>("prgMemoryAccess")?.copyInto(prgMemoryAccess)
-        s.readEnumArray<MemoryAccessType>("chrMemoryAccess")?.copyInto(chrMemoryAccess)
+        mMirroringType = s.readEnum("mirroringType", mMirroringType)
+        s.readIntArray("chrRam", chrRam)
+        s.readIntArray("workRam", workRam)
+        s.readIntArray("saveRam", saveRam)
+        s.readIntArray("nametableRam", nametableRam)
+        s.readIntArray("prgMemoryOffset", prgMemoryOffset)
+        s.readIntArray("chrMemoryOffset", chrMemoryOffset)
+        s.readArray("prgMemoryType", prgMemoryType)
+        s.readArray("chrMemoryType", chrMemoryType)
+        s.readArray("prgMemoryAccess", prgMemoryAccess)
+        s.readArray("chrMemoryAccess", chrMemoryAccess)
 
         restorePrgChrState()
     }
 
     private fun restorePrgChrState() {
-        for (i in 0..0xff) {
+        for (i in 0..0xFF) {
             val startAddr = i shl 8
 
             if (prgMemoryAccess[i] != MemoryAccessType.NO_ACCESS) {
-                setCpuMemoryMapping(
-                    startAddr.toUShort(),
-                    (startAddr + 0xFF).toUShort(),
+                addCpuMemoryMapping(
+                    startAddr,
+                    startAddr + 0xFF,
                     prgMemoryType[i],
                     prgMemoryOffset[i],
-                    prgMemoryAccess[i]
+                    prgMemoryAccess[i],
                 )
             } else {
-                removeCpuMemoryMapping(startAddr.toUShort(), (startAddr + 0xFF).toUShort())
+                removeCpuMemoryMapping(startAddr, startAddr + 0xFF)
             }
         }
 
-        for (i in 0..0x3f) {
+        for (i in 0..0x3F) {
             val startAddr = i shl 8
 
             if (chrMemoryAccess[i] != MemoryAccessType.NO_ACCESS) {
-                setPpuMemoryMapping(
-                    startAddr.toUShort(),
-                    (startAddr + 0xFF).toUShort(),
+                addPpuMemoryMapping(
+                    startAddr,
+                    startAddr + 0xFF,
                     chrMemoryType[i],
                     chrMemoryOffset[i],
-                    chrMemoryAccess[i]
+                    chrMemoryAccess[i],
                 )
             } else {
-                removePpuMemoryMapping(startAddr.toUShort(), (startAddr + 0xFF).toUShort())
+                removePpuMemoryMapping(startAddr, startAddr + 0xFF)
             }
         }
     }
 
     open val availableFeatures: List<ConsoleFeature> = emptyList()
 
-    fun toAbsoluteAddress(addr: UShort): Int {
-        val prgAddr = prgPages[addr.hiByte.toInt()].offset + addr.loByte.toInt()
-        return if (prgAddr >= 0 && prgAddr < privatePrgSize.toInt()) prgAddr else -1
+    fun toAbsoluteAddress(addr: Int): Int {
+        val prgAddr = prgPages[addr.hiByte].offset + addr.loByte
+        return if (prgAddr in 0 until mPrgSize) prgAddr else -1
     }
 
     companion object {
 
+        @JvmStatic
         fun initialize(
             console: Console,
-            rom: ByteArray,
+            rom: IntArray,
             name: String,
-            fdsBios: ByteArray = ByteArray(0),
+            fdsBios: IntArray = IntArray(0),
         ): Pair<Mapper?, RomData?> {
             val data = RomLoader.load(rom, name, fdsBios)
 
             if ((data.info.isInDatabase || data.info.isNes20Header) && data.info.inputType != GameInputType.UNSPECIFIED) {
-                if (console.settings.checkFlag(EmulationFlag.AUTO_CONFIGURE_INPUT)) {
+                if (console.settings.flag(EmulationFlag.AUTO_CONFIGURE_INPUT)) {
                     console.settings.initializeInputDevices(data.info.inputType, data.info.system)
                 }
             } else if (data.info.isInDatabase) {
@@ -991,6 +974,7 @@ abstract class Mapper :
             return Pair(fromId(data), data)
         }
 
+        @JvmStatic
         fun fromId(data: RomData): Mapper {
             return when (val id = data.info.mapperId) {
                 0 -> NROM()
@@ -998,10 +982,14 @@ abstract class Mapper :
                 2 -> UNROM()
                 3 -> CNROM(false)
                 4 -> if (data.info.subMapperId == 3) McAcc() else MMC3()
+                6 -> Mapper006()
                 7 -> AXROM()
+                8 -> Mapper008()
                 11 -> ColorDreams()
                 12 -> Mapper012()
                 14 -> Mapper014()
+                17 -> Mapper017()
+                30 -> UnRom512()
                 34 -> {
                     when (val sid = data.info.subMapperId) {
                         // BnROM uses CHR RAM (so no CHR rom in the NES file)
@@ -1028,6 +1016,7 @@ abstract class Mapper :
                 95 -> Mapper095()
                 105 -> Mapper105()
                 108 -> Bb()
+                111 -> Cheapocabra()
                 113 -> Nina0306(true)
                 114 -> Mapper114()
                 115 -> Mapper115()

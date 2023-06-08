@@ -1,7 +1,10 @@
 package br.tiagohm.nestalgia.core
 
-interface AudioDevice : Disposable {
-    fun play(buffer: ShortArray, length: Int, sampleRate: Int, isStereo: Boolean)
+import java.io.Closeable
+
+interface AudioDevice : Closeable {
+
+    fun play(buffer: ShortArray, length: Int, sampleRate: Int, stereo: Boolean)
 
     fun stop()
 

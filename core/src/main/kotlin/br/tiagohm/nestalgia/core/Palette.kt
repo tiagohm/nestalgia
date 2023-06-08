@@ -1,9 +1,12 @@
 package br.tiagohm.nestalgia.core
 
 interface Palette {
-    val data: UIntArray
 
-    val size: Int
+    val data: IntArray
 
-    val isFullColorPalette: Boolean
+    val size
+        get() = data.size
+
+    val isFullColor
+        get() = size == 512
 }

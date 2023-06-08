@@ -13,15 +13,15 @@ enum class PpuModel {
     PPU_2C05D,
     PPU_2C05E;
 
-    inline val is2C02: Boolean
+    val is2C02
         get() = this == PPU_2C02
 
-    inline val is2C03: Boolean
+    val is2C03
         get() = this == PPU_2C03
 
-    inline val is2C04: Boolean
-        get() = ordinal >= PPU_2C04A.ordinal && ordinal <= PPU_2C04D.ordinal
+    val is2C04
+        get() = this in PPU_2C04A..PPU_2C04D
 
-    inline val is2C05: Boolean
-        get() = ordinal >= PPU_2C05A.ordinal && ordinal <= PPU_2C05E.ordinal
+    val is2C05
+        get() = this in PPU_2C05A..PPU_2C05E
 }

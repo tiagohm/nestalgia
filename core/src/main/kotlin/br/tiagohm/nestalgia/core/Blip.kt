@@ -4,51 +4,53 @@ import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
-@Suppress("NOTHING_TO_INLINE")
-class Blip(val size: Int) {
+class Blip(private val size: Int) {
 
-    var factor = TIME_UNIT / BLIP_MAX_RATIO.toUInt()
-    var offset = 0UL
+    private var factor = TIME_UNIT / BLIP_MAX_RATIO
+    private var offset = 0L
+    private var integrator = 0
+    private val buffer = IntArray(size + BUF_EXTRA)
+
     var avail = 0
-    var integrator = 0
-    val buffer = IntArray(size + BUF_EXTRA)
+        private set
 
     init {
         clear()
     }
 
-    inline fun clear() {
-        offset = factor / 2U
+    fun clear() {
+        offset = factor / 2
         avail = 0
         integrator = 0
         buffer.fill(0)
     }
 
-    inline fun setRates(clockRate: Double, sampleRate: Double) {
-        factor = ceil(TIME_UNIT.toDouble() * sampleRate / clockRate).toULong()
+    fun rates(clockRate: Double, sampleRate: Double) {
+        factor = ceil(TIME_UNIT * sampleRate / clockRate).toLong()
     }
 
-    inline fun clocksNeeded(samples: Int): Long {
+    fun clocksNeeded(samples: Int): Long {
         if (samples < 0 || avail + samples > size) {
             throw IllegalStateException("Buffer can't hold that many more samples")
         }
 
-        val needed = samples.toUInt() * TIME_UNIT
+        val needed = samples * TIME_UNIT
 
-        return if (needed < offset) 0L else ((needed - offset + factor - 1U) / factor).toLong()
+        return if (needed < offset) 0L
+        else (needed - offset + factor - 1) / factor
     }
 
-    inline fun endFrame(t: Int) {
-        val off = t.toULong() * factor + offset
+    fun endFrame(t: Int) {
+        val off = t * factor + offset
         avail += (off shr TIME_BITS).toInt()
-        offset = off and (TIME_UNIT - 1U)
+        offset = off and (TIME_UNIT - 1)
 
         if (avail > size) {
             throw IllegalStateException("Buffer size was exceeded")
         }
     }
 
-    inline fun removeSamples(count: Int) {
+    fun removeSamples(count: Int) {
         val remain = avail + BUF_EXTRA - count
         avail -= count
 
@@ -93,16 +95,16 @@ class Blip(val size: Int) {
     }
 
     fun addDelta(time: Int, delta: Int) {
-        val off = time.toULong() * factor + offset
-        val fixed = (off shr PRE_SHIFT).toUInt()
+        val off = time.toLong() * factor + offset
+        val fixed = (off shr PRE_SHIFT) and 0xFFFFFFFF
         val out = avail + (fixed shr FRAC_BITS).toInt()
         val phase = (fixed shr PHASE_SHIFT).toInt() and (PHASE_COUNT - 1)
         val input0 = BL_STEP[phase]
         val input1 = BL_STEP[phase + 1]
         val rev0 = BL_STEP[PHASE_COUNT - phase]
         val rev1 = BL_STEP[PHASE_COUNT - phase - 1]
-        val interp = (fixed shr (PHASE_SHIFT - DELTA_BITS)) and (DELTA_UNIT - 1U)
-        val delta2 = (delta * interp.toLong()) shr DELTA_BITS
+        val interp = fixed shr (PHASE_SHIFT - DELTA_BITS) and (DELTA_UNIT - 1)
+        val delta2 = (delta * interp) shr DELTA_BITS
         val d = delta - delta2
 
         if (out > size + END_FRAME_EXTRA) {
@@ -119,24 +121,25 @@ class Blip(val size: Int) {
     }
 
     fun addDeltaFast(time: Int, delta: Int) {
-        val off = time.toULong() * factor + offset
-        val fixed = (off shr PRE_SHIFT).toUInt()
+        val off = time.toLong() * factor + offset
+        val fixed = (off shr PRE_SHIFT) and 0xFFFFFFFF
         val out = avail + (fixed shr FRAC_BITS).toInt()
-        val interp = (fixed shr (FRAC_BITS - DELTA_BITS)) and (DELTA_UNIT - 1U)
-        val delta2 = delta * interp.toLong()
+        val interp = fixed shr (FRAC_BITS - DELTA_BITS) and (DELTA_UNIT - 1)
+        val delta2 = delta * interp
 
         if (out > size + END_FRAME_EXTRA) {
             throw IllegalStateException("Buffer size was exceeded")
         }
 
-        buffer[out + 7] = (buffer[out + 7] + (delta * DELTA_UNIT.toLong() - delta2)).toInt()
+        buffer[out + 7] = (buffer[out + 7] + (delta * DELTA_UNIT - delta2)).toInt()
         buffer[out + 8] = (buffer[out + 8] + delta2).toInt()
     }
 
     companion object {
-        const val PRE_SHIFT = 32
+
+        const val PRE_SHIFT = 31 // 32 = unsigned long, 31 = long (Java), 0 = unsigned int.
         const val TIME_BITS = PRE_SHIFT + 20
-        val TIME_UNIT = 1UL shl TIME_BITS
+        const val TIME_UNIT = 1L shl TIME_BITS
         const val BASS_SHIFT = 9
         const val END_FRAME_EXTRA = 2
         const val HALF_WIDTH = 8
@@ -144,7 +147,7 @@ class Blip(val size: Int) {
         const val PHASE_BITS = 5
         const val PHASE_COUNT = 1 shl PHASE_BITS
         const val DELTA_BITS = 15
-        val DELTA_UNIT = (1U shl DELTA_BITS)
+        const val DELTA_UNIT = 1L shl DELTA_BITS
         const val FRAC_BITS = TIME_BITS - PRE_SHIFT
         const val PHASE_SHIFT = FRAC_BITS - PHASE_BITS
         const val BLIP_MAX_RATIO = 1 shl 20
@@ -152,7 +155,7 @@ class Blip(val size: Int) {
         const val MIN_SAMPLE = -32768
         const val BLIP_MAX_FRAME = 4000
 
-        private val BL_STEP = arrayOf(
+        @JvmStatic private val BL_STEP = arrayOf(
             shortArrayOf(43, -115, 350, -488, 1136, -914, 5861, 21022),
             shortArrayOf(44, -118, 348, -473, 1076, -799, 5274, 21001),
             shortArrayOf(45, -121, 344, -454, 1011, -677, 4706, 20936),

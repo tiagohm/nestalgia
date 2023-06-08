@@ -4,39 +4,39 @@ package br.tiagohm.nestalgia.core
 
 class Mapper049 : MMC3() {
 
-    private var selectedBlock: UByte = 0U
-    private var prgReg: UByte = 0U
+    private var selectedBlock = 0
+    private var prgReg = 0
     private var prgMode49 = false
 
-    override val registerStartAddress: UShort = 0x6000U
+    override val registerStartAddress = 0x6000
 
-    override val registerEndAddress: UShort = 0xFFFFU
+    override val registerEndAddress = 0xFFFF
 
     override fun reset(softReset: Boolean) {
         super.reset(softReset)
 
-        selectedBlock = 0U
-        prgReg = 0U
+        selectedBlock = 0
+        prgReg = 0
         prgMode49 = false
     }
 
-    override fun selectChrPage(slot: UShort, page: UShort, memoryType: ChrMemoryType) {
-        super.selectChrPage(slot, (page and 0x7FU) or (selectedBlock * 0x80U).toUShort(), memoryType)
+    override fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType) {
+        super.selectChrPage(slot, (page and 0x7F) or (selectedBlock * 0x80), memoryType)
     }
 
-    override fun selectPrgPage(slot: UShort, page: UShort, memoryType: PrgMemoryType) {
+    override fun selectPrgPage(slot: Int, page: Int, memoryType: PrgMemoryType) {
         super.selectPrgPage(
             slot,
-            if (prgMode49) (page and 0x0FU) or (selectedBlock * 0x10U).toUShort() else (prgReg * 4U + slot).toUShort(),
-            memoryType
+            if (prgMode49) (page and 0x0F) or (selectedBlock * 0x10) else (prgReg * 4 + slot),
+            memoryType,
         )
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        if (addr < 0x8000U) {
+    override fun writeRegister(addr: Int, value: Int) {
+        if (addr < 0x8000) {
             if (canWriteToWram) {
-                selectedBlock = (value shr 6) and 0x03U
-                prgReg = (value shr 4) and 0x03U
+                selectedBlock = (value shr 6) and 0x03
+                prgReg = (value shr 4) and 0x03
                 prgMode49 = value.bit0
 
                 updateState()
@@ -57,8 +57,8 @@ class Mapper049 : MMC3() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        selectedBlock = s.readUByte("selectedBlock") ?: 0U
-        prgReg = s.readUByte("prgReg") ?: 0U
-        prgMode49 = s.readBoolean("prgMode49") ?: false
+        selectedBlock = s.readInt("selectedBlock")
+        prgReg = s.readInt("prgReg")
+        prgMode49 = s.readBoolean("prgMode49")
     }
 }

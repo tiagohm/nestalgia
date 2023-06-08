@@ -1,12 +1,12 @@
 package br.tiagohm.nestalgia.core
 
-import java.util.*
+import java.io.Closeable
 
-class NotificationManager : Disposable {
+class NotificationManager : Closeable {
 
     private val listeners = ArrayList<NotificationListener>()
 
-    override fun dispose() {
+    override fun close() {
         clear()
     }
 

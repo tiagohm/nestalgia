@@ -1,22 +1,24 @@
 package br.tiagohm.nestalgia.core
 
 class InternalRamHandler(
-    private val ram: UByteArray,
-    private val mask: UShort
+    private val ram: IntArray,
+    private val mask: Int,
 ) : MemoryHandler {
 
-    override fun getMemoryRanges(ranges: MemoryRanges) {
+    override fun memoryRanges(ranges: MemoryRanges) {
         ranges.allowOverride = true
-        ranges.addHandler(MemoryOperation.ANY, 0U, 0x1FFFU)
+        ranges.addHandler(MemoryOperation.ANY, 0, 0x1FFF)
     }
 
-    override fun read(addr: UShort, type: MemoryOperationType): UByte {
-        return ram[(addr and mask).toInt()]
+    override fun read(addr: Int, type: MemoryOperationType): Int {
+        return ram[addr and mask]
     }
 
-    override fun peek(addr: UShort) = read(addr)
+    override fun peek(addr: Int): Int {
+        return read(addr)
+    }
 
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
-        ram[(addr and mask).toInt()] = value
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
+        ram[addr and mask] = value
     }
 }

@@ -6,13 +6,13 @@ data class RomData(
     val saveChrRamSize: Int = -1,
     val saveRamSize: Int = -1,
     val workRamSize: Int = -1,
-    val prgRom: UByteArray = UByteArray(0),
-    val chrRom: UByteArray = UByteArray(0),
-    val treinerData: UByteArray = UByteArray(0),
+    val prgRom: IntArray = IntArray(0),
+    val chrRom: IntArray = IntArray(0),
+    val treinerData: IntArray = IntArray(0),
     val studyBox: StudyBoxData = StudyBoxData.EMPTY,
-    val bytes: ByteArray = ByteArray(0),
+    val rawData: IntArray = IntArray(0),
     val biosMissing: Boolean = false,
-    val fdsBios: ByteArray = ByteArray(0),
+    val fdsBios: IntArray = IntArray(0),
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -30,10 +30,8 @@ data class RomData(
         if (!chrRom.contentEquals(other.chrRom)) return false
         if (!treinerData.contentEquals(other.treinerData)) return false
         if (studyBox != other.studyBox) return false
-        if (!bytes.contentEquals(other.bytes)) return false
-        if (biosMissing != other.biosMissing) return false
-
-        return true
+        if (!rawData.contentEquals(other.rawData)) return false
+        return biosMissing == other.biosMissing
     }
 
     override fun hashCode(): Int {
@@ -46,7 +44,7 @@ data class RomData(
         result = 31 * result + chrRom.contentHashCode()
         result = 31 * result + treinerData.contentHashCode()
         result = 31 * result + studyBox.hashCode()
-        result = 31 * result + bytes.contentHashCode()
+        result = 31 * result + rawData.contentHashCode()
         result = 31 * result + biosMissing.hashCode()
         result = 31 * result + fdsBios.contentHashCode()
         return result

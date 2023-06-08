@@ -2,23 +2,23 @@ package br.tiagohm.nestalgia.core
 
 class Nina01 : Mapper() {
 
-    override val prgPageSize = 0x8000U
+    override val prgPageSize = 0x8000
 
-    override val chrPageSize = 0x1000U
+    override val chrPageSize = 0x1000
 
-    override val registerStartAddress: UShort = 0x7FFDU
+    override val registerStartAddress = 0x7FFD
 
-    override val registerEndAddress: UShort = 0x7FFFU
+    override val registerEndAddress = 0x7FFF
 
-    override fun init() {
-        selectPrgPage(0U, 0U)
+    override fun initialize() {
+        selectPrgPage(0, 0)
     }
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        when (addr.toInt()) {
-            0x7FFD -> selectPrgPage(0U, value.toUShort() and 0x01U)
-            0x7FFE -> selectChrPage(0U, value.toUShort() and 0x0FU)
-            0x7FFF -> selectChrPage(1U, value.toUShort() and 0x0FU)
+    override fun writeRegister(addr: Int, value: Int) {
+        when (addr) {
+            0x7FFD -> selectPrgPage(0, value and 0x01)
+            0x7FFE -> selectChrPage(0, value and 0x0F)
+            0x7FFF -> selectChrPage(1, value and 0x0F)
         }
 
         writePrgRam(addr, value)

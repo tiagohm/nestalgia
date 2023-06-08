@@ -2,28 +2,28 @@ package br.tiagohm.nestalgia.core
 
 open class SystemActionManager(console: Console) : ControlDevice(console, CONSOLE_INPUT_PORT) {
 
-    private var isNeedReset: Boolean = false
-    private var isNeedPowerCycle: Boolean = false
+    private var needReset = false
+    private var needPowerCycle = false
 
     override fun reset(softReset: Boolean) {
-        if (!isNeedReset) {
-            isNeedReset = true
+        if (!needReset) {
+            needReset = true
         }
     }
 
     override fun onAfterSetState() {
-        if (isNeedReset) {
+        if (needReset) {
             setBit(SystemActionButton.RESET)
         }
 
-        if (isNeedPowerCycle) {
+        if (needPowerCycle) {
             setBit(SystemActionButton.POWER)
         }
     }
 
     fun processSystemActions() {
         if (isPressed(SystemActionButton.RESET)) {
-            isNeedReset = false
+            needReset = false
             console.resetComponents(true)
             console.controlManager.updateInputState()
         }
@@ -33,9 +33,9 @@ open class SystemActionManager(console: Console) : ControlDevice(console, CONSOL
         }
     }
 
-    fun reset(): Boolean {
-        return if (!isNeedReset) {
-            isNeedReset = true
+    fun softReset(): Boolean {
+        return if (!needReset) {
+            needReset = true
             true
         } else {
             false
@@ -43,16 +43,11 @@ open class SystemActionManager(console: Console) : ControlDevice(console, CONSOL
     }
 
     fun powerCycle(): Boolean {
-        return if (!isNeedPowerCycle) {
-            isNeedPowerCycle = true
+        return if (!needPowerCycle) {
+            needPowerCycle = true
             true
         } else {
             false
         }
-    }
-
-    override fun read(addr: UShort, type: MemoryOperationType): UByte = 0U
-
-    override fun write(addr: UShort, value: UByte, type: MemoryOperationType) {
     }
 }

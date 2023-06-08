@@ -1,25 +1,27 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryOperation.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_115
 
 class Mapper115 : MMC3() {
 
-    private var prgReg: UByte = 0U
-    private var chrReg: UByte = 0U
-    private var protectionReg: UByte = 0U
+    private var prgReg = 0
+    private var chrReg = 0
+    private var protectionReg = 0
 
     override val allowRegisterRead = true
 
-    override fun init() {
-        addRegisterRange(0x4100U, 0x7FFFU, MemoryOperation.WRITE)
-        addRegisterRange(0x5000U, 0x5FFFU, MemoryOperation.READ)
-        removeRegisterRange(0x8000U, 0xFFFFU, MemoryOperation.READ)
+    override fun initialize() {
+        addRegisterRange(0x4100, 0x7FFF, WRITE)
+        addRegisterRange(0x5000, 0x5FFF, READ)
+        removeRegisterRange(0x8000, 0xFFFF, READ)
 
-        super.init()
+        super.initialize()
     }
 
-    override fun selectChrPage(slot: UShort, page: UShort, memoryType: ChrMemoryType) {
-        super.selectChrPage(slot, page or (chrReg.toUInt() shl 8).toUShort(), memoryType)
+    override fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType) {
+        super.selectChrPage(slot, page or chrReg shl 8, memoryType)
     }
 
     override fun updateState() {
@@ -27,24 +29,24 @@ class Mapper115 : MMC3() {
 
         if (prgReg.bit7) {
             if (prgReg.bit5) {
-                selectPrgPage4x(0U, (((prgReg and 0x0FU).toUInt() shr 1) shl 2).toUShort())
+                selectPrgPage4x(0, prgReg and 0x0F shr 1 shl 2) // TODO: ESTÁ CERTO SHR E SHL
             } else {
-                val page = ((prgReg and 0x0FU).toUInt() shl 1).toUShort()
-                selectPrgPage2x(0U, page)
-                selectPrgPage2x(1U, page)
+                val page = prgReg and 0x0F shl 1
+                selectPrgPage2x(0, page)
+                selectPrgPage2x(1, page)
             }
         }
     }
 
-    override fun readRegister(addr: UShort) = protectionReg
+    override fun readRegister(addr: Int) = protectionReg
 
-    override fun writeRegister(addr: UShort, value: UByte) {
-        if (addr < 0x8000U) {
-            if (addr.toInt() == 0x5080) {
+    override fun writeRegister(addr: Int, value: Int) {
+        if (addr < 0x8000) {
+            if (addr == 0x5080) {
                 protectionReg = value
             } else {
-                if ((addr.toInt() and 0x01) == 0x01) {
-                    chrReg = value and 0x01U
+                if (addr.bit0) {
+                    chrReg = value and 0x01
                 } else {
                     prgReg = value
                 }
@@ -66,7 +68,7 @@ class Mapper115 : MMC3() {
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        prgReg = s.readUByte("prgReg") ?: 0U
-        chrReg = s.readUByte("chrReg") ?: 0U
+        prgReg = s.readInt("prgReg")
+        chrReg = s.readInt("chrReg")
     }
 }

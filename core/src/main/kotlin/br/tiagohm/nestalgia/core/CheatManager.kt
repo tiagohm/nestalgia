@@ -1,8 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import java.util.*
-
-class CheatManager(val console: Console) {
+class CheatManager(private val console: Console) {
 
     private val relativeCheatCodes = Array<MutableList<CodeInfo>?>(65536) { null }
     private val absoluteCheatCodes = ArrayList<CodeInfo>()
@@ -60,7 +58,7 @@ class CheatManager(val console: Console) {
         return CodeInfo(address, value, compareValue, true)
     }
 
-    fun addCode(code: CodeInfo) {
+    private fun addCode(code: CodeInfo) {
         if (code.isRelativeAddress) {
             if (code.address > 0xFFFF) {
                 System.err.println("Invalid cheat, ignore it: ${code.address}")
@@ -81,15 +79,15 @@ class CheatManager(val console: Console) {
         console.notificationManager.sendNotification(NotificationType.CHEAT_ADDED, code)
     }
 
-    fun addGameGenieCode(code: String) {
+    private fun addGameGenieCode(code: String) {
         addCode(decodeGameGenie(code))
     }
 
-    fun addProActionRockyCode(code: Int) {
+    private fun addProActionRockyCode(code: Int) {
         addCode(decodePAR(code))
     }
 
-    fun addCheat(cheat: CheatInfo) {
+    private fun add(cheat: CheatInfo) {
         when (cheat.type) {
             CheatType.GAME_GENIE -> {
                 addGameGenieCode(cheat.gameGenieCode!!)
@@ -103,10 +101,10 @@ class CheatManager(val console: Console) {
         }
     }
 
-    fun setCheats(cheats: Iterable<CheatInfo>) {
+    fun set(cheats: Iterable<CheatInfo>) {
         console.pause()
         clear()
-        cheats.forEach { addCheat(it) }
+        cheats.forEach { add(it) }
         console.resume()
     }
 
@@ -122,14 +120,14 @@ class CheatManager(val console: Console) {
         }
     }
 
-    fun applyCode(addr: UShort, value: UByte): UByte {
+    fun applyCode(addr: Int, value: Int): Int {
         if (hasCodes) {
-            if (relativeCheatCodes[addr.toInt()] != null) {
-                val codes = relativeCheatCodes[addr.toInt()]!!
+            val codes = relativeCheatCodes[addr]
 
+            if (codes != null) {
                 for (code in codes) {
-                    if (code.compareValue == -1 || code.compareValue == value.toInt()) {
-                        return code.value.toUByte()
+                    if (code.compareValue == -1 || code.compareValue == value) {
+                        return code.value
                     }
                 }
             } else if (absoluteCheatCodes.isNotEmpty()) {
@@ -138,9 +136,9 @@ class CheatManager(val console: Console) {
                 if (absoluteAddr >= 0) {
                     for (code in absoluteCheatCodes) {
                         if (code.address == absoluteAddr &&
-                            (code.compareValue == -1 || code.compareValue == value.toInt())
+                            (code.compareValue == -1 || code.compareValue == value)
                         ) {
-                            return code.value.toUByte()
+                            return code.value
                         }
                     }
                 }
@@ -153,25 +151,26 @@ class CheatManager(val console: Console) {
     var cheats: List<CodeInfo>
         get() {
             val res = ArrayList<CodeInfo>()
-            relativeCheatCodes.forEach { if (it != null) res.addAll(it) }
+            relativeCheatCodes.filterNotNull().forEach(res::addAll)
             res.addAll(absoluteCheatCodes)
             return res
         }
         set(value) {
             clear()
-            value.forEach { addCode(it) }
+            value.forEach(::addCode)
         }
 
     companion object {
-        // Game Genie
+
         private const val GAME_GENIE_LETTERS = "APZLGITYEOXUKSVN"
-        private val GAME_GENIE_ADDRESS_BITS = intArrayOf(14, 13, 12, 19, 22, 21, 20, 7, 10, 9, 8, 15, 18, 17, 16)
-        private val GAME_GENIE_VALUE_BITS = intArrayOf(3, 6, 5, 4, 23, 2, 1, 0)
-        private val GAME_GENIE_VALUE_BITS_8 = intArrayOf(3, 6, 5, 4, 31, 2, 1, 0)
-        private val GAME_GENIE_COMPARE_VALUE_BITS = intArrayOf(27, 30, 29, 28, 23, 26, 25, 24)
+
+        @JvmStatic private val GAME_GENIE_ADDRESS_BITS = intArrayOf(14, 13, 12, 19, 22, 21, 20, 7, 10, 9, 8, 15, 18, 17, 16)
+        @JvmStatic private val GAME_GENIE_VALUE_BITS = intArrayOf(3, 6, 5, 4, 23, 2, 1, 0)
+        @JvmStatic private val GAME_GENIE_VALUE_BITS_8 = intArrayOf(3, 6, 5, 4, 31, 2, 1, 0)
+        @JvmStatic private val GAME_GENIE_COMPARE_VALUE_BITS = intArrayOf(27, 30, 29, 28, 23, 26, 25, 24)
 
         // PAR
-        private val PAR_SHIFT_VALUES = intArrayOf(
+        @JvmStatic private val PAR_SHIFT_VALUES = intArrayOf(
             3, 13, 14, 1, 6, 9, 5, 0, 12, 7, 2, 8, 10, 11, 4, // Address
             19, 21, 23, 22, 20, 17, 16, 18, // Compare
             29, 31, 24, 26, 25, 30, 27, 28, // Value

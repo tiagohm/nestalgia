@@ -1,18 +1,18 @@
 package br.tiagohm.nestalgia.core
 
 open class MMC3ChrRam(
-    private val firstRamBank: UShort,
-    private val lastRamBank: UShort,
-    chrRamSize: UShort,
+    private val firstRamBank: Int,
+    private val lastRamBank: Int,
+    chrRamSize: Int,
 ) : MMC3() {
 
-    override val chrRamPageSize = 0x400U
+    override val chrRamPageSize = 0x400
 
-    override val chrRamSize = chrRamSize * 0x400U
+    override val chrRamSize = chrRamSize * 0x400
 
-    override fun selectChrPage(slot: UShort, page: UShort, memoryType: ChrMemoryType) {
+    override fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType) {
         if (page in firstRamBank..lastRamBank) {
-            super.selectChrPage(slot, (page - firstRamBank).toUShort(), ChrMemoryType.RAM)
+            super.selectChrPage(slot, page - firstRamBank, ChrMemoryType.RAM)
         } else {
             super.selectChrPage(slot, page, memoryType)
         }

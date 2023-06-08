@@ -2,8 +2,8 @@ package br.tiagohm.nestalgia.core
 
 data class PpuControl(
     var verticalWrite: Boolean = false,
-    var spritePatternAddr: UShort = 0U,
-    var backgroundPatternAddr: UShort = 0U,
+    var spritePatternAddr: Int = 0,
+    var backgroundPatternAddr: Int = 0,
     var largeSprites: Boolean = false,
     var vBlank: Boolean = false,
     var grayscale: Boolean = false,
@@ -33,20 +33,18 @@ data class PpuControl(
     }
 
     override fun restoreState(s: Snapshot) {
-        s.load()
-
-        verticalWrite = s.readBoolean("verticalWrite") ?: false
-        spritePatternAddr = s.readUShort("spritePatternAddr") ?: 0U
-        backgroundPatternAddr = s.readUShort("backgroundPatternAddr") ?: 0U
-        largeSprites = s.readBoolean("largeSprites") ?: false
-        vBlank = s.readBoolean("vBlank") ?: false
-        grayscale = s.readBoolean("grayscale") ?: false
-        backgroundMask = s.readBoolean("backgroundMask") ?: false
-        spriteMask = s.readBoolean("spriteMask") ?: false
-        backgroundEnabled = s.readBoolean("backgroundEnabled") ?: false
-        spritesEnabled = s.readBoolean("spritesEnabled") ?: false
-        intensifyRed = s.readBoolean("intensifyRed") ?: false
-        intensifyGreen = s.readBoolean("intensifyGreen") ?: false
-        intensifyBlue = s.readBoolean("intensifyBlue") ?: false
+        verticalWrite = s.readBoolean("verticalWrite")
+        spritePatternAddr = s.readInt("spritePatternAddr")
+        backgroundPatternAddr = s.readInt("backgroundPatternAddr")
+        largeSprites = s.readBoolean("largeSprites")
+        vBlank = s.readBoolean("vBlank")
+        grayscale = s.readBoolean("grayscale")
+        backgroundMask = s.readBoolean("backgroundMask")
+        spriteMask = s.readBoolean("spriteMask")
+        backgroundEnabled = s.readBoolean("backgroundEnabled")
+        spritesEnabled = s.readBoolean("spritesEnabled")
+        intensifyRed = s.readBoolean("intensifyRed")
+        intensifyGreen = s.readBoolean("intensifyGreen")
+        intensifyBlue = s.readBoolean("intensifyBlue")
     }
 }
