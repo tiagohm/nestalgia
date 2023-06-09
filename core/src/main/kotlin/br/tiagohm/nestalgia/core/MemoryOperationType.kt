@@ -5,8 +5,9 @@ enum class MemoryOperationType {
     WRITE,
     OPCODE,
     OPERAND,
-    PPU_RENDERING_READ,
+    DMA_READ,
+    DMA_WRITE,
     DUMMY_READ,
-    DMC_READ,
     DUMMY_WRITE,
+    PPU_RENDERING_READ,
 }

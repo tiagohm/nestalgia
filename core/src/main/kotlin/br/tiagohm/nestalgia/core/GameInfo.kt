@@ -112,12 +112,12 @@ data class GameInfo(
 
         @JvmStatic
         fun parse(line: String): GameInfo {
-            val parts = line.split(";")
+            val parts = line.split(";", ",")
 
             val crc = parts[0].toLong(16)
             val system = when (parts[1]) {
-                "Ntsc" -> GameSystem.NTSC
-                "Pal" -> GameSystem.PAL
+                "NesNtsc" -> GameSystem.NTSC
+                "NesPal" -> GameSystem.PAL
                 "Dendy" -> GameSystem.DENDY
                 "Famicom" -> GameSystem.FAMICOM
                 "VsSystem" -> GameSystem.VS_SYSTEM

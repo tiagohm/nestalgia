@@ -140,10 +140,12 @@ class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, S
     }
 
     override fun read(addr: Int, type: MemoryOperationType): Int {
+        // $4015 read.
         run()
 
         // Reading $4015 clears the Frame Counter interrupt flag.
-        return status.also { console.cpu.clearIRQSource(IRQSource.FRAME_COUNTER) }
+        return (status or console.memoryManager.openBus(0x20))
+            .also { console.cpu.clearIRQSource(IRQSource.FRAME_COUNTER) }
     }
 
     override fun peek(addr: Int): Int {

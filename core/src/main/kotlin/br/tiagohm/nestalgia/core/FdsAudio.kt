@@ -72,7 +72,13 @@ class FdsAudio(console: Console) : ExpansionAudio(console), Memory {
         when {
             addr <= 0x407F -> {
                 value = value and 0xC0
-                value = value or waveTable[addr and 0x3F]
+
+                value = if (waveWriteEnabled) {
+                    value or waveTable[addr and 0x3F]
+                } else {
+                    // When writing is disabled ($4089.7), reading anywhere in 4040-407F returns the value at the current wave position
+                    value or waveTable[wavePosition]
+                }
             }
             addr == 0x4090 -> {
                 value = value and 0xC0
@@ -106,7 +112,12 @@ class FdsAudio(console: Console) : ExpansionAudio(console), Memory {
 
                     volume.write(addr, value, type)
                 }
-                0x4084, 0x4085, 0x4086, 0x4087 -> mod.write(addr, value, type)
+                0x4084, 0x4085 -> {
+                    mod.write(addr, value, type)
+                    // Need to update mod output if gain/speed were changed.
+                    mod.updateOutput(volume.frequency)
+                }
+                0x4086, 0x4087 -> mod.write(addr, value, type)
                 0x4088 -> mod.writeModulationTable(value)
                 0x4089 -> {
                     masterVolume = value and 0x03

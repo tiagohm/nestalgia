@@ -1,5 +1,6 @@
 package br.tiagohm.nestalgia.core
 
+import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
@@ -37,7 +38,7 @@ class Console(
         private set
 
     var mapper: Mapper? = null
-        private set
+        internal set
 
     var slave: Console? = null
         private set
@@ -125,26 +126,22 @@ class Console(
     }
 
     override fun saveBattery() {
-        if (mapper != null) {
-            mapper!!.saveBattery()
+        mapper?.saveBattery()
 
-            val device = controlManager.controlDevice(ControlDevice.EXP_DEVICE_PORT)
+        val device = controlManager.controlDevice(ControlDevice.EXP_DEVICE_PORT)
 
-            if (device is Battery) {
-                device.saveBattery()
-            }
+        if (device is Battery) {
+            device.saveBattery()
         }
     }
 
     override fun loadBattery() {
-        if (mapper != null) {
-            mapper!!.loadBattery()
+        mapper?.loadBattery()
 
-            val device = controlManager.controlDevice(ControlDevice.EXP_DEVICE_PORT)
+        val device = controlManager.controlDevice(ControlDevice.EXP_DEVICE_PORT)
 
-            if (device is Battery) {
-                device.loadBattery()
-            }
+        if (device is Battery) {
+            device.loadBattery()
         }
     }
 
@@ -154,13 +151,20 @@ class Console(
         forPowerCycle: Boolean = false,
         fdsBios: IntArray = IntArray(0),
     ): Boolean {
+        val previousMapper = mapper
+
+        if (previousMapper != null) {
+            // Ensure we save any battery file before loading a new game.
+            saveBattery()
+        }
+
         val (newMapper, data) = try {
             Mapper.initialize(this, rom, name, fdsBios)
         } catch (e: IOException) {
             notificationManager.sendNotification(NotificationType.ERROR, e.message)
             return false
         } catch (e: Throwable) {
-            System.err.println(e.message)
+            LOG.error("Failed to initialize mapper", e)
             return false
         }
 
@@ -168,19 +172,12 @@ class Console(
 
         soundMixer.stopAudio(true)
 
-        if (mapper != null) {
-            // Ensure we save any battery file before loading a new game
-            saveBattery()
-        }
-
         batteryManager.initialize()
 
         if (newMapper != null && data != null) {
-            System.err.println("MAPPER: ${newMapper::class.simpleName}")
+            val isDifferentGame = previousMapper == null || previousMapper.info.hash.crc32 != data.info.hash.crc32
 
-            val isDifferentGame = mapper == null || mapper!!.info.hash.crc32 != data.info.hash.crc32
-
-            if (mapper != null) {
+            if (previousMapper != null) {
                 // Send notification only if a game was already running and
                 // we successfully loaded the new one
                 notificationManager.sendNotification(NotificationType.GAME_STOPPED)
@@ -188,14 +185,16 @@ class Console(
 
             videoDecoder.stopThread()
 
-            val previousMapper = mapper
-            mapper = newMapper
             memoryManager = MemoryManager(this)
             cpu = Cpu(this)
             apu = Apu(this)
 
-            mapper!!.console = this
-            mapper!!.initialize(data)
+            val info = newMapper.info
+            LOG.info(
+                "{}, mapper={}, id={} crc={}, md5={}, sha1={}, sha256={}",
+                info.name, newMapper::class.simpleName, info.mapperId, info.hash.crc32,
+                info.hash.md5, info.hash.sha1, info.hash.sha256,
+            )
 
             if (previousMapper != null && !isDifferentGame && forPowerCycle) {
                 mapper!!.copyPrgChrRom(previousMapper)
@@ -240,12 +239,14 @@ class Console(
                 VsControlManager(this, systemActionManager, mapper!!.controlDevice)
             else ControlManager(this, systemActionManager, mapper!!.controlDevice)
 
-            controlManager.pollCounter = pollCounter
-            controlManager.updateControlDevices()
-
             batteryManager.saveEnabled = true
 
             ppu = if (mapper is NsfMapper) NsfPpu(this) else Ppu(this)
+
+            controlManager.pollCounter = pollCounter
+            controlManager.updateControlDevices()
+
+            mapper!!.initialize(data)
 
             memoryManager.mapper = mapper!!
             memoryManager.registerIODevice(ppu)
@@ -349,9 +350,7 @@ class Console(
         soundMixer.stopAudio(true)
         memoryManager.reset(softReset)
 
-        if (!settings.flag(EmulationFlag.DISABLE_PPU_RESET) || !softReset || nsf) {
-            ppu.reset(softReset)
-        }
+        ppu.reset(softReset)
 
         apu.reset(softReset)
         cpu.reset(softReset, region)
@@ -708,6 +707,9 @@ class Console(
             0
         }
 
+    inline val masterClock
+        get() = cpu.cycleCount
+
     val nsf
         get() = mapper is NsfMapper
 
@@ -779,4 +781,9 @@ class Console(
                 emptyList()
             }
         }
+
+    companion object {
+
+        @JvmStatic private val LOG = LoggerFactory.getLogger(Console::class.java)
+    }
 }

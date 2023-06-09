@@ -274,8 +274,8 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                     currentOutputBuffer = if (currentOutputBuffer === outputBuffers[0]) outputBuffers[1] else outputBuffers[0]
                 } else if (prevRenderingEnabled) {
                     if (scanline > 0 || (!frameCount.bit0 || console.region != NTSC || settings.ppuModel != PPU_2C02)) {
-                        //Set bus address to the tile address calculated from the unused NT fetches at the end of the previous scanline
-                        //This doesn't happen on scanline 0 if the last dot of the previous frame was skipped
+                        // Set bus address to the tile address calculated from the unused NT fetches at the end of the previous scanline
+                        // This doesn't happen on scanline 0 if the last dot of the previous frame was skipped
                         setBusAddress((tile.tileAddr shl 4) or (state.videoRamAddr shr 12) or flags.backgroundPatternAddr)
                     }
                 }

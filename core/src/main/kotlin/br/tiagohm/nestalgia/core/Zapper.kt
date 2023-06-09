@@ -27,14 +27,12 @@ class Zapper(console: Console, port: Int) : ControlDevice(console, port) {
         get() = console.ppu.isLight(x, y, console.settings.zapperDetectionRadius[port])
 
     override fun read(addr: Int, type: MemoryOperationType): Int {
-        var output = 0
-
         if ((expansionPortDevice && addr == 0x4017) || isCurrentPort(addr)) {
-            output = (if (light) 0x00 else 0x08) or
+            return (if (light) 0x00 else 0x08) or
                 (if (isPressed(ZapperButton.FIRE)) 0x10 else 0x00)
         }
 
-        return output
+        return 0
     }
 
     override fun write(addr: Int, value: Int, type: MemoryOperationType) {}
