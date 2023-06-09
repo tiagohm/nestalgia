@@ -1,8 +1,12 @@
 <p align="center">
-<img src="https://github.com/tiagohm/nestalgia/blob/main/docs/mario-256.png?raw=true" height="64" alt="Nestalgia" />
+<img src="https://github.com/tiagohm/nestalgia/blob/main/docs/mario-256.png?raw=true" height="128" alt="Nestalgia" />
 </p>
 
 <h1 align="center">Nestalgia</h1>
+
+[![Active Development](https://img.shields.io/badge/Maintenance%20Level-Actively%20Developed-brightgreen.svg)](https://gist.github.com/cheerfulstoic/d107229326a01ff0f333a1d3476e068d)
+[![CI](https://github.com/tiagohm/nestalgia/actions/workflows/ci.yml/badge.svg)](https://github.com/tiagohm/nestalgia/actions/workflows/ci.yml)
+[![CodeFactor](https://www.codefactor.io/repository/github/tiagohm/nestalgia/badge/main)](https://www.codefactor.io/repository/github/tiagohm/nestalgia/overview/main)
 
 Nestalgia is a cross-platform and high-accuracy NES/Famicom emulator built in Kotlin. It's being ported from
 discontinued [Mesen](https://github.com/SourMesen/Mesen) NES/Famicom emulator built in C++ and C#.
