@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://github.com/tiagohm/nestalgia/blob/master/docs/mario-256.png?raw=true" height="64" alt="Nestalgia" />
+<img src="https://github.com/tiagohm/nestalgia/blob/main/docs/mario-256.png?raw=true" height="64" alt="Nestalgia" />
 </p>
 
 <h1 align="center">Nestalgia</h1>
@@ -22,7 +22,7 @@ It implements only the emulator (no debugging tools).
 * Gamepad Support
 
 <p align="center">
-<img src="https://github.com/tiagohm/nestalgia/blob/master/docs/1.png?raw=true" height="400" alt="Nestalgia" />
+<img src="https://github.com/tiagohm/nestalgia/blob/main/docs/1.png?raw=true" height="400" alt="Nestalgia" />
 </p>
 
 ## Library
@@ -41,7 +41,7 @@ and:
 
 ```gradle
 dependencies {
-    implementation "com.github.tiagohm:nestalgia:core:master-SNAPSHOT"
+    implementation "com.github.tiagohm:nestalgia:core:main-SNAPSHOT"
 }
 ```
 
