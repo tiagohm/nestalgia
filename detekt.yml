@@ -1,0 +1,17 @@
+style:
+  MaxLineLength:
+    active: false
+  WildcardImport:
+    active: false
+  LoopWithTooManyJumpStatements:
+    active: false
+  MagicNumber:
+    active: false
+
+complexity:
+  CyclomaticComplexMethod:
+    active: false
+  TooManyFunctions:
+    active: false
+  LongMethod:
+    active: false
