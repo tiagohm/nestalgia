@@ -18,23 +18,22 @@ class BattleBox(console: Console) : ControlDevice(console, EXP_DEVICE_PORT), Bat
     }
 
     override fun loadBattery() {
-        val data = IntArray(FILE_SIZE)
-        console.batteryManager.loadBattery(".bb").copyInto(data)
+        val savedData = console.batteryManager.loadBattery(".bb", FILE_SIZE)
 
-        for (i in data.indices step 2) {
-            this.data[i / 2] = data[i] or (data[i + 1] shl 8) // Little Endian
+        for (i in savedData.indices step 2) {
+            data[i / 2] = savedData[i] or (savedData[i + 1] shl 8) // Little Endian
         }
     }
 
     override fun saveBattery() {
-        val data = IntArray(FILE_SIZE)
+        val savedData = IntArray(FILE_SIZE)
 
-        for (i in this.data.indices) {
-            data[i * 2] = this.data[i].loByte
-            data[i * 2 + 1] = this.data[i].hiByte
+        for (i in data.indices) {
+            savedData[i * 2] = data[i].loByte
+            savedData[i * 2 + 1] = data[i].hiByte
         }
 
-        console.batteryManager.saveBattery(".bb", data)
+        console.batteryManager.saveBattery(".bb", savedData)
     }
 
     override fun read(addr: Int, type: MemoryOperationType): Int {

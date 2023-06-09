@@ -15,22 +15,20 @@ class AsciiTurboFile(console: Console) : ControlDevice(console, EXP_DEVICE_PORT)
     }
 
     override fun saveBattery() {
-        val data = IntArray(FILE_SIZE * SLOT_COUNT)
-        for (i in data.indices) this.data[i].copyInto(data, i * FILE_SIZE)
-        console.batteryManager.saveBattery(".tf", data)
+        val savedData = IntArray(FILE_SIZE * SLOT_COUNT)
+        for (i in savedData.indices) data[i].copyInto(savedData, i * FILE_SIZE)
+        console.batteryManager.saveBattery(".tf", savedData)
     }
 
     override fun loadBattery() {
-        val data = IntArray(FILE_SIZE * SLOT_COUNT)
-
-        console.batteryManager.loadBattery(".tf", data.size).copyInto(data)
+        val savedData = console.batteryManager.loadBattery(".tf", FILE_SIZE * SLOT_COUNT)
 
         for (i in 0..3) {
             val start = i * FILE_SIZE
             val end = start + FILE_SIZE
 
-            if (end <= data.size) {
-                data.copyInto(this.data[i], 0, start, end)
+            if (end <= savedData.size) {
+                savedData.copyInto(data[i], 0, start, end)
             }
         }
     }
