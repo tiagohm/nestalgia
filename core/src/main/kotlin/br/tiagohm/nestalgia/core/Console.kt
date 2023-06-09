@@ -87,7 +87,7 @@ class Console(
         saveStateManager = SaveStateManager(this)
         cheatManager = CheatManager(this)
         soundMixer = SoundMixer(this)
-        soundMixer.region = region
+        soundMixer.updateRegion(region)
 
         if (master != null) {
             emulationThreadId = master.emulationThreadId
@@ -636,9 +636,10 @@ class Console(
             configChanged = true
 
             cpu.masterClockDivider(region)
-            mapper!!.region = region
-            ppu.region = region
-            apu.region = region
+            mapper!!.updateRegion(region)
+            ppu.updateRegion(region)
+            apu.updateRegion(region)
+            soundMixer.updateRegion(region)
         }
 
         if (configChanged && sendNotification) {

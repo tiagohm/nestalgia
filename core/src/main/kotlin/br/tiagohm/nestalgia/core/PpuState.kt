@@ -11,7 +11,21 @@ data class PpuState(
     @JvmField var writeToggle: Boolean = false,
     @JvmField var highBitShift: Int = 0,
     @JvmField var lowBitShift: Int = 0,
-) : Snapshotable {
+) : Snapshotable, Resetable {
+
+    override fun reset(softReset: Boolean) {
+        control = 0
+        mask = 0
+        status = 0
+        spriteRamAddr = 0
+        // Is not cleared on reset, but it set to 0 on power-on.
+        // videoRamAddr = 0
+        xScroll = 0
+        tmpVideoRamAddr = 0
+        writeToggle = false
+        highBitShift = 0
+        lowBitShift = 0
+    }
 
     override fun saveState(s: Snapshot) {
         s.write("control", control)

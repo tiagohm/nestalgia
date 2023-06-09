@@ -20,7 +20,7 @@ class TriangleChannel(
     override val volume
         get() = lastOutput
 
-    override val muted
+    override val isMuted
         get() = false
 
     override fun clock() {
@@ -69,7 +69,7 @@ class TriangleChannel(
                 loadLengthCounter(value shr 3)
 
                 period = period and 0x00FF
-                period = period or (value and 0x07) shl 8
+                period = period or ((value and 0x07) shl 8)
 
                 // Side effects: Sets the linear counter reload flag.
                 linearReloadFlag = true

@@ -40,7 +40,7 @@ class DeltaModulationChannel(
     override val enabled
         get() = irqEnabled
 
-    override val muted
+    override val isMuted
         get() = false
 
     override fun reset(softReset: Boolean) {

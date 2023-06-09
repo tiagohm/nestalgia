@@ -14,7 +14,23 @@ data class PpuControl(
     var intensifyRed: Boolean = false,
     var intensifyGreen: Boolean = false,
     var intensifyBlue: Boolean = false,
-) : Snapshotable {
+) : Snapshotable, Resetable {
+
+    override fun reset(softReset: Boolean) {
+        verticalWrite = false
+        spritePatternAddr = 0
+        backgroundPatternAddr = 0
+        largeSprites = false
+        vBlank = false
+        grayscale = false
+        backgroundMask = false
+        spriteMask = false
+        backgroundEnabled = false
+        spritesEnabled = false
+        intensifyRed = false
+        intensifyGreen = false
+        intensifyBlue = false
+    }
 
     override fun saveState(s: Snapshot) {
         s.write("verticalWrite", verticalWrite)

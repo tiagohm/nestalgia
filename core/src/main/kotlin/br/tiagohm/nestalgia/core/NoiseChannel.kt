@@ -15,7 +15,7 @@ class NoiseChannel(
     override val frequency
         get() = region.clockRate / (period + 1.0) / if (modeFlag) 93 else 1
 
-    override val muted
+    override val isMuted
         // The mixer receives the current envelope volume except when Bit 0
         // of the shift register is set, or The length counter is zero.
         get() = shiftRegister.bit0
@@ -28,7 +28,7 @@ class NoiseChannel(
         shiftRegister = shiftRegister shr 1
         shiftRegister = shiftRegister or (feedback shl 14)
 
-        if (muted) {
+        if (isMuted) {
             addOutput(0)
         } else {
             addOutput(volume)

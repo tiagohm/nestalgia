@@ -11,18 +11,14 @@ class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, 
     private var newValue = 0
     private var writeDelayCounter = 0
 
-    private var privateRegion = Region.AUTO
-    var region: Region
-        get() = privateRegion
-        set(value) {
-            if (value != Region.AUTO) {
-                privateRegion = value
-                updateStepCycles(value)
-            }
-        }
-
     init {
         reset(false)
+    }
+
+    fun updateRegion(region: Region) {
+        if (region != Region.AUTO) {
+            updateStepCycles(region)
+        }
     }
 
     private fun updateStepCycles(region: Region) {
@@ -62,7 +58,7 @@ class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, 
         blockFrameCounterTick = 0
     }
 
-    fun run(cycles: Int): Pair<Int, Int> {
+    fun run(cycles: Int): IntArray {
         var cyclesToRun = cycles
         val cyclesRan: Int
 
@@ -127,7 +123,7 @@ class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, 
             blockFrameCounterTick--
         }
 
-        return cyclesRan to cyclesToRun
+        return intArrayOf(cyclesRan, cyclesToRun)
     }
 
     fun needToRun(cycles: Int): Boolean {
@@ -171,7 +167,6 @@ class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, 
         s.write("currentStep", currentStep)
         s.write("stepMode", stepMode)
         s.write("inhibitIRQ", inhibitIRQ)
-        s.write("privateRegion", privateRegion)
         s.write("blockFrameCounterTick", blockFrameCounterTick)
         s.write("writeDelayCounter", writeDelayCounter)
         s.write("newValue", newValue)
@@ -182,10 +177,10 @@ class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, 
         currentStep = s.readInt("currentStep")
         stepMode = s.readBoolean("stepMode")
         inhibitIRQ = s.readBoolean("inhibitIRQ")
-        region = s.readEnum("region", Region.AUTO)
         blockFrameCounterTick = s.readInt("blockFrameCounterTick")
         writeDelayCounter = s.readInt("writeDelayCounter")
         newValue = s.readInt("newValue")
+        updateRegion(console.region)
     }
 
     companion object {

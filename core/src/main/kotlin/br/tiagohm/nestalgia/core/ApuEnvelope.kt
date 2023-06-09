@@ -7,7 +7,6 @@ abstract class ApuEnvelope(
 ) : ApuLengthCounter(channel, console, mixer) {
 
     private var constantVolume = false
-    private var envelopeCounter = 0
     private var start = false
     private var divider = 0
     private var counter = 0
@@ -40,7 +39,6 @@ abstract class ApuEnvelope(
 
         constantVolume = false
         mVolume = 0
-        envelopeCounter = 0
         start = false
         divider = 0
         counter = 0
@@ -52,6 +50,7 @@ abstract class ApuEnvelope(
 
             if (divider < 0) {
                 divider = mVolume
+
                 if (counter > 0) {
                     counter--
                 } else if (lengthCounterHalt) {
@@ -70,7 +69,6 @@ abstract class ApuEnvelope(
 
         s.write("constantVolume", constantVolume)
         s.write("volume", mVolume)
-        s.write("envelopeCounter", envelopeCounter)
         s.write("start", start)
         s.write("divider", divider)
         s.write("counter", counter)
@@ -81,7 +79,6 @@ abstract class ApuEnvelope(
 
         constantVolume = s.readBoolean("constantVolume")
         mVolume = s.readInt("volume")
-        envelopeCounter = s.readInt("envelopeCounter")
         start = s.readBoolean("start")
         divider = s.readInt("divider")
         counter = s.readInt("counter")

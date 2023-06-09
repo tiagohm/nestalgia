@@ -1,11 +1,10 @@
 package br.tiagohm.nestalgia.core
 
-@Suppress("NOTHING_TO_INLINE")
-abstract class ExpansionAudio(@PublishedApi @JvmField internal val console: Console) : Snapshotable {
+abstract class ExpansionAudio(@JvmField protected val console: Console) : Snapshotable {
 
     abstract fun clockAudio()
 
-    inline fun clock() {
+    fun clock() {
         if (console.apu.enabled) {
             clockAudio()
         }

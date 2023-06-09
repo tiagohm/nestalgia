@@ -9,8 +9,6 @@ import kotlin.random.Random
 
 abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, Snapshotable {
 
-    open var region = Region.AUTO
-
     open val controlDevice: ControlDevice? = null
 
     open val prgPageSize = 0
@@ -154,6 +152,8 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     protected open fun writeRegister(addr: Int, value: Int) {}
 
     protected open fun readRegister(addr: Int) = 0
+
+    open fun updateRegion(region: Region) {}
 
     override fun saveBattery() {
         if (hasBattery && mSaveRamSize > 0) {
