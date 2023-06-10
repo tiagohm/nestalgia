@@ -24,13 +24,13 @@ class Waixing252 : Mapper() {
     }
 
     private fun updateState() {
-        for (i in 0..7) {
+        repeat(8) {
             // CHR needs to be writeable (according to Nestopia's source,
             // and this does remove visual glitches from the game).
             addPpuMemoryMapping(
-                0x400 * i,
-                0x400 * i + 0x3FF,
-                chrReg[i],
+                0x400 * it,
+                0x400 * it + 0x3FF,
+                chrReg[it],
                 ChrMemoryType.DEFAULT,
                 MemoryAccessType.READ_WRITE,
             )

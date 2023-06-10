@@ -486,7 +486,6 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
             return
         }
 
-        // TODO: VER NO MASEN QUAIS MAPPERS USAM SelectPRGPage\(\d, -\d\)
         fun wrapPageNumber(page: Int): Int {
             return if (page < 0) {
                 // Can't use modulo for negative number because pageCount
@@ -648,7 +647,17 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
             return
         }
 
-        var page = pageNumber % pageCount
+        fun wrapPageNumber(page: Int): Int {
+            return if (page < 0) {
+                // Can't use modulo for negative number because pageCount
+                // is sometimes not a power of 2. (Fixes some Mapper 191 games).
+                pageCount + page
+            } else {
+                page % pageCount
+            }
+        }
+
+        var page = wrapPageNumber(pageNumber)
 
         if (end - start >= pageSize) {
             var addr = start
@@ -663,7 +672,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 )
 
                 addr += pageSize
-                page = (page + 1) % pageCount
+                page = wrapPageNumber(page + 1)
             }
         } else {
             addPpuMemoryMapping(
@@ -867,13 +876,10 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
 
     open fun applySamples(buffer: ShortArray, sampleCount: Int, volume: Double) {}
 
-    val dipSwitches: Int
-        get() {
-            val mask = (1 shl dipSwitchCount) - 1
-            return console.settings.dipSwitches and mask
-        }
+    val dipSwitches
+        get() = console.settings.dipSwitches and ((1 shl dipSwitchCount) - 1)
 
-    val nes20
+    val isNes20
         get() = info.isNes20Header
 
     override fun saveState(s: Snapshot) {
@@ -1066,6 +1072,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 253 -> Mapper253()
                 254 -> Mapper254()
                 255 -> Bmc255()
+                286 -> Bs5()
                 FDS_MAPPER_ID -> Fds()
                 else -> {
                     System.err.println("${data.info.name} has unsupported mapper $id")

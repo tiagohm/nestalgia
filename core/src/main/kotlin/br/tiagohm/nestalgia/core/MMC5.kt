@@ -72,7 +72,7 @@ class MMC5 : Mapper() {
     override val saveRamSize: Int
         get() {
             return when {
-                nes20 -> info.header.saveRamSize
+                isNes20 -> info.header.saveRamSize
                 info.isInDatabase -> info.gameInfo!!.saveRamSize
                 // Emulate as if a single 64k block of work/save ram existed
                 info.hasBattery -> 0x10000
@@ -84,7 +84,7 @@ class MMC5 : Mapper() {
     override val workRamSize: Int
         get() {
             return when {
-                nes20 -> info.header.workRamSize
+                isNes20 -> info.header.workRamSize
                 info.isInDatabase -> info.gameInfo!!.workRamSize
                 // Emulate as if a single 64k block of work/save ram existed (+ 1kb of ExRAM)
                 info.hasBattery -> 0

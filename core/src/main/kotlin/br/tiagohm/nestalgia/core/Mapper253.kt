@@ -2,6 +2,8 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.IRQSource.*
 
+// https://wiki.nesdev.com/w/index.php/INES_Mapper_253
+
 class Mapper253 : Mapper() {
 
     private val chrLow = IntArray(8)
