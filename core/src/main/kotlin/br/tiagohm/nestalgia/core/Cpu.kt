@@ -59,6 +59,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         private set
 
     var irqMask = 0
+        private set
 
     var addressMode = AddressMode.NONE
         private set
@@ -273,7 +274,8 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         if (branch) {
             val offset = operand.toByte()
 
-            // A taken non-page-crossing branch ignores IRQ/NMI during its last clock, so that next instruction executes before the IRQ
+            // A taken non-page-crossing branch ignores IRQ/NMI during its last clock,
+            // so that next instruction executes before the IRQ
             // Fixes "branch_delays_irq" test
             if (runIrq && !prevRunIrq) {
                 runIrq = false

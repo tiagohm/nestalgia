@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.IRQSource.EXTERNAL
+import br.tiagohm.nestalgia.core.IRQSource.*
 
 class Mapper253 : Mapper() {
 
@@ -31,7 +31,7 @@ class Mapper253 : Mapper() {
 
             if (irqScaler >= 114) {
                 irqScaler = 0
-                irqCounter++
+                irqCounter = (irqCounter + 1) and 0xFF
 
                 if (irqCounter == 0) {
                     irqCounter = irqReloadValue
@@ -43,9 +43,9 @@ class Mapper253 : Mapper() {
 
     override fun writeRegister(addr: Int, value: Int) {
         if (addr in 0xB000..0xE00C) {
-            val slot = ((addr and 0x08 or (addr shr 8) shr 3) + 2) and 0x07
+            val slot = ((((addr and 0x08) or (addr shr 8)) shr 3) + 2) and 0x07
             val shift = addr and 0x04
-            val low = chrLow[slot] and (0xF0 shr shift) or (value shl shift)
+            val low = ((chrLow[slot] and (0xF0 shr shift)) or (value shl shift)) and 0xFF
 
             chrLow[slot] = low
 
@@ -77,7 +77,7 @@ class Mapper253 : Mapper() {
                     console.cpu.clearIRQSource(EXTERNAL)
                 }
                 0xF004 -> {
-                    irqReloadValue = irqReloadValue and 0x0F or (value shl 4)
+                    irqReloadValue = (irqReloadValue and 0x0F) or (value shl 4)
                     console.cpu.clearIRQSource(EXTERNAL)
                 }
                 0xF008 -> {
