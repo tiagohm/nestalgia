@@ -1,6 +1,9 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.ConsoleType.*
+import br.tiagohm.nestalgia.core.MemoryOperationType.*
 import br.tiagohm.nestalgia.core.PSFlag.*
+import br.tiagohm.nestalgia.core.Region.*
 import kotlin.random.Random
 
 @Suppress("NOTHING_TO_INLINE")
@@ -13,7 +16,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
 
     private val memoryManager = console.memoryManager
 
-    var isCpuWrite = false
+    @Volatile var isCpuWrite = false
         private set
 
     var needHalt = false
@@ -56,6 +59,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         private set
 
     var irqMask = 0
+        private set
 
     var addressMode = AddressMode.NONE
         private set
@@ -217,7 +221,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         // println("aslMem")
         val addr = operand
         val value = read(addr)
-        write(addr, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
+        write(addr, value, DUMMY_WRITE) // Dummy write
         write(addr, asl(value))
     }
 
@@ -270,7 +274,8 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         if (branch) {
             val offset = operand.toByte()
 
-            // A taken non-page-crossing branch ignores IRQ/NMI during its last clock, so that next instruction executes before the IRQ
+            // A taken non-page-crossing branch ignores IRQ/NMI during its last clock,
+            // so that next instruction executes before the IRQ
             // Fixes "branch_delays_irq" test
             if (runIrq && !prevRunIrq) {
                 runIrq = false
@@ -408,7 +413,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
     internal fun dcp() {
         // println("dcp")
         var value = fetchOperandValue()
-        write(operand, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
+        write(operand, value, DUMMY_WRITE) // Dummy write
         value--
         cmp(a, value and 0xFF)
         write(operand, value)
@@ -423,7 +428,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
 
         var value = read(addr)
 
-        write(addr, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
+        write(addr, value, DUMMY_WRITE) // Dummy write
 
         value--
 
@@ -461,7 +466,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
 
         var value = read(addr)
 
-        write(addr, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
+        write(addr, value, DUMMY_WRITE) // Dummy write
 
         value++
 
@@ -482,7 +487,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
     internal fun isb() {
         // println("isb")
         var value = fetchOperandValue()
-        write(operand, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
+        write(operand, value, DUMMY_WRITE) // Dummy write
         value++
         add(value and 0xFF xor 0xFF) // TODO: VERIFICAR AND 0xFF ESTÁ CORRETO
         write(operand, value)
@@ -567,7 +572,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         // println("lsrMem")
         val addr = operand
         val value = read(addr)
-        write(addr, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
+        write(addr, value, DUMMY_WRITE) // Dummy write
         write(addr, lsr(value))
     }
 
@@ -607,7 +612,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
     internal fun rla() {
         // println("rla")
         val value = fetchOperandValue()
-        write(operand, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
+        write(operand, value, DUMMY_WRITE) // Dummy write
         val shiftedValue = rol(value)
         a = a and shiftedValue
         write(operand, shiftedValue)
@@ -639,7 +644,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         // println("rolMem")
         val addr = operand
         val value = read(addr)
-        write(addr, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
+        write(addr, value, DUMMY_WRITE) // Dummy write
         write(addr, rol(value))
     }
 
@@ -669,14 +674,14 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         // println("rorMem")
         val addr = operand
         val value = read(addr)
-        write(addr, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
+        write(addr, value, DUMMY_WRITE) // Dummy write
         write(addr, ror(value))
     }
 
     internal fun rra() {
         // println("rra")
         val value = fetchOperandValue()
-        write(operand, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
+        write(operand, value, DUMMY_WRITE) // Dummy write
         val shiftedValue = ror(value)
         add(shiftedValue)
         write(operand, shiftedValue)
@@ -725,7 +730,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
     internal fun slo() {
         // println("slo")
         val value = fetchOperandValue()
-        write(operand, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
+        write(operand, value, DUMMY_WRITE) // Dummy write
         val shiftedValue = asl(value)
         a = a or shiftedValue
         write(operand, shiftedValue)
@@ -734,7 +739,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
     internal fun sre() {
         // println("sre")
         val value = fetchOperandValue()
-        write(operand, value, MemoryOperationType.DUMMY_WRITE) // Dummy write
+        write(operand, value, DUMMY_WRITE) // Dummy write
         val shiftedValue = lsr(value)
         a = a xor shiftedValue
         write(operand, shiftedValue)
@@ -761,7 +766,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         val lo = operand.loByte
         val value = x and (hi + 1)
 
-        write(x and (hi + 1) shl 8 or lo, value)
+        write(((x and (hi + 1)) shl 8) or lo, value)
     }
 
     internal fun sya() {
@@ -773,7 +778,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         // From here: http://forums.nesdev.com/viewtopic.php?f=3&t=3831&start=30
         // Unsure if this is accurate or not
         // the target address for e.g. SYA becomes ((y & (addr_high + 1)) << 8) | addr_low instead of the normal ((addr_high + 1) << 8) | addr_low
-        write(y and (hi + 1) shl 8 or lo, value)
+        write(((y and (hi + 1)) shl 8) or lo, value)
     }
 
     internal fun tas() {
@@ -783,7 +788,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         // target address of the argument + 1. Store result in memory.
         val addr = operand
         sp = x and a
-        write(addr, sp and (addr.hiByte + 1) and 0xFFFF)
+        write(addr, sp and (addr.hiByte + 1))
     }
 
     internal fun tax() {
@@ -850,9 +855,6 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         needHalt = false
         dmcDmaRunning = false
 
-        // Used by NSF code to disable Frame Counter & DMC interrupts.
-        irqMask = 0xFF
-
         // Use _memoryManager->Read() directly to prevent clocking the PPU/APU
         // when setting PC at reset.
         state.pc = memoryManager.readWord(RESET_VECTOR)
@@ -861,6 +863,9 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
             INTERRUPT.set()
             state.sp = (state.sp - 0x03) and 0xFF
         } else {
+            //Used by NSF code to disable Frame Counter & DMC interrupts
+            irqMask = 0xFF
+
             state.a = 0
             state.sp = 0xFD
             state.x = 0
@@ -874,11 +879,11 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         val cpuDivider: Int
 
         when (region) {
-            Region.PAL -> {
+            PAL -> {
                 ppuDivider = 5
                 cpuDivider = 16
             }
-            Region.DENDY -> {
+            DENDY -> {
                 ppuDivider = 5
                 cpuDivider = 15
             }
@@ -912,23 +917,22 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
     }
 
     private inline fun readOpcode(): Int {
-        return read(state.pc++, MemoryOperationType.OPCODE)
+        return read(state.pc++, OPCODE)
     }
 
     private inline fun dummyRead(): Int {
-        read(state.pc, MemoryOperationType.DUMMY_READ)
+        read(state.pc, DUMMY_READ)
         return 0
     }
 
     private inline fun readByte(): Int {
-        return read(state.pc++, MemoryOperationType.OPERAND)
+        return read(state.pc++, OPERAND)
     }
 
     private inline fun readWord(): Int {
-        val value = readWord(state.pc, MemoryOperationType.OPERAND)
-        state.pc++
-        state.pc++
-        return value
+        val lo = readByte()
+        val hi = readByte()
+        return (hi shl 8) or lo
     }
 
     override fun read(addr: Int, type: MemoryOperationType): Int {
@@ -983,8 +987,32 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
     private fun processPendingDma(addr: Int) {
         if (!needHalt) return
 
+        val prevReadAddress = intArrayOf(addr)
+        val enableInternalRegReads = (addr and 0xFFE0) == 0x4000
+        var skipFirstInputClock = false
+
+        if (enableInternalRegReads && dmcDmaRunning && (addr == 0x4016 || addr == 0x4017)) {
+            val dmcAddress = console.apu.dmcReadAddress
+
+            if (dmcAddress and 0x1F == addr and 0x1F) {
+                //DMC will cause a read on the same address as the CPU was reading from
+                //This will hide the reads from the controllers because /OE will be active the whole time
+                skipFirstInputClock = true
+            }
+        }
+
+        // On PAL, the dummy/idle reads done by the DMA don't appear to be done on the
+        // address that the CPU was about to read. This prevents the 2+x reads on registers issues.
+        // The exact specifics of where the CPU reads instead aren't known yet - so just disable read side-effects entirely on PAL
+        val isNtscInputBehavior = console.region != PAL
+
+        // If this cycle is a read, hijack the read, discard the value, and prevent all other actions that occur on this cycle (PC not incremented, etc)
         startCpuCycle(true)
-        memoryManager.read(addr, MemoryOperationType.DUMMY_READ)
+
+        if (isNtscInputBehavior && !skipFirstInputClock) {
+            memoryManager.read(addr, DUMMY_READ)
+        }
+
         endCpuCycle(true)
 
         needHalt = false
@@ -992,26 +1020,29 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         var spriteDmaCounter = 0
         var spriteReadAddr = 0
         var readValue = 0
-        val skipDummyReads = addr == 0x4016 || addr == 0x4017
+
+        // On Famicom, each dummy/idle read to 4016/4017 is intepreted as a read of the joypad registers
+        // On NES (or AV Famicom), only the first dummy/idle read causes side effects (e.g only a single bit is lost)
+        val type = console.settings.consoleType
+        val isNesBehavior = type != FAMICOM
+        val skipDummyReads = !isNtscInputBehavior || (isNesBehavior && (addr == 0x4016 || addr == 0x4017))
 
         while (dmcDmaRunning || spriteDmaTransfer) {
-            val cycle = (cycleCount and 0x01) == 0L // TODO: VERIFICAR O Q ACONTECE SE USAR !=
-
-            // println("dma")
+            val cycle = !cycleCount.bit0
 
             if (cycle) {
                 if (dmcDmaRunning && !needHalt && !needDummyRead) {
                     // DMC DMA is ready to read a byte (both halt and dummy read
                     // cycles were performed before this).
                     processCycle()
-                    readValue = memoryManager.read(console.apu.dmcReadAddress, MemoryOperationType.DMC_READ)
+                    readValue = processDmaRead(console.apu.dmcReadAddress, prevReadAddress, enableInternalRegReads, isNesBehavior)
                     endCpuCycle(true)
                     console.apu.dmcReadBuffer(readValue)
                     dmcDmaRunning = false
                 } else if (spriteDmaTransfer) {
                     // DMC DMA is not running, or not ready, run sprite DMA.
                     processCycle()
-                    readValue = memoryManager.read(spriteDmaOffset * 0x100 + spriteReadAddr)
+                    readValue = processDmaRead(spriteDmaOffset * 0x100 + spriteReadAddr, prevReadAddress, enableInternalRegReads, isNesBehavior)
                     endCpuCycle(true)
                     spriteReadAddr++
                     spriteDmaCounter++
@@ -1022,7 +1053,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
                     processCycle()
 
                     if (!skipDummyReads) {
-                        memoryManager.read(addr, MemoryOperationType.DUMMY_READ)
+                        processDmaRead(spriteDmaOffset * 0x100 + spriteReadAddr, prevReadAddress, enableInternalRegReads, isNesBehavior)
                     }
 
                     endCpuCycle(true)
@@ -1032,7 +1063,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
                     //Sprite DMA write cycle (only do this if a sprite dma read
                     // was performed last cycle).
                     processCycle()
-                    memoryManager.write(0x2004, readValue)
+                    memoryManager.write(0x2004, readValue, DMA_WRITE)
                     endCpuCycle(true)
                     spriteDmaCounter++
 
@@ -1045,12 +1076,83 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
                     processCycle()
 
                     if (!skipDummyReads) {
-                        memoryManager.read(addr, MemoryOperationType.DUMMY_READ)
+                        processDmaRead(spriteDmaOffset * 0x100 + spriteReadAddr, prevReadAddress, enableInternalRegReads, isNesBehavior)
                     }
 
                     endCpuCycle(true)
                 }
             }
+        }
+    }
+
+    private fun processDmaRead(addr: Int, prevReadAddress: IntArray, enableInternalRegReads: Boolean, isNesBehavior: Boolean): Int {
+        // This is to reproduce a CPU bug that can occur during DMA which can cause the 2A03 to read from
+        // its internal registers (4015, 4016, 4017) at the same time as the DMA unit reads a byte from
+        // the bus. This bug occurs if the CPU is halted while it's reading a value in the $4000-$401F range.
+        //
+        // This has a number of side effects:
+        // -It can cause a read of $4015 to occur without the program's knowledge, which would clear the frame counter's IRQ flag
+        // -It can cause additional bit deletions while reading the input (e.g more than the DMC glitch usually causes)
+        // -It can also *prevent* bit deletions from occurring at all in another scenario
+        // -It can replace/corrupt the byte that the DMA is reading, causing DMC to play the wrong sample
+
+        var value: Int
+
+        if (!enableInternalRegReads) {
+            value = if (addr in 0x4000..0x401F) {
+                // Nothing will respond on $4000-$401F on the external bus - return open bus value
+                memoryManager.openBus()
+            } else {
+                memoryManager.read(addr, DMA_READ)
+            }
+
+            prevReadAddress[0] = addr
+
+            return value
+        } else {
+            // This glitch causes the CPU to read from the internal APU/Input registers
+            // regardless of the address the DMA unit is trying to read
+            val internalAddr = 0x4000 or (addr and 0x1F)
+            val isSameAddress = internalAddr == addr
+
+            when (internalAddr) {
+                0x4015 -> {
+                    value = memoryManager.read(internalAddr, DMA_READ)
+                    if (!isSameAddress) {
+                        // Also trigger a read from the actual address the CPU was supposed to read from (external bus)
+                        memoryManager.read(addr, DMA_READ)
+                    }
+                }
+                0x4016,
+                0x4017 -> {
+                    value = if (console.region == PAL || (isNesBehavior && prevReadAddress[0] == internalAddr)) {
+                        // Reading from the same input register twice in a row, skip the read entirely to avoid
+                        // triggering a bit loss from the read, since the controller won't react to this read
+                        // Return the same value as the last read, instead
+                        // On PAL, the behavior is unknown - for now, don't cause any bit deletions
+                        memoryManager.openBus()
+                    } else {
+                        memoryManager.read(internalAddr, DMA_READ)
+                    }
+
+                    if (!isSameAddress) {
+                        // The DMA unit is reading from a different address, read from it too (external bus)
+                        val obMask = console.controlManager.openBusMask(internalAddr - 0x4016)
+                        val externalValue = memoryManager.read(addr, DMA_READ)
+
+                        // Merge values, keep the external value for all open bus pins on the 4016/4017 port
+                        // AND all other bits together (bus conflict)
+                        value = (externalValue and obMask) or ((value and obMask.inv()) and (externalValue and obMask.inv()))
+                    }
+                }
+                else -> {
+                    value = memoryManager.read(addr, DMA_READ)
+                }
+            }
+
+            prevReadAddress[0] = internalAddr
+
+            return value
         }
     }
 
@@ -1185,13 +1287,13 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
 
     private fun readZeroXAddr(): Int {
         val value = readByte()
-        read(value, MemoryOperationType.DUMMY_READ)
+        read(value, DUMMY_READ)
         return (value + x) and 0xFF
     }
 
     private fun readZeroYAddr(): Int {
         val value = readByte()
-        read(value, MemoryOperationType.DUMMY_READ)
+        read(value, DUMMY_READ)
         return (value + y) and 0xFF
     }
 
@@ -1203,7 +1305,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
 
         if (pageCrossed || dummyRead) {
             // Dummy read done by the processor (only when page is crossed for READ instructions)
-            read(base + x - if (pageCrossed) 0x100 else 0, MemoryOperationType.DUMMY_READ)
+            read(base + x - if (pageCrossed) 0x100 else 0, DUMMY_READ)
         }
 
         return (base + x) and 0xFFFF
@@ -1215,7 +1317,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
 
         if (pageCrossed || dummyRead) {
             // Dummy read done by the processor (only when page is crossed for READ instructions)
-            read(base + y - if (pageCrossed) 0x100 else 0, MemoryOperationType.DUMMY_READ)
+            read(base + y - if (pageCrossed) 0x100 else 0, DUMMY_READ)
         }
 
         return (base + y) and 0xFFFF
@@ -1237,7 +1339,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         var zero = readByte()
 
         // Dummy read
-        read(zero, MemoryOperationType.DUMMY_READ)
+        read(zero, DUMMY_READ)
 
         zero = (zero + x) and 0xFF
 
@@ -1265,7 +1367,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
 
         if (pageCrossed || dummyRead) {
             // Dummy read done by the processor (only when page is crossed for READ instructions)
-            read(addr + y - if (pageCrossed) 0x100 else 0, MemoryOperationType.DUMMY_READ)
+            read(addr + y - if (pageCrossed) 0x100 else 0, DUMMY_READ)
         }
 
         return (addr + y) and 0xFFFF
@@ -1281,11 +1383,11 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
 
     fun masterClockDivider(region: Region) {
         when (region) {
-            Region.PAL -> {
+            PAL -> {
                 startClockCount = 8
                 endClockCount = 8
             }
-            Region.DENDY -> {
+            DENDY -> {
                 startClockCount = 7
                 endClockCount = 8
             }

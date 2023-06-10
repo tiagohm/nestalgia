@@ -15,13 +15,8 @@ abstract class ApuChannel(
     open var period = 0
         protected set
 
-    private var mRegion = Region.NTSC
-
-    var region: Region
-        get() = if (mRegion == Region.DENDY) Region.NTSC else mRegion
-        set(value) {
-            mRegion = value
-        }
+    val region
+        get() = if (console.region == Region.DENDY) Region.NTSC else console.region
 
     override fun reset(softReset: Boolean) {
         timer = 0
@@ -40,7 +35,7 @@ abstract class ApuChannel(
 
     abstract val enabled: Boolean
 
-    abstract val muted: Boolean
+    abstract val isMuted: Boolean
 
     fun run(targetCycle: Int) {
         var cyclesToRun = targetCycle - previousCycle
@@ -71,7 +66,6 @@ abstract class ApuChannel(
         s.write("lastOutput", lastOutput)
         s.write("timer", timer)
         s.write("period", period)
-        s.write("region", mRegion)
     }
 
     override fun restoreState(s: Snapshot) {
@@ -79,6 +73,5 @@ abstract class ApuChannel(
         lastOutput = s.readInt("lastOutput")
         timer = s.readInt("timer")
         period = s.readInt("period")
-        mRegion = s.readEnum("region", Region.AUTO)
     }
 }

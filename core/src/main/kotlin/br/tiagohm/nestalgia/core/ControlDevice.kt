@@ -5,7 +5,7 @@ abstract class ControlDevice(
     @JvmField val port: Int,
 ) : Memory, Resetable, Snapshotable {
 
-    @JvmField protected var strobe = false
+    @JvmField @Volatile protected var strobe = false
 
     protected val expansionPortDevice = port == EXP_DEVICE_PORT
 
@@ -27,6 +27,7 @@ abstract class ControlDevice(
 
     protected fun strobeOnWrite(value: Int) {
         val prevStrobe = strobe
+
         strobe = value.bit0
 
         if (prevStrobe && !strobe) {
@@ -39,7 +40,9 @@ abstract class ControlDevice(
     }
 
     protected fun isPressed(button: ControllerButton): Boolean {
-        return isPressed(button.bit)
+        val bit = button.bit
+        val bitMask = 1 shl (bit % 8)
+        return (state.state[bit / 8] and bitMask) != 0
     }
 
     protected fun isPressed(bit: Int): Boolean {
@@ -47,34 +50,30 @@ abstract class ControlDevice(
         return (state.state[bit / 8] and bitMask) != 0
     }
 
-    fun setBit(button: ControllerButton) {
+    @Suppress("NOTHING_TO_INLINE")
+    inline fun setBit(button: ControllerButton) {
         setBit(button.bit)
     }
 
-    protected fun setBit(bit: Int) {
+    @PublishedApi
+    internal fun setBit(bit: Int) {
         val bitMask = 1 shl (bit % 8)
         val byteIndex = bit / 8
         val value = state.state[byteIndex]
         state.state[byteIndex] = value or bitMask
     }
 
-    fun clearBit(button: ControllerButton) {
+    @Suppress("NOTHING_TO_INLINE")
+    inline fun clearBit(button: ControllerButton) {
         clearBit(button.bit)
     }
 
-    protected fun clearBit(bit: Int) {
+    @PublishedApi
+    internal fun clearBit(bit: Int) {
         val bitMask = 1 shl (bit % 8)
         val byteIndex = bit / 8
         val value = state.state[byteIndex]
         state.state[byteIndex] = value and bitMask.inv()
-    }
-
-    fun invertBit(button: ControllerButton) {
-        invertBit(button.bit)
-    }
-
-    protected fun invertBit(bit: Int) {
-        if (isPressed(bit)) clearBit(bit) else setBit(bit)
     }
 
     protected fun setPressedState(button: ControllerButton, keyCode: Int) {

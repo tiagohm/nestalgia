@@ -4,7 +4,13 @@ data class PpuStatus(
     var spriteOverflow: Boolean = false,
     var sprite0Hit: Boolean = false,
     var verticalBlank: Boolean = false,
-) : Snapshotable {
+) : Snapshotable, Resetable {
+
+    override fun reset(softReset: Boolean) {
+        spriteOverflow = false
+        sprite0Hit = false
+        verticalBlank = false
+    }
 
     override fun saveState(s: Snapshot) {
         s.write("spriteOverflow", spriteOverflow)

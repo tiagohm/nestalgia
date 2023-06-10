@@ -8,6 +8,10 @@ open class Pointer(
 
     constructor(pointer: Pointer, offset: Int = 0) : this(pointer.data, pointer.offset + offset)
 
+    init {
+        require(offset >= 0) { "invalid offset: $offset" }
+    }
+
     inline val size
         get() = data.size
 

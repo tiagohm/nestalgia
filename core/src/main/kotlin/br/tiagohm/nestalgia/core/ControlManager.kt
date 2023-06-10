@@ -155,7 +155,7 @@ open class ControlManager(
     val hasKeyboard
         get() = controlDevice(ControlDevice.EXP_DEVICE_PORT)?.keyboard ?: false
 
-    protected open fun openBusMask(port: Int): Int {
+    open fun openBusMask(port: Int): Int {
         // In the NES and Famicom, the top three (or five) bits are not driven, and so retain the bits of the previous byte on the bus.
         // Usually this is the most significant byte of the address of the controller port - 0x40.
         // Paperboy relies on this behavior and requires that reads from the controller ports return exactly $40 or $41 as appropriate.

@@ -5,7 +5,7 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 abstract class FrontFareast : Mapper() {
 
-    protected var irqCounter = 0
+    protected var irqCounter = 0 // unsigned 16 bits
     protected var irqEnabled = false
     protected var ffeAltMode = true
 
@@ -37,7 +37,7 @@ abstract class FrontFareast : Mapper() {
 
     final override fun processCpuClock() {
         if (irqEnabled) {
-            irqCounter++
+            irqCounter = (irqCounter + 1) and 0xFFFF
 
             if (irqCounter == 0) {
                 console.cpu.setIRQSource(EXTERNAL)

@@ -32,7 +32,7 @@ open class SquareChannel(
         updateOutput()
     }
 
-    override val muted
+    override val isMuted
         // A period of t < 8, either set explicitly or via a sweep period update,
         // silences the corresponding pulse channel.
         get() = realPeriod < 8 || (!sweepNegate && sweepTargetPeriod > 0x7FF)
@@ -94,7 +94,7 @@ open class SquareChannel(
     }
 
     inline fun updateOutput() {
-        if (muted) {
+        if (isMuted) {
             addOutput(0)
         } else {
             addOutput(DUTY_SEQUENCES[duty][dutyPos] * volume)

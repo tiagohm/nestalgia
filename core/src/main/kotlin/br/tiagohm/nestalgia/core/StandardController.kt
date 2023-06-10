@@ -2,17 +2,17 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/Standard_controller
 
-open class StandardController(console: Console, port: Int) : ControlDevice(console, port) {
+class StandardController(console: Console, port: Int) : ControlDevice(console, port) {
 
     private val keys = console.settings.controllerKeys(port)
 
     private var microphoneEnabled = port == 1 && console.settings.consoleType == ConsoleType.FAMICOM
-    // val turboSpeed = keys.turboSpeed
-    // val turboFreq = (1 shl (4 - turboSpeed)) and 0xFF
+    private val turboSpeed = 2 // 0..4
+    private val turboFreq = 1 shl (4 - turboSpeed) and 0xFF
 
-    protected var stateBuffer = 0
+    @Volatile private var stateBuffer = 0
 
-    protected val value
+    private val value
         get() = (if (isPressed(StandardControllerButton.A)) 0x01 else 0x00) or
             (if (isPressed(StandardControllerButton.B)) 0x02 else 0x00) or
             (if (isPressed(StandardControllerButton.SELECT)) 0x04 else 0x00) or
@@ -22,8 +22,8 @@ open class StandardController(console: Console, port: Int) : ControlDevice(conso
             (if (isPressed(StandardControllerButton.LEFT)) 0x40 else 0x00) or
             (if (isPressed(StandardControllerButton.RIGHT)) 0x80 else 0x00)
 
-    // inline val isTurboOn: Boolean
-    //    get() = (console.frameCount % turboFreq) < (turboFreq / 2)
+    val isTurboOn
+        get() = (console.frameCount % turboFreq) < (turboFreq / 2)
 
     private val isMicrophoneEnabled
         get() = microphoneEnabled && console.frameCount % 3 == 0
@@ -38,10 +38,10 @@ open class StandardController(console: Console, port: Int) : ControlDevice(conso
         pressedStateFromKeys(StandardControllerButton.LEFT)
         pressedStateFromKeys(StandardControllerButton.RIGHT)
 
-        // if (isTurboOn) {
-        //     setPressedStateFromKeys(Buttons.A)
-        //     setPressedStateFromKeys(Buttons.B)
-        // }
+        if (isTurboOn) {
+            pressedStateFromKeys(StandardControllerButton.TURBO_A)
+            pressedStateFromKeys(StandardControllerButton.TURBO_B)
+        }
 
         if (isMicrophoneEnabled) {
             pressedStateFromKeys(StandardControllerButton.MICROPHONE)
@@ -65,20 +65,7 @@ open class StandardController(console: Console, port: Int) : ControlDevice(conso
     }
 
     override fun refreshStateBuffer() {
-        val value = this.value
-
-        stateBuffer = if (console.settings.consoleType == ConsoleType.NES &&
-            console.settings.flag(EmulationFlag.HAS_FOUR_SCORE)
-        ) {
-            if (port >= 2) {
-                value shl 8
-            } else {
-                // Add some 0 bit padding to allow P3/P4 controller bits + signature bits.
-                0xFF000000.toInt() or value
-            }
-        } else {
-            0xFFFFFF00.toInt() or value
-        }
+        stateBuffer = value
     }
 
     override fun read(addr: Int, type: MemoryOperationType): Int {
@@ -89,9 +76,7 @@ open class StandardController(console: Console, port: Int) : ControlDevice(conso
 
         var output = 0
 
-        if (addr == 0x4016 && (port and 0x01) == 0x00 ||
-            addr == 0x4017 && (port and 0x01) == 0x01
-        ) {
+        if (isCurrentPort(addr)) {
             strobeOnRead()
 
             output = stateBuffer and 0x01
@@ -103,8 +88,9 @@ open class StandardController(console: Console, port: Int) : ControlDevice(conso
 
             stateBuffer = stateBuffer shr 1
 
-            // All subsequent reads will return D=1 on an authentic controller but may return D=0 on third party controllers.
-            stateBuffer = stateBuffer or 0x80000000.toInt()
+            // All subsequent reads will return D=1 on an authentic controller
+            // but may return D=0 on third party controllers.
+            stateBuffer = stateBuffer or 0x80
         }
 
         if (addr == 0x4016 && isPressed(StandardControllerButton.MICROPHONE)) {

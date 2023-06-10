@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import kotlin.math.min
+import kotlin.math.max
 
 class BatteryManager(private val console: Console) {
 
@@ -12,15 +12,18 @@ class BatteryManager(private val console: Console) {
     }
 
     fun loadBattery(name: String, length: Int = -1): IntArray {
-        val batteryName = "${console.mapper!!.name}$name"
+        val batteryName = "${console.mapper!!.info.hash.md5}$name"
 
         try {
             if (provider != null) {
-                return if (length >= 0) {
-                    val batteryData = provider!!.loadBattery(batteryName)
-                    batteryData.copyOfRange(0, min(length, batteryData.size))
+                val data = provider!!.loadBattery(batteryName)
+
+                return if (data.isEmpty()) {
+                    IntArray(max(0, length))
+                } else if (data.size >= length) {
+                    data
                 } else {
-                    provider!!.loadBattery(batteryName)
+                    IntArray(length).also(data::copyInto)
                 }
             }
         } catch (e: Throwable) {
@@ -35,7 +38,7 @@ class BatteryManager(private val console: Console) {
 
     fun saveBattery(name: String, data: IntArray) {
         if (saveEnabled && provider != null) {
-            val batteryName = "${console.mapper!!.name}$name"
+            val batteryName = "${console.mapper!!.info.hash.md5}$name"
 
             try {
                 provider!!.saveBattery(batteryName, data)

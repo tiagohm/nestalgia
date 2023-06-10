@@ -16,15 +16,6 @@ class SoundMixer(private val console: Console) : Resetable, Closeable, Snapshota
     private val currentOutput = ShortArray(MAX_CHANNEL_COUNT)
     private var previousTargetRate = 0.0
     private val timestamps = TreeSet<Int>()
-    private var muteFrameCount = 0
-    private var mRegion = Region.NTSC
-
-    var region: Region
-        get() = mRegion
-        set(value) {
-            mRegion = value
-            updateRates(true)
-        }
 
     fun registerAudioDevice(device: AudioDevice) {
         devices.add(device)
@@ -34,9 +25,11 @@ class SoundMixer(private val console: Console) : Resetable, Closeable, Snapshota
         devices.remove(device)
     }
 
-    override fun reset(softReset: Boolean) {
-        muteFrameCount = 0
+    fun updateRegion(region: Region) {
+        updateRates(true)
+    }
 
+    override fun reset(softReset: Boolean) {
         previousOutputLeft = 0
         previousOutputRight = 0
 
@@ -69,12 +62,12 @@ class SoundMixer(private val console: Console) : Resetable, Closeable, Snapshota
     val outputVolume: Int
         get() {
             val squareOutput = channelOutput(AudioChannel.SQUARE_1) + channelOutput(AudioChannel.SQUARE_2)
-            val tndOutput = (3 * channelOutput(AudioChannel.TRIANGLE) +
-                2 * channelOutput(AudioChannel.NOISE) +
-                channelOutput(AudioChannel.DMC))
+            val tndOutput = 2.7516713261 * channelOutput(AudioChannel.TRIANGLE) +
+                1.8493587125 * channelOutput(AudioChannel.NOISE) +
+                channelOutput(AudioChannel.DMC)
 
-            val squareVolume = 477600 / (8128.0 / squareOutput + 100.0)
-            val tndVolume = 818350 / (24329.0 / tndOutput + 100.0)
+            val squareVolume = (95.88 * 5000.0) / (8128.0 / squareOutput + 100.0)
+            val tndVolume = (159.79 * 5000.0) / (22638.0 / tndOutput + 100.0)
 
             return (squareVolume +
                 tndVolume +
@@ -94,31 +87,17 @@ class SoundMixer(private val console: Console) : Resetable, Closeable, Snapshota
     }
 
     private fun endFrame(time: Int) {
-        var muteFrame = true
-
         for (stamp in timestamps) {
             for (j in 0 until MAX_CHANNEL_COUNT) {
-                if (channelOutput[j][stamp].toInt() != 0) {
-                    // Assume any change in output means sound is playing, disregarding volume options
-                    // NSF tracks that mute the triangle channel by setting it to a high-frequency value will not be considered silent
-                    muteFrame = false
-                }
-
                 currentOutput[j] = (currentOutput[j] + channelOutput[j][stamp]).toShort()
             }
 
-            val currentOutput = outputVolume
-            blip.addDelta(stamp, (currentOutput - previousOutputLeft) * 4)
+            val currentOutput = outputVolume * 4
+            blip.addDelta(stamp, currentOutput - previousOutputLeft)
             previousOutputLeft = currentOutput
         }
 
         blip.endFrame(time)
-
-        if (muteFrame) {
-            muteFrameCount++
-        } else {
-            muteFrameCount = 0
-        }
 
         if (timestamps.isNotEmpty()) {
             timestamps.clear()
@@ -157,11 +136,11 @@ class SoundMixer(private val console: Console) : Resetable, Closeable, Snapshota
     }
 
     private fun updateRates(force: Boolean) {
-        var newRate = region.clockRate
+        var newRate = console.region.clockRate
 
         if (console.settings.flag(EmulationFlag.INTEGER_FPS_MODE)) {
             // Adjust sample rate when running at 60.0 fps instead of 60.1
-            newRate = if (region == Region.NTSC) {
+            newRate = if (console.region == Region.NTSC) {
                 (newRate * 60.0 / 60.0988118623484).toInt()
             } else {
                 (newRate * 50.0 / 50.00697796826829).toInt()
@@ -191,7 +170,6 @@ class SoundMixer(private val console: Console) : Resetable, Closeable, Snapshota
     override fun saveState(s: Snapshot) {
         s.write("clockRate", clockRate)
         s.write("sampleRate", sampleRate)
-        s.write("region", mRegion)
         s.write("previousOutputLeft", previousOutputLeft)
         s.write("currentOutput", currentOutput)
         s.write("previousOutputRight", previousOutputRight)
@@ -200,13 +178,14 @@ class SoundMixer(private val console: Console) : Resetable, Closeable, Snapshota
     override fun restoreState(s: Snapshot) {
         clockRate = s.readInt("clockRate")
         sampleRate = s.readInt("sampleRate", console.settings.sampleRate)
-        mRegion = s.readEnum("region", Region.NTSC)
 
         reset(true)
 
         previousOutputLeft = s.readInt("previousOutputLeft")
         s.readShortArray("currentOutput")?.copyInto(currentOutput)
         previousOutputRight = s.readInt("previousOutputRight")
+
+        updateRates(true)
     }
 
     companion object {

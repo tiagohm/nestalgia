@@ -9,8 +9,6 @@ import kotlin.random.Random
 
 abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, Snapshotable {
 
-    open var region = Region.AUTO
-
     open val controlDevice: ControlDevice? = null
 
     open val prgPageSize = 0
@@ -65,9 +63,6 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     protected var mChrRamSize = 0
         private set
 
-    protected var onlyChrRam = false
-        private set
-
     protected var vramOpenBusValue = -1
 
     // Make sure the page size is no bigger than the size of the ROM itself
@@ -98,7 +93,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         get() = info.hasBattery
 
     lateinit var console: Console
-        internal set
+        private set
 
     lateinit var data: RomData
         private set
@@ -113,7 +108,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         get() = mChrRamSize > 0
 
     val hasChrRom
-        get() = !onlyChrRam
+        get() = mChrRomSize > 0
 
     protected var prgRom = IntArray(0)
         private set
@@ -155,6 +150,8 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
 
     protected open fun readRegister(addr: Int) = 0
 
+    open fun updateRegion(region: Region) {}
+
     override fun saveBattery() {
         if (hasBattery && mSaveRamSize > 0) {
             console.batteryManager.saveBattery(".sav", saveRam)
@@ -180,10 +177,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
             mChrRomSize == mapper.mChrRomSize
         ) {
             mapper.prgRom.copyInto(prgRom, 0, 0, mPrgSize)
-
-            if (!onlyChrRam) {
-                mapper.chrRom.copyInto(chrRom, 0, 0, mChrRomSize)
-            }
+            mapper.chrRom.copyInto(chrRom, 0, 0, mChrRomSize)
         }
     }
 
@@ -240,14 +234,18 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         }
     }
 
-    fun initialize(data: RomData) {
+    fun initialize(console: Console, data: RomData) {
+        this.console = console
         this.data = data
+        console.mapper = this
 
-        mSaveRamSize = (if (data.saveRamSize == -1 || isForceSaveRamSize) saveRamSize
-        else data.saveRamSize)
+        mSaveRamSize = if (data.saveRamSize == -1) if (hasBattery) saveRamSize else 0
+        else if (isForceSaveRamSize) saveRamSize
+        else data.saveRamSize
 
-        mWorkRamSize = (if (data.workRamSize == -1 || isForceWorkRamSize) workRamSize
-        else data.workRamSize)
+        mWorkRamSize = if (data.workRamSize == -1) if (hasBattery) 0 else workRamSize
+        else if (isForceWorkRamSize) workRamSize
+        else data.workRamSize
 
         isReadRegisterAddr.fill(false)
         isWriteRegisterAddr.fill(false)
@@ -300,11 +298,9 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         when {
             mChrRomSize == 0 -> {
                 // Assume there is CHR RAM if no CHR ROM exists
-                onlyChrRam = true
                 initializeChrRam(data.chrRamSize)
                 // Map CHR RAM to 0x0000-0x1FFF by default when no CHR ROM exists
                 addPpuMemoryMapping(0x0000, 0x1FFF, 0, ChrMemoryType.RAM)
-                mChrRomSize = mChrRamSize
             }
             data.chrRamSize >= 0 -> {
                 initializeChrRam(data.chrRamSize)
@@ -333,9 +329,11 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
 
         this.data = data.copy(info = info)
 
-        initialize()
-
         loadBattery()
+    }
+
+    open fun initialize(data: RomData) {
+        initialize()
     }
 
     override fun memoryRanges(ranges: MemoryRanges) {
@@ -488,7 +486,6 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
             return
         }
 
-        // TODO: VER NO MASEN QUAIS MAPPERS USAM SelectPRGPage\(\d, -\d\)
         fun wrapPageNumber(page: Int): Int {
             return if (page < 0) {
                 // Can't use modulo for negative number because pageCount
@@ -610,22 +607,13 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         val pageCount: Int
         val pageSize: Int
         var defaultAccessType = MemoryAccessType.READ
+        var mType = type
 
-        when (type) {
-            ChrMemoryType.DEFAULT -> {
-                pageSize = mChrPageSize
+        if (mType == ChrMemoryType.DEFAULT) {
+            mType = (if (mChrRomSize > 0) ChrMemoryType.ROM else ChrMemoryType.RAM)
+        }
 
-                if (pageSize == 0) {
-                    // System.err.println("DEBUG: Tried to map undefined chr rom/ram.")
-                    return
-                }
-
-                pageCount = chrPageCount
-
-                if (onlyChrRam) {
-                    defaultAccessType = MemoryAccessType.READ_WRITE
-                }
-            }
+        when (mType) {
             ChrMemoryType.ROM -> {
                 pageSize = mChrPageSize
 
@@ -659,7 +647,17 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
             return
         }
 
-        var page = pageNumber % pageCount
+        fun wrapPageNumber(page: Int): Int {
+            return if (page < 0) {
+                // Can't use modulo for negative number because pageCount
+                // is sometimes not a power of 2. (Fixes some Mapper 191 games).
+                pageCount + page
+            } else {
+                page % pageCount
+            }
+        }
+
+        var page = wrapPageNumber(pageNumber)
 
         if (end - start >= pageSize) {
             var addr = start
@@ -674,7 +672,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 )
 
                 addr += pageSize
-                page = (page + 1) % pageCount
+                page = wrapPageNumber(page + 1)
             }
         } else {
             addPpuMemoryMapping(
@@ -694,17 +692,16 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         sourceOffset: Int,
         accessType: MemoryAccessType,
     ) {
-        val sourceMemory: Pointer
-        var sourceType = type
+        var mType = type
 
-        when (sourceType) {
-            ChrMemoryType.DEFAULT -> {
-                sourceMemory = if (onlyChrRam) Pointer(chrRam) else Pointer(chrRom)
-                sourceType = if (onlyChrRam) ChrMemoryType.RAM else ChrMemoryType.ROM
-            }
-            ChrMemoryType.ROM -> sourceMemory = Pointer(chrRom)
-            ChrMemoryType.RAM -> sourceMemory = Pointer(chrRam)
-            else -> sourceMemory = Pointer(nametableRam)
+        if (mType == ChrMemoryType.DEFAULT) {
+            mType = (if (mChrRomSize > 0) ChrMemoryType.ROM else ChrMemoryType.RAM)
+        }
+
+        val sourceMemory = when (mType) {
+            ChrMemoryType.ROM -> Pointer(chrRom)
+            ChrMemoryType.RAM -> Pointer(chrRam)
+            else -> Pointer(nametableRam)
         }
 
         val firstSlot = start shr 8
@@ -712,7 +709,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
 
         for (i in 0 until slotCount) {
             chrMemoryOffset[firstSlot + i] = sourceOffset + i * 256
-            chrMemoryType[firstSlot + i] = sourceType
+            chrMemoryType[firstSlot + i] = mType
             chrMemoryAccess[firstSlot + i] = accessType
         }
 
@@ -822,8 +819,17 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     }
 
     open fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
-        val pageSize = when (memoryType) {
+        var mType = memoryType
+
+        val pageSize = when (mType) {
             ChrMemoryType.NAMETABLE_RAM -> NAMETABLE_SIZE
+            ChrMemoryType.DEFAULT -> if (mChrRomSize > 0) {
+                mType = ChrMemoryType.ROM
+                mChrPageSize
+            } else {
+                mType = ChrMemoryType.RAM
+                mChrRamPageSize
+            }
             ChrMemoryType.RAM -> mChrRamPageSize
             else -> mChrPageSize
         }
@@ -831,7 +837,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         val start = slot * pageSize
         val end = start + pageSize - 1
 
-        addPpuMemoryMapping(start, end, page, memoryType)
+        addPpuMemoryMapping(start, end, page, mType)
     }
 
     fun selectChrPage8x(slot: Int, page: Int, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
@@ -870,13 +876,10 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
 
     open fun applySamples(buffer: ShortArray, sampleCount: Int, volume: Double) {}
 
-    val dipSwitches: Int
-        get() {
-            val mask = (1 shl dipSwitchCount) - 1
-            return console.settings.dipSwitches and mask
-        }
+    val dipSwitches
+        get() = console.settings.dipSwitches and ((1 shl dipSwitchCount) - 1)
 
-    val nes20
+    val isNes20
         get() = info.isNes20Header
 
     override fun saveState(s: Snapshot) {
@@ -971,7 +974,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 console.settings.consoleType = if (isFamicom) ConsoleType.FAMICOM else ConsoleType.NES
             }
 
-            return Pair(fromId(data), data)
+            return fromId(data).also { it.initialize(console, data) } to data
         }
 
         @JvmStatic
@@ -1001,6 +1004,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 }
                 36 -> Txc22000()
                 37 -> Mapper037()
+                40 -> Mapper040()
                 44 -> Mapper044()
                 45 -> Mapper045()
                 46 -> ColorDreams46()
@@ -1066,8 +1070,10 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 246 -> Mapper246()
                 252 -> Waixing252()
                 250 -> Mapper250()
+                253 -> Mapper253()
                 254 -> Mapper254()
                 255 -> Bmc255()
+                286 -> Bs5()
                 FDS_MAPPER_ID -> Fds()
                 else -> {
                     System.err.println("${data.info.name} has unsupported mapper $id")

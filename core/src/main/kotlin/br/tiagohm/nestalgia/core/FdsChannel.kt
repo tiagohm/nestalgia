@@ -14,8 +14,9 @@ open class FdsChannel : Memory, Snapshotable {
     var frequency = 0
         protected set
 
-    // Few FDS NSFs write to this register. The BIOS initializes this to $FF
-    var masterSpeed = 0xFF
+    // Few FDS NSFs write to this register. The BIOS initializes this to $E8.
+    var masterSpeed = 0xE8
+        internal set
 
     override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         when (addr and 0x03) {

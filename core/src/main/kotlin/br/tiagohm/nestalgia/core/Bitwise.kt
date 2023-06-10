@@ -36,13 +36,13 @@ inline val Int.loByte
     get() = this and 0xFF
 
 inline val Int.hiByte
-    get() = (this shr 8) and 0xFF
+    get() = this shr 8 and 0xFF
 
 inline val Int.higherByte
-    get() = (this shr 16) and 0xFF
+    get() = this shr 16 and 0xFF
 
 inline val Int.highestByte
-    get() = (this shr 24) and 0xFF
+    get() = this shr 24 and 0xFF
 
 // Long.
 

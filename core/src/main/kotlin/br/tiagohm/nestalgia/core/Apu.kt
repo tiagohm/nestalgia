@@ -36,25 +36,12 @@ class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, S
         deltaModulationChannel.dmcReadBuffer(value)
     }
 
-    private var mRegion = Region.AUTO
+    fun updateRegion(region: Region) {
+        // Finish the current apu frame before switching region.
+        run()
 
-    var region
-        get() = mRegion
-        set(value) {
-            // Finish the current apu frame before switching region.
-            run()
-
-            mRegion = value
-
-            squareChannel1.region = region
-            squareChannel2.region = region
-            triangleChannel.region = region
-            noiseChannel.region = region
-            deltaModulationChannel.region = region
-            frameCounter.region = region
-
-            console.soundMixer.region = region
-        }
+        frameCounter.updateRegion(region)
+    }
 
     override fun reset(softReset: Boolean) {
         enabled = true
@@ -153,10 +140,12 @@ class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, S
     }
 
     override fun read(addr: Int, type: MemoryOperationType): Int {
+        // $4015 read.
         run()
 
         // Reading $4015 clears the Frame Counter interrupt flag.
-        return status.also { console.cpu.clearIRQSource(IRQSource.FRAME_COUNTER) }
+        return (status or console.memoryManager.openBus(0x20))
+            .also { console.cpu.clearIRQSource(IRQSource.FRAME_COUNTER) }
     }
 
     override fun peek(addr: Int): Int {
@@ -223,7 +212,6 @@ class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, S
         // End the APU frame - makes it simpler to restore sound after a state reload.
         endFrame()
 
-        s.write("region", mRegion)
         s.write("square1", squareChannel1)
         s.write("square2", squareChannel2)
         s.write("triangle", triangleChannel)
@@ -236,7 +224,6 @@ class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, S
     override fun restoreState(s: Snapshot) {
         previousCycle = 0
         currentCycle = 0
-        mRegion = s.readEnum("region", Region.AUTO)
         s.readSnapshotable("square1", squareChannel1)
         s.readSnapshotable("square2", squareChannel2)
         s.readSnapshotable("triangle", triangleChannel)

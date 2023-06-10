@@ -58,6 +58,7 @@ class MemoryManager(private val console: Console) : Memory, Peekable, Resetable,
         // console.debugger.processRamOperation(type, addr, value)
         val handler = ramWriteHandlers[addr]
         handler.write(addr, value and 0xFF)
+        openBusHandler.openBus = value
     }
 
     private fun initializeMemoryHandlers(

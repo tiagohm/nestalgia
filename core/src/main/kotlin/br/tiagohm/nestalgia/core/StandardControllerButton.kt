@@ -10,4 +10,6 @@ enum class StandardControllerButton(override val bit: Int) : ControllerButton {
     B(6),
     A(7),
     MICROPHONE(8),
+    TURBO_B(6),
+    TURBO_A(7),
 }

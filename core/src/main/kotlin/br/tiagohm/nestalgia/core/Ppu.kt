@@ -1,6 +1,10 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.PpuModel.*
+import br.tiagohm.nestalgia.core.RamPowerOnState.*
+import br.tiagohm.nestalgia.core.Region.*
 import kotlin.math.min
+import kotlin.random.Random
 
 @Suppress("NOTHING_TO_INLINE")
 open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapshotable {
@@ -20,13 +24,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
 
     private var currentOutputBuffer = outputBuffers[0]
 
-    val paletteRAM = intArrayOf(
-        0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D, //
-        0x08, 0x10, 0x08, 0x24, 0x00, 0x00, 0x04, 0x2C, //
-        0x09, 0x01, 0x34, 0x03, 0x00, 0x04, 0x00, 0x14, //
-        0x08, 0x3A, 0x00, 0x02, 0x00, 0x20, 0x2C, 0x08, //
-    )
-
+    private val paletteRAM = IntArray(32)
     private val spriteRAM = IntArray(0x100)
     private val secondarySpriteRAM = IntArray(0x20)
     private val hasSprite = BooleanArray(257)
@@ -74,18 +72,20 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
     private var updateVramAddr = 0
     private var updateVramAddrDelay = 0
 
-    @PublishedApi internal var state = PpuState()
+    @PublishedApi internal val state = PpuState()
 
-    private var flags = PpuControl()
-    private var statusFlags = PpuStatus()
+    private val flags = PpuControl()
+    private val statusFlags = PpuStatus()
 
     private var minimumDrawBgCycle = 0
     private var minimumDrawSpriteCycle = 0
     private var minimumDrawSpriteStandardCycle = 0
 
-    private var currentTile = TileInfo()
-    private var nextTile = TileInfo()
-    private var previousTile = TileInfo()
+    private var tile = TileInfo()
+    private var currentTilePalette = 0
+    private var previousTilePalette = 0
+
+    private var needVideoRamIncrement = false
 
     var scanline = 0
         private set
@@ -107,6 +107,13 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         console.initializeRam(secondarySpriteRAM)
 
         reset(false)
+
+        if (console.settings.ramPowerOnState == RANDOM) {
+            console.initializeRam(paletteRAM)
+            for (i in paletteRAM.indices) paletteRAM[i] = paletteRAM[i] and 0x3F
+        } else {
+            PALETTE_BOOT_RAM.copyInto(paletteRAM)
+        }
     }
 
     override fun reset(softReset: Boolean) {
@@ -122,13 +129,18 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
 
         openBusDecayStamp.fill(0)
 
-        state = PpuState()
-        flags = PpuControl()
-        statusFlags = PpuStatus()
+        state.reset(softReset)
+        flags.reset(softReset)
+        statusFlags.reset(softReset)
 
-        previousTile = TileInfo()
-        currentTile = TileInfo()
-        nextTile = TileInfo()
+        if (!softReset) {
+            // The VBL flag (PPUSTATUS bit 7) is random at power, and unchanged by reset.
+            statusFlags.verticalBlank = Random.nextBoolean()
+        }
+
+        tile = TileInfo()
+        currentTilePalette = 0
+        previousTilePalette = 0
 
         ppuBusAddress = 0
         intensifyColorBits = 0
@@ -179,47 +191,42 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         minimumDrawSpriteStandardCycle = if (flags.spritesEnabled) if (flags.spriteMask) 0 else 8 else 300
     }
 
-    var region = Region.AUTO
-        set(value) {
-            field = value
-
-            when (value) {
-                Region.AUTO -> {
-                    throw IllegalArgumentException("Should never be AUTO")
-                }
-                Region.NTSC -> {
-                    nmiScanline = 241
-                    vBlankEnd = 260
-                    standardNmiScanline = 241
-                    standardVBlankEnd = 260
-                    masterClockDivider = 4
-                }
-                Region.PAL -> {
-                    nmiScanline = 241
-                    vBlankEnd = 310
-                    standardNmiScanline = 241
-                    standardVBlankEnd = 310
-                    masterClockDivider = 5
-                }
-                Region.DENDY -> {
-                    nmiScanline = 291
-                    vBlankEnd = 310
-                    standardNmiScanline = 291
-                    standardVBlankEnd = 310
-                    masterClockDivider = 5
-                }
+    fun updateRegion(region: Region) {
+        when (region) {
+            AUTO -> Unit
+            NTSC -> {
+                nmiScanline = 241
+                vBlankEnd = 260
+                standardNmiScanline = 241
+                standardVBlankEnd = 260
+                masterClockDivider = 4
             }
-
-            nmiScanline += settings.extraScanlinesBeforeNmi
-            palSpriteEvalScanline = nmiScanline + 24
-            standardVBlankEnd += settings.extraScanlinesBeforeNmi
-            vBlankEnd += settings.extraScanlinesAfterNmi + settings.extraScanlinesBeforeNmi
+            PAL -> {
+                nmiScanline = 241
+                vBlankEnd = 310
+                standardNmiScanline = 241
+                standardVBlankEnd = 310
+                masterClockDivider = 5
+            }
+            DENDY -> {
+                nmiScanline = 291
+                vBlankEnd = 310
+                standardNmiScanline = 291
+                standardVBlankEnd = 310
+                masterClockDivider = 5
+            }
         }
 
+        nmiScanline += settings.extraScanlinesBeforeNmi
+        palSpriteEvalScanline = nmiScanline + 24
+        standardVBlankEnd += settings.extraScanlinesBeforeNmi
+        vBlankEnd += settings.extraScanlinesAfterNmi + settings.extraScanlinesBeforeNmi
+    }
+
     val overclockRate
-        get() = (vBlankEnd.toDouble() + 2) / (2 + when (region) {
-            Region.PAL -> 310
-            Region.DENDY -> 310
+        get() = (vBlankEnd.toDouble() + 2) / (2 + when (console.region) {
+            PAL -> 310
+            DENDY -> 310
             else -> 260
         })
 
@@ -232,7 +239,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
 
     // "inline" turns it over slow. Why?
     private fun exec() {
-        if (cycle > 339) {
+        if (cycle >= 340) {
             cycle = 0
 
             if (++scanline > vBlankEnd) {
@@ -251,27 +258,31 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                 updateMinimumDrawCycles()
             }
 
-            processPpuCycle()
             updateApuStatus()
 
             if (scanline == settings.inputPollScanline) {
+                console.controlManager.updateControlDevices()
                 console.controlManager.updateInputState()
             }
 
-            if (scanline == -1) {
-                statusFlags.spriteOverflow = false
-                statusFlags.sprite0Hit = false
+            if (scanline < 240) {
+                if (scanline == -1) {
+                    statusFlags.spriteOverflow = false
+                    statusFlags.sprite0Hit = false
 
-                // Switch to alternate output buffer (VideoDecoder may still be decoding the last frame buffer)
-                currentOutputBuffer = if (currentOutputBuffer === outputBuffers[0]) {
-                    outputBuffers[1]
-                } else {
-                    outputBuffers[0]
+                    // Switch to alternate output buffer (VideoDecoder may still be decoding the last frame buffer)
+                    currentOutputBuffer = if (currentOutputBuffer === outputBuffers[0]) outputBuffers[1] else outputBuffers[0]
+                } else if (prevRenderingEnabled) {
+                    if (scanline > 0 || (!frameCount.bit0 || console.region != NTSC || settings.ppuModel != PPU_2C02)) {
+                        // Set bus address to the tile address calculated from the unused NT fetches at the end of the previous scanline
+                        // This doesn't happen on scanline 0 if the last dot of the previous frame was skipped
+                        setBusAddress((tile.tileAddr shl 4) or (state.videoRamAddr shr 12) or flags.backgroundPatternAddr)
+                    }
                 }
             } else if (scanline == 240) {
                 // At the start of vblank, the bus address is set back to VideoRamAddr.
                 // According to Visual NES, this occurs on scanline 240, cycle 1, but is done here on cycle for performance reasons
-                setBusAddress(state.videoRamAddr)
+                setBusAddress(state.videoRamAddr and 0x3FFF)
                 sendFrame()
                 frameCount++
             }
@@ -289,7 +300,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                 }
 
                 preventVBlankFlag = false
-            } else if (region == Region.PAL && scanline >= palSpriteEvalScanline) {
+            } else if (console.region == PAL && scanline >= palSpriteEvalScanline) {
                 // On a PAL machine, because of its extended vertical blank, the PPU begins refreshing OAM roughly 21 scanlines after NMI[2], to prevent it
                 // from decaying during the longer hiatus of rendering. Additionally, it will continue to refresh during the visible portion of the screen
                 // even if rendering is disabled. Because of this, OAM DMA must be done near the beginning of vertical blank on PAL, and everywhere else
@@ -305,6 +316,8 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         if (needStateUpdate) {
             updateState()
         }
+
+        processPpuCycle()
     }
 
     private fun updateApuStatus() {
@@ -345,26 +358,20 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
 
     private fun updateGrayscaleAndIntensifyBits() {
         if (scanline < 0 || scanline > nmiScanline) {
+            updateColorBitMasks()
             return
         }
 
         val pixelNumber = when {
-            scanline >= 240 -> {
-                61439
-            }
-            cycle < 3 -> {
-                (scanline shl 8) - 1
-            }
-            cycle <= 258 -> {
-                (scanline shl 8) + cycle - 3
-            }
-            else -> {
-                (scanline shl 8) + 255
-            }
+            scanline >= 240 -> 61439
+            cycle < 3 -> (scanline shl 8) - 1
+            cycle <= 258 -> (scanline shl 8) + cycle - 3
+            else -> (scanline shl 8) + 255
         }
 
         if (paletteRamMask == 0x3F && intensifyColorBits == 0) {
             // Nothing to do (most common case)
+            updateColorBitMasks()
             lastUpdatedPixel = pixelNumber
             return
         }
@@ -378,6 +385,17 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                 lastUpdatedPixel++
             }
         }
+
+        updateColorBitMasks()
+    }
+
+    private fun updateColorBitMasks() {
+        // Bit 0 controls a greyscale mode, which causes the palette to use only the colors from the grey column: $00, $10, $20, $30.
+        // This is implemented as a bitwise AND with $30 on any value read from PPU $3F00-$3FFF
+        paletteRamMask = if (flags.grayscale) 0x30 else 0x3F
+        intensifyColorBits = (if (flags.intensifyRed) 0x40 else 0x00) or
+            (if (flags.intensifyGreen) 0x80 else 0x00) or
+            (if (flags.intensifyBlue) 0x100 else 0x00)
     }
 
     private fun processScanline() {
@@ -421,8 +439,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
 
                 if (prevRenderingEnabled) {
                     // copy horizontal scrolling value from t
-                    // _state.VideoRamAddr = (_state.VideoRamAddr & ~0x041F) | (_state.TmpVideoRamAddr & 0x041F)
-                    state.videoRamAddr = (state.videoRamAddr and 0xFBE0) or (state.tmpVideoRamAddr and 0x041F)
+                    state.videoRamAddr = (state.videoRamAddr and 0x041F.inv()) or (state.tmpVideoRamAddr and 0x041F)
                 }
             }
 
@@ -452,30 +469,27 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                 }
             }
         } else if (cycle in 321..336) {
+            loadTileInfo()
+
             if (cycle == 321) {
                 if (renderingEnabled) {
                     loadExtraSprites()
                     oamCopybuffer = secondarySpriteRAM[0]
                 }
-
-                loadTileInfo()
             } else if (prevRenderingEnabled && (cycle == 328 || cycle == 336)) {
-                loadTileInfo()
                 state.lowBitShift = state.lowBitShift shl 8
                 state.highBitShift = state.highBitShift shl 8
                 incHorizontalScrolling()
-            } else {
-                loadTileInfo()
             }
         } else if (cycle == 337 || cycle == 339) {
             if (renderingEnabled) {
-                readVRam(nametableAddress)
+                tile.tileAddr = readVRam(nametableAddress)
 
                 if (scanline == -1 &&
                     cycle == 339 &&
                     (frameCount and 0x01) == 0x01 &&
-                    region == Region.NTSC &&
-                    settings.ppuModel == PpuModel.PPU_2C02
+                    console.region == NTSC &&
+                    settings.ppuModel == PPU_2C02
                 ) {
                     // This behavior is NTSC-specific - PAL frames are always the same number of cycles
                     // With rendering enabled, each odd PPU frame is one PPU clock shorter than normal" (skip from 339 to 0, going over 340)
@@ -532,9 +546,9 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
             }
 
             if (loadExtraSprites) {
-                var i = (lastVisibleSpriteAddr + 4) and 0xFF
+                var i = (lastVisibleSpriteAddr + 4) and 0xFC
 
-                while (i != firstVisibleSpriteAddr) {
+                while (i != firstVisibleSpriteAddr and 0xFC) {
                     val spriteY = spriteRAM[i]
 
                     if (scanline >= spriteY &&
@@ -551,21 +565,21 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                         spriteCount++
                     }
 
-                    i = (i + 4) and 0xFF
+                    i = (i + 4) and 0xFC
                 }
             }
         }
     }
 
-    private fun drawPixel() {
+    private inline fun drawPixel() {
         // This is called 3.7 million times per second - needs to be as fast as possible.
         if (renderingEnabled || (state.videoRamAddr and 0x3F00) != 0x3F00) {
             val color = getPixelColor()
-            currentOutputBuffer[(scanline shl 8) + cycle - 1] = paletteRAM[if (color and 0x03 != 0) color else 0]
+            currentOutputBuffer[(scanline shl 8) + cycle - 1] = paletteRAM[if (color and 0x03 != 0) color else 0] and paletteRamMask
         } else {
             // If the current VRAM address points in the range $3F00-$3FFF during forced blanking,
             // the color indicated by this palette location will be shown on screen instead of the backdrop color.
-            currentOutputBuffer[(scanline shl 8) + cycle - 1] = paletteRAM[state.videoRamAddr and 0x1F]
+            currentOutputBuffer[(scanline shl 8) + cycle - 1] = paletteRAM[state.videoRamAddr and 0x1F] and paletteRamMask
         }
     }
 
@@ -636,7 +650,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
             }
         }
 
-        return (if (offset + ((cycle - 1) and 0x07) < 8) previousTile else currentTile).paletteOffset + backgroundColor
+        return (if (offset + ((cycle - 1) and 0x07) < 8) previousTilePalette else currentTilePalette) + backgroundColor
     }
 
     private fun shiftTileRegisters() {
@@ -651,7 +665,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         spriteX: Int,
         extraSprite: Boolean,
     ) {
-        var ti = tileIndex
+        var mTileIndex = tileIndex
         val backgroundPriority = attributes.bit5
         val horizontalMirror = attributes.bit6
         val verticalMirror = attributes.bit7
@@ -663,9 +677,9 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         }
 
         var tileAddr = if (flags.largeSprites) {
-            ((if (ti.bit0) 0x1000 else 0x0000) or (ti and 0xFE shl 4)) + (if (lineOffset >= 8) lineOffset + 8 else lineOffset)
+            ((if (mTileIndex.bit0) 0x1000 else 0x0000) or (mTileIndex and 0xFE shl 4)) + (if (lineOffset >= 8) lineOffset + 8 else lineOffset)
         } else {
-            ((ti shl 4) or flags.spritePatternAddr) + lineOffset
+            ((mTileIndex shl 4) or flags.spritePatternAddr) + lineOffset
         }
 
         var fetchLastSprite = true
@@ -689,7 +703,6 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
             }
 
             info.tileAddr = tileAddr
-            // info.AbsoluteTileAddr = _console->GetMapper()->ToAbsoluteChrAddress(tileAddr);
             // info.offsetY = lineOffset
             info.spriteX = spriteX
 
@@ -705,15 +718,12 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
 
         if (fetchLastSprite) {
             // Fetches to sprite 0xFF for remaining sprites/hidden - used by MMC3 IRQ counter
-            lineOffset = 0
-            ti = 0xFF
-
-            // TODO: Ver esse lineOffset = 0 aqui!
+            mTileIndex = 0xFF
 
             tileAddr = if (flags.largeSprites) {
-                ((if (ti.bit0) 0x1000 else 0x0000) or (ti and 0xFFFE shl 4)) + (if (lineOffset >= 8) lineOffset + 8 else lineOffset)
+                (if (mTileIndex.bit0) 0x1000 else 0x0000) or (mTileIndex and 0x01.inv() shl 4)
             } else {
-                ((ti shl 4) or flags.spritePatternAddr) + lineOffset
+                (mTileIndex shl 4) or flags.spritePatternAddr
             }
 
             readVRam(tileAddr)
@@ -727,26 +737,25 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         if (renderingEnabled) {
             when (cycle and 0x07) {
                 1 -> {
-                    previousTile.copyFrom(currentTile)
-                    currentTile.copyFrom(nextTile)
+                    previousTilePalette = currentTilePalette
+                    currentTilePalette = tile.paletteOffset
 
-                    state.lowBitShift = state.lowBitShift or nextTile.lowByte
-                    state.highBitShift = state.highBitShift or nextTile.highByte
+                    state.lowBitShift = state.lowBitShift or tile.lowByte
+                    state.highBitShift = state.highBitShift or tile.highByte
 
                     val tileIndex = readVRam(nametableAddress)
-                    nextTile.tileAddr = (tileIndex shl 4) or (state.videoRamAddr shr 12) or flags.backgroundPatternAddr
-                    nextTile.offsetY = state.videoRamAddr shr 12
+                    tile.tileAddr = (tileIndex shl 4) or (state.videoRamAddr shr 12) or flags.backgroundPatternAddr
+                    tile.offsetY = state.videoRamAddr shr 12
                 }
                 3 -> {
                     val shift = ((state.videoRamAddr shr 4) and 0x04) or (state.videoRamAddr and 0x02)
-                    nextTile.paletteOffset = readVRam(attributeAddress) shr shift and 0x03 shl 2
+                    tile.paletteOffset = readVRam(attributeAddress) shr shift and 0x03 shl 2
                 }
                 5 -> {
-                    nextTile.lowByte = readVRam(nextTile.tileAddr)
-                    // TODO: HD PPU nextTile.AbsoluteTileAddr = console.mapper.toAbsoluteChrAddress(nextTile.tileAddr)
+                    tile.lowByte = readVRam(tile.tileAddr)
                 }
                 7 -> {
-                    nextTile.highByte = readVRam(nextTile.tileAddr + 8)
+                    tile.highByte = readVRam(tile.tileAddr + 8)
                 }
             }
         }
@@ -805,8 +814,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                     if (cycle == 257) {
                         state.videoRamAddr = state.videoRamAddr and updateVramAddr
                     } else if (cycle > 0 && (cycle and 0x07) == 0 && (cycle <= 256 || cycle > 320)) {
-                        // _state.VideoRamAddr = (_updateVramAddr & ~0x41F) | (_state.VideoRamAddr & _updateVramAddr & 0x41F);
-                        state.videoRamAddr = (updateVramAddr and 0xFBE0) or (state.videoRamAddr and updateVramAddr and 0x41F)
+                        state.videoRamAddr = (updateVramAddr and 0x41F.inv()) or (state.videoRamAddr and updateVramAddr and 0x41F)
                     } else {
                         state.videoRamAddr = updateVramAddr
                     }
@@ -836,6 +844,14 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                 needStateUpdate = true
             }
         }
+
+        if (needVideoRamIncrement) {
+            // Delay vram address increment by 1 ppu cycle after a read/write to 2007
+            // This allows the full_palette tests to properly display single-pixel glitches
+            // that display the "wrong" color on the screen until the increment occurs (matches hardware)
+            needVideoRamIncrement = false
+            updateVideoRamAddr()
+        }
     }
 
     private fun setOamCorruptionFlags() {
@@ -864,7 +880,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
     }
 
     private fun processSpriteEvaluation() {
-        if (renderingEnabled || (region == Region.PAL && scanline >= palSpriteEvalScanline)) {
+        if (renderingEnabled || (console.region == PAL && scanline >= palSpriteEvalScanline)) {
             if (cycle < 65) {
                 // Clear secondary OAM at between cycle 1 and 64
                 oamCopybuffer = 0xFF
@@ -888,13 +904,12 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                     spriteCount = secondaryOAMAddr shr 2
                 }
 
-                if ((cycle and 0x01) == 0x01) {
+                if (cycle.bit0) {
                     // Read a byte from the primary OAM on odd cycles
                     oamCopybuffer = readSpriteRam(state.spriteRamAddr)
                 } else {
                     if (oamCopyDone) {
-                        spriteAddrH++
-                        spriteAddrH = spriteAddrH and 0x3F
+                        spriteAddrH = (spriteAddrH + 1) and 0x3F
 
                         if (secondaryOAMAddr >= 0x20) {
                             // As seen above, a side effect of the OAM write disable signal is to turn writes to the secondary OAM into reads from it.
@@ -928,8 +943,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                                     spriteInRange = false
                                     spriteAddrL = 0
                                     lastVisibleSpriteAddr = spriteAddrH * 4
-                                    spriteAddrH++
-                                    spriteAddrH = spriteAddrH and 0x3F
+                                    spriteAddrH = (spriteAddrH + 1) and 0x3F
 
                                     if (spriteAddrH == 0) {
                                         oamCopyDone = true
@@ -937,8 +951,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                                 }
                             } else {
                                 // Nothing to copy, skip to next sprite
-                                spriteAddrH++
-                                spriteAddrH = spriteAddrH and 0x3F
+                                spriteAddrH = (spriteAddrH + 1) and 0x3F
 
                                 if (spriteAddrH == 0) {
                                     oamCopyDone = true
@@ -955,14 +968,13 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                                 spriteAddrL++
 
                                 if (spriteAddrL == 4) {
-                                    spriteAddrH++
-                                    spriteAddrH = spriteAddrH and 0x3F
+                                    spriteAddrH = (spriteAddrH + 1) and 0x3F
                                     spriteAddrL = 0
                                 }
 
                                 if (overflowBugCounter == 0) {
                                     overflowBugCounter = 3
-                                } else {
+                                } else if (overflowBugCounter > 0) {
                                     overflowBugCounter--
 
                                     if (overflowBugCounter == 0) {
@@ -973,10 +985,8 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                                 }
                             } else {
                                 // Sprite isn't on this scanline, trigger sprite evaluation bug - increment both H & L at the same time
-                                spriteAddrH++
-                                spriteAddrH = spriteAddrH and 0x3F
-                                spriteAddrL++
-                                spriteAddrL = spriteAddrL and 0x03
+                                spriteAddrH = (spriteAddrH + 1) and 0x3F
+                                spriteAddrL = (spriteAddrL + 1) and 0x03
 
                                 if (spriteAddrH == 0) {
                                     oamCopyDone = true
@@ -996,21 +1006,22 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
             return
         }
 
-        // Copy first OAM row over another row, as needed by corruption flags (can be over itself, which causes no actual harm)
-        for (i in 0..31) {
-            if (corruptOamRow[i]) {
-                if (i > 0) {
+        // Copy first OAM row over another row, as needed by corruption flags
+        // (can be over itself, which causes no actual harm).
+        repeat(32) {
+            if (corruptOamRow[it]) {
+                if (it > 0) {
                     // memcpy(_spriteRAM + i * 8, _spriteRAM, 8)
-                    spriteRAM.copyInto(spriteRAM, i * 8, 0, 8)
+                    spriteRAM.copyInto(spriteRAM, it * 8, 0, 8)
                 }
 
-                corruptOamRow[i] = false
+                corruptOamRow[it] = false
             }
         }
     }
 
     fun pixelAt(x: Int, y: Int): Int {
-        return currentOutputBuffer[(y shl 8) or x]
+        return (currentOutputBuffer[y shl 8 or x] and paletteRamMask) or intensifyColorBits
     }
 
     fun pixelBrightnessAt(x: Int, y: Int): Int {
@@ -1035,11 +1046,11 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
 
     private fun processStatusRegOpenBus(result: Int): IntArray {
         return when (settings.ppuModel) {
-            PpuModel.PPU_2C05A -> intArrayOf(0x00, result or 0x1B)
-            PpuModel.PPU_2C05B -> intArrayOf(0x00, result or 0x3D)
-            PpuModel.PPU_2C05C -> intArrayOf(0x00, result or 0x1C)
-            PpuModel.PPU_2C05D -> intArrayOf(0x00, result or 0x1B)
-            PpuModel.PPU_2C05E -> STATUS_REG_2C05E
+            PPU_2C05A -> intArrayOf(0x00, result or 0x1B)
+            PPU_2C05B -> intArrayOf(0x00, result or 0x3D)
+            PPU_2C05C -> intArrayOf(0x00, result or 0x1C)
+            PPU_2C05D -> intArrayOf(0x00, result or 0x1B)
+            PPU_2C05E -> STATUS_REG_2C05E
             else -> STATUS_REG_NULL
         }
     }
@@ -1080,8 +1091,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
 
         state.videoRamAddr = if ((addr and 0x001F) == 31) {
             // When the value is 31, wrap around to 0 and switch nametable
-            // addr = (addr & ~0x001F) ^ 0x0400;
-            (addr and 0xFFE0) xor 0x0400
+            (addr and 0x001F.inv()) xor 0x0400
         } else {
             addr + 1
         }
@@ -1095,7 +1105,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
             addr + 0x1000 // increment fine Y
         } else {
             // fine Y = 0
-            var a = addr and 0x8FFF // addr &= ~0x7000;
+            var a = addr and 0x7000.inv()
             var y = a and 0x03E0 shr 5 // let y = coarse Y
 
             when (y) {
@@ -1112,7 +1122,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
             }
 
             // addr = (addr & ~0x03E0) | (y << 5);
-            (a and 0xFC1F) or (y shl 5) // put coarse Y back into v
+            (a and 0x03E0.inv()) or (y shl 5) // put coarse Y back into v
         }
     }
 
@@ -1181,10 +1191,9 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                         openBusMask = 0x00
                     }
 
-                    updateVideoRamAddr()
-
                     ignoreVramRead = 6
                     needStateUpdate = true
+                    needVideoRamIncrement = true
                 }
             }
             else -> {
@@ -1228,8 +1237,8 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                             // If we're doing sprite rendering, set OAM copy buffer to its proper value.  This is done here for performance.
                             // It's faster to only do this here when it's needed, rather than splitting LoadSpriteTileInfo() into an 8-step process
                             val step = min((cycle - 257) % 8, 3)
-                            val a = ((cycle - 257) / 8) * 4 + step
-                            secondarySpriteRAM[a]
+                            val oamAddr = ((cycle - 257) / 8) * 4 + step
+                            secondarySpriteRAM[oamAddr]
                         } else {
                             oamCopybuffer
                         }
@@ -1244,14 +1253,14 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                 result = memoryReadBuffer
 
                 if ((state.videoRamAddr and 0x3FFF) >= 0x3F00 && !settings.flag(EmulationFlag.DISABLE_PALETTE_READ)) {
+                    //Note: When grayscale is turned on, the read values also have the grayscale mask applied to them
                     result = readPaletteRam(state.videoRamAddr) or (openBus and 0xC0)
                     openBusMask = 0xC0
                 } else {
                     openBusMask = 0x00
                 }
             }
-            else -> {
-            }
+            else -> Unit
         }
 
         return result or (openBus and openBusMask)
@@ -1266,10 +1275,10 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         var a = addr and 0x1F
 
         if (a == 0x10 || a == 0x14 || a == 0x18 || a == 0x1C) {
-            a = a and 0xEF // addr &= ~0x0010
+            a = a and 0x10.inv()
         }
 
-        return paletteRAM[a]
+        return paletteRAM[a] and paletteRamMask
     }
 
     protected fun readVRam(addr: Int): Int {
@@ -1365,7 +1374,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                 state.spriteRamAddr = value
             }
             PpuRegister.SPRITE_DATA -> {
-                if ((scanline >= 240 && (region != Region.PAL || scanline < palSpriteEvalScanline)) || !renderingEnabled) {
+                if ((scanline >= 240 && (console.region != PAL || scanline < palSpriteEvalScanline)) || !renderingEnabled) {
                     if ((state.spriteRamAddr and 0x03) == 0x02) {
                         // The three unimplemented bits of each sprite's byte 2 do not exist in the PPU
                         // and always read back as 0 on PPU revisions that allow reading PPU OAM through OAMDATA ($2004)
@@ -1384,12 +1393,11 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
             }
             PpuRegister.SCROLL_OFFSET -> {
                 if (state.writeToggle) {
-                    // and ~0x73E0
-                    state.tmpVideoRamAddr = (state.tmpVideoRamAddr and 0x8C1F) or (value and 0xF8 shl 2) or (value and 0x07 shl 12)
+                    state.tmpVideoRamAddr = (state.tmpVideoRamAddr and 0x73E0.inv()) or (value and 0xF8 shl 2) or (value and 0x07 shl 12)
                 } else {
                     state.xScroll = value and 0x07
                     // and ~0x001F
-                    val newAddr = (state.tmpVideoRamAddr and 0xFFE0) or (value shr 3)
+                    val newAddr = (state.tmpVideoRamAddr and 0x001F.inv()) or (value shr 3)
                     processTmpAddrScrollGlitch(newAddr, console.memoryManager.openBus() shr 3, 0x001F)
                 }
 
@@ -1397,16 +1405,14 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
             }
             PpuRegister.VIDEO_MEMORY_ADDR -> {
                 if (state.writeToggle) {
-                    // and ~0x00FF
-                    state.tmpVideoRamAddr = (state.tmpVideoRamAddr and 0xFF00) or value
+                    state.tmpVideoRamAddr = (state.tmpVideoRamAddr and 0x00FF.inv()) or value
 
                     // Video RAM update is apparently delayed by 3 PPU cycles (based on Visual NES findings)
                     needStateUpdate = true
                     updateVramAddrDelay = 3
                     updateVramAddr = state.tmpVideoRamAddr
                 } else {
-                    // and ~0xFF00
-                    val newAddr = (state.tmpVideoRamAddr and 0x00FF) or (value and 0x3F shl 8)
+                    val newAddr = (state.tmpVideoRamAddr and 0xFF00.inv()) or (value and 0x3F shl 8)
                     processTmpAddrScrollGlitch(
                         newAddr,
                         console.memoryManager.openBus() shl 8,
@@ -1424,10 +1430,11 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                     console.mapper!!.writeVRAM(ppuBusAddress and 0x3FFF, value)
                 } else {
                     // During rendering, the value written is ignored, and instead the address' LSB is used (not confirmed, based on Visual NES)
-                    console.mapper!!.writeVRAM(ppuBusAddress and 0x3FFF, ppuBusAddress)
+                    console.mapper!!.writeVRAM(ppuBusAddress and 0x3FFF, ppuBusAddress and 0xFF)
                 }
 
-                updateVideoRamAddr()
+                needStateUpdate = true
+                needVideoRamIncrement = true
             }
             PpuRegister.SPRITE_DMA -> {
                 console.cpu.runDmaTransfer(value)
@@ -1439,12 +1446,21 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
     private fun setMaskRegister(value: Int) {
         state.mask = value
 
-        flags.grayscale = state.mask.bit0
-        flags.backgroundMask = state.mask.bit1
-        flags.spriteMask = state.mask.bit2
-        flags.backgroundEnabled = state.mask.bit3
-        flags.spritesEnabled = state.mask.bit4
-        flags.intensifyBlue = state.mask.bit7
+        flags.grayscale = value.bit0
+        flags.backgroundMask = value.bit1
+        flags.spriteMask = value.bit2
+        flags.backgroundEnabled = value.bit3
+        flags.spritesEnabled = value.bit4
+        flags.intensifyBlue = value.bit7
+
+        if (console.region == NTSC) {
+            flags.intensifyRed = value.bit5
+            flags.intensifyGreen = value.bit6
+        } else {
+            // Note that on the Dendy and PAL NES, the green and red bits swap meaning.
+            flags.intensifyRed = value.bit6
+            flags.intensifyGreen = value.bit5
+        }
 
         if (renderingEnabled != (flags.backgroundEnabled or flags.spritesEnabled)) {
             needStateUpdate = true
@@ -1456,32 +1472,20 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         //"Bit 0 controls a greyscale mode, which causes the palette to use only the colors from the grey column: $00, $10, $20, $30.
         // This is implemented as a bitwise AND with $30 on any value read from PPU $3F00-$3FFF"
         paletteRamMask = if (flags.grayscale) 0x30 else 0x3F
-
-        if (region == Region.NTSC) {
-            flags.intensifyRed = state.mask.bit5
-            flags.intensifyGreen = state.mask.bit6
-            intensifyColorBits = (value and 0xE0) shl 1
-        } else if (region == Region.PAL || region == Region.DENDY) {
-            // Note that on the Dendy and PAL NES, the green and red bits swap meaning.
-            flags.intensifyRed = state.mask.bit6
-            flags.intensifyGreen = state.mask.bit5
-            intensifyColorBits =
-                (if (flags.intensifyRed) 0x40 else 0x00) or (if (flags.intensifyGreen) 0x80 else 0x00) or (if (flags.intensifyBlue) 0x100 else 0x00)
-        }
     }
 
     private fun setControlRegister(value: Int) {
-        state.control = value
+        state.control = value and 0xFC
 
-        val nameTable = state.control and 0x03
-        val addr = (state.tmpVideoRamAddr and 0xF3FF) or (nameTable shl 10) // and ~0x0C00
+        val nameTable = value and 0x03
+        val addr = (state.tmpVideoRamAddr and 0x0C00.inv()) or (nameTable shl 10)
         processTmpAddrScrollGlitch(addr, console.memoryManager.openBus() shl 10, 0x0400)
 
-        flags.verticalWrite = state.control.bit2
-        flags.spritePatternAddr = if (state.control.bit3) 0x1000 else 0x0000
-        flags.backgroundPatternAddr = if (state.control.bit4) 0x1000 else 0x0000
-        flags.largeSprites = state.control.bit5
-        flags.vBlank = state.control.bit7
+        flags.verticalWrite = value.bit2
+        flags.spritePatternAddr = if (value.bit3) 0x1000 else 0x0000
+        flags.backgroundPatternAddr = if (value.bit4) 0x1000 else 0x0000
+        flags.largeSprites = value.bit5
+        flags.vBlank = value.bit7
 
         // By toggling NMI_output ($2000 bit 7) during vertical blank without reading $2002, a program can cause /NMI to be pulled low multiple times, causing multiple NMIs to be generated.
         if (!flags.vBlank) {
@@ -1549,9 +1553,9 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         s.write("cycle", cycle)
         s.write("frameCount", frameCount)
         s.write("memoryReadBuffer", memoryReadBuffer)
-        s.write("previousTile", previousTile)
-        s.write("currentTile", currentTile)
-        s.write("nextTile", nextTile)
+        s.write("previousTilePalette", previousTilePalette)
+        s.write("currentTilePalette", currentTilePalette)
+        s.write("tile", tile)
         s.write("spriteIndex", spriteIndex)
         s.write("spriteCount", spriteCount)
         s.write("secondaryOAMAddr", secondaryOAMAddr)
@@ -1562,7 +1566,6 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         s.write("spriteAddrH", spriteAddrH)
         s.write("spriteAddrL", spriteAddrL)
         s.write("oamCopyDone", oamCopyDone)
-        s.write("region", region)
         s.write("prevIsRenderingEnabled", prevRenderingEnabled)
         s.write("isRenderingEnabled", renderingEnabled)
         s.write("openBus", openBus)
@@ -1577,10 +1580,11 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         s.write("overflowBugCounter", overflowBugCounter)
         s.write("updateVramAddr", updateVramAddr)
         s.write("updateVramAddrDelay", updateVramAddrDelay)
-        s.write("isNeedStateUpdate", needStateUpdate)
+        s.write("needStateUpdate", needStateUpdate)
         s.write("ppuBusAddress", ppuBusAddress)
         s.write("preventVBlankFlag", preventVBlankFlag)
         s.write("masterClock", masterClock)
+        s.write("needVideoRamIncrement", needVideoRamIncrement)
         repeat(spriteTiles.size) { s.write("spriteTile$it", spriteTiles[it]) }
     }
 
@@ -1594,9 +1598,9 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         cycle = s.readInt("cycle")
         frameCount = s.readInt("frameCount")
         memoryReadBuffer = s.readInt("memoryReadBuffer")
-        s.readSnapshotable("previousTile", previousTile)
-        s.readSnapshotable("currentTile", currentTile)
-        s.readSnapshotable("nextTile", nextTile)
+        previousTilePalette = s.readInt("previousTilePalette")
+        currentTilePalette = s.readInt("currentTilePalette")
+        s.readSnapshotable("tile", tile)
         spriteIndex = s.readInt("spriteIndex")
         spriteCount = s.readInt("spriteCount")
         secondaryOAMAddr = s.readInt("secondaryOAMAddr")
@@ -1607,11 +1611,11 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         spriteAddrH = s.readInt("spriteAddrH")
         spriteAddrL = s.readInt("spriteAddrL")
         oamCopyDone = s.readBoolean("oamCopyDone")
-        region = s.readEnum("region", Region.AUTO)
         prevRenderingEnabled = s.readBoolean("prevIsRenderingEnabled")
         renderingEnabled = s.readBoolean("isRenderingEnabled")
         openBus = s.readInt("openBus")
         ignoreVramRead = s.readInt("ignoreVramRead")
+        needVideoRamIncrement = s.readBoolean("needVideoRamIncrement")
         s.readIntArray("paletteRAM", paletteRAM)
         s.readIntArray("spriteRAM", spriteRAM)
         s.readIntArray("secondarySpriteRAM", secondarySpriteRAM)
@@ -1622,7 +1626,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         overflowBugCounter = s.readInt("overflowBugCounter")
         updateVramAddr = s.readInt("updateVramAddr")
         updateVramAddrDelay = s.readInt("updateVramAddrDelay")
-        needStateUpdate = s.readBoolean("isNeedStateUpdate")
+        needStateUpdate = s.readBoolean("needStateUpdate")
         ppuBusAddress = s.readInt("ppuBusAddress")
         preventVBlankFlag = s.readBoolean("preventVBlankFlag")
         masterClock = s.readLong("masterClock")
@@ -1632,7 +1636,9 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         console.settings.flag(EmulationFlag.DISABLE_PALETTE_READ, disablePaletteRead)
         console.settings.flag(EmulationFlag.DISABLE_OAM_ADDR_BUG, disableOamAddrBug)
 
+        updateRegion(console.region)
         updateMinimumDrawCycles()
+        updateGrayscaleAndIntensifyBits()
 
         for (i in 0 until 0x20) {
             // Set oam decay cycle to the current cycle to ensure it doesn't
@@ -1646,6 +1652,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         lastUpdatedPixel = -1
 
         updateApuStatus()
+        updateRegion(console.region)
     }
 
     fun screenBuffer(previous: Boolean): IntArray {
@@ -1669,5 +1676,12 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
 
         @JvmStatic private val STATUS_REG_2C05E = intArrayOf(0x00, -1)
         @JvmStatic private val STATUS_REG_NULL = intArrayOf(-1, -1)
+
+        @JvmStatic val PALETTE_BOOT_RAM = intArrayOf(
+            0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D, //
+            0x08, 0x10, 0x08, 0x24, 0x00, 0x00, 0x04, 0x2C, //
+            0x09, 0x01, 0x34, 0x03, 0x00, 0x04, 0x00, 0x14, //
+            0x08, 0x3A, 0x00, 0x02, 0x00, 0x20, 0x2C, 0x08, //
+        )
     }
 }
