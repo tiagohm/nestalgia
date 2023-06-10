@@ -63,6 +63,9 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     protected var mChrRamSize = 0
         private set
 
+    protected var onlyChrRam = false
+        private set
+
     protected var vramOpenBusValue = -1
 
     // Make sure the page size is no bigger than the size of the ROM itself
@@ -108,7 +111,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         get() = mChrRamSize > 0
 
     val hasChrRom
-        get() = mChrRomSize > 0
+        get() = !onlyChrRam
 
     protected var prgRom = IntArray(0)
         private set
@@ -177,7 +180,10 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
             mChrRomSize == mapper.mChrRomSize
         ) {
             mapper.prgRom.copyInto(prgRom, 0, 0, mPrgSize)
-            mapper.chrRom.copyInto(chrRom, 0, 0, mChrRomSize)
+
+            if (!onlyChrRam) {
+                mapper.chrRom.copyInto(chrRom, 0, 0, mChrRomSize)
+            }
         }
     }
 
@@ -282,25 +288,27 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         nametableRam = IntArray(NAMETABLE_SIZE * NAMETABLE_COUNT)
         console.initializeRam(nametableRam)
 
-        for (i in 0..0xFF) {
+        repeat(256) {
             // Allow us to map a different page every 256 bytes
-            prgPages[i] = Pointer.NULL
-            prgMemoryOffset[i] = -1
-            prgMemoryType[i] = PrgMemoryType.ROM
-            prgMemoryAccess[i] = MemoryAccessType.NO_ACCESS
+            prgPages[it] = Pointer.NULL
+            prgMemoryOffset[it] = -1
+            prgMemoryType[it] = PrgMemoryType.ROM
+            prgMemoryAccess[it] = MemoryAccessType.NO_ACCESS
 
-            chrPages[i] = Pointer.NULL
-            chrMemoryOffset[i] = -1
-            chrMemoryType[i] = ChrMemoryType.DEFAULT
-            chrMemoryAccess[i] = MemoryAccessType.NO_ACCESS
+            chrPages[it] = Pointer.NULL
+            chrMemoryOffset[it] = -1
+            chrMemoryType[it] = ChrMemoryType.DEFAULT
+            chrMemoryAccess[it] = MemoryAccessType.NO_ACCESS
         }
 
         when {
             mChrRomSize == 0 -> {
                 // Assume there is CHR RAM if no CHR ROM exists
+                onlyChrRam = true
                 initializeChrRam(data.chrRamSize)
                 // Map CHR RAM to 0x0000-0x1FFF by default when no CHR ROM exists
                 addPpuMemoryMapping(0x0000, 0x1FFF, 0, ChrMemoryType.RAM)
+                mChrRomSize = mChrRamSize
             }
             data.chrRamSize >= 0 -> {
                 initializeChrRam(data.chrRamSize)
@@ -486,17 +494,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
             return
         }
 
-        fun wrapPageNumber(page: Int): Int {
-            return if (page < 0) {
-                // Can't use modulo for negative number because pageCount
-                // is sometimes not a power of 2. (Fixes some Mapper 191 games).
-                pageCount + page
-            } else {
-                page % pageCount
-            }
-        }
-
-        var page = wrapPageNumber(pageNumber)
+        var page = wrapPageNumber(pageNumber, pageCount)
 
         if (end - start >= pageSize) {
             // System.err.println("DEBUG: Tried to map undefined prg - page size too small for selected range.")
@@ -514,7 +512,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 )
 
                 addr += pageSize
-                page = wrapPageNumber(page + 1)
+                page = wrapPageNumber(page + 1, pageCount)
             }
         } else {
             addCpuMemoryMapping(
@@ -543,10 +541,10 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         val firstSlot = start shr 8
         val slotCount = (end - start + 1) shr 8
 
-        for (i in 0 until slotCount) {
-            prgMemoryOffset[firstSlot + i] = sourceOffset + i * 0x100
-            prgMemoryType[firstSlot + i] = type
-            prgMemoryAccess[firstSlot + i] = accessType
+        repeat(slotCount) {
+            prgMemoryOffset[firstSlot + it] = sourceOffset + it * 0x100
+            prgMemoryType[firstSlot + it] = type
+            prgMemoryAccess[firstSlot + it] = accessType
         }
 
         addCpuMemoryMapping(start, end, Pointer(sourceMemory, sourceOffset), accessType)
@@ -583,10 +581,10 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         val slotCount = (end - start + 1) shr 8
 
         // Unmap this section of memory (causing open bus behavior)
-        for (i in 0 until slotCount) {
-            prgMemoryOffset[firstSlot + i] = -1
-            prgMemoryType[firstSlot + i] = PrgMemoryType.ROM
-            prgMemoryAccess[firstSlot + i] = MemoryAccessType.NO_ACCESS
+        repeat(slotCount) {
+            prgMemoryOffset[firstSlot + it] = -1
+            prgMemoryType[firstSlot + it] = PrgMemoryType.ROM
+            prgMemoryAccess[firstSlot + it] = MemoryAccessType.NO_ACCESS
         }
 
         addCpuMemoryMapping(start, end, Pointer.NULL, MemoryAccessType.NO_ACCESS)
@@ -607,13 +605,22 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         val pageCount: Int
         val pageSize: Int
         var defaultAccessType = MemoryAccessType.READ
-        var mType = type
 
-        if (mType == ChrMemoryType.DEFAULT) {
-            mType = (if (mChrRomSize > 0) ChrMemoryType.ROM else ChrMemoryType.RAM)
-        }
+        when (type) {
+            ChrMemoryType.DEFAULT -> {
+                pageSize = mChrPageSize
 
-        when (mType) {
+                if (pageSize == 0) {
+                    // System.err.println("DEBUG: Tried to map undefined chr rom/ram.")
+                    return
+                }
+
+                pageCount = chrPageCount
+
+                if (onlyChrRam) {
+                    defaultAccessType = MemoryAccessType.READ_WRITE
+                }
+            }
             ChrMemoryType.ROM -> {
                 pageSize = mChrPageSize
 
@@ -647,17 +654,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
             return
         }
 
-        fun wrapPageNumber(page: Int): Int {
-            return if (page < 0) {
-                // Can't use modulo for negative number because pageCount
-                // is sometimes not a power of 2. (Fixes some Mapper 191 games).
-                pageCount + page
-            } else {
-                page % pageCount
-            }
-        }
-
-        var page = wrapPageNumber(pageNumber)
+        var page = wrapPageNumber(pageNumber, pageCount)
 
         if (end - start >= pageSize) {
             var addr = start
@@ -672,7 +669,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 )
 
                 addr += pageSize
-                page = wrapPageNumber(page + 1)
+                page = wrapPageNumber(page + 1, pageCount)
             }
         } else {
             addPpuMemoryMapping(
@@ -692,13 +689,13 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         sourceOffset: Int,
         accessType: MemoryAccessType,
     ) {
-        var mType = type
+        var sourceType = type
 
-        if (mType == ChrMemoryType.DEFAULT) {
-            mType = (if (mChrRomSize > 0) ChrMemoryType.ROM else ChrMemoryType.RAM)
-        }
-
-        val sourceMemory = when (mType) {
+        val sourceMemory = when (sourceType) {
+            ChrMemoryType.DEFAULT -> {
+                sourceType = if (onlyChrRam) ChrMemoryType.RAM else ChrMemoryType.ROM
+                if (onlyChrRam) Pointer(chrRam) else Pointer(chrRom)
+            }
             ChrMemoryType.ROM -> Pointer(chrRom)
             ChrMemoryType.RAM -> Pointer(chrRam)
             else -> Pointer(nametableRam)
@@ -707,10 +704,10 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         val firstSlot = start shr 8
         val slotCount = (end - start + 1) shr 8
 
-        for (i in 0 until slotCount) {
-            chrMemoryOffset[firstSlot + i] = sourceOffset + i * 256
-            chrMemoryType[firstSlot + i] = mType
-            chrMemoryAccess[firstSlot + i] = accessType
+        repeat(slotCount) {
+            chrMemoryOffset[firstSlot + it] = sourceOffset + it * 256
+            chrMemoryType[firstSlot + it] = sourceType
+            chrMemoryAccess[firstSlot + it] = accessType
         }
 
         addPpuMemoryMapping(start, end, Pointer(sourceMemory, sourceOffset), accessType)
@@ -746,10 +743,10 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         val slotCount = (end - start + 1) shr 8
 
         // Unmap this section of memory (causing open bus behavior)
-        for (i in 0 until slotCount) {
-            chrMemoryOffset[firstSlot + i] = -1
-            chrMemoryType[firstSlot + i] = ChrMemoryType.DEFAULT
-            chrMemoryAccess[firstSlot + i] = MemoryAccessType.NO_ACCESS
+        repeat(slotCount) {
+            chrMemoryOffset[firstSlot + it] = -1
+            chrMemoryType[firstSlot + it] = ChrMemoryType.DEFAULT
+            chrMemoryAccess[firstSlot + it] = MemoryAccessType.NO_ACCESS
         }
 
         addPpuMemoryMapping(start, end, Pointer.NULL, MemoryAccessType.NO_ACCESS)
@@ -819,17 +816,8 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     }
 
     open fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
-        var mType = memoryType
-
-        val pageSize = when (mType) {
+        val pageSize = when (memoryType) {
             ChrMemoryType.NAMETABLE_RAM -> NAMETABLE_SIZE
-            ChrMemoryType.DEFAULT -> if (mChrRomSize > 0) {
-                mType = ChrMemoryType.ROM
-                mChrPageSize
-            } else {
-                mType = ChrMemoryType.RAM
-                mChrRamPageSize
-            }
             ChrMemoryType.RAM -> mChrRamPageSize
             else -> mChrPageSize
         }
@@ -837,7 +825,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         val start = slot * pageSize
         val end = start + pageSize - 1
 
-        addPpuMemoryMapping(start, end, page, mType)
+        addPpuMemoryMapping(start, end, page, memoryType)
     }
 
     fun selectChrPage8x(slot: Int, page: Int, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
@@ -913,32 +901,32 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     }
 
     private fun restorePrgChrState() {
-        for (i in 0..0xFF) {
-            val startAddr = i shl 8
+        repeat(256) {
+            val startAddr = it shl 8
 
-            if (prgMemoryAccess[i] != MemoryAccessType.NO_ACCESS) {
+            if (prgMemoryAccess[it] != MemoryAccessType.NO_ACCESS) {
                 addCpuMemoryMapping(
                     startAddr,
                     startAddr + 0xFF,
-                    prgMemoryType[i],
-                    prgMemoryOffset[i],
-                    prgMemoryAccess[i],
+                    prgMemoryType[it],
+                    prgMemoryOffset[it],
+                    prgMemoryAccess[it],
                 )
             } else {
                 removeCpuMemoryMapping(startAddr, startAddr + 0xFF)
             }
         }
 
-        for (i in 0..0x3F) {
-            val startAddr = i shl 8
+        repeat(64) {
+            val startAddr = it shl 8
 
-            if (chrMemoryAccess[i] != MemoryAccessType.NO_ACCESS) {
+            if (chrMemoryAccess[it] != MemoryAccessType.NO_ACCESS) {
                 addPpuMemoryMapping(
                     startAddr,
                     startAddr + 0xFF,
-                    chrMemoryType[i],
-                    chrMemoryOffset[i],
-                    chrMemoryAccess[i],
+                    chrMemoryType[it],
+                    chrMemoryOffset[it],
+                    chrMemoryAccess[it],
                 )
             } else {
                 removePpuMemoryMapping(startAddr, startAddr + 0xFF)
@@ -954,6 +942,13 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     }
 
     companion object {
+
+        @JvmStatic
+        private fun wrapPageNumber(page: Int, pageCount: Int): Int {
+            // Can't use modulo for negative number because pageCount
+            // is sometimes not a power of 2. (Fixes some Mapper 191 games).
+            return if (page < 0) pageCount + page else page % pageCount
+        }
 
         @JvmStatic
         fun initialize(
