@@ -7,6 +7,7 @@
 [![Active Development](https://img.shields.io/badge/Maintenance%20Level-Actively%20Developed-brightgreen.svg)](https://gist.github.com/cheerfulstoic/d107229326a01ff0f333a1d3476e068d)
 [![CI](https://github.com/tiagohm/nestalgia/actions/workflows/ci.yml/badge.svg)](https://github.com/tiagohm/nestalgia/actions/workflows/ci.yml)
 [![CodeFactor](https://www.codefactor.io/repository/github/tiagohm/nestalgia/badge/main)](https://www.codefactor.io/repository/github/tiagohm/nestalgia/overview/main)
+[![Version](https://img.shields.io/badge/version-0.12.0-blue)](https://github.com/tiagohm/nestalgia/releases/latest)
 
 Nestalgia is a cross-platform and high-accuracy NES/Famicom emulator built in Kotlin. It's being ported from
 discontinued [Mesen](https://github.com/SourMesen/Mesen) NES/Famicom emulator built in C++ and C#.
@@ -17,12 +18,12 @@ It implements only the emulator (no debugging tools).
 
 * High Accuracy
 * High Compatibility: Over 290 mappers supported
-* NES, Famicom, Famicom Disk System, Dendy, VS System, NSF and NSFe emulation is supported
+* NES, Famicom, Famicom Disk System, Dendy, VS System, NSF and NSFe emulation are supported
 * Save States, Battery, Overclocking and Cheat Codes
 * Configurable Region and Speed
 * Fullscreen and Screenshot support
 * Audio, Video, Controller and Emulation config support
-* Zapper, Ascii Turbo File and Battle Box is supported
+* Zapper, Ascii Turbo File and Battle Box are supported
 * Gamepad Support
 
 <p align="center">
@@ -54,15 +55,7 @@ dependencies {
 * [Windows](https://github.com/tiagohm/nestalgia/releases/download/0.12.0/nestalgia-0.12.0-windows.jar)
 * [Linux](https://github.com/tiagohm/nestalgia/releases/download/0.12.0/nestalgia-0.12.0-linux.jar)
 
-> Before running, check if you have Java 17 or newer installed.
-
-### Player 1 Controller Keys
-
-* D-Pad: Arrow keys
-* B Button: S
-* A Button: A
-* Select: Space
-* Start: Enter
+> Before running, check if you have [Java 17](https://www.azul.com/downloads/?package=jdk#zulu) or newer installed.
 
 ## Gamepad Support
 
