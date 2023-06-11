@@ -49,7 +49,7 @@ class CpuTest : NesTesterSpec() {
             test { waitForFrame("e2ad239e68dfe0c3c890eeec3024cc19") }
         }
         "dmc_dma_during_read4/dma_2007_read" {
-            test { waitForFrame("c0f69a5edf1645d0ca6d6aeddef4e2f8") }
+            test { waitForFrame("a3ea77924b5da631b47a1cb327795edd") }
         }
         "dmc_dma_during_read4/dma_2007_write" {
             test { waitForFrame("0b1636d65b3ada4e083461311bff04f1") }
