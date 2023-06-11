@@ -2,24 +2,28 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.MirroringType.*
 
-class MMC2 : Mapper() {
+open class MMC2 : Mapper() {
 
-    private var leftLatch = 1
-    private var rightLatch = 1
+    @JvmField protected var leftLatch = 1
+    @JvmField protected var rightLatch = 1
     private var prgPage = 0
-    private val leftChrPage = IntArray(2)
-    private val rightChrPage = IntArray(2)
-    private var needChrUpdate = false
+    @JvmField protected val leftChrPage = IntArray(2)
+    @JvmField protected val rightChrPage = IntArray(2)
+    @JvmField protected var needChrUpdate = false
 
     override val prgPageSize = 0x2000
 
     override val chrPageSize = 0x1000
 
-    override fun initialize() {
+    protected fun initializeLeftAndRightChrPage() {
         leftChrPage[0] = powerOnByte() and 0x1F
         leftChrPage[1] = powerOnByte() and 0x1F
         rightChrPage[0] = powerOnByte() and 0x1F
         rightChrPage[1] = powerOnByte() and 0x1F
+    }
+
+    override fun initialize() {
+        initializeLeftAndRightChrPage()
 
         selectPrgPage(1, -3)
         selectPrgPage(2, -2)
