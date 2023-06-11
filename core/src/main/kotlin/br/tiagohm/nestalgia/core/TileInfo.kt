@@ -2,11 +2,11 @@ package br.tiagohm.nestalgia.core
 
 @Suppress("NOTHING_TO_INLINE")
 data class TileInfo(
-    var lowByte: Int = 0,
-    var highByte: Int = 0,
-    var paletteOffset: Int = 0,
-    var tileAddr: Int = 0,
-    var offsetY: Int = 0,
+    @JvmField var lowByte: Int = 0,
+    @JvmField var highByte: Int = 0,
+    @JvmField var paletteOffset: Int = 0,
+    @JvmField var tileAddr: Int = 0,
+    @JvmField var offsetY: Int = 0,
 ) : Snapshotable {
 
     inline fun copyFrom(tile: TileInfo) {

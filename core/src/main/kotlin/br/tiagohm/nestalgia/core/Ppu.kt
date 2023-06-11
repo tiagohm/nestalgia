@@ -1,6 +1,8 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.EmulationFlag.*
 import br.tiagohm.nestalgia.core.PpuModel.*
+import br.tiagohm.nestalgia.core.PpuRegister.*
 import br.tiagohm.nestalgia.core.RamPowerOnState.*
 import br.tiagohm.nestalgia.core.Region.*
 import kotlin.math.min
@@ -43,7 +45,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
 
     private var lastSprite: SpriteInfo? = null
 
-    val spriteTiles = Array(64) { SpriteInfo() }
+    private val spriteTiles = Array(64) { SpriteInfo() }
 
     private val openBusDecayStamp = IntArray(8)
     private var ignoreVramRead = 0
@@ -56,23 +58,21 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
     private var oamCopyDone = false
     private var overflowBugCounter = 0
 
-    @PublishedApi internal var ppuBusAddress = 0
+    private var ppuBusAddress = 0
 
     private var needStateUpdate = false
     private var renderingEnabled = false
     private var prevRenderingEnabled = false
     private var preventVBlankFlag = false
 
-    val oamDecayCycles = LongArray(0x40)
-    val corruptOamRow = BooleanArray(32)
-
-    var enableOamDecay = false
-        private set
+    private val oamDecayCycles = LongArray(0x40)
+    private val corruptOamRow = BooleanArray(32)
+    private var enableOamDecay = false
 
     private var updateVramAddr = 0
     private var updateVramAddrDelay = 0
 
-    @PublishedApi internal val state = PpuState()
+    private val state = PpuState()
 
     private val flags = PpuControl()
     private val statusFlags = PpuStatus()
@@ -99,8 +99,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
     val frameCycle
         get() = (scanline + 1) * 341 + cycle
 
-    var openBus = 0
-        private set
+    private var openBus = 0
 
     init {
         console.initializeRam(spriteRAM)
@@ -178,16 +177,16 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         updateVramAddr = 0
 
         oamDecayCycles.fill(0)
-        enableOamDecay = settings.flag(EmulationFlag.ENABLE_OAM_DECAY)
+        enableOamDecay = settings.flag(ENABLE_OAM_DECAY)
 
         updateMinimumDrawCycles()
     }
 
     private fun updateMinimumDrawCycles() {
         minimumDrawBgCycle =
-            if (flags.backgroundEnabled) if (flags.backgroundMask || settings.flag(EmulationFlag.FORCE_BACKGROUND_FIRST_COLUMN)) 0 else 8 else 300
+            if (flags.backgroundEnabled) if (flags.backgroundMask || settings.flag(FORCE_BACKGROUND_FIRST_COLUMN)) 0 else 8 else 300
         minimumDrawSpriteCycle =
-            if (flags.spritesEnabled) if (flags.spriteMask || settings.flag(EmulationFlag.FORCE_SPRITES_FIRST_COLUMN)) 0 else 8 else 300
+            if (flags.spritesEnabled) if (flags.spriteMask || settings.flag(FORCE_SPRITES_FIRST_COLUMN)) 0 else 8 else 300
         minimumDrawSpriteStandardCycle = if (flags.spritesEnabled) if (flags.spriteMask) 0 else 8 else 300
     }
 
@@ -276,13 +275,13 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                     if (scanline > 0 || (!frameCount.bit0 || console.region != NTSC || settings.ppuModel != PPU_2C02)) {
                         // Set bus address to the tile address calculated from the unused NT fetches at the end of the previous scanline
                         // This doesn't happen on scanline 0 if the last dot of the previous frame was skipped
-                        setBusAddress((tile.tileAddr shl 4) or (state.videoRamAddr shr 12) or flags.backgroundPatternAddr)
+                        busAddress((tile.tileAddr shl 4) or (state.videoRamAddr shr 12) or flags.backgroundPatternAddr)
                     }
                 }
             } else if (scanline == 240) {
                 // At the start of vblank, the bus address is set back to VideoRamAddr.
                 // According to Visual NES, this occurs on scanline 240, cycle 1, but is done here on cycle for performance reasons
-                setBusAddress(state.videoRamAddr and 0x3FFF)
+                busAddress(state.videoRamAddr and 0x3FFF)
                 sendFrame()
                 frameCount++
             }
@@ -353,7 +352,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         // updateFrame will block until it is ready to accept a new frame.
         console.videoDecoder.updateFrame(currentOutputBuffer)
 
-        enableOamDecay = settings.flag(EmulationFlag.ENABLE_OAM_DECAY)
+        enableOamDecay = settings.flag(ENABLE_OAM_DECAY)
     }
 
     private fun updateGrayscaleAndIntensifyBits() {
@@ -423,7 +422,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                     console.cpu.nmi = false
                 }
 
-                if (state.spriteRamAddr >= 0x08 && renderingEnabled && !settings.flag(EmulationFlag.DISABLE_OAM_ADDR_BUG)) {
+                if (state.spriteRamAddr >= 0x08 && renderingEnabled && !settings.flag(DISABLE_OAM_ADDR_BUG)) {
                     // This should only be done if rendering is enabled (otherwise oam_stress test fails immediately)
                     // If OAMADDR is not less than eight when rendering starts, the eight bytes starting at OAMADDR & 0xF8 are copied to the first eight bytes of OAM
                     writeSpriteRam(
@@ -512,10 +511,10 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
     }
 
     private fun loadExtraSprites() {
-        if (spriteCount == 8 && settings.flag(EmulationFlag.REMOVE_SPRITE_LIMIT)) {
+        if (spriteCount == 8 && settings.flag(REMOVE_SPRITE_LIMIT)) {
             var loadExtraSprites = true
 
-            if (settings.flag(EmulationFlag.ADAPTIVE_SPRITE_LIMIT)) {
+            if (settings.flag(ADAPTIVE_SPRITE_LIMIT)) {
                 var lastPosition = -1
                 var identicalSpriteCount = 0
                 var maxIdenticalSpriteCount = 0
@@ -670,7 +669,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         val horizontalMirror = attributes.bit6
         val verticalMirror = attributes.bit7
 
-        var lineOffset = if (verticalMirror) {
+        val lineOffset = if (verticalMirror) {
             (if (flags.largeSprites) 15 else 7) - (scanline - spriteY)
         } else {
             scanline - spriteY
@@ -777,7 +776,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                     setOamCorruptionFlags()
 
                     // When rendering is disabled midscreen, set the vram bus back to the value of 'v'
-                    setBusAddress(state.videoRamAddr and 0x3FFF)
+                    busAddress(state.videoRamAddr and 0x3FFF)
 
                     if (cycle in 65..256) {
                         // Disabling rendering during OAM evaluation will trigger a glitch causing the current address to be incremented by 1
@@ -806,7 +805,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
             updateVramAddrDelay--
 
             if (updateVramAddrDelay == 0) {
-                if (settings.flag(EmulationFlag.ENABLE_PPU_2006_SCROLL_GLITCH) &&
+                if (settings.flag(ENABLE_PPU_2006_SCROLL_GLITCH) &&
                     scanline < 240 &&
                     renderingEnabled
                 ) {
@@ -830,7 +829,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                     // More info here: https://forums.nesdev.com/viewtopic.php?p=132145#p132145
                     // Trigger bus address change when setting the vram address - needed by MMC3 IRQ counter
                     // "4) Should be clocked when A12 changes to 1 via $2006 write"
-                    setBusAddress(state.videoRamAddr and 0x3FFF)
+                    busAddress(state.videoRamAddr and 0x3FFF)
                 }
             } else {
                 needStateUpdate = true
@@ -855,7 +854,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
     }
 
     private fun setOamCorruptionFlags() {
-        if (!settings.flag(EmulationFlag.ENABLE_PPU_OAM_ROW_CORRUPTION)) {
+        if (!settings.flag(ENABLE_PPU_OAM_ROW_CORRUPTION)) {
             return
         }
 
@@ -1002,7 +1001,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
     }
 
     private fun processOamCorruption() {
-        if (!settings.flag(EmulationFlag.ENABLE_PPU_OAM_ROW_CORRUPTION)) {
+        if (!settings.flag(ENABLE_PPU_OAM_ROW_CORRUPTION)) {
             return
         }
 
@@ -1038,7 +1037,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
 
     private fun registerId(addr: Int): PpuRegister {
         return if (addr == 0x4014) {
-            PpuRegister.SPRITE_DMA
+            SPRITE_DMA
         } else {
             PpuRegister.ENTRIES[addr and 0x07]
         }
@@ -1075,7 +1074,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
 
             // Trigger memory read when setting the vram address - needed by MMC3 IRQ counter
             // Should be clocked when A12 changes to 1 via $2007 read/write
-            setBusAddress(state.videoRamAddr and 0x3FFF)
+            busAddress(state.videoRamAddr and 0x3FFF)
         } else {
             // During rendering (on the pre-render line and the visible lines 0-239, provided either background or sprite rendering is enabled),
             // it will update v in an odd way, triggering a coarse X increment and a Y increment simultaneously
@@ -1139,7 +1138,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         var result = 0
 
         when (registerId(addr)) {
-            PpuRegister.STATUS -> {
+            STATUS -> {
                 state.writeToggle = false
                 updateStatusFlag()
                 result = state.status
@@ -1154,8 +1153,8 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                     result = b
                 }
             }
-            PpuRegister.SPRITE_DATA -> {
-                if (!settings.flag(EmulationFlag.DISABLE_PPU_2004_READS)) {
+            SPRITE_DATA -> {
+                if (!settings.flag(DISABLE_PPU_2004_READS)) {
                     if (scanline <= 239 && renderingEnabled) {
                         // While the screen is begin drawn
                         if (cycle in 257..320) {
@@ -1175,7 +1174,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                     openBusMask = 0x00
                 }
             }
-            PpuRegister.VIDEO_MEMORY_DATA -> {
+            VIDEO_MEMORY_DATA -> {
                 if (ignoreVramRead != 0) {
                     // 2 reads to $2007 in quick succession (2 consecutive CPU cycles) causes the 2nd read to be ignored (normally depends on PPU/CPU timing, but this is the simplest solution)
                     // Return open bus in this case? (which will match the last value read)
@@ -1184,7 +1183,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                     result = memoryReadBuffer
                     memoryReadBuffer = readVRam(ppuBusAddress and 0x3FFF)
 
-                    if ((ppuBusAddress and 0x3FFF) >= 0x3F00 && !settings.flag(EmulationFlag.DISABLE_PALETTE_READ)) {
+                    if ((ppuBusAddress and 0x3FFF) >= 0x3F00 && !settings.flag(DISABLE_PALETTE_READ)) {
                         result = readPaletteRam(ppuBusAddress) or (openBus and 0xC0)
                         openBusMask = 0xC0
                     } else {
@@ -1196,8 +1195,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                     needVideoRamIncrement = true
                 }
             }
-            else -> {
-            }
+            else -> Unit
         }
 
         return applyOpenBus(openBusMask, result)
@@ -1208,7 +1206,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         var result = 0
 
         when (registerId(addr)) {
-            PpuRegister.STATUS -> {
+            STATUS -> {
                 result = (if (statusFlags.spriteOverflow) 0x20 else 0x00) or
                     (if (statusFlags.sprite0Hit) 0x40 else 0x00) or
                     (if (statusFlags.verticalBlank) 0x80 else 0x00)
@@ -1229,8 +1227,8 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                     result = b
                 }
             }
-            PpuRegister.SPRITE_DATA -> {
-                if (!settings.flag(EmulationFlag.DISABLE_PPU_2004_READS)) {
+            SPRITE_DATA -> {
+                if (!settings.flag(DISABLE_PPU_2004_READS)) {
                     result = if (scanline <= 239 && renderingEnabled) {
                         // While the screen is begin drawn
                         if (cycle in 257..320) {
@@ -1249,10 +1247,10 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                     openBusMask = 0x00
                 }
             }
-            PpuRegister.VIDEO_MEMORY_DATA -> {
+            VIDEO_MEMORY_DATA -> {
                 result = memoryReadBuffer
 
-                if ((state.videoRamAddr and 0x3FFF) >= 0x3F00 && !settings.flag(EmulationFlag.DISABLE_PALETTE_READ)) {
+                if ((state.videoRamAddr and 0x3FFF) >= 0x3F00 && !settings.flag(DISABLE_PALETTE_READ)) {
                     //Note: When grayscale is turned on, the read values also have the grayscale mask applied to them
                     result = readPaletteRam(state.videoRamAddr) or (openBus and 0xC0)
                     openBusMask = 0xC0
@@ -1266,7 +1264,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         return result or (openBus and openBusMask)
     }
 
-    private fun applyOpenBus(mask: Int, value: Int): Int {
+    private inline fun applyOpenBus(mask: Int, value: Int): Int {
         openBus(mask.inv(), value)
         return value or (openBus and mask)
     }
@@ -1282,12 +1280,12 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
     }
 
     protected fun readVRam(addr: Int): Int {
-        setBusAddress(addr)
+        busAddress(addr)
         return console.mapper!!.readVRAM(addr)
     }
 
     protected fun writeVRam(addr: Int, value: Int) {
-        setBusAddress(addr)
+        busAddress(addr)
         console.mapper!!.writeVRAM(addr, value)
     }
 
@@ -1356,24 +1354,24 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         }
 
         when (registerId(addr)) {
-            PpuRegister.CONTROL -> {
+            CONTROL -> {
                 if (settings.ppuModel.is2C05) {
                     setMaskRegister(value)
                 } else {
                     setControlRegister(value)
                 }
             }
-            PpuRegister.MASK -> {
+            MASK -> {
                 if (settings.ppuModel.is2C05) {
                     setControlRegister(value)
                 } else {
                     setMaskRegister(value)
                 }
             }
-            PpuRegister.SPRITE_ADDR -> {
+            SPRITE_ADDR -> {
                 state.spriteRamAddr = value
             }
-            PpuRegister.SPRITE_DATA -> {
+            SPRITE_DATA -> {
                 if ((scanline >= 240 && (console.region != PAL || scanline < palSpriteEvalScanline)) || !renderingEnabled) {
                     if ((state.spriteRamAddr and 0x03) == 0x02) {
                         // The three unimplemented bits of each sprite's byte 2 do not exist in the PPU
@@ -1391,7 +1389,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                     state.spriteRamAddr = (state.spriteRamAddr + 4) and 0xFF
                 }
             }
-            PpuRegister.SCROLL_OFFSET -> {
+            SCROLL_OFFSET -> {
                 if (state.writeToggle) {
                     state.tmpVideoRamAddr = (state.tmpVideoRamAddr and 0x73E0.inv()) or (value and 0xF8 shl 2) or (value and 0x07 shl 12)
                 } else {
@@ -1403,7 +1401,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
 
                 state.writeToggle = !state.writeToggle
             }
-            PpuRegister.VIDEO_MEMORY_ADDR -> {
+            VIDEO_MEMORY_ADDR -> {
                 if (state.writeToggle) {
                     state.tmpVideoRamAddr = (state.tmpVideoRamAddr and 0x00FF.inv()) or value
 
@@ -1422,7 +1420,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
 
                 state.writeToggle = !state.writeToggle
             }
-            PpuRegister.VIDEO_MEMORY_DATA -> {
+            VIDEO_MEMORY_DATA -> {
                 // The palettes start at PPU address $3F00 and $3F10.
                 if ((ppuBusAddress and 0x3FFF) >= 0x3F00) {
                     writePaletteRam(ppuBusAddress, value)
@@ -1436,7 +1434,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
                 needStateUpdate = true
                 needVideoRamIncrement = true
             }
-            PpuRegister.SPRITE_DMA -> {
+            SPRITE_DMA -> {
                 console.cpu.runDmaTransfer(value)
             }
             else -> Unit
@@ -1495,7 +1493,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         }
     }
 
-    fun setBusAddress(addr: Int) {
+    private inline fun busAddress(addr: Int) {
         ppuBusAddress = addr
         console.mapper!!.notifyVRAMAddressChange(addr)
     }
@@ -1503,7 +1501,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
     private fun processTmpAddrScrollGlitch(addr: Int, value: Int, mask: Int) {
         state.tmpVideoRamAddr = addr
 
-        if (cycle == 257 && settings.flag(EmulationFlag.ENABLE_PPU_2000_SCROLL_GLITCH) &&
+        if (cycle == 257 && settings.flag(ENABLE_PPU_2000_SCROLL_GLITCH) &&
             scanline < 240 &&
             renderingEnabled
         ) {
@@ -1540,9 +1538,9 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
     }
 
     override fun saveState(s: Snapshot) {
-        val disablePpu2004Reads = console.settings.flag(EmulationFlag.DISABLE_PPU_2004_READS)
-        val disablePaletteRead = console.settings.flag(EmulationFlag.DISABLE_PALETTE_READ)
-        val disableOamAddrBug = console.settings.flag(EmulationFlag.DISABLE_OAM_ADDR_BUG)
+        val disablePpu2004Reads = console.settings.flag(DISABLE_PPU_2004_READS)
+        val disablePaletteRead = console.settings.flag(DISABLE_PALETTE_READ)
+        val disableOamAddrBug = console.settings.flag(DISABLE_OAM_ADDR_BUG)
 
         s.write("state", state)
         s.write("flags", flags)
@@ -1632,19 +1630,17 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         masterClock = s.readLong("masterClock")
         repeat(spriteTiles.size) { s.readSnapshotable("spriteTile$it", spriteTiles[it]) }
 
-        console.settings.flag(EmulationFlag.DISABLE_PPU_2004_READS, disablePpu2004Reads)
-        console.settings.flag(EmulationFlag.DISABLE_PALETTE_READ, disablePaletteRead)
-        console.settings.flag(EmulationFlag.DISABLE_OAM_ADDR_BUG, disableOamAddrBug)
+        console.settings.flag(DISABLE_PPU_2004_READS, disablePpu2004Reads)
+        console.settings.flag(DISABLE_PALETTE_READ, disablePaletteRead)
+        console.settings.flag(DISABLE_OAM_ADDR_BUG, disableOamAddrBug)
 
         updateRegion(console.region)
         updateMinimumDrawCycles()
         updateGrayscaleAndIntensifyBits()
 
-        for (i in 0 until 0x20) {
-            // Set oam decay cycle to the current cycle to ensure it doesn't
-            // decay when loading a state.
-            oamDecayCycles[i] = console.cpu.cycleCount
-        }
+        // Set oam decay cycle to the current cycle to ensure it doesn't
+        // decay when loading a state.
+        oamDecayCycles.fill(console.cpu.cycleCount)
 
         corruptOamRow.fill(false)
         hasSprite.fill(false)
@@ -1655,12 +1651,11 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         updateRegion(console.region)
     }
 
-    fun screenBuffer(previous: Boolean): IntArray {
-        return if (previous) {
-            if (currentOutputBuffer === outputBuffers[0]) outputBuffers[1] else outputBuffers[0]
-        } else {
-            currentOutputBuffer
-        }
+    fun screenBuffer(previous: Boolean) = if (previous) {
+        if (currentOutputBuffer === outputBuffers[0]) outputBuffers[1]
+        else outputBuffers[0]
+    } else {
+        currentOutputBuffer
     }
 
     private inline fun processPpuCycle() {

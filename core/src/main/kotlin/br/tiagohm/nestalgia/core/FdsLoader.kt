@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.core
 
-import java.io.IOException
+import br.tiagohm.nestalgia.core.GameSystem.*
+import br.tiagohm.nestalgia.core.MirroringType.*
 import java.nio.IntBuffer
 
 // https://wiki.nesdev.com/w/index.php/FDS_file_format
@@ -9,16 +10,14 @@ import java.nio.IntBuffer
 object FdsLoader {
 
     fun load(rom: IntArray, name: String, bios: IntArray): RomData {
-        if (bios.isEmpty()) {
-            throw IOException("BIOS is empty")
-        }
+        require(bios.isNotEmpty()) { "BIOS is empty" }
 
         val info = RomInfo(
             name,
             RomFormat.FDS,
-            mapperId = Mapper.FDS_MAPPER_ID,
-            mirroring = MirroringType.VERTICAL,
-            system = GameSystem.FDS,
+            mapperId = MapperFactory.FDS_MAPPER_ID,
+            mirroring = VERTICAL,
+            system = FDS,
             hash = HashInfo(crc32 = rom.crc32(), md5 = rom.md5(), sha1 = rom.sha1(), sha256 = rom.sha256()),
         )
 

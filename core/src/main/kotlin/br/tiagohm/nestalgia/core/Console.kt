@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 import org.slf4j.LoggerFactory
 import java.io.Closeable
-import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
@@ -158,13 +157,11 @@ class Console(
             saveBattery()
         }
 
-        val (newMapper, data) = try {
+        val newMapper = try {
             Mapper.initialize(this, rom, name, fdsBios)
-        } catch (e: IOException) {
-            notificationManager.sendNotification(NotificationType.ERROR, e.message)
-            return false
         } catch (e: Throwable) {
             LOG.error("Failed to initialize mapper", e)
+            notificationManager.sendNotification(NotificationType.ERROR, e.message)
             return false
         }
 
@@ -174,125 +171,117 @@ class Console(
 
         batteryManager.initialize()
 
-        if (newMapper != null && data != null) {
-            val isDifferentGame = previousMapper == null || previousMapper.info.hash.crc32 != data.info.hash.crc32
+        val isDifferentGame = previousMapper == null || previousMapper.info.hash.crc32 != newMapper.info.hash.crc32
 
-            if (previousMapper != null) {
-                // Send notification only if a game was already running and
-                // we successfully loaded the new one
-                notificationManager.sendNotification(NotificationType.GAME_STOPPED)
-            }
-
-            videoDecoder.stopThread()
-
-            memoryManager = MemoryManager(this)
-            cpu = Cpu(this)
-            apu = Apu(this)
-
-            val info = newMapper.info
-            LOG.info(
-                "{}, mapper={}, id={} crc={}, md5={}, sha1={}, sha256={}",
-                info.name, newMapper::class.simpleName, info.mapperId, info.hash.crc32,
-                info.hash.md5, info.hash.sha1, info.hash.sha256,
-            )
-
-            if (previousMapper != null && !isDifferentGame && forPowerCycle) {
-                newMapper.copyPrgChrRom(previousMapper)
-            }
-
-            slave?.release(false)
-            slave?.reset()
-
-            if (master != null && newMapper.info.vsType == VsSystemType.VS_DUAL_SYSTEM) {
-                slave?.close()
-                slave = Console(this)
-                slave!!.initialize(rom, name, fdsBios = fdsBios)
-            }
-
-            when (newMapper.info.system) {
-                GameSystem.FDS -> {
-                    settings.ppuModel = PpuModel.PPU_2C02
-                    systemActionManager = FdsSystemActionManager(this, newMapper as Fds)
-                }
-                GameSystem.VS_SYSTEM -> {
-                    settings.ppuModel = newMapper.info.vsPpuModel
-                    systemActionManager = VsSystemActionManager(this)
-                }
-                else -> {
-                    settings.ppuModel = PpuModel.PPU_2C02
-                    systemActionManager = SystemActionManager(this)
-                }
-            }
-
-            // Temporarely disable battery saves to prevent battery files from
-            // being created for the wrong game (for Battle Box & Turbo File)
-            batteryManager.saveEnabled = false
-
-            var pollCounter = 0
-
-            if (::controlManager.isInitialized && !isDifferentGame) {
-                // When power cycling, poll counter must be preserved to allow movies to playback properly
-                pollCounter = controlManager.pollCounter
-            }
-
-            controlManager = if (newMapper.info.system == GameSystem.VS_SYSTEM)
-                VsControlManager(this, systemActionManager, newMapper.controlDevice)
-            else ControlManager(this, systemActionManager, newMapper.controlDevice)
-
-            batteryManager.saveEnabled = true
-
-            ppu = if (newMapper is NsfMapper) NsfPpu(this) else Ppu(this)
-
-            controlManager.pollCounter = pollCounter
-            controlManager.updateControlDevices()
-
-            newMapper.initialize(data)
-
-            memoryManager.mapper = newMapper
-            memoryManager.registerIODevice(ppu)
-            memoryManager.registerIODevice(apu)
-            memoryManager.registerIODevice(controlManager)
-            memoryManager.registerIODevice(newMapper)
-
-            region = Region.AUTO
-            updateRegion(false)
-
-            initialized = true
-
-            resetComponents(false)
-
-            // Poll controller input after creating rewind manager,
-            // to make sure it catches the first frame's input.
-            controlManager.updateInputState()
-
-            videoDecoder.startThread()
-
-            if (isMaster) {
-                settings.flag(EmulationFlag.FORCE_MAX_SPEED, false)
-
-                if (slave != null) {
-                    notificationManager.sendNotification(NotificationType.VS_DUAL_SYSTEM_STARTED)
-                }
-            }
-
-            if (master != null) {
-                notificationManager.sendNotification(NotificationType.GAME_INIT_COMPLETED)
-            }
-
-            if (isDifferentGame) {
-                cheatManager.clear()
-            }
-
-            resume()
-
-            return true
-        } else {
-            resume()
+        if (previousMapper != null) {
+            // Send notification only if a game was already running and
+            // we successfully loaded the new one
+            notificationManager.sendNotification(NotificationType.GAME_STOPPED)
         }
 
-        debugger.resume()
+        videoDecoder.stopThread()
 
-        return false
+        memoryManager = MemoryManager(this)
+        cpu = Cpu(this)
+        apu = Apu(this)
+
+        val info = newMapper.info
+        LOG.info(
+            "{}, mapper={}, id={} crc={}, md5={}, sha1={}, sha256={}",
+            info.name, newMapper::class.simpleName, info.mapperId, info.hash.crc32,
+            info.hash.md5, info.hash.sha1, info.hash.sha256,
+        )
+
+        if (previousMapper != null && !isDifferentGame && forPowerCycle) {
+            newMapper.copyPrgChrRom(previousMapper)
+        }
+
+        slave?.release(false)
+        slave?.reset()
+
+        if (master != null && newMapper.info.vsType == VsSystemType.VS_DUAL_SYSTEM) {
+            slave?.close()
+            slave = Console(this)
+            slave!!.initialize(rom, name, fdsBios = fdsBios)
+        }
+
+        when (newMapper.info.system) {
+            GameSystem.FDS -> {
+                settings.ppuModel = PpuModel.PPU_2C02
+                systemActionManager = FdsSystemActionManager(this, newMapper as Fds)
+            }
+            GameSystem.VS_SYSTEM -> {
+                settings.ppuModel = newMapper.info.vsPpuModel
+                systemActionManager = VsSystemActionManager(this)
+            }
+            else -> {
+                settings.ppuModel = PpuModel.PPU_2C02
+                systemActionManager = SystemActionManager(this)
+            }
+        }
+
+        // Temporarely disable battery saves to prevent battery files from
+        // being created for the wrong game (for Battle Box & Turbo File)
+        batteryManager.saveEnabled = false
+
+        var pollCounter = 0
+
+        if (::controlManager.isInitialized && !isDifferentGame) {
+            // When power cycling, poll counter must be preserved to allow movies to playback properly
+            pollCounter = controlManager.pollCounter
+        }
+
+        controlManager = if (newMapper.info.system == GameSystem.VS_SYSTEM)
+            VsControlManager(this, systemActionManager, newMapper.controlDevice)
+        else ControlManager(this, systemActionManager, newMapper.controlDevice)
+
+        batteryManager.saveEnabled = true
+
+        ppu = if (newMapper is NsfMapper) NsfPpu(this) else Ppu(this)
+
+        controlManager.pollCounter = pollCounter
+        controlManager.updateControlDevices()
+
+        newMapper.initialize()
+
+        memoryManager.mapper = newMapper
+        memoryManager.registerIODevice(ppu)
+        memoryManager.registerIODevice(apu)
+        memoryManager.registerIODevice(controlManager)
+        memoryManager.registerIODevice(newMapper)
+
+        region = Region.AUTO
+        updateRegion(false)
+
+        initialized = true
+
+        resetComponents(false)
+
+        // Poll controller input after creating rewind manager,
+        // to make sure it catches the first frame's input.
+        controlManager.updateInputState()
+
+        videoDecoder.startThread()
+
+        if (isMaster) {
+            settings.flag(EmulationFlag.FORCE_MAX_SPEED, false)
+
+            if (slave != null) {
+                notificationManager.sendNotification(NotificationType.VS_DUAL_SYSTEM_STARTED)
+            }
+        }
+
+        if (master != null) {
+            notificationManager.sendNotification(NotificationType.GAME_INIT_COMPLETED)
+        }
+
+        if (isDifferentGame) {
+            cheatManager.clear()
+        }
+
+        resume()
+
+        return true
     }
 
     fun processCpuClock() {
@@ -747,7 +736,7 @@ class Console(
 
     override fun restoreState(s: Snapshot) {
         if (running) {
-            // Send any unprocessed sound to the SoundMixer
+            // Send any unprocessed sound to the SoundMixer.
             apu.endFrame()
 
             s.readSnapshotable("cpu", cpu)
@@ -762,25 +751,6 @@ class Console(
             updateRegion(false)
         }
     }
-
-    val availableFeatures: List<ConsoleFeature>
-        get() {
-            return if (mapper != null && ::controlManager.isInitialized) {
-                val res = ArrayList<ConsoleFeature>(4)
-
-                res.addAll(mapper!!.availableFeatures)
-
-                if (controlManager is VsControlManager) {
-                    res.add(ConsoleFeature.VS_SYSTEM)
-                }
-
-                // TODO: BarcodeReader e FamilyBasicDataRecorder
-
-                res
-            } else {
-                emptyList()
-            }
-        }
 
     companion object {
 

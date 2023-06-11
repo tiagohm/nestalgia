@@ -5,18 +5,15 @@ class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, S
     private var currentCycle = 0
     private var previousCycle = 0
 
-    val squareChannel1 = SquareChannel(AudioChannel.SQUARE_1, console, console.soundMixer, true)
-    val squareChannel2 = SquareChannel(AudioChannel.SQUARE_2, console, console.soundMixer, false)
-    val noiseChannel = NoiseChannel(AudioChannel.NOISE, console, console.soundMixer)
-    val triangleChannel = TriangleChannel(AudioChannel.TRIANGLE, console, console.soundMixer)
-    val deltaModulationChannel = DeltaModulationChannel(AudioChannel.DMC, console, console.soundMixer)
-    val frameCounter = ApuFrameCounter(console)
+    @JvmField internal val squareChannel1 = SquareChannel(AudioChannel.SQUARE_1, console, console.soundMixer, true)
+    @JvmField internal val squareChannel2 = SquareChannel(AudioChannel.SQUARE_2, console, console.soundMixer, false)
+    @JvmField internal val noiseChannel = NoiseChannel(AudioChannel.NOISE, console, console.soundMixer)
+    @JvmField internal val triangleChannel = TriangleChannel(AudioChannel.TRIANGLE, console, console.soundMixer)
+    @JvmField internal val deltaModulationChannel = DeltaModulationChannel(AudioChannel.DMC, console, console.soundMixer)
+    @JvmField internal val frameCounter = ApuFrameCounter(console)
 
-    var enabled = true
-        internal set
-
-    var needToRun = false
-        internal set
+    @JvmField internal var enabled = true
+    @JvmField internal var needToRun = false
 
     init {
         console.memoryManager.registerIODevice(squareChannel1)
