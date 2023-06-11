@@ -16,7 +16,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
 
     private val memoryManager = console.memoryManager
 
-    @Volatile var isCpuWrite = false
+    var isCpuWrite = false
         private set
 
     var needHalt = false
