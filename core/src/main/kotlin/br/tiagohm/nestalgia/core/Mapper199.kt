@@ -27,8 +27,8 @@ class Mapper199 : MMC3() {
     }
 
     override fun writeRegister(addr: Int, value: Int) {
-        if (addr == 0x8001 && state8000.bit3) {
-            exReg[state8000 and 0x03] = value
+        if (addr == 0x8001 && state.reg8000.bit3) {
+            exReg[state.reg8000 and 0x03] = value
             updatePrgMapping()
             updateChrMapping()
         } else {
@@ -37,7 +37,7 @@ class Mapper199 : MMC3() {
     }
 
     override fun updateMirroring() {
-        mirroringType = when (stateA000 and 0x03) {
+        mirroringType = when (state.regA000 and 0x03) {
             0 -> VERTICAL
             1 -> HORIZONTAL
             2 -> SCREEN_A_ONLY

@@ -46,8 +46,8 @@ class Mapper198 : MMC3() {
     }
 
     override fun writeRegister(addr: Int, value: Int) {
-        if (addr == 0x8001 && (state8000 and 0x07) >= 6) {
-            exReg[(state8000 and 0x07) - 6] = value and 0x7F
+        if (addr == 0x8001 && (state.reg8000 and 0x07) >= 6) {
+            exReg[(state.reg8000 and 0x07) - 6] = value and 0x7F
         }
 
         super.writeRegister(addr, value)
