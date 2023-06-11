@@ -51,8 +51,8 @@ dependencies {
 
 ## Desktop
 
-* [Windows](https://github.com/tiagohm/nestalgia/releases/download/0.11.0/nestalgia-0.11.0-windows.jar)
-* [Linux](https://github.com/tiagohm/nestalgia/releases/download/0.11.0/nestalgia-0.11.0-linux.jar)
+* [Windows](https://github.com/tiagohm/nestalgia/releases/download/0.12.0/nestalgia-0.12.0-windows.jar)
+* [Linux](https://github.com/tiagohm/nestalgia/releases/download/0.12.0/nestalgia-0.12.0-linux.jar)
 
 > Before running, check if you have Java 17 or newer installed.
 
