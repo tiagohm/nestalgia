@@ -994,6 +994,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 29 -> SealieComputing()
                 30 -> UnRom512()
                 31 -> NsfCart31()
+                33 -> TaitoTc0190()
                 34 -> {
                     when (val sid = data.info.subMapperId) {
                         // BnROM uses CHR RAM (so no CHR rom in the NES file)
