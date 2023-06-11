@@ -1,8 +1,11 @@
 package br.tiagohm.nestalgia.core
 
+import org.slf4j.LoggerFactory
 import java.io.IOException
 
 object INesLoader {
+
+    @JvmStatic private val LOG = LoggerFactory.getLogger(INesLoader::class.java)
 
     @JvmStatic
     fun load(rom: IntArray, name: String, preloadedHeader: NesHeader? = null): RomData {
@@ -56,19 +59,19 @@ object INesLoader {
         val chrSize: Int
 
         if (db != null) {
-            System.err.println("$name: $romCrcHex")
+            LOG.info("the game $name ($romCrcHex) was found in database. info={}", db)
             prgSize = db.prgRomSize
             chrSize = db.chrRomSize
         } else {
-            System.err.println("The game $name ($romCrcHex) is not in database")
+            LOG.info("the game $name ($romCrcHex) is not in database")
             prgSize = header.prgSize
             chrSize = header.chrSize
         }
 
         if (prgSize + chrSize > dataSize) {
-            System.err.println("WARNING: File length does not match header information")
+            LOG.warn("file length does not match header information. {} > {}", prgSize + chrSize, dataSize)
         } else if (prgSize + chrSize < dataSize) {
-            System.err.println("WARNING: File is larger than excepted")
+            LOG.warn("file is larger than excepted. {} < {}", prgSize + chrSize, dataSize)
         }
 
         val prgRom = IntArray(prgSize) { i -> if (offset + i < rom.size) rom[offset + i] else 0 }
@@ -86,18 +89,9 @@ object INesLoader {
         val chrSha256 = rom.sha256(offset until offset + chrSize)
 
         val hash = HashInfo(
-            prgCrc32,
-            prgMd5,
-            prgSha1,
-            prgSha256,
-            chrCrc32,
-            chrMd5,
-            chrSha1,
-            chrSha256,
-            romCrc32,
-            romMd5,
-            romSha1,
-            romSha256,
+            prgCrc32, prgMd5, prgSha1, prgSha256,
+            chrCrc32, chrMd5, chrSha1, chrSha256,
+            romCrc32, romMd5, romSha1, romSha256,
         )
 
         val info = RomInfo(

@@ -12,7 +12,7 @@ class Mapper014 : MMC3() {
     private var mode = 0
 
     override fun updateChrMapping() {
-        val slotSwap = if (state8000.bit7) 4 else 0
+        val slotSwap = if (state.reg8000.bit7) 4 else 0
         val outerBank0 = if (mode.bit3) 0x100 else 0
         val outerBank1 = if (mode.bit5) 0x100 else 0
         val outerBank2 = if (mode.bit7) 0x100 else 0
