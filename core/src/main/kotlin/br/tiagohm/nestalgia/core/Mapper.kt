@@ -1009,6 +1009,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 38 -> UnlPci556()
                 39 -> Mapper039()
                 40 -> Mapper040()
+                42 -> Mapper042()
                 44 -> Mapper044()
                 45 -> Mapper045()
                 46 -> ColorDreams46()
