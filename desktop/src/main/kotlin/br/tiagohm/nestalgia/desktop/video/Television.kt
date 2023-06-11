@@ -27,6 +27,7 @@ class Television : CanvasPane(Ppu.SCREEN_WIDTH, Ppu.SCREEN_HEIGHT), RenderingDev
         buffer.copyInto(data)
     }
 
+    @Synchronized
     override fun render() {
         // buffer.clear()
 

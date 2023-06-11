@@ -131,27 +131,30 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
     override fun processNotification(type: NotificationType, vararg data: Any?) {}
 
     override fun loadBattery(name: String): IntArray {
-        val filePath = Path.of("$saveDir", name)
+        val path = Path.of("$saveDir", name)
 
         return try {
+            LOG.info("loading battery. path={}", path)
             // TODO: Avoid read bytes.
-            filePath.readBytes().toIntArray()
+            path.readBytes().toIntArray()
         } catch (e: Throwable) {
-            LOG.error("Failed to load battery", e)
+            LOG.error("failed to load battery", e)
             IntArray(0)
         }
     }
 
     override fun saveBattery(name: String, data: IntArray) {
-        val filePath = Path.of("$saveDir", name)
+        val path = Path.of("$saveDir", name)
 
         try {
-            filePath.outputStream().buffered().use {
+            LOG.info("saving battery. path={}, size={}", path, data.size)
+
+            path.outputStream().buffered().use {
                 data.forEach(it::write)
                 it.flush()
             }
         } catch (e: Throwable) {
-            LOG.error("Failed to save battery", e)
+            LOG.error("failed to save battery", e)
         }
     }
 
