@@ -197,25 +197,25 @@ class Console(
             )
 
             if (previousMapper != null && !isDifferentGame && forPowerCycle) {
-                mapper!!.copyPrgChrRom(previousMapper)
+                newMapper.copyPrgChrRom(previousMapper)
             }
 
             slave?.release(false)
             slave?.reset()
 
-            if (master == null && mapper!!.info.vsType == VsSystemType.VS_DUAL_SYSTEM) {
+            if (master != null && newMapper.info.vsType == VsSystemType.VS_DUAL_SYSTEM) {
                 slave?.close()
                 slave = Console(this)
                 slave!!.initialize(rom, name, fdsBios = fdsBios)
             }
 
-            when (mapper!!.info.system) {
+            when (newMapper.info.system) {
                 GameSystem.FDS -> {
                     settings.ppuModel = PpuModel.PPU_2C02
-                    systemActionManager = FdsSystemActionManager(this, mapper!! as Fds)
+                    systemActionManager = FdsSystemActionManager(this, newMapper as Fds)
                 }
                 GameSystem.VS_SYSTEM -> {
-                    settings.ppuModel = mapper!!.info.vsPpuModel
+                    settings.ppuModel = newMapper.info.vsPpuModel
                     systemActionManager = VsSystemActionManager(this)
                 }
                 else -> {
@@ -235,24 +235,24 @@ class Console(
                 pollCounter = controlManager.pollCounter
             }
 
-            controlManager = if (mapper!!.info.system == GameSystem.VS_SYSTEM)
-                VsControlManager(this, systemActionManager, mapper!!.controlDevice)
-            else ControlManager(this, systemActionManager, mapper!!.controlDevice)
+            controlManager = if (newMapper.info.system == GameSystem.VS_SYSTEM)
+                VsControlManager(this, systemActionManager, newMapper.controlDevice)
+            else ControlManager(this, systemActionManager, newMapper.controlDevice)
 
             batteryManager.saveEnabled = true
 
-            ppu = if (mapper is NsfMapper) NsfPpu(this) else Ppu(this)
+            ppu = if (newMapper is NsfMapper) NsfPpu(this) else Ppu(this)
 
             controlManager.pollCounter = pollCounter
             controlManager.updateControlDevices()
 
-            mapper!!.initialize(data)
+            newMapper.initialize(data)
 
-            memoryManager.mapper = mapper!!
+            memoryManager.mapper = newMapper
             memoryManager.registerIODevice(ppu)
             memoryManager.registerIODevice(apu)
             memoryManager.registerIODevice(controlManager)
-            memoryManager.registerIODevice(mapper!!)
+            memoryManager.registerIODevice(newMapper)
 
             region = Region.AUTO
             updateRegion(false)
