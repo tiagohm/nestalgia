@@ -991,6 +991,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 14 -> Mapper014()
                 15 -> Mapper015()
                 17 -> Mapper017()
+                29 -> SealieComputing()
                 30 -> UnRom512()
                 34 -> {
                     when (val sid = data.info.subMapperId) {
