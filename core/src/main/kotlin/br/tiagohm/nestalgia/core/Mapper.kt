@@ -983,6 +983,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 6 -> Mapper006()
                 7 -> AXROM()
                 8 -> Mapper008()
+                9 -> MMC2()
                 11 -> ColorDreams()
                 12 -> Mapper012()
                 14 -> Mapper014()
