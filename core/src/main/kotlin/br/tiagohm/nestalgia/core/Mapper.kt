@@ -989,6 +989,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 12 -> Mapper012()
                 13 -> CpRom()
                 14 -> Mapper014()
+                15 -> Mapper015()
                 17 -> Mapper017()
                 30 -> UnRom512()
                 34 -> {
@@ -1066,8 +1067,8 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 242 -> Mapper242()
                 244 -> Mapper244()
                 246 -> Mapper246()
-                252 -> Waixing252()
                 250 -> Mapper250()
+                252 -> Waixing252()
                 253 -> Mapper253()
                 254 -> Mapper254()
                 255 -> Bmc255()
