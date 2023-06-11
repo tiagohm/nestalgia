@@ -1074,6 +1074,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 241 -> Mapper241()
                 242 -> Mapper242()
                 244 -> Mapper244()
+                245 -> Mapper245()
                 246 -> Mapper246()
                 249 -> Mapper249()
                 250 -> Mapper250()
