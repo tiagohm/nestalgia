@@ -273,7 +273,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         }
 
         if (mHasBusConflicts) {
-            System.err.println("Bus conflicts enabled")
+            LOG.info("bus conflicts enabled")
         }
 
         saveRam = IntArray(mSaveRamSize)
@@ -1021,6 +1021,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 88 -> Mapper088()
                 91 -> Mapper091()
                 95 -> Mapper095()
+                96 -> OekaKids()
                 101 -> Mapper101()
                 105 -> Mapper105()
                 108 -> Bb()
