@@ -1081,6 +1081,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 255 -> Bmc255()
                 286 -> Bs5()
                 FDS_MAPPER_ID -> Fds()
+                32770 -> Gs2013()
                 else -> {
                     System.err.println("${data.info.name} has unsupported mapper $id")
                     throw IOException("Unsupported mapper $id")
