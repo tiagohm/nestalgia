@@ -1070,6 +1070,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 213 -> Mapper213()
                 214 -> Mapper214()
                 235 -> Bmc235()
+                238 -> Mapper238()
                 240 -> Mapper240()
                 241 -> Mapper241()
                 242 -> Mapper242()
