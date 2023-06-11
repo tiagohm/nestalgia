@@ -83,7 +83,7 @@ class SettingsWindow : AbstractDialog() {
     private val initialState = Snapshot()
     private val controllerKeys = Array(8) { KeyMapping() }
     private val zapperDetectionRadius = IntArray(8) { 1 }
-    @Volatile private var reset = false
+    private var reset = false
 
     val settings
         get() = preferences.emulationSettings

@@ -10,7 +10,7 @@ class StandardController(console: Console, port: Int) : ControlDevice(console, p
     private val turboSpeed = 2 // 0..4
     private val turboFreq = 1 shl (4 - turboSpeed) and 0xFF
 
-    @Volatile private var stateBuffer = 0
+    private var stateBuffer = 0
 
     private val value
         get() = (if (isPressed(StandardControllerButton.A)) 0x01 else 0x00) or

@@ -2,11 +2,19 @@ package br.tiagohm.nestalgia.core
 
 class MemoryRanges {
 
-    @JvmField @Volatile internal var ramReadAddresses = IntArray(1024)
-    @JvmField @Volatile internal var ramWriteAddresses = IntArray(1024)
-    @JvmField @Volatile internal var allowOverride = false
-    @JvmField @Volatile internal var readSize = 0
-    @JvmField @Volatile internal var writeSize = 0
+    internal var ramReadAddresses = IntArray(1024)
+        private set
+
+    internal var ramWriteAddresses = IntArray(1024)
+        private set
+
+    @JvmField internal var allowOverride = false
+
+    internal var readSize = 0
+        private set
+
+    internal var writeSize = 0
+        private set
 
     fun addHandler(operation: MemoryOperation, start: Int, end: Int = 0) {
         val b = if (end == 0) start else end
