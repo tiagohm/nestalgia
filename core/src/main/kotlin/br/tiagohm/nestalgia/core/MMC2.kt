@@ -2,6 +2,8 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.MirroringType.*
 
+// https://wiki.nesdev.com/w/index.php/INES_Mapper_009
+
 open class MMC2 : Mapper() {
 
     @JvmField protected var leftLatch = 1
