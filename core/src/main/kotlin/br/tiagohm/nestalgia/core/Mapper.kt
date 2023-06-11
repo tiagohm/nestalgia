@@ -1,5 +1,11 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.ChrMemoryType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
+import br.tiagohm.nestalgia.core.MirroringType.*
+import br.tiagohm.nestalgia.core.PrgMemoryType.*
+import br.tiagohm.nestalgia.core.PrgMemoryType.ROM
+import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.io.IOException
 import kotlin.math.min
@@ -113,35 +119,24 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     val hasChrRom
         get() = !onlyChrRam
 
-    protected var prgRom = IntArray(0)
-        private set
-
-    protected var chrRom = IntArray(0)
-        private set
-
-    protected var chrRam = IntArray(0)
-        private set
-
-    protected var saveRam = IntArray(0)
-        private set
-
-    protected var workRam = IntArray(0)
-        private set
-
-    protected var nametableRam = IntArray(0)
-        private set
+    @JvmField protected var prgRom = IntArray(0)
+    @JvmField protected var chrRom = IntArray(0)
+    @JvmField protected var chrRam = IntArray(0)
+    @JvmField protected var saveRam = IntArray(0)
+    @JvmField protected var workRam = IntArray(0)
+    @JvmField protected var nametableRam = IntArray(0)
 
     private var hasChrBattery = false
-    private var privateHasBusConflicts = false
+    private var mHasBusConflicts = false
 
-    private val prgMemoryAccess = Array(0x100) { MemoryAccessType.NO_ACCESS }
+    private val prgMemoryAccess = Array(0x100) { NO_ACCESS }
     private val prgPages = Array(0x100) { Pointer.NULL }
     private val prgMemoryOffset = IntArray(0x100)
-    private val prgMemoryType = Array(0x100) { PrgMemoryType.ROM }
-    private val chrMemoryAccess = Array(0x100) { MemoryAccessType.NO_ACCESS }
+    private val prgMemoryType = Array(0x100) { ROM }
+    private val chrMemoryAccess = Array(0x100) { NO_ACCESS }
     private val chrPages = Array(0x100) { Pointer.NULL }
     private val chrMemoryOffset = IntArray(0x100)
-    private val chrMemoryType = Array(0x100) { ChrMemoryType.DEFAULT }
+    private val chrMemoryType = Array(0x100) { DEFAULT }
 
     abstract fun initialize()
 
@@ -166,10 +161,12 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
 
     override fun loadBattery() {
         if (hasBattery && mSaveRamSize > 0) {
-            saveRam = console.batteryManager.loadBattery(".sav", mSaveRamSize)
+            val data = console.batteryManager.loadBattery(".sav", mSaveRamSize)
+            data.copyInto(saveRam)
         }
         if (hasChrBattery && mChrRamSize > 0) {
-            chrRam = console.batteryManager.loadBattery(".sav.chr", mChrRamSize)
+            val data = console.batteryManager.loadBattery(".sav.chr", mChrRamSize)
+            data.copyInto(chrRam)
         }
     }
 
@@ -187,7 +184,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         }
     }
 
-    private var mMirroringType = MirroringType.HORIZONTAL
+    private var mMirroringType = HORIZONTAL
 
     var mirroringType: MirroringType
         get() = mMirroringType
@@ -195,11 +192,11 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
             mMirroringType = value
 
             when (value) {
-                MirroringType.VERTICAL -> nametables(0, 1, 0, 1)
-                MirroringType.HORIZONTAL -> nametables(0, 0, 1, 1)
-                MirroringType.FOUR_SCREENS -> nametables(0, 1, 2, 3)
-                MirroringType.SCREEN_A_ONLY -> nametables(0, 0, 0, 0)
-                MirroringType.SCREEN_B_ONLY -> nametables(1, 1, 1, 1)
+                VERTICAL -> nametables(0, 1, 0, 1)
+                HORIZONTAL -> nametables(0, 0, 1, 1)
+                FOUR_SCREENS -> nametables(0, 1, 2, 3)
+                SCREEN_A_ONLY -> nametables(0, 0, 0, 0)
+                SCREEN_B_ONLY -> nametables(1, 1, 1, 1)
             }
         }
 
@@ -216,7 +213,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 0x2000 + index * 0x400,
                 0x2000 + (index + 1) * 0x400 - 1,
                 nametableIndex,
-                ChrMemoryType.NAMETABLE_RAM,
+                NAMETABLE_RAM,
             )
             // Mirror $2000-$2FFF to $3000-$3FFF, while keeping a distinction between the addresses
             // Previously, $3000-$3FFF was being "redirected" to $2000-$2FFF to avoid MMC3 IRQ issues (which is incorrect)
@@ -225,7 +222,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 0x3000 + index * 0x400,
                 0x3000 + (index + 1) * 0x400 - 1,
                 nametableIndex,
-                ChrMemoryType.NAMETABLE_RAM,
+                NAMETABLE_RAM,
             )
         } else {
             throw IllegalArgumentException("Invalid nametable index")
@@ -269,13 +266,13 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
 
         hasChrBattery = data.saveChrRamSize > 0 || isForceChrBattery
 
-        privateHasBusConflicts = when (data.info.busConflict) {
+        mHasBusConflicts = when (data.info.busConflict) {
             BusConflictType.DEFAULT -> hasBusConflicts
             BusConflictType.YES -> true
             BusConflictType.NO -> false
         }
 
-        if (privateHasBusConflicts) {
+        if (mHasBusConflicts) {
             System.err.println("Bus conflicts enabled")
         }
 
@@ -292,22 +289,22 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
             // Allow us to map a different page every 256 bytes
             prgPages[it] = Pointer.NULL
             prgMemoryOffset[it] = -1
-            prgMemoryType[it] = PrgMemoryType.ROM
-            prgMemoryAccess[it] = MemoryAccessType.NO_ACCESS
+            prgMemoryType[it] = ROM
+            prgMemoryAccess[it] = NO_ACCESS
 
             chrPages[it] = Pointer.NULL
             chrMemoryOffset[it] = -1
-            chrMemoryType[it] = ChrMemoryType.DEFAULT
-            chrMemoryAccess[it] = MemoryAccessType.NO_ACCESS
+            chrMemoryType[it] = DEFAULT
+            chrMemoryAccess[it] = NO_ACCESS
         }
 
         when {
             mChrRomSize == 0 -> {
-                // Assume there is CHR RAM if no CHR ROM exists
+                // Assume there is CHR RAM if no CHR ROM exists.
                 onlyChrRam = true
                 initializeChrRam(data.chrRamSize)
-                // Map CHR RAM to 0x0000-0x1FFF by default when no CHR ROM exists
-                addPpuMemoryMapping(0x0000, 0x1FFF, 0, ChrMemoryType.RAM)
+                // Map CHR RAM to 0x0000-0x1FFF by default when no CHR ROM exists.
+                addPpuMemoryMapping(0x0000, 0x1FFF, 0, RAM)
                 mChrRomSize = mChrRamSize
             }
             data.chrRamSize >= 0 -> {
@@ -332,7 +329,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
 
         val info = data.info.copy(
             hasChrRam = hasChrRam,
-            busConflict = if (privateHasBusConflicts) BusConflictType.YES else BusConflictType.NO
+            busConflict = if (mHasBusConflicts) BusConflictType.YES else BusConflictType.NO
         )
 
         this.data = data.copy(info = info)
@@ -400,7 +397,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
 
     override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         if (isWriteRegisterAddr[addr]) {
-            if (privateHasBusConflicts) {
+            if (mHasBusConflicts) {
                 val hi = addr.hiByte
                 val lo = addr.loByte
                 writeRegister(addr, value and prgPages[hi][lo])
@@ -438,9 +435,9 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     private fun setupDefaultWorkRam() {
         // Setup a default work/save ram in 0x6000-0x7FFF space
         if (hasBattery && mSaveRamSize > 0) {
-            addCpuMemoryMapping(0x6000, 0x7FFF, 0, PrgMemoryType.SRAM)
+            addCpuMemoryMapping(0x6000, 0x7FFF, 0, SRAM)
         } else if (mWorkRamSize > 0) {
-            addCpuMemoryMapping(0x6000, 0x7FFF, 0, PrgMemoryType.WRAM)
+            addCpuMemoryMapping(0x6000, 0x7FFF, 0, WRAM)
         }
     }
 
@@ -449,23 +446,23 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         end: Int,
         pageNumber: Int,
         type: PrgMemoryType,
-        accessType: MemoryAccessType = MemoryAccessType.UNSPECIFIED,
+        accessType: MemoryAccessType = UNSPECIFIED,
     ) {
         if (!validateAddressRange(start, end) || start > 0xFF00 || end <= start) {
-            System.err.println("Invalid CPU address range")
+            LOG.error("invalid CPU address range. start={}, end={}", start, end)
             return
         }
 
         val pageCount: Int
         val pageSize: Int
-        var defaultAccessType = MemoryAccessType.READ
+        var defaultAccessType = READ
 
         when (type) {
-            PrgMemoryType.ROM -> {
+            ROM -> {
                 pageCount = prgPageCount
                 pageSize = mPrgPageSize
             }
-            PrgMemoryType.SRAM -> {
+            SRAM -> {
                 pageSize = mSaveRamPageSize
 
                 if (pageSize == 0) {
@@ -474,7 +471,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 }
 
                 pageCount = mSaveRamSize / pageSize
-                defaultAccessType = MemoryAccessType.READ_WRITE
+                defaultAccessType = READ_WRITE
             }
             else -> {
                 pageSize = mWorkRamPageSize
@@ -485,7 +482,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 }
 
                 pageCount = mWorkRamSize / pageSize
-                defaultAccessType = MemoryAccessType.READ_WRITE
+                defaultAccessType = READ_WRITE
             }
         }
 
@@ -508,7 +505,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                     addr + pageSize - 1,
                     type,
                     page * pageSize,
-                    if (accessType == MemoryAccessType.UNSPECIFIED) defaultAccessType else accessType,
+                    if (accessType == UNSPECIFIED) defaultAccessType else accessType,
                 )
 
                 addr += pageSize
@@ -520,7 +517,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 end,
                 type,
                 page * pageSize,
-                if (accessType == MemoryAccessType.UNSPECIFIED) defaultAccessType else accessType,
+                if (accessType == UNSPECIFIED) defaultAccessType else accessType,
             )
         }
     }
@@ -533,8 +530,8 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         accessType: MemoryAccessType,
     ) {
         val sourceMemory = when (type) {
-            PrgMemoryType.ROM -> Pointer(prgRom)
-            PrgMemoryType.SRAM -> Pointer(saveRam)
+            ROM -> Pointer(prgRom)
+            SRAM -> Pointer(saveRam)
             else -> Pointer(workRam)
         }
 
@@ -554,7 +551,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         start: Int,
         end: Int,
         pointer: Pointer,
-        accessType: MemoryAccessType = MemoryAccessType.UNSPECIFIED,
+        accessType: MemoryAccessType = UNSPECIFIED,
     ) {
         if (!validateAddressRange(start, end)) {
             return
@@ -567,8 +564,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         for (i in a..b) {
             prgPages[i] = source
 
-            prgMemoryAccess[i] = if (accessType != MemoryAccessType.UNSPECIFIED) accessType
-            else MemoryAccessType.READ
+            prgMemoryAccess[i] = if (accessType != UNSPECIFIED) accessType else READ
 
             if (source !== Pointer.NULL) {
                 source = Pointer(source, 0x100)
@@ -583,11 +579,11 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         // Unmap this section of memory (causing open bus behavior)
         repeat(slotCount) {
             prgMemoryOffset[firstSlot + it] = -1
-            prgMemoryType[firstSlot + it] = PrgMemoryType.ROM
-            prgMemoryAccess[firstSlot + it] = MemoryAccessType.NO_ACCESS
+            prgMemoryType[firstSlot + it] = ROM
+            prgMemoryAccess[firstSlot + it] = NO_ACCESS
         }
 
-        addCpuMemoryMapping(start, end, Pointer.NULL, MemoryAccessType.NO_ACCESS)
+        addCpuMemoryMapping(start, end, Pointer.NULL, NO_ACCESS)
     }
 
     protected fun addPpuMemoryMapping(
@@ -595,7 +591,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         end: Int,
         pageNumber: Int,
         type: ChrMemoryType,
-        accessType: MemoryAccessType = MemoryAccessType.UNSPECIFIED,
+        accessType: MemoryAccessType = UNSPECIFIED,
     ) {
         if (!validateAddressRange(start, end) || start > 0x3F00 || end > 0x3FFF || end <= start) {
             System.err.println("Invalid PPU address range")
@@ -604,10 +600,10 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
 
         val pageCount: Int
         val pageSize: Int
-        var defaultAccessType = MemoryAccessType.READ
+        var defaultAccessType = READ
 
         when (type) {
-            ChrMemoryType.DEFAULT -> {
+            DEFAULT -> {
                 pageSize = mChrPageSize
 
                 if (pageSize == 0) {
@@ -618,7 +614,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 pageCount = chrPageCount
 
                 if (onlyChrRam) {
-                    defaultAccessType = MemoryAccessType.READ_WRITE
+                    defaultAccessType = READ_WRITE
                 }
             }
             ChrMemoryType.ROM -> {
@@ -631,7 +627,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
 
                 pageCount = chrPageCount
             }
-            ChrMemoryType.RAM -> {
+            RAM -> {
                 pageSize = mChrRamPageSize
 
                 if (pageSize == 0) {
@@ -640,12 +636,12 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 }
 
                 pageCount = mChrRamSize / pageSize
-                defaultAccessType = MemoryAccessType.READ_WRITE
+                defaultAccessType = READ_WRITE
             }
             else -> {
                 pageSize = NAMETABLE_SIZE
                 pageCount = NAMETABLE_COUNT
-                defaultAccessType = MemoryAccessType.READ_WRITE
+                defaultAccessType = READ_WRITE
             }
         }
 
@@ -677,7 +673,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 end,
                 type,
                 page * pageSize,
-                if (accessType == MemoryAccessType.UNSPECIFIED) defaultAccessType else accessType,
+                if (accessType == UNSPECIFIED) defaultAccessType else accessType,
             )
         }
     }
@@ -692,12 +688,12 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         var sourceType = type
 
         val sourceMemory = when (sourceType) {
-            ChrMemoryType.DEFAULT -> {
-                sourceType = if (onlyChrRam) ChrMemoryType.RAM else ChrMemoryType.ROM
+            DEFAULT -> {
+                sourceType = if (onlyChrRam) RAM else ChrMemoryType.ROM
                 if (onlyChrRam) Pointer(chrRam) else Pointer(chrRom)
             }
             ChrMemoryType.ROM -> Pointer(chrRom)
-            ChrMemoryType.RAM -> Pointer(chrRam)
+            RAM -> Pointer(chrRam)
             else -> Pointer(nametableRam)
         }
 
@@ -717,7 +713,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         start: Int,
         end: Int,
         pointer: Pointer,
-        accessType: MemoryAccessType = MemoryAccessType.UNSPECIFIED,
+        accessType: MemoryAccessType = UNSPECIFIED,
     ) {
         if (!validateAddressRange(start, end)) {
             return
@@ -729,8 +725,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
 
         for (i in a..b) {
             chrPages[i] = sourceMemory
-            chrMemoryAccess[i] = if (accessType != MemoryAccessType.UNSPECIFIED) accessType
-            else MemoryAccessType.READ_WRITE
+            chrMemoryAccess[i] = if (accessType != UNSPECIFIED) accessType else READ_WRITE
 
             if (sourceMemory !== Pointer.NULL) {
                 sourceMemory = Pointer(sourceMemory, 0x100)
@@ -745,11 +740,11 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         // Unmap this section of memory (causing open bus behavior)
         repeat(slotCount) {
             chrMemoryOffset[firstSlot + it] = -1
-            chrMemoryType[firstSlot + it] = ChrMemoryType.DEFAULT
-            chrMemoryAccess[firstSlot + it] = MemoryAccessType.NO_ACCESS
+            chrMemoryType[firstSlot + it] = DEFAULT
+            chrMemoryAccess[firstSlot + it] = NO_ACCESS
         }
 
-        addPpuMemoryMapping(start, end, Pointer.NULL, MemoryAccessType.NO_ACCESS)
+        addPpuMemoryMapping(start, end, Pointer.NULL, NO_ACCESS)
     }
 
     private fun initializeChrRam(size: Int = -1) {
@@ -784,7 +779,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         }
     }
 
-    open fun selectPrgPage(slot: Int, page: Int, memoryType: PrgMemoryType = PrgMemoryType.ROM) {
+    open fun selectPrgPage(slot: Int, page: Int, memoryType: PrgMemoryType = ROM) {
         if (mPrgSize < 0x8000 && prgPageSize > mPrgSize) {
             // System.err.println("DEBUG: Total PRG size is smaller than available memory range")
             // Total PRG size is smaller than available memory range, map the entire PRG to all slots
@@ -805,20 +800,20 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         }
     }
 
-    fun selectPrgPage4x(slot: Int, page: Int, memoryType: PrgMemoryType = PrgMemoryType.ROM) {
+    fun selectPrgPage4x(slot: Int, page: Int, memoryType: PrgMemoryType = ROM) {
         selectPrgPage2x(slot * 2, page, memoryType)
         selectPrgPage2x(slot * 2 + 1, page + 2, memoryType)
     }
 
-    fun selectPrgPage2x(slot: Int, page: Int, memoryType: PrgMemoryType = PrgMemoryType.ROM) {
+    fun selectPrgPage2x(slot: Int, page: Int, memoryType: PrgMemoryType = ROM) {
         selectPrgPage(slot * 2, page, memoryType)
         selectPrgPage(slot * 2 + 1, page + 1, memoryType)
     }
 
-    open fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
+    open fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType = DEFAULT) {
         val pageSize = when (memoryType) {
-            ChrMemoryType.NAMETABLE_RAM -> NAMETABLE_SIZE
-            ChrMemoryType.RAM -> mChrRamPageSize
+            NAMETABLE_RAM -> NAMETABLE_SIZE
+            RAM -> mChrRamPageSize
             else -> mChrPageSize
         }
 
@@ -828,17 +823,17 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         addPpuMemoryMapping(start, end, page, memoryType)
     }
 
-    fun selectChrPage8x(slot: Int, page: Int, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
+    fun selectChrPage8x(slot: Int, page: Int, memoryType: ChrMemoryType = DEFAULT) {
         selectChrPage4x(slot, page, memoryType)
         selectChrPage4x(slot * 2 + 1, page + 4, memoryType)
     }
 
-    fun selectChrPage4x(slot: Int, page: Int, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
+    fun selectChrPage4x(slot: Int, page: Int, memoryType: ChrMemoryType = DEFAULT) {
         selectChrPage2x(slot * 2, page, memoryType)
         selectChrPage2x(slot * 2 + 1, page + 2, memoryType)
     }
 
-    fun selectChrPage2x(slot: Int, page: Int, memoryType: ChrMemoryType = ChrMemoryType.DEFAULT) {
+    fun selectChrPage2x(slot: Int, page: Int, memoryType: ChrMemoryType = DEFAULT) {
         selectChrPage(slot * 2, page, memoryType)
         selectChrPage(slot * 2 + 1, page + 1, memoryType)
     }
@@ -904,7 +899,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         repeat(256) {
             val startAddr = it shl 8
 
-            if (prgMemoryAccess[it] != MemoryAccessType.NO_ACCESS) {
+            if (prgMemoryAccess[it] != NO_ACCESS) {
                 addCpuMemoryMapping(
                     startAddr,
                     startAddr + 0xFF,
@@ -920,7 +915,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         repeat(64) {
             val startAddr = it shl 8
 
-            if (chrMemoryAccess[it] != MemoryAccessType.NO_ACCESS) {
+            if (chrMemoryAccess[it] != NO_ACCESS) {
                 addPpuMemoryMapping(
                     startAddr,
                     startAddr + 0xFF,
@@ -942,6 +937,8 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     }
 
     companion object {
+
+        @JvmStatic private val LOG = LoggerFactory.getLogger(Mapper::class.java)
 
         @JvmStatic
         private fun wrapPageNumber(page: Int, pageCount: Int): Int {
