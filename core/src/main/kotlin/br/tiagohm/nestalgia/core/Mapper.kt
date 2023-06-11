@@ -1026,6 +1026,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 101 -> Mapper101()
                 104 -> GoldenFive()
                 105 -> Mapper105()
+                106 -> Mapper106()
                 108 -> Bb()
                 111 -> Cheapocabra()
                 113 -> Nina0306(true)
