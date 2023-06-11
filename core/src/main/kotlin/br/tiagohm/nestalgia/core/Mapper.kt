@@ -1022,6 +1022,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 91 -> Mapper091()
                 95 -> Mapper095()
                 96 -> OekaKids()
+                97 -> IremTamS1()
                 101 -> Mapper101()
                 105 -> Mapper105()
                 108 -> Bb()
