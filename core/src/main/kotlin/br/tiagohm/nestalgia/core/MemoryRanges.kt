@@ -20,31 +20,33 @@ class MemoryRanges {
         val b = if (end == 0) start else end
 
         if (operation.read) {
+            ensureReadSize(b - start + 1)
+
             for (i in start..b) {
-                ensureReadSize(b - start + 1)
                 ramReadAddresses[readSize++] = i
             }
         }
 
         if (operation.write) {
+            ensureWriteSize(b - start + 1)
+
             for (i in start..b) {
-                ensureWriteSize(b - start + 1)
                 ramWriteAddresses[writeSize++] = i
             }
         }
     }
 
     private fun ensureReadSize(size: Int) {
-        if (readSize + size >= ramReadAddresses.size) {
-            val data = IntArray(ramReadAddresses.size * 2)
+        if (readSize + size > ramReadAddresses.size) {
+            val data = IntArray(readSize + size)
             ramReadAddresses.copyInto(data)
             ramReadAddresses = data
         }
     }
 
     private fun ensureWriteSize(size: Int) {
-        if (writeSize + size >= ramWriteAddresses.size) {
-            val data = IntArray(ramWriteAddresses.size * 2)
+        if (writeSize + size > ramWriteAddresses.size) {
+            val data = IntArray(writeSize + size)
             ramWriteAddresses.copyInto(data)
             ramWriteAddresses = data
         }
