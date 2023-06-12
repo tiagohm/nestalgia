@@ -117,6 +117,7 @@ object MapperFactory {
             213 -> Mapper213()
             214 -> Mapper214()
             219 -> Mapper219()
+            232 -> BF9096()
             235 -> Bmc235()
             238 -> Mapper238()
             240 -> Mapper240()
