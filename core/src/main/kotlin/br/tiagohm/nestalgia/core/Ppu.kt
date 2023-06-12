@@ -18,8 +18,8 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
     private var nmiScanline = 0
     private var palSpriteEvalScanline = 0
 
-    private var masterClock = 0L
-    private var masterClockDivider = 4
+    @JvmField protected var masterClock = 0L
+    @JvmField protected var masterClockDivider = 4
     private var memoryReadBuffer = 0
 
     private val outputBuffers = arrayOf(IntArray(PIXEL_COUNT), IntArray(PIXEL_COUNT))
@@ -91,7 +91,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         private set
 
     var cycle = 0
-        private set
+        protected set
 
     var frameCount = 0
         private set
@@ -229,66 +229,68 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
             else -> 260
         })
 
-    fun run(runTo: Long) {
+    open fun run(runTo: Long) {
         while (masterClock + masterClockDivider <= runTo) {
             exec()
             masterClock += masterClockDivider
         }
     }
 
-    // "inline" turns it over slow. Why?
+    protected fun processScanlineFirstCycle() {
+        cycle = 0
+
+        if (++scanline > vBlankEnd) {
+            lastUpdatedPixel = -1
+            scanline = -1
+
+            // Force prerender scanline sprite fetches to load
+            // the dummy $FF tiles (fixes shaking in Ninja Gaiden 3 stage 1
+            // after beating boss).
+            spriteCount = 0
+
+            if (renderingEnabled) {
+                processOamCorruption()
+            }
+
+            updateMinimumDrawCycles()
+        }
+
+        updateApuStatus()
+
+        if (scanline == settings.inputPollScanline) {
+            console.controlManager.updateControlDevices()
+            console.controlManager.updateInputState()
+        }
+
+        if (scanline < 240) {
+            if (scanline == -1) {
+                statusFlags.spriteOverflow = false
+                statusFlags.sprite0Hit = false
+
+                // Switch to alternate output buffer (VideoDecoder may still be decoding the last frame buffer)
+                currentOutputBuffer = if (currentOutputBuffer === outputBuffers[0]) outputBuffers[1] else outputBuffers[0]
+            } else if (prevRenderingEnabled) {
+                if (scanline > 0 || (!frameCount.bit0 || console.region != NTSC || settings.ppuModel != PPU_2C02)) {
+                    // Set bus address to the tile address calculated from the unused NT fetches at the end of the previous scanline
+                    // This doesn't happen on scanline 0 if the last dot of the previous frame was skipped
+                    busAddress((tile.tileAddr shl 4) or (state.videoRamAddr shr 12) or flags.backgroundPatternAddr)
+                }
+            }
+        } else if (scanline == 240) {
+            // At the start of vblank, the bus address is set back to VideoRamAddr.
+            // According to Visual NES, this occurs on scanline 240, cycle 1, but is done here on cycle for performance reasons
+            busAddress(state.videoRamAddr and 0x3FFF)
+            sendFrame()
+            frameCount++
+        }
+    }
+
     private fun exec() {
         if (cycle >= 340) {
-            cycle = 0
-
-            if (++scanline > vBlankEnd) {
-                lastUpdatedPixel = -1
-                scanline = -1
-
-                // Force prerender scanline sprite fetches to load
-                // the dummy $FF tiles (fixes shaking in Ninja Gaiden 3 stage 1
-                // after beating boss).
-                spriteCount = 0
-
-                if (renderingEnabled) {
-                    processOamCorruption()
-                }
-
-                updateMinimumDrawCycles()
-            }
-
-            updateApuStatus()
-
-            if (scanline == settings.inputPollScanline) {
-                console.controlManager.updateControlDevices()
-                console.controlManager.updateInputState()
-            }
-
-            if (scanline < 240) {
-                if (scanline == -1) {
-                    statusFlags.spriteOverflow = false
-                    statusFlags.sprite0Hit = false
-
-                    // Switch to alternate output buffer (VideoDecoder may still be decoding the last frame buffer)
-                    currentOutputBuffer = if (currentOutputBuffer === outputBuffers[0]) outputBuffers[1] else outputBuffers[0]
-                } else if (prevRenderingEnabled) {
-                    if (scanline > 0 || (!frameCount.bit0 || console.region != NTSC || settings.ppuModel != PPU_2C02)) {
-                        // Set bus address to the tile address calculated from the unused NT fetches at the end of the previous scanline
-                        // This doesn't happen on scanline 0 if the last dot of the previous frame was skipped
-                        busAddress((tile.tileAddr shl 4) or (state.videoRamAddr shr 12) or flags.backgroundPatternAddr)
-                    }
-                }
-            } else if (scanline == 240) {
-                // At the start of vblank, the bus address is set back to VideoRamAddr.
-                // According to Visual NES, this occurs on scanline 240, cycle 1, but is done here on cycle for performance reasons
-                busAddress(state.videoRamAddr and 0x3FFF)
-                sendFrame()
-                frameCount++
-            }
+            processScanlineFirstCycle()
         } else {
+            // Process cycles 1 to 340.
             cycle++
-
-            processPpuCycle()
 
             if (scanline < 240) {
                 processScanline()
