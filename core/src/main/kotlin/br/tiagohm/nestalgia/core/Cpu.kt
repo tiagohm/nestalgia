@@ -1221,7 +1221,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
             AddressMode.NONE -> Unit
         }
 
-        if (console.nsf) {
+        if (console.isNsf) {
             // Don't stop emulation on CPU crash when playing NSFs, reset cpu instead
             console.reset(true)
         }

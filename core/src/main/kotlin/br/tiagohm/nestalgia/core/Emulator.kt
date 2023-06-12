@@ -109,14 +109,14 @@ data class Emulator(
     }
 
     fun takeScreenshot(): BufferedImage? {
-        if (!console.canTakeScreenshot) return null
+        if (!console.canScreenshot) return null
         val image = BufferedImage(Ppu.SCREEN_WIDTH, Ppu.SCREEN_HEIGHT, BufferedImage.TYPE_INT_RGB)
         takeScreenshot(image)
         return image
     }
 
     fun takeScreenshot(image: BufferedImage): Boolean {
-        if (!console.canTakeScreenshot) return false
+        if (!console.canScreenshot) return false
         val data = (image.raster.dataBuffer as DataBufferInt).data
         console.takeScreenshot().copyInto(data)
         return true
@@ -164,20 +164,11 @@ data class Emulator(
         }
     }
 
-    val isVsSystem
-        get() = console.vsSystem
-
     val isFds
-        get() = console.fds
+        get() = console.isFds
 
     val isNsf
-        get() = console.nsf
-
-    val isDualSystem
-        get() = console.dualSystem
-
-    val vsSystemActionManager
-        get() = if (!console.running) null else console.systemActionManager as? VsSystemActionManager
+        get() = console.isNsf
 
     val fdsSystemActionManager
         get() = if (!console.running) null else console.systemActionManager as? FdsSystemActionManager
@@ -193,10 +184,6 @@ data class Emulator(
     @Suppress("UNCHECKED_CAST")
     fun <T : ControlDevice> controlDevice(port: Int): T? {
         return console.controlManager.controlDevice(port) as? T
-    }
-
-    fun insertCoin(port: Int) {
-        vsSystemActionManager?.insertCoin(port)
     }
 
     val fdsSideCount

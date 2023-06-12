@@ -286,7 +286,7 @@ class EmulationSettings : Snapshotable, Resetable {
         val isFamicom = gameSystem.isFamicom
 
         if (inputType == VS_ZAPPER) {
-            //VS Duck Hunt, etc. need the zapper in the first port.
+            // VS Duck Hunt, etc. need the zapper in the first port.
             LOG.info("VS Zapper connected")
             controllers[0] = NES_ZAPPER
         } else if (inputType == ZAPPER) {

@@ -109,53 +109,37 @@ data class NesHeader(
         }
 
 
-    val nesSystem: GameSystem
-        get() {
-            return when (romHeaderVersion) {
-                RomHeaderVersion.NES20 -> {
-                    when (byte12 and 0x03) {
-                        0 -> GameSystem.NTSC
-                        1 -> GameSystem.PAL
-                        2 -> GameSystem.NTSC // Game works with both NTSC/PAL, pick NTSC by default
-                        else -> GameSystem.DENDY
-                    }
-                }
-                RomHeaderVersion.INES -> {
-                    if (byte9.bit0) GameSystem.PAL else GameSystem.UNKNOWN
-                }
-                else -> {
-                    GameSystem.UNKNOWN
-                }
+    val nesSystem
+        get() = when (romHeaderVersion) {
+            RomHeaderVersion.NES20 -> when (byte12 and 0x03) {
+                0 -> GameSystem.NTSC
+                1 -> GameSystem.PAL
+                2 -> GameSystem.NTSC // Game works with both NTSC/PAL, pick NTSC by default
+                else -> GameSystem.DENDY
             }
+            RomHeaderVersion.INES -> if (byte9.bit0) GameSystem.PAL else GameSystem.UNKNOWN
+            else -> GameSystem.UNKNOWN
         }
 
-    val system: GameSystem
-        get() {
-            return when (romHeaderVersion) {
-                RomHeaderVersion.NES20 -> {
-                    when (byte7 and 0x03) {
-                        0 -> nesSystem
-                        1 -> GameSystem.VS_SYSTEM
-                        2 -> GameSystem.PLAY_CHOICE
-                        else -> when (byte13) {
-                            0 -> nesSystem
-                            1 -> GameSystem.VS_SYSTEM
-                            2 -> GameSystem.PLAY_CHOICE
-                            else -> GameSystem.NTSC
-                        }
-                    }
-                }
-                RomHeaderVersion.INES -> {
-                    when {
-                        byte7.bit0 -> GameSystem.VS_SYSTEM
-                        byte7.bit1 -> GameSystem.PLAY_CHOICE
-                        else -> nesSystem
-                    }
-                }
-                else -> {
-                    nesSystem
+    val system
+        get() = when (romHeaderVersion) {
+            RomHeaderVersion.NES20 -> when (byte7 and 0x03) {
+                0 -> nesSystem
+                1 -> GameSystem.VS_SYSTEM
+                2 -> GameSystem.PLAY_CHOICE
+                else -> when (byte13) {
+                    0 -> nesSystem
+                    1 -> GameSystem.VS_SYSTEM
+                    2 -> GameSystem.PLAY_CHOICE
+                    else -> GameSystem.NTSC
                 }
             }
+            RomHeaderVersion.INES -> when {
+                byte7.bit0 -> GameSystem.VS_SYSTEM
+                byte7.bit1 -> GameSystem.PLAY_CHOICE
+                else -> nesSystem
+            }
+            else -> nesSystem
         }
 
     private fun computeSizeValue(exponent: Int, multiplier: Int): Int {
