@@ -20,7 +20,7 @@ class NesTester {
     fun load(path: Path) {
         frameHashes.clear()
         emulator.settings.controllerKeys(0, defaultKeyMapping)
-        emulator.settings.controllerType(0, STANDARD)
+        emulator.settings.controllerType(0, NES_CONTROLLER)
         emulator.load(path.readBytes().toIntArray(), path.nameWithoutExtension)
     }
 

@@ -2,9 +2,6 @@ package br.tiagohm.nestalgia.core
 
 class NsfMapper : Mapper() {
 
-    override val controlDevice: ControlDevice
-        get() = TODO("Not yet implemented")
-
     override val dipSwitchCount: Int
         get() = TODO("Not yet implemented")
 

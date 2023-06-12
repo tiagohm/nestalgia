@@ -15,8 +15,6 @@ import kotlin.random.Random
 
 abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, Snapshotable {
 
-    open val controlDevice: ControlDevice? = null
-
     open val prgPageSize = 0
 
     open val chrPageSize = 0
@@ -855,7 +853,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     val dipSwitches
         get() = console.settings.dipSwitches and ((1 shl dipSwitchCount) - 1)
 
-    val isNes20
+    inline val isNes20
         get() = info.isNes20Header
 
     override fun saveState(s: Snapshot) {
@@ -953,10 +951,6 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 if (console.settings.flag(AUTO_CONFIGURE_INPUT)) {
                     console.settings.initializeInputDevices(data.info.inputType, data.info.system)
                 }
-            } else if (data.info.isInDatabase) {
-                val system = data.info.system
-                val isFamicom = (system == GameSystem.FAMICOM || system == GameSystem.FDS || system == GameSystem.DENDY)
-                console.settings.consoleType = if (isFamicom) ConsoleType.FAMICOM else ConsoleType.NES
             }
 
             return MapperFactory.from(data)

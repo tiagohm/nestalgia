@@ -1,53 +1,77 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.ControllerType.*
+
 // https://wiki.nesdev.com/w/index.php/Four_Score
 
-class FourScore(console: Console) : ControlDevice(console, EXP_DEVICE_PORT) {
+class FourScore(console: Console, type: ControllerType, port: Int) : ControllerHub(4, console, type, port) {
 
-    private var signature4016 = 0
-    private var signature4017 = 0
+    private val signature = IntArray(2)
+    private val counter = IntArray(2)
 
     override fun refreshStateBuffer() {
         // Signature for port 0 = 0x10, reversed bit order => 0x08
         // Signature for port 1 = 0x20, reversed bit order => 0x04
-        signature4016 = 0x08 shl 16
-        signature4017 = 0x04 shl 16
+        if (type == FOUR_SCORE) {
+            signature[0] = 0x08
+            signature[1] = 0x04
+        } else {
+            // Signature is reversed for Hori 4p adapter.
+            signature[0] = 0x04
+            signature[1] = 0x08
+        }
+
+        counter[0] = 16
+        counter[1] = 16
     }
 
     override fun read(addr: Int, type: MemoryOperationType): Int {
         strobeOnRead()
 
         var output = 0
+        var i = addr - 0x4016
 
-        when (addr) {
-            0x4016 -> {
-                output = signature4016 and 0x01
-                signature4016 = signature4016 shr 1
+        if (counter[i] > 0) {
+            counter[i]--
+
+            if (counter[i] < 8) {
+                i += 2
             }
-            0x4017 -> {
-                output = signature4017 and 0x01
-                signature4017 = signature4017 shr 1
+
+            val device = controlDevice(i)
+
+            if (device != null) {
+                output = device.read(0x4016)
             }
+        } else {
+            output = signature[i] and 0x01
+            signature[i] = signature[i] shr 1 or 0x80
+        }
+
+        output = output and 0x01
+
+        if (this.type == FOUR_PLAYER_ADAPTER) {
+            output = output shl 1
         }
 
         return output
     }
 
     override fun write(addr: Int, value: Int, type: MemoryOperationType) {
-        strobeOnWrite(value)
+        super.write(addr, value and 0x01, type)
     }
 
     override fun saveState(s: Snapshot) {
         super.saveState(s)
 
-        s.write("signature4016", signature4016)
-        s.write("signature4017", signature4017)
+        s.write("signature", signature)
+        s.write("counter", counter)
     }
 
     override fun restoreState(s: Snapshot) {
         super.restoreState(s)
 
-        signature4016 = s.readInt("signature4016")
-        signature4017 = s.readInt("signature4017")
+        s.readIntArray("signature", signature)
+        s.readIntArray("counter", counter)
     }
 }

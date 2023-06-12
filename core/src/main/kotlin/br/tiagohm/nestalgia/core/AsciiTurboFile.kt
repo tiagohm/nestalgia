@@ -1,8 +1,10 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.ControllerType.*
+
 // https://en.wikipedia.org/wiki/Turbo_File_(ASCII)
 
-class AsciiTurboFile(console: Console) : ControlDevice(console, EXP_DEVICE_PORT), Battery {
+class AsciiTurboFile(console: Console) : ControlDevice(console, ASCII_TURBO_FILE, EXP_DEVICE_PORT), Battery {
 
     private val data = Array(SLOT_COUNT) { IntArray(FILE_SIZE) }
 

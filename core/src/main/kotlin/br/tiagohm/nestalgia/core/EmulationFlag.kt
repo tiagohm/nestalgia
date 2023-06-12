@@ -5,8 +5,6 @@ enum class EmulationFlag(@JvmField val code: Long) : Flag {
     ALLOW_INVALID_INPUT(0x08),
     REMOVE_SPRITE_LIMIT(0x10),
 
-    HAS_FOUR_SCORE(0x40),
-
     ENABLE_PPU_OAM_ROW_CORRUPTION(0x0200),
 
     ALLOW_BACKGROUND_INPUT(0x0400),
@@ -31,8 +29,6 @@ enum class EmulationFlag(@JvmField val code: Long) : Flag {
     DISABLE_OAM_ADDR_BUG(0x20000000),
     DISABLE_PPU_RESET(0x40000000),
     ENABLE_OAM_DECAY(0x80000000),
-
-    USE_NES_101_HVC_101_BEHAVIOR(0x100000000),
 
     FDS_AUTO_INSERT_DISK(0x800000000),
 

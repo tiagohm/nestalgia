@@ -998,7 +998,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         // On Famicom, each dummy/idle read to 4016/4017 is intepreted as a read of the joypad registers
         // On NES (or AV Famicom), only the first dummy/idle read causes side effects (e.g only a single bit is lost)
         val type = console.settings.consoleType
-        val isNesBehavior = type != FAMICOM
+        val isNesBehavior = type != HVC_001
         val skipDummyReads = !isNtscInputBehavior || (isNesBehavior && (addr == 0x4016 || addr == 0x4017))
 
         while (dmcDmaRunning || spriteDmaTransfer) {
@@ -1221,7 +1221,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
             AddressMode.NONE -> Unit
         }
 
-        if (console.nsf) {
+        if (console.isNsf) {
             // Don't stop emulation on CPU crash when playing NSFs, reset cpu instead
             console.reset(true)
         }

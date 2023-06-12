@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.desktop.gui.home
 
 import br.tiagohm.nestalgia.core.*
+import br.tiagohm.nestalgia.core.ControllerType.*
 import br.tiagohm.nestalgia.core.MouseButton.*
 import br.tiagohm.nestalgia.desktop.app.Preferences
 import br.tiagohm.nestalgia.desktop.audio.Speaker
@@ -34,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.stereotype.Component
+import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -137,6 +139,9 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
             LOG.info("loading battery. path={}", path)
             // TODO: Avoid read bytes.
             path.readBytes().toIntArray()
+        } catch (e: NoSuchFileException) {
+            LOG.warn("no battery found")
+            IntArray(0)
         } catch (e: Throwable) {
             LOG.error("failed to load battery", e)
             IntArray(0)
@@ -323,7 +328,7 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
         emulator.settings.restoreState(snapshot)
 
         if (emulator.settings.controllerType(0) == ControllerType.NONE) {
-            emulator.settings.controllerType(0, ControllerType.STANDARD)
+            emulator.settings.controllerType(0, NES_CONTROLLER)
         }
 
         if (emulator.settings.controllerKeys(0).isEmpty()) {
