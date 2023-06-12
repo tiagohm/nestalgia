@@ -29,6 +29,7 @@ object MapperFactory {
             15 -> Mapper015()
             16 -> Mapper016()
             17 -> Mapper017()
+            28 -> Action53()
             29 -> SealieComputing()
             30 -> UnRom512()
             31 -> NsfCart31()
