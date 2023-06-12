@@ -8,7 +8,8 @@ abstract class ControlDevice(
 
     @JvmField protected var strobe = false
 
-    protected val expansionPortDevice = port == EXP_DEVICE_PORT
+    val isExpansionDevice
+        get() = port == EXP_DEVICE_PORT
 
     @JvmField internal val state = ControlDeviceState()
 
@@ -43,12 +44,12 @@ abstract class ControlDevice(
     protected fun isPressed(button: ControllerButton): Boolean {
         val bit = button.bit
         val bitMask = 1 shl (bit % 8)
-        return (state.state[bit / 8] and bitMask) != 0
+        return (state[bit / 8] and bitMask) != 0
     }
 
     protected fun isPressed(bit: Int): Boolean {
         val bitMask = 1 shl (bit % 8)
-        return (state.state[bit / 8] and bitMask) != 0
+        return (state[bit / 8] and bitMask) != 0
     }
 
     @Suppress("NOTHING_TO_INLINE")
@@ -60,8 +61,8 @@ abstract class ControlDevice(
     internal fun setBit(bit: Int) {
         val bitMask = 1 shl (bit % 8)
         val byteIndex = bit / 8
-        val value = state.state[byteIndex]
-        state.state[byteIndex] = value or bitMask
+        val value = state[byteIndex]
+        state[byteIndex] = value or bitMask
     }
 
     @Suppress("NOTHING_TO_INLINE")
@@ -73,8 +74,8 @@ abstract class ControlDevice(
     internal fun clearBit(bit: Int) {
         val bitMask = 1 shl (bit % 8)
         val byteIndex = bit / 8
-        val value = state.state[byteIndex]
-        state.state[byteIndex] = value and bitMask.inv()
+        val value = state[byteIndex]
+        state[byteIndex] = value and bitMask.inv()
     }
 
     protected fun setPressedState(button: ControllerButton, keyCode: Int) {
@@ -98,12 +99,12 @@ abstract class ControlDevice(
 
     override fun saveState(s: Snapshot) {
         s.write("strobe", strobe)
-        s.write("state", state.state)
+        s.write("state", state)
     }
 
     override fun restoreState(s: Snapshot) {
         strobe = s.readBoolean("strobe")
-        s.readIntArray("state", state.state)
+        s.readSnapshotable("state", state)
     }
 
     companion object {

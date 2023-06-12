@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.ConsoleType.*
+import br.tiagohm.nestalgia.core.ControlDevice.Companion.EXP_DEVICE_PORT
 import br.tiagohm.nestalgia.core.ControlDevice.Companion.PORT_COUNT
 import br.tiagohm.nestalgia.core.ControllerType.*
 import java.io.Closeable
@@ -84,7 +85,7 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
                 ?.also(::registerControlDevice)
         }
 
-        val expansionDevice = createControllerDevice(settings.expansionPortDevice, ControlDevice.EXP_DEVICE_PORT)
+        val expansionDevice = createControllerDevice(settings.expansionPortDevice, EXP_DEVICE_PORT)
 
         if (expansionDevice != null) {
             registerControlDevice(expansionDevice)
@@ -113,6 +114,9 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             FAMICOM_ZAPPER -> Zapper(console, type, port)
             ASCII_TURBO_FILE -> AsciiTurboFile(console)
             BATTLE_BOX -> BattleBox(console)
+            FOUR_SCORE -> FourScore(console, type, 0)
+            TWO_PLAYER_ADAPTER -> TwoPlayerAdapter(console, type)
+            FOUR_PLAYER_ADAPTER -> FourScore(console, type, EXP_DEVICE_PORT)
             else -> null
         }
     }
@@ -151,7 +155,7 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
     protected open fun remapControllerButtons() {}
 
     val hasKeyboard
-        get() = controlDevice(ControlDevice.EXP_DEVICE_PORT)?.keyboard ?: false
+        get() = controlDevice(EXP_DEVICE_PORT)?.keyboard ?: false
 
     open fun openBusMask(port: Int): Int {
         // In the NES and Famicom, the top three (or five) bits are not driven,
@@ -194,6 +198,12 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
 
     fun controlDevice(port: Int): ControlDevice? {
         return controlDevices.firstOrNull { it.port == port }
+    }
+
+    fun controlDevice(port: Int, subPort: Int): ControlDevice? {
+        val device = controlDevice(port)
+        return if (device is ControllerHub) device.controlDevice(subPort)
+        else device
     }
 
     fun registerControlDevice(device: ControlDevice) {
