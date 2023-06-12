@@ -117,6 +117,7 @@ object MapperFactory {
             206 -> Namco108()
             213 -> Mapper213()
             214 -> Mapper214()
+            218 -> MagicFloor218()
             219 -> Mapper219()
             232 -> BF9096()
             235 -> Bmc235()
