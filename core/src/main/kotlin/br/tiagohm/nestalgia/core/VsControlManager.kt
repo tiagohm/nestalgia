@@ -1,23 +1,12 @@
 package br.tiagohm.nestalgia.core
 
-class VsControlManager(
-    console: Console,
-    systemActionManager: ControlDevice,
-    mapperControlDevice: ControlDevice?,
-) : ControlManager(console, systemActionManager, mapperControlDevice),
-    InputProvider {
+class VsControlManager(console: Console) : ControlManager(console), InputProvider {
 
     private var protectionCounter = 0
     private var vsSystemType = VsSystemType.DEFAULT
     private var prgChrSelectBit = 0
     private var slaveMasterBit = 0
     private var refreshState = false
-
-    override fun controllerType(port: Int): ControllerType {
-        val type = super.controllerType(port)
-        return if (type == ControllerType.ZAPPER) ControllerType.VS_ZAPPER
-        else type
-    }
 
     override fun reset(softReset: Boolean) {
         super.reset(softReset)

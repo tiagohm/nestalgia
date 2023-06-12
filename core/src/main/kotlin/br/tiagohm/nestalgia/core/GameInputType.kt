@@ -26,25 +26,25 @@ enum class GameInputType {
     PARTY_TAP,
     OEKA_KIDS_TABLET,
     BARCODE_BATTLER,
-    MIRACLE_PIANO, // Not Supported yet
-    POKKUN_MOGURAA, // Not Supported yet
-    TOP_RIDER, // Not Supported yet
-    DOUBLE_FISTED, // Not Supported yet
-    FAMICOM3D_SYSTEM, // Not Supported yet
-    DOREMIKKO_KEYBOARD, // Not Supported yet
-    ROB, // Not Supported yet
+    MIRACLE_PIANO, // Not supported yet.
+    POKKUN_MOGURAA, // Not supported yet.
+    TOP_RIDER, // Not supported yet.
+    DOUBLE_FISTED, // Not supported yet.
+    FAMICOM_3D_SYSTEM, // Not supported yet.
+    DOREMIKKO_KEYBOARD, // Not supported yet.
+    ROB, // Not supported yet.
     FAMICOM_DATA_RECORDER,
     TURBO_FILE,
     BATTLE_BOX,
     FAMILY_BASIC_KEYBOARD,
-    PEC586KEYBOARD, // Not Supported yet
-    BIT79KEYBOARD, // Not Supported yet
+    PEC_586_KEYBOARD, // Not supported yet.
+    BIT_79_KEYBOARD, // Not supported yet.
     SUBOR_KEYBOARD,
     SUBOR_KEYBOARD_MOUSE_1,
     SUBOR_KEYBOARD_MOUSE_2,
     SNES_MOUSE,
-    GENERIC_MULTICART, // Not Supported yet
+    GENERIC_MULTICART, // Not supported yet.
     SNES_CONTROLLERS,
-    RACERMATE_BICYCLE, // Not Supported yet
-    UFORCE, // Not supported yet
+    RACERMATE_BICYCLE, // Not supported yet.
+    UFORCE, // Not supported yet.
 }

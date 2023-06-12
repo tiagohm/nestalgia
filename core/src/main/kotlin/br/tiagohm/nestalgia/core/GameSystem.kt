@@ -8,5 +8,8 @@ enum class GameSystem {
     VS_SYSTEM,
     PLAY_CHOICE,
     FDS,
-    UNKNOWN,
+    UNKNOWN;
+
+    val isFamicom
+        get() = this == FAMICOM || this == FDS || this == DENDY
 }

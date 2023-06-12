@@ -1,6 +1,23 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.ControlDevice.Companion.PORT_COUNT
+import br.tiagohm.nestalgia.core.ControllerType.*
 import br.tiagohm.nestalgia.core.EmulationFlag.*
+import br.tiagohm.nestalgia.core.GameInputType.*
+import br.tiagohm.nestalgia.core.GameInputType.BANDAI_HYPER_SHOT
+import br.tiagohm.nestalgia.core.GameInputType.BARCODE_BATTLER
+import br.tiagohm.nestalgia.core.GameInputType.BATTLE_BOX
+import br.tiagohm.nestalgia.core.GameInputType.EXCITING_BOXING
+import br.tiagohm.nestalgia.core.GameInputType.FAMILY_BASIC_KEYBOARD
+import br.tiagohm.nestalgia.core.GameInputType.FOUR_PLAYER_ADAPTER
+import br.tiagohm.nestalgia.core.GameInputType.FOUR_SCORE
+import br.tiagohm.nestalgia.core.GameInputType.JISSEN_MAHJONG
+import br.tiagohm.nestalgia.core.GameInputType.KONAMI_HYPER_SHOT
+import br.tiagohm.nestalgia.core.GameInputType.OEKA_KIDS_TABLET
+import br.tiagohm.nestalgia.core.GameInputType.PARTY_TAP
+import br.tiagohm.nestalgia.core.GameInputType.POWER_PAD_SIDE_A
+import br.tiagohm.nestalgia.core.GameInputType.POWER_PAD_SIDE_B
+import org.slf4j.LoggerFactory
 import kotlin.math.min
 
 @Suppress("DuplicatedCode")
@@ -9,7 +26,7 @@ class EmulationSettings : Snapshotable, Resetable {
     @PublishedApi @JvmField internal val flags = BooleanArray(128)
 
     // Zapper
-    @JvmField val zapperDetectionRadius = IntArray(ControlDevice.PORT_COUNT)
+    @JvmField val zapperDetectionRadius = IntArray(PORT_COUNT)
 
     // Ascii Turbo File II
     @JvmField var asciiTurboFileSlot = 0
@@ -22,19 +39,19 @@ class EmulationSettings : Snapshotable, Resetable {
     @JvmField var dipSwitches = 0
 
     // Devices
-    private val controllerTypes = Array(ControlDevice.PORT_COUNT) { ControllerType.NONE }
-    private val controllerKeys = Array(ControlDevice.PORT_COUNT) { KeyMapping() }
+    private val controllerTypes = Array(PORT_COUNT) { NONE }
+    private val controllerKeys = Array(PORT_COUNT) { KeyMapping() }
     private var needControllerUpdate = false
 
     @JvmField var isKeyboardMode = true
 
-    var expansionPortDevice = ExpansionPortDevice.NONE
+    var expansionPortDevice = NONE
         set(value) {
             field = value
             needControllerUpdate = true
         }
 
-    var consoleType = ConsoleType.NES
+    var consoleType = ConsoleType.NES_001
         set(value) {
             field = value
             needControllerUpdate = true
@@ -134,8 +151,8 @@ class EmulationSettings : Snapshotable, Resetable {
         s.readArray("controllerTypes", controllerTypes)
         repeat(controllerKeys.size) { s.readSnapshotable("controllerKeys$it", controllerKeys[it]) }
         isKeyboardMode = s.readBoolean("isKeyboardMode")
-        expansionPortDevice = s.readEnum("expansionPortDevice", ExpansionPortDevice.NONE)
-        consoleType = s.readEnum("consoleType", ConsoleType.NES)
+        expansionPortDevice = s.readEnum("expansionPortDevice", NONE)
+        consoleType = s.readEnum("consoleType", ConsoleType.NES_001)
         emulationSpeed = s.readInt("emulationSpeed", 100)
         turboSpeed = s.readInt("turboSpeed", 300)
         rewindSpeed = s.readInt("rewindSpeed", 100)
@@ -263,97 +280,96 @@ class EmulationSettings : Snapshotable, Resetable {
     }
 
     fun initializeInputDevices(inputType: GameInputType, gameSystem: GameSystem) {
-        var system = gameSystem
-        var expansionPortDevice = ExpansionPortDevice.NONE
+        var expansionPortDevice = NONE
+        val controllers = arrayOf(NES_CONTROLLER, NES_CONTROLLER)
 
-        val controllers = arrayOf(
-            ControllerType.STANDARD,
-            ControllerType.STANDARD,
-            ControllerType.NONE,
-            ControllerType.NONE,
-        )
+        val isFamicom = gameSystem.isFamicom
 
-        flag(HAS_FOUR_SCORE, false)
-
-        var isFamicom = system == GameSystem.FAMICOM || system == GameSystem.FDS || system == GameSystem.DENDY
-
-        if (inputType == GameInputType.VS_ZAPPER) {
-            // VS Duck Hunt, etc. need the zapper in the first port
-            controllers[0] = ControllerType.VS_ZAPPER
-        } else if (inputType == GameInputType.ZAPPER) {
+        if (inputType == VS_ZAPPER) {
+            //VS Duck Hunt, etc. need the zapper in the first port.
+            LOG.info("VS Zapper connected")
+            controllers[0] = NES_ZAPPER
+        } else if (inputType == ZAPPER) {
+            LOG.info("Zapper connected")
             if (isFamicom) {
-                expansionPortDevice = ExpansionPortDevice.ZAPPER
+                expansionPortDevice = FAMICOM_ZAPPER
             } else {
-                controllers[1] = ControllerType.ZAPPER
+                controllers[1] = NES_ZAPPER
             }
-        } else if (inputType == GameInputType.FOUR_SCORE) {
-            flag(HAS_FOUR_SCORE, true)
-            controllers[2] = ControllerType.STANDARD
-            controllers[3] = ControllerType.STANDARD
-        } else if (inputType == GameInputType.FOUR_PLAYER_ADAPTER) {
-            flag(HAS_FOUR_SCORE, true)
-            expansionPortDevice = ExpansionPortDevice.FOUR_PLAYER_ADAPTER
-            controllers[2] = ControllerType.STANDARD
-            controllers[3] = ControllerType.STANDARD
-        } else if (inputType == GameInputType.ARKANOID_CONTROLLER_FAMICOM) {
-            expansionPortDevice = ExpansionPortDevice.ARKANOID
-        } else if (inputType == GameInputType.ARKANOID_CONTROLLER_NES) {
-            controllers[1] = ControllerType.ARKANOID
-        } else if (inputType == GameInputType.DOUBLE_ARKANOID_CONTROLLER) {
-            controllers[0] = ControllerType.ARKANOID
-            controllers[1] = ControllerType.ARKANOID
-        } else if (inputType == GameInputType.OEKA_KIDS_TABLET) {
-            system = GameSystem.FAMICOM
-            expansionPortDevice = ExpansionPortDevice.OEKA_KIDS_TABLET
-        } else if (inputType == GameInputType.KONAMI_HYPER_SHOT) {
-            system = GameSystem.FAMICOM
-            expansionPortDevice = ExpansionPortDevice.KONAMI_HYPER_SHOT
-        } else if (inputType == GameInputType.FAMILY_BASIC_KEYBOARD) {
-            system = GameSystem.FAMICOM
-            expansionPortDevice = ExpansionPortDevice.FAMILY_BASIC_KEYBOARD
-        } else if (inputType == GameInputType.PARTY_TAP) {
-            system = GameSystem.FAMICOM
-            expansionPortDevice = ExpansionPortDevice.PARTY_TAP
-        } else if (inputType == GameInputType.PACHINKO_CONTROLLER) {
-            system = GameSystem.FAMICOM
-            expansionPortDevice = ExpansionPortDevice.PACHINKO
-        } else if (inputType == GameInputType.EXCITING_BOXING) {
-            system = GameSystem.FAMICOM
-            expansionPortDevice = ExpansionPortDevice.EXCITING_BOXING
-        } else if (inputType == GameInputType.SUBOR_KEYBOARD) {
-            system = GameSystem.FAMICOM
-            expansionPortDevice = ExpansionPortDevice.SUBOR_KEYBOARD
-            controllers[1] = ControllerType.SUBOR_MOUSE
-        } else if (inputType == GameInputType.JISSEN_MAHJONG) {
-            system = GameSystem.FAMICOM
-            expansionPortDevice = ExpansionPortDevice.JISSEN_MAHJONG
-        } else if (inputType == GameInputType.BARCODE_BATTLER) {
-            system = GameSystem.FAMICOM
-            expansionPortDevice = ExpansionPortDevice.BARCODE_BATTLER
-        } else if (inputType == GameInputType.BANDAI_HYPER_SHOT) {
-            system = GameSystem.FAMICOM
-            expansionPortDevice = ExpansionPortDevice.BANDAI_HYPER_SHOT
-        } else if (inputType == GameInputType.BATTLE_BOX) {
-            system = GameSystem.FAMICOM
-            expansionPortDevice = ExpansionPortDevice.BATTLE_BOX
-        } else if (inputType == GameInputType.TURBO_FILE) {
-            system = GameSystem.FAMICOM
-            expansionPortDevice = ExpansionPortDevice.ASCII_TURBO_FILE
-        } else if (inputType == GameInputType.FAMILY_TRAINER_SIDE_A || inputType == GameInputType.FAMILY_TRAINER_SIDE_B) {
-            system = GameSystem.FAMICOM
-            expansionPortDevice = ExpansionPortDevice.FAMILY_TRAINER_MAT
-        } else if (inputType == GameInputType.POWER_PAD_SIDE_A || inputType == GameInputType.POWER_PAD_SIDE_B) {
-            system = GameSystem.NTSC
-            controllers[1] = ControllerType.POWER_PAD
-        } else if (inputType == GameInputType.SNES_CONTROLLERS) {
-            controllers[0] = ControllerType.SNES
-            controllers[1] = ControllerType.SNES
+        } else if (inputType == FOUR_SCORE) {
+            LOG.info("Four score connected")
+            controllers[0] = ControllerType.FOUR_SCORE
+            controllers[1] = ControllerType.FOUR_SCORE
+        } else if (inputType == FOUR_PLAYER_ADAPTER) {
+            LOG.info("Four player adapter connected")
+            expansionPortDevice = TWO_PLAYER_ADAPTER
+        } else if (inputType == ARKANOID_CONTROLLER_FAMICOM) {
+            LOG.info("Arkanoid controller (Famicom) connected")
+            expansionPortDevice = FAMICOM_ARKANOID_CONTROLLER
+        } else if (inputType == ARKANOID_CONTROLLER_NES) {
+            LOG.info("Arkanoid controller (NES) connected")
+            controllers[1] = NES_ARKANOID_CONTROLLER
+        } else if (inputType == DOUBLE_ARKANOID_CONTROLLER) {
+            LOG.info("2 arkanoid controllers (NES) connected")
+            controllers[0] = NES_ARKANOID_CONTROLLER
+            controllers[1] = NES_ARKANOID_CONTROLLER
+        } else if (inputType == OEKA_KIDS_TABLET) {
+            LOG.info("Oeka Kids Tablet connected")
+            expansionPortDevice = ControllerType.OEKA_KIDS_TABLET
+        } else if (inputType == KONAMI_HYPER_SHOT) {
+            LOG.info("Konami Hyper Shot connected")
+            expansionPortDevice = ControllerType.KONAMI_HYPER_SHOT
+        } else if (inputType == FAMILY_BASIC_KEYBOARD) {
+            LOG.info("Family Basic Keyboard connected")
+            expansionPortDevice = ControllerType.FAMILY_BASIC_KEYBOARD
+        } else if (inputType == PARTY_TAP) {
+            LOG.info("Party Tap connected")
+            expansionPortDevice = ControllerType.PARTY_TAP
+        } else if (inputType == PACHINKO_CONTROLLER) {
+            LOG.info("Pachinko controller connected")
+            expansionPortDevice = PACHINKO
+        } else if (inputType == EXCITING_BOXING) {
+            LOG.info("Exciting Boxing controller connected")
+            expansionPortDevice = ControllerType.EXCITING_BOXING
+        } else if (inputType == SUBOR_KEYBOARD_MOUSE_1) {
+            LOG.info("Subor mouse connected")
+            LOG.info("Subor keyboard connected")
+            expansionPortDevice = ControllerType.SUBOR_KEYBOARD
+            controllers[1] = SUBOR_MOUSE
+        } else if (inputType == JISSEN_MAHJONG) {
+            LOG.info("Jissen Mahjong controller connected")
+            expansionPortDevice = ControllerType.JISSEN_MAHJONG
+        } else if (inputType == BARCODE_BATTLER) {
+            LOG.info("Barcode Battler barcode reader connected")
+            expansionPortDevice = ControllerType.BARCODE_BATTLER
+        } else if (inputType == BANDAI_HYPER_SHOT) {
+            LOG.info("Bandai Hyper Shot gun connected")
+            expansionPortDevice = ControllerType.BANDAI_HYPER_SHOT
+        } else if (inputType == BATTLE_BOX) {
+            LOG.info("Battle Box connected")
+            expansionPortDevice = ControllerType.BATTLE_BOX
+        } else if (inputType == TURBO_FILE) {
+            LOG.info("Ascii Turbo File connected")
+            expansionPortDevice = ASCII_TURBO_FILE
+        } else if (inputType == FAMILY_TRAINER_SIDE_A) {
+            LOG.info("Family Trainer mat connected (Side A)")
+            expansionPortDevice = FAMILY_TRAINER_MAT_SIDE_A
+        } else if (inputType == FAMILY_TRAINER_SIDE_B) {
+            LOG.info("Family Trainer mat connected (Side B)")
+            expansionPortDevice = FAMILY_TRAINER_MAT_SIDE_B
+        } else if (inputType == POWER_PAD_SIDE_A) {
+            LOG.info("Power Pad connected (Side A)")
+            controllers[1] = ControllerType.POWER_PAD_SIDE_A
+        } else if (inputType == POWER_PAD_SIDE_B) {
+            LOG.info("Power Pad connected (Side B)")
+            controllers[1] = ControllerType.POWER_PAD_SIDE_B
+        } else {
+            LOG.info("2 NES controllers connected")
         }
 
-        isFamicom = system == GameSystem.FAMICOM || system == GameSystem.FDS || system == GameSystem.DENDY
+        // TODO: FOUR SCORE AND TWO PLAYER SUB PORTS!
 
-        consoleType = if (isFamicom) ConsoleType.FAMICOM else ConsoleType.NES
-        repeat(4) { controllerType(it, controllers[it]) }
+        repeat(2) { controllerType(it, controllers[it]) }
         this.expansionPortDevice = expansionPortDevice
     }
 
@@ -387,13 +403,9 @@ class EmulationSettings : Snapshotable, Resetable {
         return value
     }
 
-    val hasZapper
-        get() = controllerTypes.any { it == ControllerType.ZAPPER } || expansionPortDevice == ExpansionPortDevice.ZAPPER
-
-    val hasFourScore
-        get() = expansionPortDevice == ExpansionPortDevice.FOUR_PLAYER_ADAPTER
-
     companion object {
+
+        @JvmStatic private val LOG = LoggerFactory.getLogger(EmulationSettings::class.java)
 
         // @formatter:off
         @JvmStatic private val PALETTE_LUT = arrayOf(

@@ -36,93 +36,129 @@
                     </HBox>
                     <HBox alignment="CENTER_LEFT"
                           spacing="4.0">
-                        <Label text="Console type"/>
-                        <ChoiceBox fx:id="consoleTypeChoiceBox"
-                                   minWidth="164.0">
+                        <Label text="Port 1"/>
+                        <ChoiceBox fx:id="port1ChoiceBox"
+                                   minWidth="260.0"
+                                   maxWidth="260.0">
                             <items>
                                 <FXCollections fx:factory="observableArrayList">
-                                    <ConsoleType fx:value="NES"/>
-                                    <ConsoleType fx:value="FAMICOM"/>
+                                    <ControllerType fx:value="NONE"/>
+                                    <ControllerType fx:value="NES_CONTROLLER"/>
+                                    <ControllerType fx:value="FAMICOM_CONTROLLER"/>
+                                    <ControllerType fx:value="NES_ZAPPER"/>
+                                    <ControllerType fx:value="FOUR_SCORE"/>
+                                    <ControllerType fx:value="NES_ARKANOID_CONTROLLER"/>
+                                    <ControllerType fx:value="POWER_PAD_SIDE_A"/>
+                                    <ControllerType fx:value="POWER_PAD_SIDE_B"/>
+                                    <ControllerType fx:value="SUBOR_MOUSE"/>
+                                    <ControllerType fx:value="SNES_MOUSE"/>
+                                    <ControllerType fx:value="VIRTUAL_BOY_CONTROLLER"/>
                                 </FXCollections>
                             </items>
                         </ChoiceBox>
-                    </HBox>
-                    <HBox alignment="CENTER_LEFT"
-                          spacing="4.0">
-                        <Label text="Player 1"/>
-                        <ChoiceBox fx:id="player1ChoiceBox"
-                                   minWidth="164.0"/>
                         <Button text="Settings"
                                 userData="1"
-                                onAction="#openPlayerSettings"/>
+                                onAction="#openPortSettings"/>
                     </HBox>
                     <HBox alignment="CENTER_LEFT"
                           spacing="4.0">
-                        <Label text="Player 2"/>
-                        <ChoiceBox fx:id="player2ChoiceBox"
-                                   minWidth="164.0"/>
+                        <Label text="Port 2"/>
+                        <ChoiceBox fx:id="port2ChoiceBox"
+                                   minWidth="260.0"
+                                   maxWidth="260.0">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <ControllerType fx:value="NONE"/>
+                                    <ControllerType fx:value="NES_CONTROLLER"/>
+                                    <ControllerType fx:value="FAMICOM_CONTROLLER"/>
+                                    <ControllerType fx:value="NES_ZAPPER"/>
+                                    <ControllerType fx:value="FOUR_SCORE"/>
+                                    <ControllerType fx:value="NES_ARKANOID_CONTROLLER"/>
+                                    <ControllerType fx:value="POWER_PAD_SIDE_A"/>
+                                    <ControllerType fx:value="POWER_PAD_SIDE_B"/>
+                                    <ControllerType fx:value="SUBOR_MOUSE"/>
+                                    <ControllerType fx:value="SNES_MOUSE"/>
+                                    <ControllerType fx:value="VIRTUAL_BOY_CONTROLLER"/>
+                                </FXCollections>
+                            </items>
+                        </ChoiceBox>
                         <Button text="Settings"
                                 userData="2"
-                                onAction="#openPlayerSettings"/>
+                                onAction="#openPortSettings"/>
                     </HBox>
-                    <HBox fx:id="expansionPortNesBox"
-                          alignment="CENTER_LEFT"
+                    <HBox alignment="CENTER_LEFT"
                           spacing="4.0">
                         <Label text="Expansion port"/>
-                        <ChoiceBox fx:id="expansionPortNesChoiceBox"
-                                   minWidth="220.0"
-                                   maxWidth="220.0">
+                        <ChoiceBox fx:id="expansionPortChoiceBox"
+                                   minWidth="270.0"
+                                   maxWidth="270.0">
                             <items>
                                 <FXCollections fx:factory="observableArrayList">
-                                    <ExpansionPortDevice fx:value="NONE"/>
-                                    <ExpansionPortDevice fx:value="FOUR_PLAYER_ADAPTER"/>
+                                    <ControllerType fx:value="NONE"/>
+                                    <ControllerType fx:value="FAMICOM_ZAPPER"/>
+                                    <ControllerType fx:value="TWO_PLAYER_ADAPTER"/>
+                                    <ControllerType fx:value="FOUR_PLAYER_ADAPTER"/>
+                                    <ControllerType fx:value="FAMICOM_ARKANOID_CONTROLLER"/>
+                                    <ControllerType fx:value="OEKA_KIDS_TABLET"/>
+                                    <ControllerType fx:value="FAMILY_TRAINER_MAT_SIDE_A"/>
+                                    <ControllerType fx:value="FAMILY_TRAINER_MAT_SIDE_B"/>
+                                    <ControllerType fx:value="KONAMI_HYPER_SHOT"/>
+                                    <ControllerType fx:value="FAMILY_BASIC_KEYBOARD"/>
+                                    <ControllerType fx:value="PARTY_TAP"/>
+                                    <ControllerType fx:value="PACHINKO"/>
+                                    <ControllerType fx:value="EXCITING_BOXING"/>
+                                    <ControllerType fx:value="JISSEN_MAHJONG"/>
+                                    <ControllerType fx:value="SUBOR_KEYBOARD"/>
+                                    <ControllerType fx:value="BARCODE_BATTLER"/>
+                                    <ControllerType fx:value="HORI_TRACK"/>
+                                    <ControllerType fx:value="BANDAI_HYPER_SHOT"/>
+                                    <ControllerType fx:value="ASCII_TURBO_FILE"/>
+                                    <ControllerType fx:value="BATTLE_BOX"/>
                                 </FXCollections>
                             </items>
                         </ChoiceBox>
                         <Button text="Settings"
-                                userData="NES"
-                                onAction="#openExpansionPortDeviceSettings"/>
+                                onAction="#openExpansionPortSettings"/>
                     </HBox>
-                    <HBox fx:id="expansionPortFamicomBox"
-                          alignment="CENTER_LEFT"
+                    <HBox alignment="CENTER_LEFT"
                           spacing="4.0">
-                        <Label text="Expansion port"/>
-                        <ChoiceBox fx:id="expansionPortFamicomChoiceBox"
-                                   minWidth="220.0"
-                                   maxWidth="220.0">
-                            <items>
-                                <FXCollections fx:factory="observableArrayList">
-                                    <ExpansionPortDevice fx:value="NONE"/>
-                                    <ExpansionPortDevice fx:value="ZAPPER"/>
-                                    <ExpansionPortDevice fx:value="FOUR_PLAYER_ADAPTER"/>
-                                    <ExpansionPortDevice fx:value="ASCII_TURBO_FILE"/>
-                                    <ExpansionPortDevice fx:value="BATTLE_BOX"/>
-                                </FXCollections>
-                            </items>
-                        </ChoiceBox>
+                        <Label text="Sub Port 1"/>
+                        <ChoiceBox fx:id="subPort1ChoiceBox"
+                                   minWidth="260.0"
+                                   maxWidth="260.0"/>
                         <Button text="Settings"
-                                userData="FAMICOM"
-                                onAction="#openExpansionPortDeviceSettings"/>
+                                userData="1"
+                                onAction="#openSubPortSettings"/>
                     </HBox>
-                    <HBox fx:id="player3Box"
-                          alignment="CENTER_LEFT"
+                    <HBox alignment="CENTER_LEFT"
                           spacing="4.0">
-                        <Label text="Player 3"/>
-                        <ChoiceBox fx:id="player3ChoiceBox"
-                                   minWidth="164.0"/>
+                        <Label text="Sub Port 2"/>
+                        <ChoiceBox fx:id="subPort2ChoiceBox"
+                                   minWidth="260.0"
+                                   maxWidth="260.0"/>
+                        <Button text="Settings"
+                                userData="2"
+                                onAction="#openSubPortSettings"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <Label text="Sub Port 3"/>
+                        <ChoiceBox fx:id="subPort3ChoiceBox"
+                                   minWidth="260.0"
+                                   maxWidth="260.0"/>
                         <Button text="Settings"
                                 userData="3"
-                                onAction="#openPlayerSettings"/>
+                                onAction="#openSubPortSettings"/>
                     </HBox>
-                    <HBox fx:id="player4Box"
-                          alignment="CENTER_LEFT"
+                    <HBox alignment="CENTER_LEFT"
                           spacing="4.0">
-                        <Label text="Player 4"/>
-                        <ChoiceBox fx:id="player4ChoiceBox"
-                                   minWidth="164.0"/>
+                        <Label text="Sub Port 4"/>
+                        <ChoiceBox fx:id="subPort4ChoiceBox"
+                                   minWidth="260.0"
+                                   maxWidth="260.0"/>
                         <Button text="Settings"
                                 userData="4"
-                                onAction="#openPlayerSettings"/>
+                                onAction="#openSubPortSettings"/>
                     </HBox>
                 </VBox>
             </Tab>
@@ -239,6 +275,21 @@
                     </padding>
                     <HBox alignment="CENTER_LEFT"
                           spacing="4.0">
+                        <Label text="Console type"/>
+                        <ChoiceBox fx:id="consoleTypeChoiceBox"
+                                   minWidth="164.0">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <ConsoleType fx:value="NES_001"/>
+                                    <ConsoleType fx:value="NES_101"/>
+                                    <ConsoleType fx:value="HVC_001"/>
+                                    <ConsoleType fx:value="HVC_101"/>
+                                </FXCollections>
+                            </items>
+                        </ChoiceBox>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
                         <CheckBox fx:id="enablePPUOAMRowCorruptionEmulationCheckBox"
                                   text="Enable PPU OAM row corruption emulation"/>
                     </HBox>
@@ -300,11 +351,6 @@
                           spacing="4.0">
                         <CheckBox fx:id="disablePPU2004ReadsCheckBox"
                                   text="Disable PPU $2004 reads (Famicom behavior)"/>
-                    </HBox>
-                    <HBox alignment="CENTER_LEFT"
-                          spacing="4.0">
-                        <CheckBox fx:id="useNESHVC101BehaviourCheckBox"
-                                  text="Use NES/HVC-101 (Top-loader / AV Famicom) behavior"/>
                     </HBox>
                     <HBox alignment="CENTER_LEFT"
                           spacing="4.0">

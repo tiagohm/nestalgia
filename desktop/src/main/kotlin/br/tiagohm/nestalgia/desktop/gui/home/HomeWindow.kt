@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.desktop.gui.home
 
 import br.tiagohm.nestalgia.core.*
+import br.tiagohm.nestalgia.core.ControllerType.*
 import br.tiagohm.nestalgia.core.MouseButton.*
 import br.tiagohm.nestalgia.desktop.app.Preferences
 import br.tiagohm.nestalgia.desktop.audio.Speaker
@@ -323,7 +324,7 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
         emulator.settings.restoreState(snapshot)
 
         if (emulator.settings.controllerType(0) == ControllerType.NONE) {
-            emulator.settings.controllerType(0, ControllerType.STANDARD)
+            emulator.settings.controllerType(0, NES_CONTROLLER)
         }
 
         if (emulator.settings.controllerKeys(0).isEmpty()) {

@@ -231,16 +231,15 @@ class Console(
             pollCounter = controlManager.pollCounter
         }
 
-        controlManager = if (newMapper.info.system == GameSystem.VS_SYSTEM)
-            VsControlManager(this, systemActionManager, newMapper.controlDevice)
-        else ControlManager(this, systemActionManager, newMapper.controlDevice)
+        controlManager = if (newMapper.info.system == GameSystem.VS_SYSTEM) VsControlManager(this)
+        else ControlManager(this)
 
         batteryManager.saveEnabled = true
 
         ppu = if (newMapper is NsfMapper) NsfPpu(this) else Ppu(this)
 
         controlManager.pollCounter = pollCounter
-        controlManager.updateControlDevices()
+        controlManager.updateControlDevices(true)
 
         newMapper.initialize()
 
@@ -467,6 +466,7 @@ class Console(
 
                 soundMixer.processEndOfFrame()
                 slave?.soundMixer?.processEndOfFrame()
+                controlManager.processEndOfFrame()
 
                 settings.disableOverclocking = disableOcNextFrame || nsf
                 disableOcNextFrame = false
@@ -604,7 +604,7 @@ class Console(
         var configChanged = false
 
         if (settings.needControllerUpdate()) {
-            controlManager.updateControlDevices()
+            controlManager.updateControlDevices(true)
             configChanged = true
         }
 

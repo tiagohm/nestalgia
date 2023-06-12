@@ -2,6 +2,7 @@ package br.tiagohm.nestalgia.core
 
 abstract class ControlDevice(
     @JvmField protected val console: Console,
+    @JvmField val type: ControllerType,
     @JvmField val port: Int,
 ) : Memory, Resetable, Snapshotable {
 

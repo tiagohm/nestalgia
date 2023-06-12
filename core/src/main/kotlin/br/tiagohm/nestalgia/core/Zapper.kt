@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/Zapper
 
-class Zapper(console: Console, port: Int) : ControlDevice(console, port) {
+class Zapper(console: Console, type: ControllerType, port: Int) : ControlDevice(console, type, port) {
 
     @JvmField var x = 0
     @JvmField var y = 0

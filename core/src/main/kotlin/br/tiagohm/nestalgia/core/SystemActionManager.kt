@@ -1,9 +1,14 @@
 package br.tiagohm.nestalgia.core
 
-open class SystemActionManager(console: Console) : ControlDevice(console, CONSOLE_INPUT_PORT) {
+import br.tiagohm.nestalgia.core.ControllerType.*
+
+open class SystemActionManager(console: Console) : ControlDevice(console, NONE, CONSOLE_INPUT_PORT) {
 
     private var needReset = false
     private var needPowerCycle = false
+
+    val isResetPending
+        get() = needReset || needPowerCycle
 
     override fun reset(softReset: Boolean) {
         if (!needReset) {

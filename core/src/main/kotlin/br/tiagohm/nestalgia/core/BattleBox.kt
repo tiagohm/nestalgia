@@ -1,6 +1,8 @@
 package br.tiagohm.nestalgia.core
 
-class BattleBox(console: Console) : ControlDevice(console, EXP_DEVICE_PORT), Battery {
+import br.tiagohm.nestalgia.core.ControllerType.*
+
+class BattleBox(console: Console) : ControlDevice(console, BATTLE_BOX, EXP_DEVICE_PORT), Battery {
 
     private var lastWrite = 0
     private var address = 0

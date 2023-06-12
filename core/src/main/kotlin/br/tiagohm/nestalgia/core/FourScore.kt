@@ -1,8 +1,12 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.ControllerType.*
+
 // https://wiki.nesdev.com/w/index.php/Four_Score
 
-class FourScore(console: Console) : ControlDevice(console, EXP_DEVICE_PORT) {
+// TODO: Estender de ControllerHub.
+
+class FourScore(console: Console) : ControlDevice(console, NONE, EXP_DEVICE_PORT) {
 
     private var signature4016 = 0
     private var signature4017 = 0
