@@ -143,15 +143,16 @@ class Console(val settings: EmulationSettings) : Battery, Resetable, Closeable, 
             saveBattery()
         }
 
+        pause()
+
         val newMapper = try {
             Mapper.initialize(this, rom, name, fdsBios)
         } catch (e: Throwable) {
-            LOG.error("Failed to initialize mapper", e)
+            resume()
+            LOG.error("failed to initialize mapper", e)
             notificationManager.sendNotification(ERROR, e.message)
             return false
         }
-
-        pause()
 
         soundMixer.stopAudio(true)
 
