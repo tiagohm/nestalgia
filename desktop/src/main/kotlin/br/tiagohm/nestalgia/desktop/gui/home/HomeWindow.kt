@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.stereotype.Component
+import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -138,6 +139,9 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
             LOG.info("loading battery. path={}", path)
             // TODO: Avoid read bytes.
             path.readBytes().toIntArray()
+        } catch (e: NoSuchFileException) {
+            LOG.warn("no battery found")
+            IntArray(0)
         } catch (e: Throwable) {
             LOG.error("failed to load battery", e)
             IntArray(0)
