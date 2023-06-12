@@ -131,6 +131,7 @@ object MapperFactory {
             254 -> Mapper254()
             255 -> Bmc255()
             286 -> Bs5()
+            328 -> Rt01()
             FDS_MAPPER_ID -> Fds()
             32770 -> Gs2013()
             else -> {
