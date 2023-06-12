@@ -55,6 +55,7 @@ object MapperFactory {
             49 -> Mapper049()
             52 -> Mapper052()
             63 -> Bmc63()
+            71 -> BF909x()
             74 -> Mapper074()
             76 -> Mapper076()
             79 -> Nina0306(false)
