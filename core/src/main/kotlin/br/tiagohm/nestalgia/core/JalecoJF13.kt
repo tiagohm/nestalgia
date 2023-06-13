@@ -1,6 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_086
 
 class JalecoJF13 : Mapper() {

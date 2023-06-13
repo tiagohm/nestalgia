@@ -60,6 +60,7 @@ object MapperFactory {
             74 -> Mapper074()
             76 -> Mapper076()
             77 -> IremLrog017()
+            78 -> JalecoJF16()
             79 -> Nina0306(false)
             87 -> Mapper087()
             86 -> JalecoJF13()
