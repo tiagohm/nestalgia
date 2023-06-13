@@ -85,6 +85,7 @@ object MapperFactory {
             133 -> Sachen133()
             134 -> Mapper134()
             136 -> Sachen136()
+            140 -> JalecoJF11AndJF14()
             143 -> Sachen143()
             144 -> Mapper144()
             145 -> Sachen145()
