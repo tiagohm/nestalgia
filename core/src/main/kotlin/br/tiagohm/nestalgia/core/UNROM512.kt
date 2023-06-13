@@ -4,7 +4,7 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_030
 
-class UnRom512 : FlashSST39SF040Mapper() {
+class UNROM512(console: Console) : FlashSST39SF040Mapper(console) {
 
     override val prgPageSize = 0x4000
 

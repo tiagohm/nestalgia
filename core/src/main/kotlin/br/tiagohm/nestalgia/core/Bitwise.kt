@@ -30,7 +30,7 @@ inline val Int.bit6
     get() = (this and 0x40) == 0x40
 
 inline val Int.bit7
-    get() = (this and 0x080) == 0x80
+    get() = (this and 0x80) == 0x80
 
 inline val Int.loByte
     get() = this and 0xFF

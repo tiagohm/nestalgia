@@ -4,7 +4,7 @@ import br.tiagohm.nestalgia.core.IRQSource.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_114
 
-class Mapper114 : MMC3() {
+class Mapper114(console: Console) : MMC3(console) {
 
     private val exReg = IntArray(2)
 

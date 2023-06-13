@@ -1,21 +1,21 @@
 package br.tiagohm.nestalgia.core
 
 data class NsfHeader(
-    val header: String,
-    val version: Byte,
-    val totalSongs: Byte,
-    val startingSong: Byte,
-    val loadAddress: Short,
-    val initAddress: Short,
-    val playAddress: Short,
-    val songName: String,
-    val artistName: String,
-    val copyrightHolder: String,
-    val playSpeedNtsc: Short,
-    val bankSetup: ByteArray,
-    val playSpeedPal: Short,
-    val flags: Byte,
-    val soundChips: Byte,
+    @JvmField val header: String,
+    @JvmField val version: Byte,
+    @JvmField val totalSongs: Byte,
+    @JvmField val startingSong: Byte,
+    @JvmField val loadAddress: Short,
+    @JvmField val initAddress: Short,
+    @JvmField val playAddress: Short,
+    @JvmField val songName: String,
+    @JvmField val artistName: String,
+    @JvmField val copyrightHolder: String,
+    @JvmField val playSpeedNtsc: Short,
+    @JvmField val bankSetup: ByteArray,
+    @JvmField val playSpeedPal: Short,
+    @JvmField val flags: Byte,
+    @JvmField val soundChips: Byte,
 ) {
 
     override fun equals(other: Any?): Boolean {

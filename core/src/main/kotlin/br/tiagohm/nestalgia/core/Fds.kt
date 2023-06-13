@@ -3,7 +3,7 @@ package br.tiagohm.nestalgia.core
 // https://wiki.nesdev.com/w/index.php/Family_Computer_Disk_System
 
 @Suppress("NOTHING_TO_INLINE")
-class Fds : Mapper() {
+class Fds(console: Console) : Mapper(console) {
 
     private lateinit var audio: FdsAudio
 

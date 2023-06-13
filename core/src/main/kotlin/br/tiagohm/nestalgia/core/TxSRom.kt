@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_118
 
-class TxSRom : MMC3() {
+class TxSRom(console: Console) : MMC3(console) {
 
     override fun updateMirroring() {
         // This is disabled, 8001 writes are used to setup mirroring instead.

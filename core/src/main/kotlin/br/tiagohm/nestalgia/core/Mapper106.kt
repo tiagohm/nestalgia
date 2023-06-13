@@ -4,7 +4,7 @@ import br.tiagohm.nestalgia.core.IRQSource.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_106
 
-class Mapper106 : Mapper() {
+class Mapper106(console: Console) : Mapper(console) {
 
     private var irqCounter = 0 // unsigned 16-bits
     private var irqEnabled = false

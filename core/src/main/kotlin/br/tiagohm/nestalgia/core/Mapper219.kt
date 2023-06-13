@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_219
 
-class Mapper219 : MMC3() {
+class Mapper219(console: Console) : MMC3(console) {
 
     private val exRegs = IntArray(3)
 

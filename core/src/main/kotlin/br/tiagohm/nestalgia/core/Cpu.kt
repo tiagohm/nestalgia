@@ -12,60 +12,34 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
     private var startClockCount = 0
     private var endClockCount = 0
 
-    @PublishedApi @JvmField internal val state = CpuState()
+    @JvmField @PublishedApi internal val state = CpuState()
 
     private val memoryManager = console.memoryManager
 
-    var isCpuWrite = false
-        private set
+    private var isCpuWrite = false
+    private var needHalt = false
 
-    var needHalt = false
-        private set
+    private var needDummyRead = false
 
-    var needDummyRead = false
-        private set
+    private var spriteDmaTransfer = false
+    private var dmcDmaRunning = false
+    private var spriteDmaOffset = 0
 
-    var spriteDmaTransfer = false
-        private set
+    @JvmField @PublishedApi internal var cycleCount = -1L
+    @JvmField @PublishedApi internal var masterClock = 0L
 
-    var dmcDmaRunning = false
-        private set
+    private var ppuOffset = 0
 
-    var spriteDmaOffset = 0
-        private set
+    private var prevRunIrq = false
+    private var runIrq = false
 
-    var cycleCount = -1L
-        private set
+    private var prevNmiFlag = false
+    private var prevNeedNmi = false
+    private var needNmi = false
+    private var irqMask = 0
 
-    var masterClock = 0L
-        private set
-
-    var ppuOffset = 0
-        private set
-
-    var prevRunIrq = false
-        private set
-
-    var runIrq = false
-        private set
-
-    var prevNmiFlag = false
-        private set
-
-    var prevNeedNmi = false
-        private set
-
-    var needNmi = false
-        private set
-
-    var irqMask = 0
-        private set
-
-    var addressMode = AddressMode.NONE
-        private set
-
-    var operand = 0
-        private set
+    private var addressMode = AddressMode.NONE
+    private var operand = 0
 
     private val cpuInstruction = CpuInstruction(this)
 
@@ -1024,7 +998,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         // On Famicom, each dummy/idle read to 4016/4017 is intepreted as a read of the joypad registers
         // On NES (or AV Famicom), only the first dummy/idle read causes side effects (e.g only a single bit is lost)
         val type = console.settings.consoleType
-        val isNesBehavior = type != FAMICOM
+        val isNesBehavior = type != HVC_001
         val skipDummyReads = !isNtscInputBehavior || (isNesBehavior && (addr == 0x4016 || addr == 0x4017))
 
         while (dmcDmaRunning || spriteDmaTransfer) {
@@ -1247,7 +1221,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
             AddressMode.NONE -> Unit
         }
 
-        if (console.nsf) {
+        if (console.isNsf) {
             // Don't stop emulation on CPU crash when playing NSFs, reset cpu instead
             console.reset(true)
         }

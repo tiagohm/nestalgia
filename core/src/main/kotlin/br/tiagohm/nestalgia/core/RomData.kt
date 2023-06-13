@@ -1,18 +1,18 @@
 package br.tiagohm.nestalgia.core
 
 data class RomData(
-    val info: RomInfo,
-    val chrRamSize: Int = -1,
-    val saveChrRamSize: Int = -1,
-    val saveRamSize: Int = -1,
-    val workRamSize: Int = -1,
-    val prgRom: IntArray = IntArray(0),
-    val chrRom: IntArray = IntArray(0),
-    val treinerData: IntArray = IntArray(0),
-    val studyBox: StudyBoxData = StudyBoxData.EMPTY,
-    val rawData: IntArray = IntArray(0),
-    val biosMissing: Boolean = false,
-    val fdsBios: IntArray = IntArray(0),
+    @JvmField val info: RomInfo = RomInfo.EMPTY,
+    @JvmField val chrRamSize: Int = -1,
+    @JvmField val saveChrRamSize: Int = -1,
+    @JvmField val saveRamSize: Int = -1,
+    @JvmField val workRamSize: Int = -1,
+    @JvmField val prgRom: IntArray = IntArray(0),
+    @JvmField val chrRom: IntArray = IntArray(0),
+    @JvmField val treinerData: IntArray = IntArray(0),
+    @JvmField val studyBox: StudyBoxData = StudyBoxData.EMPTY,
+    @JvmField val rawData: IntArray = IntArray(0),
+    @JvmField val biosMissing: Boolean = false,
+    @JvmField val fdsBios: IntArray = IntArray(0),
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -48,5 +48,10 @@ data class RomData(
         result = 31 * result + biosMissing.hashCode()
         result = 31 * result + fdsBios.contentHashCode()
         return result
+    }
+
+    companion object {
+
+        @JvmStatic val EMPTY = RomData()
     }
 }

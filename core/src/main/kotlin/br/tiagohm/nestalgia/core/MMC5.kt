@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-class MMC5 : Mapper() {
+class MMC5(console: Console) : Mapper(console) {
 
     private lateinit var audio: MMC5Audio
     private lateinit var mmc5MemoryHandler: MMC5MemoryHandler

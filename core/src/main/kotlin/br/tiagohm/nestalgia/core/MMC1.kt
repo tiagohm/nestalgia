@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_001
 
-open class MMC1 : Mapper() {
+open class MMC1(console: Console) : Mapper(console) {
 
     private var writeBuffer = 0
     private var shiftCount = 0

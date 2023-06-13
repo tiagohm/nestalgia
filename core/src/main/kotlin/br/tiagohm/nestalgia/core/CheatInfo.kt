@@ -1,16 +1,16 @@
 package br.tiagohm.nestalgia.core
 
 data class CheatInfo(
-    val crc: Long,
-    val name: String,
-    val type: CheatType,
-    val gameGenieCode: String?,
-    val proActionRockyCode: Int?,
-    val address: Int?,
-    val value: Int?,
-    val compareValue: Int,
-    val isRelativeAddress: Boolean,
-    val description: String,
+    @JvmField val crc: Long,
+    @JvmField val name: String,
+    @JvmField val type: CheatType,
+    @JvmField val gameGenieCode: String?,
+    @JvmField val proActionRockyCode: Int?,
+    @JvmField val address: Int?,
+    @JvmField val value: Int?,
+    @JvmField val compareValue: Int,
+    @JvmField val isRelativeAddress: Boolean,
+    @JvmField val description: String,
 ) {
 
     companion object {

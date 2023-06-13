@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-abstract class FlashSST39SF040Mapper : Mapper() {
+abstract class FlashSST39SF040Mapper(console: Console) : Mapper(console) {
 
     protected lateinit var flash: FlashSST39SF040
         private set

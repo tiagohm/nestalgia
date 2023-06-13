@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.desktop.input
 
 import br.tiagohm.nestalgia.core.*
+import br.tiagohm.nestalgia.core.ControlDevice.Companion.PORT_COUNT
 import br.tiagohm.nestalgia.desktop.input.GamepadInputAction.*
 import com.studiohartman.jamepad.ControllerAxis
 import com.studiohartman.jamepad.ControllerButton
@@ -14,12 +15,12 @@ data class GamepadInputProvider(
     private val listener: GamepadInputListener,
 ) : InputProvider, Closeable {
 
-    private val jamepad = ControllerManager(ControlDevice.PORT_COUNT)
+    private val jamepad = ControllerManager(PORT_COUNT)
     private var jamepadThread: Thread? = null
     private val stop = AtomicBoolean(false)
 
     private val standardControllerButtonState =
-        Array(ControlDevice.PORT_COUNT) { BooleanArray(STANDARD_CONTROLLER_BUTTONS.size) }
+        Array(PORT_COUNT) { BooleanArray(STANDARD_CONTROLLER_BUTTONS.size) }
 
     init {
         jamepadThread = thread(true, isDaemon = true, name = "Jamepad") {
@@ -28,12 +29,12 @@ data class GamepadInputProvider(
             while (!stop.get()) {
                 jamepad.update()
 
-                for (i in 0 until ControlDevice.PORT_COUNT) {
-                    val controller = jamepad.getControllerIndex(i)
+                repeat(PORT_COUNT) {
+                    val controller = jamepad.getControllerIndex(it)
 
-                    if (controller == null || !controller.isConnected) continue
+                    if (controller == null || !controller.isConnected) return@repeat
 
-                    val state = standardControllerButtonState[i]
+                    val state = standardControllerButtonState[it]
 
                     for (b in JAMEPAD_BUTTONS) {
                         // Y
@@ -92,8 +93,6 @@ data class GamepadInputProvider(
             for (button in STANDARD_CONTROLLER_BUTTONS) {
                 if (standardControllerButtonState[device.port][button.bit]) {
                     device.setBit(button)
-                } else {
-                    device.clearBit(button)
                 }
             }
             true

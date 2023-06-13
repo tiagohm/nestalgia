@@ -1,8 +1,8 @@
 package br.tiagohm.nestalgia.core
 
 data class CodeInfo(
-    val address: Int,
-    val value: Int,
-    val compareValue: Int,
-    val isRelativeAddress: Boolean,
+    @JvmField val address: Int,
+    @JvmField val value: Int,
+    @JvmField val compareValue: Int,
+    @JvmField val isRelativeAddress: Boolean,
 )

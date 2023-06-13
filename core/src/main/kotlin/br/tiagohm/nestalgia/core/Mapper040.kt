@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.IRQSource.*
 
-class Mapper040 : Mapper() {
+class Mapper040(console: Console) : Mapper(console) {
 
     override val prgPageSize = 0x2000
 

@@ -4,7 +4,7 @@ import br.tiagohm.nestalgia.core.MemoryOperation.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_006
 
-class Mapper006 : FrontFareast() {
+class Mapper006(console: Console) : FrontFareast(console) {
 
     override fun initialize() {
         addRegisterRange(0x8000, 0xFFFF, WRITE)
@@ -12,7 +12,7 @@ class Mapper006 : FrontFareast() {
         selectPrgPage2x(1, 14)
     }
 
-    override fun handleWriteRegister(addr: Int, value: Int) {
+    override fun internalWriteRegister(addr: Int, value: Int) {
         if (addr >= 0x8000) {
             if (hasChrRam || ffeAltMode) {
                 selectPrgPage2x(0, value and 0xFC shr 1)

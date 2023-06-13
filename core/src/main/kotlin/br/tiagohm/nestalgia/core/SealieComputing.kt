@@ -5,7 +5,7 @@ import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_029
 
-class SealieComputing : Mapper() {
+class SealieComputing(console: Console) : Mapper(console) {
 
     override val prgPageSize = 0x4000
 

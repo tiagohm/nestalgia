@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_245
 
-class Mapper245 : MMC3() {
+class Mapper245(console: Console) : MMC3(console) {
 
     override fun updateState() {
         super.updateState()

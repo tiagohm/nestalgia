@@ -4,7 +4,7 @@ import br.tiagohm.nestalgia.core.IRQSource.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_253
 
-class Mapper253 : Mapper() {
+class Mapper253(console: Console) : Mapper(console) {
 
     private val chrLow = IntArray(8)
     private val chrHigh = IntArray(8)

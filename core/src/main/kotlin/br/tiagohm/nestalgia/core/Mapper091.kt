@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_091
 
-class Mapper091 : MMC3() {
+class Mapper091(console: Console) : MMC3(console) {
 
     override val registerStartAddress = 0x6000
 

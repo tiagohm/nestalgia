@@ -4,7 +4,7 @@ import br.tiagohm.nestalgia.core.MemoryOperation.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_134
 
-class Mapper134 : MMC3() {
+class Mapper134(console: Console) : MMC3(console) {
 
     private var exReg = 0
 

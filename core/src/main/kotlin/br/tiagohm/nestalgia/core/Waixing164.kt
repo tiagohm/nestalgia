@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_164
 
-class Waixing164 : Mapper() {
+class Waixing164(console: Console) : Mapper(console) {
 
     private var prgBank = 0
 

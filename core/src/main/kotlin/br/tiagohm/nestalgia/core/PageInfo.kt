@@ -1,9 +1,9 @@
 package br.tiagohm.nestalgia.core
 
 data class PageInfo(
-    val leadInOffset: Int,
-    val audioOffset: Int,
-    val data: ByteArray,
+    @JvmField val leadInOffset: Int,
+    @JvmField val audioOffset: Int,
+    @JvmField val data: ByteArray,
 ) {
 
     override fun equals(other: Any?): Boolean {

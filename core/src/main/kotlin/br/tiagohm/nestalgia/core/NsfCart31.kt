@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_031
 
-class NsfCart31 : Mapper() {
+class NsfCart31(console: Console) : Mapper(console) {
 
     override val prgPageSize = 0x1000
 

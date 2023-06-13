@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_173
 
-class Txc22211c : Txc22211a() {
+class Txc22211c(console: Console) : Txc22211a(console) {
 
     override fun updateState() {
         selectPrgPage(0, 0)

@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_096
 
-class OekaKids : Mapper() {
+class OekaKids(console: Console) : Mapper(console) {
 
     private var outerChrBank = 0
     private var innerChrBank = 0

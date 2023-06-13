@@ -4,7 +4,7 @@ import br.tiagohm.nestalgia.core.MemoryOperation.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_121
 
-class Mapper121 : MMC3() {
+class Mapper121(console: Console) : MMC3(console) {
 
     private val exReg = IntArray(8)
 

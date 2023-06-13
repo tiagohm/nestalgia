@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/Zapper
 
-class Zapper(console: Console, port: Int) : ControlDevice(console, port) {
+class Zapper(console: Console, type: ControllerType, port: Int) : ControlDevice(console, type, port) {
 
     @JvmField var x = 0
     @JvmField var y = 0
@@ -27,7 +27,7 @@ class Zapper(console: Console, port: Int) : ControlDevice(console, port) {
         get() = console.ppu.isLight(x, y, console.settings.zapperDetectionRadius[port])
 
     override fun read(addr: Int, type: MemoryOperationType): Int {
-        if ((expansionPortDevice && addr == 0x4017) || isCurrentPort(addr)) {
+        if ((isExpansionDevice && addr == 0x4017) || isCurrentPort(addr)) {
             return (if (light) 0x00 else 0x08) or
                 (if (isPressed(ZapperButton.FIRE)) 0x10 else 0x00)
         }

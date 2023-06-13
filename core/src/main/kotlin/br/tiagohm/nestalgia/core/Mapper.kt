@@ -1,21 +1,19 @@
 package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.ChrMemoryType.*
+import br.tiagohm.nestalgia.core.EmulationFlag.*
 import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import br.tiagohm.nestalgia.core.MirroringType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.ROM
 import org.slf4j.LoggerFactory
 import java.io.Closeable
-import java.io.IOException
 import kotlin.math.min
 import kotlin.random.Random
 
 // https://wiki.nesdev.com/w/index.php/Mapper
 
-abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, Snapshotable {
-
-    open val controlDevice: ControlDevice? = null
+abstract class Mapper(@JvmField protected val console: Console) : Resetable, Battery, Peekable, MemoryHandler, Initializable, Snapshotable, Closeable {
 
     open val prgPageSize = 0
 
@@ -101,17 +99,13 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     open val hasBattery
         get() = info.hasBattery
 
-    lateinit var console: Console
-        private set
+    @PublishedApi @JvmField internal var data = RomData.EMPTY
 
-    lateinit var data: RomData
-        private set
-
-    val info
+    inline val info
         get() = data.info
 
-    val name
-        get() = if (::data.isInitialized) info.name else ""
+    inline val name
+        get() = info.name
 
     val hasChrRam
         get() = mChrRamSize > 0
@@ -137,8 +131,6 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     private val chrPages = Array(0x100) { Pointer.NULL }
     private val chrMemoryOffset = IntArray(0x100)
     private val chrMemoryType = Array(0x100) { DEFAULT }
-
-    abstract fun initialize()
 
     override fun close() {}
 
@@ -237,8 +229,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         }
     }
 
-    fun initialize(console: Console, data: RomData) {
-        this.console = console
+    fun initialize(data: RomData) {
         this.data = data
         console.mapper = this
 
@@ -329,16 +320,12 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
 
         val info = data.info.copy(
             hasChrRam = hasChrRam,
-            busConflict = if (mHasBusConflicts) BusConflictType.YES else BusConflictType.NO
+            busConflict = if (mHasBusConflicts) BusConflictType.YES else BusConflictType.NO,
         )
 
         this.data = data.copy(info = info)
 
         loadBattery()
-    }
-
-    open fun initialize(data: RomData) {
-        initialize()
     }
 
     override fun memoryRanges(ranges: MemoryRanges) {
@@ -839,11 +826,8 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     }
 
     fun powerOnByte(default: Int = 0): Int {
-        return if (console.settings.flag(EmulationFlag.RANDOMIZE_MAPPER_POWER_ON_STATE)) {
-            Random.nextInt(256)
-        } else {
-            default
-        }
+        return if (console.settings.flag(RANDOMIZE_MAPPER_POWER_ON_STATE)) Random.nextInt(256)
+        else default
     }
 
     open fun notifyVRAMAddressChange(addr: Int) {
@@ -862,7 +846,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     val dipSwitches
         get() = console.settings.dipSwitches and ((1 shl dipSwitchCount) - 1)
 
-    val isNes20
+    inline val isNes20
         get() = info.isNes20Header
 
     override fun saveState(s: Snapshot) {
@@ -953,152 +937,20 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
             rom: IntArray,
             name: String,
             fdsBios: IntArray = IntArray(0),
-        ): Pair<Mapper?, RomData?> {
+        ): Mapper {
             val data = RomLoader.load(rom, name, fdsBios)
 
             if ((data.info.isInDatabase || data.info.isNes20Header) && data.info.inputType != GameInputType.UNSPECIFIED) {
-                if (console.settings.flag(EmulationFlag.AUTO_CONFIGURE_INPUT)) {
+                if (console.settings.flag(AUTO_CONFIGURE_INPUT)) {
                     console.settings.initializeInputDevices(data.info.inputType, data.info.system)
                 }
-            } else if (data.info.isInDatabase) {
-                val system = data.info.system
-                val isFamicom = (system == GameSystem.FAMICOM || system == GameSystem.FDS || system == GameSystem.DENDY)
-                console.settings.consoleType = if (isFamicom) ConsoleType.FAMICOM else ConsoleType.NES
             }
 
-            return fromId(data).also { it.initialize(console, data) } to data
-        }
-
-        @JvmStatic
-        fun fromId(data: RomData): Mapper {
-            return when (val id = data.info.mapperId) {
-                0 -> NROM()
-                1 -> MMC1()
-                2 -> UNROM()
-                3 -> CNROM(false)
-                4 -> if (data.info.subMapperId == 3) McAcc() else MMC3()
-                6 -> Mapper006()
-                7 -> AXROM()
-                8 -> Mapper008()
-                9 -> MMC2()
-                10 -> MMC4()
-                11 -> ColorDreams()
-                12 -> Mapper012()
-                13 -> CpRom()
-                14 -> Mapper014()
-                15 -> Mapper015()
-                17 -> Mapper017()
-                29 -> SealieComputing()
-                30 -> UnRom512()
-                31 -> NsfCart31()
-                33 -> TaitoTc0190()
-                34 -> {
-                    when (val sid = data.info.subMapperId) {
-                        // BnROM uses CHR RAM (so no CHR rom in the NES file)
-                        0 -> if (data.chrRom.isEmpty()) BnRom() else Nina01()
-                        1 -> Nina01()
-                        2 -> BnRom()
-                        else -> throw IOException("Unsupported mapper $id with submapper $sid")
-                    }
-                }
-                36 -> Txc22000()
-                37 -> Mapper037()
-                38 -> UnlPci556()
-                39 -> Mapper039()
-                40 -> Mapper040()
-                42 -> Mapper042()
-                44 -> Mapper044()
-                45 -> Mapper045()
-                46 -> ColorDreams46()
-                47 -> Mapper047()
-                49 -> Mapper049()
-                52 -> Mapper052()
-                63 -> Bmc63()
-                74 -> Mapper074()
-                76 -> Mapper076()
-                79 -> Nina0306(false)
-                87 -> Mapper087()
-                88 -> Mapper088()
-                91 -> Mapper091()
-                95 -> Mapper095()
-                96 -> OekaKids()
-                97 -> IremTamS1()
-                101 -> Mapper101()
-                104 -> GoldenFive()
-                105 -> Mapper105()
-                106 -> Mapper106()
-                107 -> Mapper107()
-                108 -> Bb()
-                111 -> Cheapocabra()
-                113 -> Nina0306(true)
-                114 -> Mapper114()
-                115 -> Mapper115()
-                118 -> TxSRom()
-                119 -> Mapper119()
-                121 -> Mapper121()
-                123 -> Mapper123()
-                132 -> Txc22211a()
-                133 -> Sachen133()
-                134 -> Mapper134()
-                136 -> Sachen136()
-                143 -> Sachen143()
-                144 -> Mapper144()
-                145 -> Sachen145()
-                146 -> Nina0306(false)
-                147 -> Sachen147()
-                148 -> Sachen148()
-                149 -> Sachen149()
-                154 -> Mapper154()
-                155 -> Mapper155()
-                162 -> Waixing162()
-                164 -> Waixing164()
-                172 -> Txc22211b()
-                173 -> Txc22211c()
-                177 -> Henggedianzi177()
-                178 -> Waixing178()
-                179 -> Henggedianzi179()
-                185 -> CNROM(true)
-                190 -> MagicKidGooGoo()
-                191 -> Mapper191()
-                192 -> Mapper192()
-                194 -> Mapper194()
-                195 -> Mapper195()
-                196 -> Mapper196()
-                197 -> Mapper197()
-                198 -> Mapper198()
-                199 -> Mapper199()
-                200 -> Mapper200()
-                206 -> Namco108()
-                213 -> Mapper213()
-                214 -> Mapper214()
-                219 -> Mapper219()
-                235 -> Bmc235()
-                238 -> Mapper238()
-                240 -> Mapper240()
-                241 -> Mapper241()
-                242 -> Mapper242()
-                244 -> Mapper244()
-                245 -> Mapper245()
-                246 -> Mapper246()
-                249 -> Mapper249()
-                250 -> Mapper250()
-                252 -> Waixing252()
-                253 -> Mapper253()
-                254 -> Mapper254()
-                255 -> Bmc255()
-                286 -> Bs5()
-                FDS_MAPPER_ID -> Fds()
-                32770 -> Gs2013()
-                else -> {
-                    System.err.println("${data.info.name} has unsupported mapper $id")
-                    throw IOException("Unsupported mapper $id")
-                }
-            }
+            return MapperFactory.from(console, data)
+                .also { it.initialize(data) }
         }
 
         const val NAMETABLE_COUNT = 0x10
         const val NAMETABLE_SIZE = 0x400
-
-        const val FDS_MAPPER_ID = 65535
     }
 }

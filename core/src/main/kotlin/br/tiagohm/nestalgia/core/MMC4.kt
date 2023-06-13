@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_010
 
-class MMC4 : MMC2() {
+class MMC4(console: Console) : MMC2(console) {
 
     override val prgPageSize = 0x4000
 

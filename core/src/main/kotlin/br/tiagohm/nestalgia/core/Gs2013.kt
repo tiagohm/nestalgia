@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
-class Gs2013 : Mapper() {
+class Gs2013(console: Console) : Mapper(console) {
 
     override val prgPageSize = 0x2000
 

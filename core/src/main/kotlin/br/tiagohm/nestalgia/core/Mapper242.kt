@@ -4,7 +4,7 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_242
 
-class Mapper242 : Mapper() {
+class Mapper242(console: Console) : Mapper(console) {
 
     override val prgPageSize = 0x8000
 

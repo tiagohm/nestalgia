@@ -13,7 +13,7 @@ import br.tiagohm.nestalgia.core.PrgMemoryType.*
 //         成吉思汗 (Chéngjísīhán) could actually be using MMC3_199 in reality according to the Nesdev wiki.
 // These games may actually use different mappers altogether.
 
-class Mapper198 : MMC3() {
+class Mapper198(console: Console) : MMC3(console) {
 
     private val exReg = IntArray(4)
 

@@ -1,12 +1,14 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.ControllerType.*
+
 // https://wiki.nesdev.com/w/index.php/Standard_controller
 
-class StandardController(console: Console, port: Int) : ControlDevice(console, port) {
+class StandardController(console: Console, type: ControllerType, port: Int) : ControlDevice(console, type, port) {
 
     private val keys = console.settings.controllerKeys(port)
 
-    private var microphoneEnabled = port == 1 && console.settings.consoleType == ConsoleType.FAMICOM
+    private var microphoneEnabled = port == 1 && type == FAMICOM_CONTROLLER_P2
     private val turboSpeed = 2 // 0..4
     private val turboFreq = 1 shl (4 - turboSpeed) and 0xFF
 
@@ -69,22 +71,12 @@ class StandardController(console: Console, port: Int) : ControlDevice(console, p
     }
 
     override fun read(addr: Int, type: MemoryOperationType): Int {
-        if (port >= 2 && console.dualSystem) {
-            // Ignore P3/P4 controllers for VS DualSystem - those are used by the slave CPU
-            return 0
-        }
-
         var output = 0
 
         if (isCurrentPort(addr)) {
             strobeOnRead()
 
             output = stateBuffer and 0x01
-
-            if (port >= 2 && console.settings.consoleType == ConsoleType.FAMICOM) {
-                // Famicom outputs P3 & P4 on bit 1
-                output = output shl 1
-            }
 
             stateBuffer = stateBuffer shr 1
 

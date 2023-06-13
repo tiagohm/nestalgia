@@ -4,7 +4,7 @@ package br.tiagohm.nestalgia.core
 
 // TODO: Testar Subor Keyboard com a ROM "Study & Game 32-in-1"
 
-class Mapper039 : Mapper() {
+class Mapper039(console: Console) : Mapper(console) {
 
     override val prgPageSize = 0x8000
 

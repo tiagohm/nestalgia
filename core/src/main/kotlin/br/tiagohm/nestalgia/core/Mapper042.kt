@@ -6,7 +6,7 @@ import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_042
 
-class Mapper042 : Mapper() {
+class Mapper042(console: Console) : Mapper(console) {
 
     private var irqCounter = 0 // unsigned 16-bits
     private var irqEnabled = false

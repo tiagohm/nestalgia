@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-class McAcc : MMC3() {
+class McAcc(console: Console) : MMC3(console) {
 
     private var counter = 0
     private var prevAddr = 0

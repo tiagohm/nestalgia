@@ -5,7 +5,7 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_199
 
-class Mapper199 : MMC3() {
+class Mapper199(console: Console) : MMC3(console) {
 
     private val exReg = IntArray(4)
 

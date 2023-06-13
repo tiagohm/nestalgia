@@ -1,9 +1,9 @@
 package br.tiagohm.nestalgia.core
 
 data class PpuStatus(
-    var spriteOverflow: Boolean = false,
-    var sprite0Hit: Boolean = false,
-    var verticalBlank: Boolean = false,
+    @JvmField var spriteOverflow: Boolean = false,
+    @JvmField var sprite0Hit: Boolean = false,
+    @JvmField var verticalBlank: Boolean = false,
 ) : Snapshotable, Resetable {
 
     override fun reset(softReset: Boolean) {
