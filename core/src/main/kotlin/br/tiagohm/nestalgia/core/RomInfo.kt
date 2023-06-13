@@ -1,29 +1,30 @@
 package br.tiagohm.nestalgia.core
 
 data class RomInfo(
-    val name: String = "",
-    val format: RomFormat = RomFormat.UNKNOWN,
-    val isNes20Header: Boolean = false,
-    val isHeaderless: Boolean = false,
-    val filePrgOffset: Int = 0,
-    val mapperId: Int = 0,
-    val subMapperId: Int = 0,
-    val system: GameSystem = GameSystem.UNKNOWN,
-    val vsType: VsSystemType = VsSystemType.DEFAULT,
-    val inputType: GameInputType = GameInputType.UNSPECIFIED,
-    val vsPpuModel: PpuModel = PpuModel.PPU_2C02,
-    val hasChrRam: Boolean = false,
-    val hasBattery: Boolean = false,
-    val hasTreiner: Boolean = false,
-    val mirroring: MirroringType = MirroringType.HORIZONTAL,
-    val busConflict: BusConflictType = BusConflictType.DEFAULT,
-    val hash: HashInfo = HashInfo.EMPTY,
-    val header: NesHeader = NesHeader.EMPTY,
-    val nsf: NsfHeader? = null,
-    val unifBoard: String = "",
-    val gameInfo: GameInfo? = null,
+    @JvmField val name: String = "",
+    @JvmField val format: RomFormat = RomFormat.UNKNOWN,
+    @JvmField val isNes20Header: Boolean = false,
+    @JvmField val isHeaderless: Boolean = false,
+    @JvmField val filePrgOffset: Int = 0,
+    @JvmField val mapperId: Int = 0,
+    @JvmField val subMapperId: Int = 0,
+    @JvmField val system: GameSystem = GameSystem.UNKNOWN,
+    @JvmField val vsType: VsSystemType = VsSystemType.DEFAULT,
+    @JvmField val inputType: GameInputType = GameInputType.UNSPECIFIED,
+    @JvmField val vsPpuModel: PpuModel = PpuModel.PPU_2C02,
+    @JvmField val hasChrRam: Boolean = false,
+    @JvmField val hasBattery: Boolean = false,
+    @JvmField val hasTreiner: Boolean = false,
+    @JvmField val mirroring: MirroringType = MirroringType.HORIZONTAL,
+    @JvmField val busConflict: BusConflictType = BusConflictType.DEFAULT,
+    @JvmField val hash: HashInfo = HashInfo.EMPTY,
+    @JvmField val header: NesHeader = NesHeader.EMPTY,
+    @JvmField val nsf: NsfHeader? = null,
+    @JvmField val unifBoard: String = "",
+    @JvmField val gameInfo: GameInfo? = null,
 ) {
-    val isInDatabase = gameInfo != null
+
+    @JvmField val isInDatabase = gameInfo != null
 
     companion object {
 

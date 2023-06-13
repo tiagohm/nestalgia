@@ -1,9 +1,9 @@
 package br.tiagohm.nestalgia.core
 
 data class StudyBoxData(
-    val fileName: String = "",
-    val audioFile: ByteArray = ByteArray(0),
-    val pages: Array<PageInfo> = emptyArray(),
+    @JvmField val fileName: String = "",
+    @JvmField val audioFile: ByteArray = ByteArray(0),
+    @JvmField val pages: Array<PageInfo> = emptyArray(),
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
