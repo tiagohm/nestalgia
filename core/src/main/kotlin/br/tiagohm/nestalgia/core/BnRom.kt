@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-class BnRom : Mapper() {
+class BnRom(console: Console) : Mapper(console) {
 
     override val prgPageSize = 0x8000
 

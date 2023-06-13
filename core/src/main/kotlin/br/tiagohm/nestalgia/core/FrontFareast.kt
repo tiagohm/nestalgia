@@ -3,7 +3,7 @@ package br.tiagohm.nestalgia.core
 import br.tiagohm.nestalgia.core.IRQSource.*
 import br.tiagohm.nestalgia.core.MirroringType.*
 
-abstract class FrontFareast : Mapper() {
+abstract class FrontFareast(console: Console) : Mapper(console) {
 
     protected var irqCounter = 0 // unsigned 16 bits
     protected var irqEnabled = false
@@ -46,7 +46,7 @@ abstract class FrontFareast : Mapper() {
         }
     }
 
-    protected abstract fun handleWriteRegister(addr: Int, value: Int)
+    protected abstract fun internalWriteRegister(addr: Int, value: Int)
 
     final override fun writeRegister(addr: Int, value: Int) {
         when (addr) {
@@ -70,7 +70,7 @@ abstract class FrontFareast : Mapper() {
                 irqEnabled = true
                 console.cpu.clearIRQSource(EXTERNAL)
             }
-            else -> handleWriteRegister(addr, value)
+            else -> internalWriteRegister(addr, value)
         }
     }
 }

@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_095
 
-class Mapper095 : Namco108() {
+class Mapper095(console: Console) : Namco108(console) {
 
     override fun writeRegister(addr: Int, value: Int) {
         super.writeRegister(addr, value)

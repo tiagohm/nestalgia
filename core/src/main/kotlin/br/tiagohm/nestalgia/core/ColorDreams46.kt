@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_046
 
-class ColorDreams46 : Mapper() {
+class ColorDreams46(console: Console) : Mapper(console) {
 
     private val regs = IntArray(2)
 

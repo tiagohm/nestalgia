@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_185
 
-class Mapper185 : CNROM() {
+class Mapper185(console: Console) : CNROM(console) {
 
     override val hasBusConflicts = true
 

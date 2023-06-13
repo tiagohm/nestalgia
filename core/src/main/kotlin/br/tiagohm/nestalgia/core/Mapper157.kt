@@ -4,7 +4,7 @@ import br.tiagohm.nestalgia.core.MemoryOperation.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_157
 
-class Mapper157 : BandaiFgc() {
+class Mapper157(console: Console) : BandaiFgc(console) {
 
     private var barcodeReader: DatachBarcodeReader? = null
 

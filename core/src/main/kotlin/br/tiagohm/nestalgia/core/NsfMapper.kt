@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-class NsfMapper : Mapper() {
+class NsfMapper(console: Console) : Mapper(console) {
 
     override val dipSwitchCount: Int
         get() = TODO("Not yet implemented")

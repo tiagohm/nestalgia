@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_178
 
-class Waixing178 : Mapper() {
+class Waixing178(console: Console) : Mapper(console) {
 
     private var exReg = IntArray(4)
 

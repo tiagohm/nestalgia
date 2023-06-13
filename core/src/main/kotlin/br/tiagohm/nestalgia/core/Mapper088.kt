@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_088
 
-open class Mapper088 : Namco108() {
+open class Mapper088(console: Console) : Namco108(console) {
 
     override fun updateChrMapping() {
         registers[0] = registers[0] and 0x3F

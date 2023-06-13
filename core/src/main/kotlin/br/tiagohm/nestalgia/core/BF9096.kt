@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_232
 
-class BF9096 : Mapper() {
+class BF9096(console: Console) : Mapper(console) {
 
     private var prgBlock = 0
     private var prgPage = 0

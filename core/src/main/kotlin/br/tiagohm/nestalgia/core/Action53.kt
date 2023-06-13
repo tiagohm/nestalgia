@@ -5,7 +5,7 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_028
 
-class Action53 : Mapper() {
+class Action53(console: Console) : Mapper(console) {
 
     private var selectedReg = 0
     private var mirroringBit = 0

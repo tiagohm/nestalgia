@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_086
 
-class JalecoJF13 : Mapper() {
+class JalecoJF13(console: Console) : Mapper(console) {
 
     override val prgPageSize = 0x8000
 

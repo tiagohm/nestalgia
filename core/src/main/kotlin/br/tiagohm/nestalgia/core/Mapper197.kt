@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_197
 
-class Mapper197 : MMC3() {
+class Mapper197(console: Console) : MMC3(console) {
 
     override fun updateChrMapping() {
         if (chrMode == 0) {

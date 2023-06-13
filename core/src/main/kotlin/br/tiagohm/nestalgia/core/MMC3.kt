@@ -7,7 +7,7 @@ import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_004
 
-open class MMC3 : Mapper() {
+open class MMC3(console: Console) : Mapper(console) {
 
     protected data class State(
         @JvmField var reg8000: Int = 0,

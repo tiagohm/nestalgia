@@ -6,7 +6,7 @@ import br.tiagohm.nestalgia.core.ControlDevice.Companion.PORT_COUNT
 import br.tiagohm.nestalgia.core.ControllerType.*
 import java.io.Closeable
 
-open class ControlManager(protected val console: Console) : MemoryHandler, Resetable, Snapshotable, Closeable {
+open class ControlManager(protected val console: Console) : MemoryHandler, Resetable, Initializable, Snapshotable, Closeable {
 
     private val inputProviders = HashSet<InputProvider>()
     private val inputRecorders = HashSet<InputRecorder>()
@@ -17,7 +17,7 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
     @JvmField internal var lagCounter = 0
     @JvmField internal var wasInputRead = false
 
-    init {
+    override fun initialize() {
         systemDevices.add(console.systemActionManager)
     }
 

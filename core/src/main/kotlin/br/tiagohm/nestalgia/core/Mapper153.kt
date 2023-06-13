@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.MemoryOperation.*
 
-class Mapper153 : BandaiFgc() {
+class Mapper153(console: Console) : BandaiFgc(console) {
 
     override fun initialize() {
         super.initialize()

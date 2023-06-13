@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, Snapshotable, Runnable {
+class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, Initializable, Snapshotable, Runnable {
 
     private var currentCycle = 0
     private var previousCycle = 0
@@ -15,7 +15,7 @@ class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, S
     @JvmField internal var enabled = true
     @JvmField internal var needToRun = false
 
-    init {
+    override fun initialize() {
         console.memoryManager.registerIODevice(squareChannel1)
         console.memoryManager.registerIODevice(squareChannel2)
         console.memoryManager.registerIODevice(frameCounter)

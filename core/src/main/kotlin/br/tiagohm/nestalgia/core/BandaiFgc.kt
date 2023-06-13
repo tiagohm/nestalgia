@@ -8,7 +8,7 @@ import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
 // https://www.nesdev.org/wiki/Bandai_FCG
 
-abstract class BandaiFgc : Mapper() {
+abstract class BandaiFgc(console: Console) : Mapper(console) {
 
     private var irqEnabled = false
     private var irqCounter = 0

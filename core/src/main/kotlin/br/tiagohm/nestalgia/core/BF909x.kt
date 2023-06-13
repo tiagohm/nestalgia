@@ -4,7 +4,7 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_071
 
-class BF909x : Mapper() {
+class BF909x(console: Console) : Mapper(console) {
 
     private var bf9097Mode = false
 

@@ -3,7 +3,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_104
 
-class GoldenFive : Mapper() {
+class GoldenFive(console: Console) : Mapper(console) {
 
     private var prgReg = 0
 

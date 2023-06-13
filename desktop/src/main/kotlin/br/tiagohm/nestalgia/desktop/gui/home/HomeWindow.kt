@@ -81,7 +81,7 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
         television.setOnMouseReleased(::onMouseReleased)
 
         console.notificationManager.registerNotificationListener(this)
-        console.batteryManager.provider = this
+        console.batteryManager.registerProvider(this)
 
         val gamepadInputProvider = GamepadInputProvider(console, this)
         speaker = Speaker(console)
@@ -124,7 +124,7 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
         cheatsWindow.showAndWait(this)
 
         if (cheatsWindow.saved) {
-            console.cheatManager.set(cheatsWindow.selectedCheats)
+            emulator.cheats(cheatsWindow.selectedCheats)
         }
     }
 

@@ -4,7 +4,7 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_047
 
-class Mapper014 : MMC3() {
+class Mapper014(console: Console) : MMC3(console) {
 
     private val vrcChrRegs = IntArray(8)
     private val vrcPrgRegs = IntArray(2)

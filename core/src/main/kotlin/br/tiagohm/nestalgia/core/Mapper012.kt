@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_012
 
-class Mapper012 : MMC3() {
+class Mapper012(console: Console) : MMC3(console) {
 
     private var chrSelection = 0
 

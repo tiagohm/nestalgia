@@ -2,13 +2,29 @@ package br.tiagohm.nestalgia.core
 
 import kotlin.math.max
 
-class BatteryManager(private val console: Console) {
+class BatteryManager(private val console: Console) : Initializable {
 
-    var saveEnabled = false
-    var provider: BatteryProvider? = null
+    private var saveEnabled = false
+    private var provider: BatteryProvider? = null
 
-    fun initialize() {
+    override fun initialize() {
         saveEnabled = true
+    }
+
+    fun registerProvider(provider: BatteryProvider) {
+        this.provider = provider
+    }
+
+    fun unregisterProvider() {
+        provider = null
+    }
+
+    fun enable() {
+        saveEnabled = true
+    }
+
+    fun disable() {
+        saveEnabled = false
     }
 
     fun loadBattery(name: String, length: Int = -1): IntArray {

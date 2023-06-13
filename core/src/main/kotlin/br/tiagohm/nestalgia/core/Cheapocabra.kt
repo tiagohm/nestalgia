@@ -3,7 +3,7 @@ package br.tiagohm.nestalgia.core
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_111
 // Único jogo "Ninja Ryukenden (China)" e não roda (tela verde).
 
-class Cheapocabra : FlashSST39SF040Mapper() {
+class Cheapocabra(console: Console) : FlashSST39SF040Mapper(console) {
 
     override val prgPageSize = 0x8000
 

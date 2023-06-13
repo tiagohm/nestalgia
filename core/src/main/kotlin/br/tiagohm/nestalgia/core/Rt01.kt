@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 import kotlin.random.Random
 
-class Rt01 : Mapper() {
+class Rt01(console: Console) : Mapper(console) {
 
     override val prgPageSize = 0x4000
 

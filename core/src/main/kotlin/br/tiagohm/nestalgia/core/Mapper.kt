@@ -13,7 +13,7 @@ import kotlin.random.Random
 
 // https://wiki.nesdev.com/w/index.php/Mapper
 
-abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, Snapshotable {
+abstract class Mapper(@JvmField protected val console: Console) : Resetable, Battery, Peekable, MemoryHandler, Initializable, Snapshotable, Closeable {
 
     open val prgPageSize = 0
 
@@ -99,11 +99,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     open val hasBattery
         get() = info.hasBattery
 
-    lateinit var console: Console
-        private set
-
-    var data = RomData.EMPTY
-        private set
+    @PublishedApi @JvmField internal var data = RomData.EMPTY
 
     inline val info
         get() = data.info
@@ -135,8 +131,6 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     private val chrPages = Array(0x100) { Pointer.NULL }
     private val chrMemoryOffset = IntArray(0x100)
     private val chrMemoryType = Array(0x100) { DEFAULT }
-
-    abstract fun initialize()
 
     override fun close() {}
 
@@ -235,8 +229,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
         }
     }
 
-    fun initialize(console: Console, data: RomData) {
-        this.console = console
+    fun initialize(data: RomData) {
         this.data = data
         console.mapper = this
 
@@ -327,7 +320,7 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
 
         val info = data.info.copy(
             hasChrRam = hasChrRam,
-            busConflict = if (mHasBusConflicts) BusConflictType.YES else BusConflictType.NO
+            busConflict = if (mHasBusConflicts) BusConflictType.YES else BusConflictType.NO,
         )
 
         this.data = data.copy(info = info)
@@ -953,8 +946,8 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
                 }
             }
 
-            return MapperFactory.from(data)
-                .also { it.initialize(console, data) }
+            return MapperFactory.from(console, data)
+                .also { it.initialize(data) }
         }
 
         const val NAMETABLE_COUNT = 0x10

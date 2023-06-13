@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_143
 
-class Sachen143 : NROM() {
+class Sachen143(console: Console) : NROM(console) {
 
     override val registerStartAddress = 0x4100
 

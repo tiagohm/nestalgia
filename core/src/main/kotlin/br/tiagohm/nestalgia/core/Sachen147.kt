@@ -3,7 +3,7 @@ package br.tiagohm.nestalgia.core
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_147
 
 @Suppress("NOTHING_TO_INLINE")
-class Sachen147 : Mapper() {
+class Sachen147(console: Console) : Mapper(console) {
 
     private val txChip = TxcChip(true)
 

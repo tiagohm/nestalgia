@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-class Nina01 : Mapper() {
+class Nina01(console: Console) : Mapper(console) {
 
     override val prgPageSize = 0x8000
 

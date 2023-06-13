@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_108
 
-class Bb : Mapper() {
+class Bb(console: Console) : Mapper(console) {
 
     private var prgReg = 0
     private var chrReg = 0

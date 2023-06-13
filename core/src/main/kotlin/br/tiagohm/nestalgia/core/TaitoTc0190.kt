@@ -4,7 +4,7 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_033
 
-class TaitoTc0190 : Mapper() {
+class TaitoTc0190(console: Console) : Mapper(console) {
 
     override val prgPageSize = 0x2000
 

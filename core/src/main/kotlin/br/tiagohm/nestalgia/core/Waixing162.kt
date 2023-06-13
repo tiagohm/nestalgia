@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_162
 
-class Waixing162 : Mapper() {
+class Waixing162(console: Console) : Mapper(console) {
 
     private val exReg = IntArray(4)
 

@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_252
 
-class Waixing252 : Mapper() {
+class Waixing252(console: Console) : Mapper(console) {
 
     private val chrReg = IntArray(8)
     private lateinit var vrcIrq: VrcIrq

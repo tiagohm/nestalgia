@@ -9,7 +9,7 @@ import kotlin.math.min
 import kotlin.random.Random
 
 @Suppress("NOTHING_TO_INLINE")
-open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapshotable {
+open class Ppu(private val console: Console) : MemoryHandler, Resetable, Initializable, Snapshotable {
 
     private val settings = console.settings
     private var standardVBlankEnd = 0
@@ -101,7 +101,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
 
     private var openBus = 0
 
-    init {
+    override fun initialize() {
         console.initializeRam(spriteRAM)
         console.initializeRam(secondarySpriteRAM)
 
@@ -337,11 +337,11 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Snapsho
         }
     }
 
-    private fun beginVBlank() {
+    private inline fun beginVBlank() {
         triggerNmi()
     }
 
-    private fun triggerNmi() {
+    private inline fun triggerNmi() {
         if (flags.vBlank) {
             console.cpu.nmi = true
         }

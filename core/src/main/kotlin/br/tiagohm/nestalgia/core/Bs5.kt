@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-class Bs5 : Mapper() {
+class Bs5(console: Console) : Mapper(console) {
 
     override val dipSwitchCount = 2
 

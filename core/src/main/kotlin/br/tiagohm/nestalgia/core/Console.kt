@@ -8,55 +8,38 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
-class Console(val settings: EmulationSettings) : Battery, Resetable, Closeable, Snapshotable, Runnable {
+class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) : Battery, Resetable, Closeable, Snapshotable, Runnable {
 
     private val pauseCounter = AtomicInteger(0)
 
-    val batteryManager = BatteryManager(this)
-    val notificationManager = NotificationManager()
+    @PublishedApi @JvmField internal var memoryManager = MemoryManager(this)
+
+    @JvmField val batteryManager = BatteryManager(this)
+    @JvmField val notificationManager = NotificationManager()
 
     @JvmField internal val debugger = Debugger(this)
 
-    lateinit var cpu: Cpu
-        private set
-
-    lateinit var ppu: Ppu
-        private set
-
-    lateinit var apu: Apu
-        private set
-
-    lateinit var controlManager: ControlManager
-        private set
-
-    lateinit var memoryManager: MemoryManager
-        private set
+    @PublishedApi @JvmField internal var controlManager = ControlManager(this)
+    @PublishedApi @JvmField internal var cpu = Cpu(this)
+    @PublishedApi @JvmField internal var apu = Apu(this)
+    @PublishedApi @JvmField internal var ppu = Ppu(this)
 
     lateinit var systemActionManager: SystemActionManager
+        private set
+
+    var region = Region.AUTO
         private set
 
     var mapper: Mapper? = null
         internal set
 
-    var videoDecoder: VideoDecoder
-        private set
+    @JvmField internal val videoDecoder = VideoDecoder(this)
+    @JvmField internal val videoRenderer = VideoRenderer(this)
+    @JvmField internal val saveStateManager = SaveStateManager(this)
+    @JvmField internal val cheatManager = CheatManager(this)
+    @JvmField internal val soundMixer = SoundMixer(this)
 
-    var videoRenderer: VideoRenderer
-        private set
-
-    var saveStateManager: SaveStateManager
-        private set
-
-    var cheatManager: CheatManager
-        private set
-
-    var soundMixer: SoundMixer
-        private set
-
-    var keyManager: KeyManager? = null
-
-    var region = Region.NTSC
-        private set
+    @JvmField internal var keyManager: KeyManager? = null
 
     private var stop = AtomicBoolean(false)
     private var mRunning = false
@@ -76,15 +59,6 @@ class Console(val settings: EmulationSettings) : Battery, Resetable, Closeable, 
     var emulationThreadId = 0L
         private set
 
-    init {
-        videoDecoder = VideoDecoder(this)
-        videoRenderer = VideoRenderer(this)
-        saveStateManager = SaveStateManager(this)
-        cheatManager = CheatManager(this)
-        soundMixer = SoundMixer(this)
-        soundMixer.updateRegion(region)
-    }
-
     override fun close() {
         debugger.close()
 
@@ -98,9 +72,7 @@ class Console(val settings: EmulationSettings) : Battery, Resetable, Closeable, 
         videoRenderer.close()
         soundMixer.close()
 
-        if (::controlManager.isInitialized) {
-            controlManager.close()
-        }
+        controlManager.close()
     }
 
     fun release(forShutdown: Boolean) {
@@ -169,8 +141,11 @@ class Console(val settings: EmulationSettings) : Battery, Resetable, Closeable, 
         videoDecoder.stopThread()
 
         memoryManager = MemoryManager(this)
+
         cpu = Cpu(this)
+
         apu = Apu(this)
+        apu.initialize()
 
         val info = newMapper.info
         LOG.info(
@@ -196,11 +171,11 @@ class Console(val settings: EmulationSettings) : Battery, Resetable, Closeable, 
 
         // Temporarely disable battery saves to prevent battery files from
         // being created for the wrong game (for Battle Box & Turbo File)
-        batteryManager.saveEnabled = false
+        batteryManager.disable()
 
         var pollCounter = 0
 
-        if (::controlManager.isInitialized && !isDifferentGame) {
+        if (!isDifferentGame) {
             // When power cycling, poll counter must be preserved to allow movies to playback properly
             pollCounter = controlManager.pollCounter
         }
@@ -210,10 +185,12 @@ class Console(val settings: EmulationSettings) : Battery, Resetable, Closeable, 
         }
 
         controlManager = ControlManager(this)
+        controlManager.initialize()
 
-        batteryManager.saveEnabled = true
+        batteryManager.enable()
 
         ppu = if (newMapper is NsfMapper) NsfPpu(this) else Ppu(this)
+        ppu.initialize()
 
         controlManager.pollCounter = pollCounter
         controlManager.updateControlDevices(true)

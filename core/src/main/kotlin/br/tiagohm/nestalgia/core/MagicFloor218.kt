@@ -5,7 +5,7 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_218
 
-class MagicFloor218 : Mapper() {
+class MagicFloor218(console: Console) : Mapper(console) {
 
     override val prgPageSize = 0x8000
 

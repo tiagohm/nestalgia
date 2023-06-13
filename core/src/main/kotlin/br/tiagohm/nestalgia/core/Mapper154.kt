@@ -4,7 +4,7 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_154
 
-class Mapper154 : Mapper088() {
+class Mapper154(console: Console) : Mapper088(console) {
 
     override fun writeRegister(addr: Int, value: Int) {
         mirroringType = if (value.bit6) SCREEN_B_ONLY else SCREEN_A_ONLY

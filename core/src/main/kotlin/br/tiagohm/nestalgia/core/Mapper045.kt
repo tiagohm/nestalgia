@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_045
 
-class Mapper045 : MMC3() {
+class Mapper045(console: Console) : MMC3(console) {
 
     private var regIndex = 0
     private val reg = IntArray(4)

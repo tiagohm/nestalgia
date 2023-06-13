@@ -7,7 +7,7 @@ import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_105
 
-class Mapper105 : MMC1() {
+class Mapper105(console: Console) : MMC1(console) {
 
     private var initState = 0
     private var irqCounter = 0L

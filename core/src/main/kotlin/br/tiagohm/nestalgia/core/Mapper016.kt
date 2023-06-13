@@ -4,7 +4,7 @@ import br.tiagohm.nestalgia.core.MemoryOperation.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_016
 
-class Mapper016 : BandaiFgc() {
+class Mapper016(console: Console) : BandaiFgc(console) {
 
     override fun initialize() {
         super.initialize()

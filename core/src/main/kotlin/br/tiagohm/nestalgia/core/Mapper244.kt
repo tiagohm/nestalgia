@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_244
 
-class Mapper244 : Mapper() {
+class Mapper244(console: Console) : Mapper(console) {
 
     override val prgPageSize = 0x8000
 

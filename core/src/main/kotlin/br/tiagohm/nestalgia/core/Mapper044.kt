@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_044
 
-class Mapper044 : MMC3() {
+class Mapper044(console: Console) : MMC3(console) {
 
     private var selectedBlock = 0
 

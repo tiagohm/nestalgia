@@ -122,6 +122,10 @@ data class Emulator(
         return true
     }
 
+    fun cheats(cheats: Iterable<CheatInfo>) {
+        console.cheatManager.set(cheats)
+    }
+
     fun saveState(): ByteArray {
         val snapshot = Snapshot()
         saveState(snapshot)

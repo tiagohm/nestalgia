@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_206
 
-open class Namco108 : MMC3() {
+open class Namco108(console: Console) : MMC3(console) {
 
     override fun updateMirroring() {
         // Do nothing - Namco 108 has hardwired mirroring only
