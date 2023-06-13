@@ -57,6 +57,7 @@ object MapperFactory {
             49 -> Mapper049(console)
             52 -> Mapper052(console)
             63 -> Bmc63(console)
+            66 -> GxROM(console)
             71 -> BF909x(console)
             72 -> JalecoJF17AndJF19(console, false)
             74 -> Mapper074(console)
