@@ -31,15 +31,15 @@ object MapperFactory {
             17 -> Mapper017(console)
             28 -> Action53(console)
             29 -> SealieComputing(console)
-            30 -> UnRom512(console)
+            30 -> UNROM512(console)
             31 -> NsfCart31(console)
             33 -> TaitoTc0190(console)
             34 -> {
                 when (val sid = data.info.subMapperId) {
                     // BnROM uses CHR RAM (so no CHR rom in the NES file)
-                    0 -> if (data.chrRom.isEmpty()) BnRom(console) else Nina01(console)
+                    0 -> if (data.chrRom.isEmpty()) BnROM(console) else Nina01(console)
                     1 -> Nina01(console)
-                    2 -> BnRom(console)
+                    2 -> BnROM(console)
                     else -> throw IOException("unsupported mapper $id with submapper $sid")
                 }
             }
