@@ -31,7 +31,7 @@ open class MMC3(console: Console) : Mapper(console) {
     private var wramEnabled = false
     private var wramWriteProtected = false
     private var mForceMmc3RevAIrqs = false
-    private var a12LowClock = 0L
+    private val a12Watcher = A12RisingEdgeWatcher(console)
 
     @JvmField protected var irqReloadValue = 0
     @JvmField protected var irqCounter = 0
@@ -235,20 +235,8 @@ open class MMC3(console: Console) : Mapper(console) {
         console.cpu.setIRQSource(IRQSource.EXTERNAL)
     }
 
-    private fun isA12RisingEdge(addr: Int): Boolean {
-        if (addr and 0x1000 != 0) {
-            val isRisingEdge = a12LowClock > 0 && (console.masterClock - a12LowClock) >= 3
-            a12LowClock = 0L
-            return isRisingEdge
-        } else if (a12LowClock == 0L) {
-            a12LowClock = console.masterClock
-        }
-
-        return false
-    }
-
     override fun notifyVRAMAddressChange(addr: Int) {
-        if (isA12RisingEdge(addr)) {
+        if (a12Watcher.isRisingEdge(addr)) {
             val count = irqCounter
 
             if (irqCounter == 0 || irqReload) {
@@ -274,7 +262,7 @@ open class MMC3(console: Console) : Mapper(console) {
         super.saveState(s)
 
         s.write("registers", registers)
-        s.write("a12LowClock", a12LowClock)
+        s.write("a12Watcher", a12Watcher)
         s.write("state", state)
         s.write("currentRegister", currentRegister)
         s.write("chrMode", chrMode)
@@ -291,7 +279,7 @@ open class MMC3(console: Console) : Mapper(console) {
         super.restoreState(s)
 
         s.readIntArray("registers", registers) ?: resetRegisters()
-        a12LowClock = s.readLong("a12LowClock")
+        s.readSnapshotable("a12Watcher", a12Watcher, a12Watcher::reset)
         s.readSnapshotable("state", state, ::resetState)
         currentRegister = s.readInt("currentRegister")
         chrMode = s.readInt("chrMode")

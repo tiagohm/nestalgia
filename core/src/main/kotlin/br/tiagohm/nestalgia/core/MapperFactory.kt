@@ -43,6 +43,7 @@ object MapperFactory {
                     else -> throw IOException("unsupported mapper $id with submapper $sid")
                 }
             }
+            35 -> Mapper035(console)
             36 -> Txc22000(console)
             37 -> Mapper037(console)
             38 -> UnlPci556(console)
