@@ -59,6 +59,7 @@ object MapperFactory {
             71 -> BF909x()
             74 -> Mapper074()
             76 -> Mapper076()
+            77 -> IremLrog017()
             79 -> Nina0306(false)
             87 -> Mapper087()
             88 -> Mapper088()
