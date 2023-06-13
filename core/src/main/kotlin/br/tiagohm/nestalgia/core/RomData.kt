@@ -1,7 +1,7 @@
 package br.tiagohm.nestalgia.core
 
 data class RomData(
-    val info: RomInfo,
+    val info: RomInfo = RomInfo.EMPTY,
     val chrRamSize: Int = -1,
     val saveChrRamSize: Int = -1,
     val saveRamSize: Int = -1,
@@ -48,5 +48,10 @@ data class RomData(
         result = 31 * result + biosMissing.hashCode()
         result = 31 * result + fdsBios.contentHashCode()
         return result
+    }
+
+    companion object {
+
+        @JvmStatic val EMPTY = RomData()
     }
 }

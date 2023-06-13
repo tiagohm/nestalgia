@@ -1,8 +1,8 @@
 package br.tiagohm.nestalgia.core
 
 data class RomInfo(
-    val name: String,
-    val format: RomFormat,
+    val name: String = "",
+    val format: RomFormat = RomFormat.UNKNOWN,
     val isNes20Header: Boolean = false,
     val isHeaderless: Boolean = false,
     val filePrgOffset: Int = 0,
@@ -24,4 +24,9 @@ data class RomInfo(
     val gameInfo: GameInfo? = null,
 ) {
     val isInDatabase = gameInfo != null
+
+    companion object {
+
+        @JvmStatic val EMPTY = RomInfo()
+    }
 }

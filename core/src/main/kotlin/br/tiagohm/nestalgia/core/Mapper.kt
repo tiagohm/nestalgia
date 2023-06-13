@@ -102,14 +102,14 @@ abstract class Mapper : Resetable, Battery, Peekable, MemoryHandler, Closeable, 
     lateinit var console: Console
         private set
 
-    lateinit var data: RomData
+    var data = RomData.EMPTY
         private set
 
-    val info
+    inline val info
         get() = data.info
 
-    val name
-        get() = if (::data.isInitialized) info.name else ""
+    inline val name
+        get() = info.name
 
     val hasChrRam
         get() = mChrRamSize > 0
