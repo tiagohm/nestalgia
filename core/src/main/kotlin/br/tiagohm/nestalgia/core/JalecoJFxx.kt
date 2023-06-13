@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-abstract class JalecoJfxx : Mapper() {
+abstract class JalecoJFxx : Mapper() {
 
     final override val prgPageSize = 0x8000
 
