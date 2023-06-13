@@ -143,6 +143,7 @@ object MapperFactory {
             255 -> Bmc255(console)
             286 -> Bs5(console)
             328 -> Rt01(console)
+            346 -> Kaiser7012(console)
             FDS_MAPPER_ID -> Fds(console)
             32770 -> Gs2013(console)
             else -> {
