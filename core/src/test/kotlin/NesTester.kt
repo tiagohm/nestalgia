@@ -12,15 +12,14 @@ class NesTester {
     private val video = Video()
     private val controller = Controller()
     private val emulator = Emulator(console, speaker, video, controller, emptyList())
-    private val defaultKeyMapping = KeyMapping(7, 6, 0, 1, 2, 3, 4, 5, 8)
-    private val pressedButtons = BooleanArray(64)
+    private val pressedButtons = BooleanArray(256)
 
     internal val frameHashes = HashSet<String>(2048)
 
     fun load(path: Path) {
         frameHashes.clear()
-        emulator.settings.controllerKeys(0, defaultKeyMapping)
-        emulator.settings.controllerType(0, NES_CONTROLLER)
+        emulator.settings.port1.type = NES_CONTROLLER
+        DEFAULT_KEYS.copyTo(emulator.settings.port1.keyMapping)
         emulator.load(path.readBytes().toIntArray(), path.nameWithoutExtension)
     }
 
@@ -39,7 +38,8 @@ class NesTester {
     }
 
     fun pressButton(button: StandardControllerButton) {
-        pressedButtons[button.bit] = true
+        val code = DEFAULT_KEYS.key(button).code
+        pressedButtons[code] = true
     }
 
     fun takeScreenshot(): IntArray {
@@ -78,13 +78,11 @@ class NesTester {
 
     private inner class Controller : KeyManager {
 
-        override fun isKeyPressed(keyCode: Int): Boolean {
-            val pressed = pressedButtons[keyCode]
-            pressedButtons[keyCode] = false
+        override fun isKeyPressed(key: Key): Boolean {
+            val pressed = pressedButtons[key.code]
+            pressedButtons[key.code] = false
             return pressed
         }
-
-        override fun isMouseButtonPressed(mouseButton: MouseButton) = false
 
         override fun refreshKeyState() {}
 
@@ -93,5 +91,10 @@ class NesTester {
 
         override var mouseY = 0
             private set
+    }
+
+    companion object {
+
+        @JvmStatic private val DEFAULT_KEYS = KeyMapping.arrowKeys()
     }
 }

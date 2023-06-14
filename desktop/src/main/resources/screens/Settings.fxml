@@ -11,7 +11,7 @@
             prefWidth="512.0"
             xmlns="http://javafx.com/javafx/20"
             xmlns:fx="http://javafx.com/fxml/1">
-    <VBox spacing="4.0"
+    <VBox spacing="2.0"
           alignment="TOP_CENTER"
           AnchorPane.bottomAnchor="0.0"
           AnchorPane.leftAnchor="0.0"
@@ -20,10 +20,27 @@
         <padding>
             <Insets bottom="16.0"/>
         </padding>
+        <HBox alignment="CENTER_LEFT"
+              spacing="4.0">
+            <padding>
+                <Insets topRightBottomLeft="16.0"/>
+            </padding>
+            <Label text="Profile"/>
+            <ChoiceBox fx:id="profileChoiceBox"
+                       minWidth="128.0"
+                       maxWidth="128.0">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="GLOBAL"/>
+                        <String fx:value="CONSOLE"/>
+                    </FXCollections>
+                </items>
+            </ChoiceBox>
+        </HBox>
         <TabPane tabClosingPolicy="UNAVAILABLE"
                  VBox.vgrow="ALWAYS">
             <Tab text="Controller">
-                <VBox spacing="4.0">
+                <VBox spacing="2.0">
                     <padding>
                         <Insets top="16.0"
                                 right="16.0"
@@ -72,7 +89,6 @@
                                     <ControllerType fx:value="NES_CONTROLLER"/>
                                     <ControllerType fx:value="FAMICOM_CONTROLLER"/>
                                     <ControllerType fx:value="NES_ZAPPER"/>
-                                    <ControllerType fx:value="FOUR_SCORE"/>
                                     <ControllerType fx:value="NES_ARKANOID_CONTROLLER"/>
                                     <ControllerType fx:value="POWER_PAD_SIDE_A"/>
                                     <ControllerType fx:value="POWER_PAD_SIDE_B"/>
@@ -86,6 +102,77 @@
                                 userData="2"
                                 onAction="#openPortSettings"/>
                     </HBox>
+                    <VBox fx:id="fourScorePane"
+                          spacing="2.0">
+                        <HBox alignment="CENTER_LEFT"
+                              spacing="4.0">
+                            <Label text="Port 1"/>
+                            <ChoiceBox fx:id="subPort1ChoiceBox"
+                                       minWidth="260.0"
+                                       maxWidth="260.0">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <ControllerType fx:value="NONE"/>
+                                        <ControllerType fx:value="NES_CONTROLLER"/>
+                                    </FXCollections>
+                                </items>
+                            </ChoiceBox>
+                            <Button text="Settings"
+                                    userData="1"
+                                    onAction="#openSubPortSettings"/>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT"
+                              spacing="4.0">
+                            <Label text="Port 2"/>
+                            <ChoiceBox fx:id="subPort2ChoiceBox"
+                                       minWidth="260.0"
+                                       maxWidth="260.0">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <ControllerType fx:value="NONE"/>
+                                        <ControllerType fx:value="NES_CONTROLLER"/>
+                                    </FXCollections>
+                                </items>
+                            </ChoiceBox>
+                            <Button text="Settings"
+                                    userData="2"
+                                    onAction="#openSubPortSettings"/>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT"
+                              spacing="4.0">
+                            <Label text="Port 3"/>
+                            <ChoiceBox fx:id="subPort3ChoiceBox"
+                                       minWidth="260.0"
+                                       maxWidth="260.0">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <ControllerType fx:value="NONE"/>
+                                        <ControllerType fx:value="NES_CONTROLLER"/>
+                                    </FXCollections>
+                                </items>
+                            </ChoiceBox>
+                            <Button text="Settings"
+                                    userData="3"
+                                    onAction="#openSubPortSettings"/>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT"
+                              spacing="4.0">
+                            <Label text="Port 4"/>
+                            <ChoiceBox fx:id="subPort4ChoiceBox"
+                                       minWidth="260.0"
+                                       maxWidth="260.0">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <ControllerType fx:value="NONE"/>
+                                        <ControllerType fx:value="NES_CONTROLLER"/>
+                                    </FXCollections>
+                                </items>
+                            </ChoiceBox>
+                            <Button text="Settings"
+                                    userData="4"
+                                    onAction="#openSubPortSettings"/>
+                        </HBox>
+                    </VBox>
                     <HBox alignment="CENTER_LEFT"
                           spacing="4.0">
                         <Label text="Expansion port"/>
@@ -120,46 +207,77 @@
                         <Button text="Settings"
                                 onAction="#openExpansionPortSettings"/>
                     </HBox>
-                    <HBox alignment="CENTER_LEFT"
-                          spacing="4.0">
-                        <Label text="Sub Port 1"/>
-                        <ChoiceBox fx:id="subPort1ChoiceBox"
-                                   minWidth="260.0"
-                                   maxWidth="260.0"/>
-                        <Button text="Settings"
-                                userData="1"
-                                onAction="#openSubPortSettings"/>
-                    </HBox>
-                    <HBox alignment="CENTER_LEFT"
-                          spacing="4.0">
-                        <Label text="Sub Port 2"/>
-                        <ChoiceBox fx:id="subPort2ChoiceBox"
-                                   minWidth="260.0"
-                                   maxWidth="260.0"/>
-                        <Button text="Settings"
-                                userData="2"
-                                onAction="#openSubPortSettings"/>
-                    </HBox>
-                    <HBox alignment="CENTER_LEFT"
-                          spacing="4.0">
-                        <Label text="Sub Port 3"/>
-                        <ChoiceBox fx:id="subPort3ChoiceBox"
-                                   minWidth="260.0"
-                                   maxWidth="260.0"/>
-                        <Button text="Settings"
-                                userData="3"
-                                onAction="#openSubPortSettings"/>
-                    </HBox>
-                    <HBox alignment="CENTER_LEFT"
-                          spacing="4.0">
-                        <Label text="Sub Port 4"/>
-                        <ChoiceBox fx:id="subPort4ChoiceBox"
-                                   minWidth="260.0"
-                                   maxWidth="260.0"/>
-                        <Button text="Settings"
-                                userData="4"
-                                onAction="#openSubPortSettings"/>
-                    </HBox>
+                    <VBox fx:id="twoFourPlayerAdapterPane"
+                          spacing="2.0">
+                        <HBox alignment="CENTER_LEFT"
+                              spacing="4.0">
+                            <Label text="Port 1"/>
+                            <ChoiceBox fx:id="expansionSubPort1ChoiceBox"
+                                       minWidth="260.0"
+                                       maxWidth="260.0">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <ControllerType fx:value="NONE"/>
+                                        <ControllerType fx:value="NES_CONTROLLER"/>
+                                    </FXCollections>
+                                </items>
+                            </ChoiceBox>
+                            <Button text="Settings"
+                                    userData="1"
+                                    onAction="#openExpansionSubPortSettings"/>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT"
+                              spacing="4.0">
+                            <Label text="Port 2"/>
+                            <ChoiceBox fx:id="expansionSubPort2ChoiceBox"
+                                       minWidth="260.0"
+                                       maxWidth="260.0">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <ControllerType fx:value="NONE"/>
+                                        <ControllerType fx:value="NES_CONTROLLER"/>
+                                    </FXCollections>
+                                </items>
+                            </ChoiceBox>
+                            <Button text="Settings"
+                                    userData="2"
+                                    onAction="#openExpansionSubPortSettings"/>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT"
+                              spacing="4.0">
+                            <Label text="Port 3"/>
+                            <ChoiceBox fx:id="expansionSubPort3ChoiceBox"
+                                       minWidth="260.0"
+                                       maxWidth="260.0">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <ControllerType fx:value="NONE"/>
+                                        <ControllerType fx:value="NES_CONTROLLER"/>
+                                    </FXCollections>
+                                </items>
+                            </ChoiceBox>
+                            <Button text="Settings"
+                                    userData="3"
+                                    onAction="#openExpansionSubPortSettings"/>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT"
+                              spacing="4.0">
+                            <Label text="Port 4"/>
+                            <ChoiceBox fx:id="expansionSubPort4ChoiceBox"
+                                       minWidth="260.0"
+                                       maxWidth="260.0">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <ControllerType fx:value="NONE"/>
+                                        <ControllerType fx:value="NES_CONTROLLER"/>
+                                    </FXCollections>
+                                </items>
+                            </ChoiceBox>
+                            <Button text="Settings"
+                                    userData="4"
+                                    onAction="#openExpansionSubPortSettings"/>
+                        </HBox>
+                    </VBox>
                 </VBox>
             </Tab>
             <Tab text="Audio">
@@ -404,11 +522,12 @@
         </TabPane>
         <HBox spacing="4.0"
               alignment="CENTER">
-            <Button text="Reset"
-                    onAction="#reset"/>
-
-            <Button text="OK"
-                    onAction="#save"/>
+            <Button fx:id="resetToGlobalButton"
+                    text="Reset to global"
+                    onAction="#resetToGlobal"/>
+            <Button fx:id="resetToDefaultButton"
+                    text="Reset to default"
+                    onAction="#resetToDefault"/>
         </HBox>
     </VBox>
 </AnchorPane>

@@ -5,6 +5,7 @@ import br.tiagohm.nestalgia.core.Snapshot
 import br.tiagohm.nestalgia.core.Snapshotable
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import java.nio.file.Path
 import kotlin.io.path.exists
@@ -14,7 +15,7 @@ import kotlin.io.path.outputStream
 @Component
 class Preferences(
     @Autowired appDir: Path,
-    @Autowired val emulationSettings: EmulationSettings,
+    @Autowired @Qualifier("globalSettings") val settings: EmulationSettings,
 ) : Snapshotable {
 
     private val path = Path.of("$appDir", "config.nst")
@@ -34,13 +35,13 @@ class Preferences(
     }
 
     final override fun saveState(s: Snapshot) {
-        s.write("emulationSettings", emulationSettings)
+        s.write("settings", settings)
         s.write("recentlyOpened", recentlyOpened.map { "$it" }.toTypedArray())
         s.write("loadRomDir", loadRomDir)
     }
 
     final override fun restoreState(s: Snapshot) {
-        s.readSnapshotable("emulationSettings", emulationSettings)
+        s.readSnapshotable("settings", settings)
         s.readArray<String>("recentlyOpened")?.map(Path::of)?.toTypedArray()?.copyInto(recentlyOpened)
         loadRomDir = s.readString("loadRomDir")
     }

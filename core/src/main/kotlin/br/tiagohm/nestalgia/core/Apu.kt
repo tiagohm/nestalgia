@@ -24,6 +24,9 @@ class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, I
         console.memoryManager.registerIODevice(deltaModulationChannel)
 
         reset(false)
+
+        updateRegion(console.region)
+        console.soundMixer.updateRegion(console.region)
     }
 
     val dmcReadAddress

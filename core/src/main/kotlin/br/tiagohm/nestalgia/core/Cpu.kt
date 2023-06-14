@@ -7,7 +7,7 @@ import br.tiagohm.nestalgia.core.Region.*
 import kotlin.random.Random
 
 @Suppress("NOTHING_TO_INLINE")
-class Cpu(private val console: Console) : Memory, Snapshotable {
+class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snapshotable {
 
     private var startClockCount = 0
     private var endClockCount = 0
@@ -820,7 +820,11 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         }
     }
 
-    fun reset(softReset: Boolean, region: Region) {
+    override fun initialize() {
+        masterClockDivider(console.region)
+    }
+
+    override fun reset(softReset: Boolean) {
         state.nmi = false
         state.irq = 0
 
@@ -852,7 +856,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
         val ppuDivider: Int
         val cpuDivider: Int
 
-        when (region) {
+        when (console.region) {
             PAL -> {
                 ppuDivider = 5
                 cpuDivider = 16
@@ -1092,6 +1096,7 @@ class Cpu(private val console: Console) : Memory, Snapshotable {
             when (internalAddr) {
                 0x4015 -> {
                     value = memoryManager.read(internalAddr, DMA_READ)
+
                     if (!isSameAddress) {
                         // Also trigger a read from the actual address the CPU was supposed to read from (external bus)
                         memoryManager.read(addr, DMA_READ)

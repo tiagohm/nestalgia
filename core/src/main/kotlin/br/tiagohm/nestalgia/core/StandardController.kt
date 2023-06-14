@@ -4,9 +4,10 @@ import br.tiagohm.nestalgia.core.ControllerType.*
 
 // https://wiki.nesdev.com/w/index.php/Standard_controller
 
-class StandardController(console: Console, type: ControllerType, port: Int) : ControlDevice(console, type, port) {
-
-    private val keys = console.settings.controllerKeys(port)
+class StandardController(
+    console: Console, type: ControllerType, port: Int,
+    private val keyMapping: KeyMapping,
+) : ControlDevice(console, type, port) {
 
     private var microphoneEnabled = port == 1 && type == FAMICOM_CONTROLLER_P2
     private val turboSpeed = 2 // 0..4
@@ -63,7 +64,7 @@ class StandardController(console: Console, type: ControllerType, port: Int) : Co
     }
 
     private fun pressedStateFromKeys(button: ControllerButton) {
-        setPressedState(button, keys.key(button))
+        setPressedState(button, keyMapping.key(button))
     }
 
     override fun refreshStateBuffer() {

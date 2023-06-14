@@ -67,12 +67,5 @@
                     majorTickUnit="3.0"
                     maxWidth="Infinity"/>
         </HBox>
-        <HBox alignment="CENTER"
-              spacing="2.0">
-            <Button text="Reset"
-                    onAction="#reset"/>
-            <Button text="OK"
-                    onAction="#save"/>
-        </HBox>
     </VBox>
 </AnchorPane>

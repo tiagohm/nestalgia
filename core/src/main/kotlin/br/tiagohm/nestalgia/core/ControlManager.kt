@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.ConsoleType.*
 import br.tiagohm.nestalgia.core.ControlDevice.Companion.EXP_DEVICE_PORT
-import br.tiagohm.nestalgia.core.ControlDevice.Companion.PORT_COUNT
 import br.tiagohm.nestalgia.core.ControllerType.*
 import java.io.Closeable
 
@@ -80,20 +79,18 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
 
         clearDevices()
 
-        repeat(2) {
-            createControllerDevice(controllerType(it), it)
-                ?.also(::registerControlDevice)
-        }
+        createControllerDevice(settings.port1.type, 0)?.also(::registerControlDevice)
+        createControllerDevice(settings.port2.type, 1)?.also(::registerControlDevice)
 
-        val expansionDevice = createControllerDevice(settings.expansionPortDevice, EXP_DEVICE_PORT)
+        val expansionDevice = createControllerDevice(settings.expansionPort.type, EXP_DEVICE_PORT)
 
         if (expansionDevice != null) {
             registerControlDevice(expansionDevice)
 
-//            if (std::dynamic_pointer_cast<FamilyBasicKeyboard>(expDevice)) {
-//                //Automatically connect the data recorder if the family basic keyboard is connected
-//                RegisterControlDevice(shared_ptr<FamilyBasicDataRecorder>(new FamilyBasicDataRecorder (_emu)));
-//            }
+            // if (std::dynamic_pointer_cast<FamilyBasicKeyboard>(expDevice)) {
+            //     // TODO: Automatically connect the data recorder if the family basic keyboard is connected
+            //     RegisterControlDevice(shared_ptr<FamilyBasicDataRecorder>(new FamilyBasicDataRecorder (_emu)));
+            // }
         }
 
         val hasKeyboard = this.hasKeyboard
@@ -106,17 +103,26 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
     }
 
     private fun createControllerDevice(type: ControllerType, port: Int): ControlDevice? {
+        val settings = console.settings
+
+        val keyMapping = when (port) {
+            0 -> settings.port1.keyMapping
+            1 -> settings.port2.keyMapping
+            EXP_DEVICE_PORT -> settings.expansionPort.keyMapping
+            else -> KeyMapping()
+        }
+
         return when (type) {
             NES_CONTROLLER,
             FAMICOM_CONTROLLER,
-            FAMICOM_CONTROLLER_P2 -> StandardController(console, type, port)
-            NES_ZAPPER -> Zapper(console, type, port)
-            FAMICOM_ZAPPER -> Zapper(console, type, port)
+            FAMICOM_CONTROLLER_P2 -> StandardController(console, type, port, keyMapping)
+            NES_ZAPPER -> Zapper(console, type, port, keyMapping)
+            FAMICOM_ZAPPER -> Zapper(console, type, port, keyMapping)
             ASCII_TURBO_FILE -> AsciiTurboFile(console)
             BATTLE_BOX -> BattleBox(console)
-            FOUR_SCORE -> FourScore(console, type, 0)
-            TWO_PLAYER_ADAPTER -> TwoPlayerAdapter(console, type)
-            FOUR_PLAYER_ADAPTER -> FourScore(console, type, EXP_DEVICE_PORT)
+            FOUR_SCORE -> FourScore(console, type, 0, *settings.subPort1)
+            TWO_PLAYER_ADAPTER -> TwoPlayerAdapter(console, type, *settings.expansionSubPort)
+            FOUR_PLAYER_ADAPTER -> FourScore(console, type, EXP_DEVICE_PORT, *settings.expansionSubPort)
             else -> null
         }
     }
@@ -210,22 +216,7 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
         controlDevices.add(device)
     }
 
-    protected open fun controllerType(port: Int): ControllerType {
-        return console.settings.controllerType(port)
-    }
-
     override fun saveState(s: Snapshot) {
-        val region = console.region
-        val expansionPortDevice = console.settings.expansionPortDevice
-        val consoleType = console.settings.consoleType
-        val asciiTurboFileSlot = console.settings.asciiTurboFileSlot
-        val controllerTypes = Array(PORT_COUNT) { console.settings.controllerType(it) }
-
-        s.write("region", region)
-        s.write("expansionPortDevice", expansionPortDevice)
-        s.write("consoleType", consoleType)
-        s.write("asciiTurboFileSlot", asciiTurboFileSlot)
-        s.write("controllerTypes", controllerTypes)
         s.write("lagCounter", lagCounter)
         s.write("pollCounter", pollCounter)
 
@@ -233,15 +224,9 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
     }
 
     override fun restoreState(s: Snapshot) {
-        console.settings.region = s.readEnum("region", Region.AUTO)
-        console.settings.expansionPortDevice = s.readEnum("expansionPortDevice", NONE)
-        console.settings.consoleType = s.readEnum("consoleType", NES_001)
-        console.settings.asciiTurboFileSlot = s.readInt("asciiTurboFileSlot")
-        val controllerTypes = s.readArray<ControllerType>("controllerTypes")
         lagCounter = s.readInt("lagCounter")
         pollCounter = s.readInt("pollCounter")
 
-        controllerTypes?.forEachIndexed { i, c -> console.settings.controllerType(i, c) }
         controlDevices.forEachIndexed { i, c -> s.readSnapshotable("controlDevice$i", c) }
     }
 }

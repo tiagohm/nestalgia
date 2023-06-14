@@ -1,6 +1,9 @@
 package br.tiagohm.nestalgia.core
 
-class TwoPlayerAdapter(console: Console, type: ControllerType) : ControllerHub(2, console, type, EXP_DEVICE_PORT) {
+class TwoPlayerAdapter(
+    console: Console, type: ControllerType,
+    vararg controllers: ControllerSettings,
+) : ControllerHub(2, console, type, EXP_DEVICE_PORT, *controllers) {
 
     override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         super.write(addr, value and 0x01, type)

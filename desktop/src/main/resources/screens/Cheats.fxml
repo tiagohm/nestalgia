@@ -1,5 +1,4 @@
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.*?>
 <AnchorPane maxHeight="-Infinity"
@@ -20,10 +19,5 @@
         <ListView fx:id="cheatsListView"
                   minWidth="380.0"
                   maxHeight="160.0"/>
-        <HBox alignment="CENTER"
-              spacing="2.0">
-            <Button text="OK"
-                    onAction="#ok"/>
-        </HBox>
     </VBox>
 </AnchorPane>

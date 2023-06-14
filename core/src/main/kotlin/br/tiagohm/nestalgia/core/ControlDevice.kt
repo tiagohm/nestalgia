@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import org.slf4j.LoggerFactory
+
 abstract class ControlDevice(
     @JvmField protected val console: Console,
     @JvmField val type: ControllerType,
@@ -78,16 +80,18 @@ abstract class ControlDevice(
         state[byteIndex] = value and bitMask.inv()
     }
 
-    protected fun setPressedState(button: ControllerButton, keyCode: Int) {
+    protected fun setPressedState(button: ControllerButton, key: Key) {
+        val keyCode = key.code
+
         if (keyboard && keyCode < 0x200 && !console.settings.isKeyboardMode) {
             // Prevent keyboard device input when keyboard mode is off
             return
         }
 
         if (console.keyManager != null &&
-            console.settings.inputEnabled &&
+            console.settings.isInputEnabled &&
             (!console.settings.isKeyboardMode || keyCode >= 0x200 || keyboard) &&
-            console.keyManager!!.isKeyPressed(keyCode)
+            console.keyManager!!.isKeyPressed(key)
         ) {
             setBit(button)
         }
@@ -100,11 +104,17 @@ abstract class ControlDevice(
     override fun saveState(s: Snapshot) {
         s.write("strobe", strobe)
         s.write("state", state)
+        s.write("type", type)
+        s.write("port", port)
     }
 
     override fun restoreState(s: Snapshot) {
-        strobe = s.readBoolean("strobe")
-        s.readSnapshotable("state", state)
+        if (s.readEnum("type", type) == type && s.readInt("port", port) == port) {
+            strobe = s.readBoolean("strobe")
+            s.readSnapshotable("state", state)
+        } else {
+            LOG.warn("unable to restore state for control device. type={}, port={}", type, port)
+        }
     }
 
     companion object {
@@ -114,5 +124,7 @@ abstract class ControlDevice(
         const val MAPPER_INPUT_PORT = 6
         const val EXP_DEVICE_PORT_2 = 7
         const val PORT_COUNT = 8
+
+        @JvmStatic private val LOG = LoggerFactory.getLogger(ControlDevice::class.java)
     }
 }

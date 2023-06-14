@@ -4,7 +4,8 @@ import br.tiagohm.nestalgia.core.ControllerType.*
 
 // https://wiki.nesdev.com/w/index.php/Four_Score
 
-class FourScore(console: Console, type: ControllerType, port: Int) : ControllerHub(4, console, type, port) {
+class FourScore(console: Console, type: ControllerType, port: Int, vararg controllers: ControllerSettings) :
+    ControllerHub(4, console, type, port, *controllers) {
 
     private val signature = IntArray(2)
     private val counter = IntArray(2)
@@ -55,10 +56,6 @@ class FourScore(console: Console, type: ControllerType, port: Int) : ControllerH
         }
 
         return output
-    }
-
-    override fun write(addr: Int, value: Int, type: MemoryOperationType) {
-        super.write(addr, value and 0x01, type)
     }
 
     override fun saveState(s: Snapshot) {

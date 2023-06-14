@@ -89,10 +89,8 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
         mouseKeyboard = MouseKeyboard(console, television)
         emulator = Emulator(console, speaker, television, mouseKeyboard, inputProviders)
 
-        loadPreferences()
-
-        regionToggleGroup.selectToggle(regionToggleGroup.toggles[preferences.emulationSettings.region.ordinal])
-        speedToggleGroup.selectToggle(speedToggleGroup.toggles[SPEEDS.indexOf(preferences.emulationSettings.emulationSpeed())])
+        regionToggleGroup.selectToggle(regionToggleGroup.toggles[preferences.settings.region.ordinal])
+        speedToggleGroup.selectToggle(speedToggleGroup.toggles[SPEEDS.indexOf(preferences.settings.emulationSpeed())])
 
         window.fullScreenProperty().addListener(InvalidationListener {
             if (window.isFullScreen) {
@@ -116,7 +114,9 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
 
     @FXML
     private fun openSettings() {
+        console.pause()
         settingsWindow.showAndWait(this)
+        console.resume()
     }
 
     @FXML
@@ -185,6 +185,8 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
         val name = path.nameWithoutExtension
 
         emulator.debugRun()
+
+        loadConsolePreferences()
 
         if (emulator.load(path.readBytes().toIntArray(), name, FDS_BIOS)) {
             preferences.loadRomDir = "${path.parent}"
@@ -322,17 +324,26 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
         mouseKeyboard.onMouseReleased(event.mouseButton)
     }
 
-    private fun loadPreferences() {
-        val snapshot = Snapshot()
-        preferences.emulationSettings.saveState(snapshot)
-        emulator.settings.restoreState(snapshot)
+    private fun loadConsolePreferences() {
+        // Copy global settings to console settings.
+        preferences.settings.copyTo(console.settings)
 
-        if (emulator.settings.controllerType(0) == ControllerType.NONE) {
-            emulator.settings.controllerType(0, NES_CONTROLLER)
+        if (emulator.settings.port1.type == ControllerType.NONE) {
+            emulator.settings.port1.type = NES_CONTROLLER
+            emulator.settings.markAsNeedControllerUpdate()
+        }
+        if (emulator.settings.port2.type == ControllerType.NONE) {
+            emulator.settings.port2.type = NES_CONTROLLER
+            emulator.settings.markAsNeedControllerUpdate()
         }
 
-        if (emulator.settings.controllerKeys(0).isEmpty()) {
-            emulator.settings.controllerKeys(0, KeyMapping.defaultKeys())
+        if (emulator.settings.port1.keyMapping.isEmpty()) {
+            KeyMapping.arrowKeys().copyTo(emulator.settings.port1.keyMapping)
+            emulator.settings.markAsNeedControllerUpdate()
+        }
+        if (emulator.settings.port2.keyMapping.isEmpty()) {
+            KeyMapping.wasd().copyTo(emulator.settings.port2.keyMapping)
+            emulator.settings.markAsNeedControllerUpdate()
         }
     }
 

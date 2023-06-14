@@ -1,9 +1,6 @@
 package br.tiagohm.nestalgia.desktop.input
 
-import br.tiagohm.nestalgia.core.Console
-import br.tiagohm.nestalgia.core.KeyManager
-import br.tiagohm.nestalgia.core.MouseButton
-import br.tiagohm.nestalgia.core.RenderingDevice
+import br.tiagohm.nestalgia.core.*
 
 data class MouseKeyboard(
     private val console: Console,
@@ -19,12 +16,9 @@ data class MouseKeyboard(
     override var mouseY = -1
         private set
 
-    override fun isKeyPressed(keyCode: Int): Boolean {
-        return keyPressed[keyCode]
-    }
-
-    override fun isMouseButtonPressed(mouseButton: MouseButton): Boolean {
-        return mouseButtons[mouseButton.ordinal]
+    override fun isKeyPressed(key: Key): Boolean {
+        return if (key is MouseButton) mouseButtons[key.code]
+        else keyPressed[key.code]
     }
 
     override fun refreshKeyState() {}

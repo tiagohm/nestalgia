@@ -177,14 +177,6 @@ data class Emulator(
     val fdsSystemActionManager
         get() = if (!console.running) null else console.systemActionManager as? FdsSystemActionManager
 
-    fun controllerKey(port: Int): KeyMapping {
-        return console.settings.controllerKeys(port)
-    }
-
-    fun controllerType(port: Int): ControllerType {
-        return console.settings.controllerType(port)
-    }
-
     @Suppress("UNCHECKED_CAST")
     fun <T : ControlDevice> controlDevice(port: Int): T? {
         return console.controlManager.controlDevice(port) as? T
