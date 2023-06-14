@@ -96,7 +96,12 @@ class SettingsWindow : AbstractWindow() {
         title = "Settings"
         resizable = false
 
-        profileChoiceBox.valueProperty().addListener { _, _, _ -> loadSettings() }
+        profileChoiceBox.valueProperty().addListener { _, prev, _ ->
+            if (prev == "GLOBAL") globalSettings.save()
+            else if (prev == "CONSOLE") consoleSettings.save()
+
+            settings.load()
+        }
 
         expansionPortChoiceBox.selectionModel.selectedItemProperty().addListener { _, _, _ -> updatePortOptions() }
         port1ChoiceBox.selectionModel.selectedItemProperty().addListener { _, _, _ -> updatePortOptions() }
@@ -115,121 +120,127 @@ class SettingsWindow : AbstractWindow() {
             profileChoiceBox.value = "GLOBAL"
         }
 
-        loadSettings()
+        settings.load()
     }
 
     override fun onStop() {
-        settings.consoleType = consoleTypeChoiceBox.value
-
-        settings.port1.type = port1ChoiceBox.value
-        settings.port2.type = port2ChoiceBox.value
-
-        settings.subPort1[0].type = subPort1ChoiceBox.value
-        settings.subPort1[1].type = subPort2ChoiceBox.value
-        settings.subPort1[2].type = subPort3ChoiceBox.value
-        settings.subPort1[3].type = subPort4ChoiceBox.value
-
-        settings.expansionPort.type = expansionPortChoiceBox.value
-
-        settings.expansionSubPort[0].type = expansionSubPort1ChoiceBox.value
-        settings.expansionSubPort[1].type = expansionSubPort2ChoiceBox.value
-        settings.expansionSubPort[2].type = expansionSubPort3ChoiceBox.value
-        settings.expansionSubPort[3].type = expansionSubPort4ChoiceBox.value
-
-        settings.flag(AUTO_CONFIGURE_INPUT, automaticallyConfigureControllersWhenLoadingGameCheckBox.isSelected)
-
-        settings.flag(DISABLE_NOISE_MODE_FLAG, disableNoiseChannelModeFlagCheckBox.isSelected)
-        settings.flag(SILENCE_TRIANGLE_HIGH_FREQ, muteUltrasonicFrequenciesOnTriangleChannelCheckBox.isSelected)
-        settings.flag(SWAP_DUTY_CYCLES, swapSquareChannelsDutyCyclesCheckBox.isSelected)
-        settings.flag(REDUCE_DMC_POPPING, reducePoppingSoundsOnTheDMCChannelCheckBox.isSelected)
-        settings.sampleRate = sampleRateChoiceBox.value.toInt()
-
-        settings.flag(INTEGER_FPS_MODE, enableIntegerFPSModeCheckBox.isSelected)
-        settings.paletteType = paletteChoiceBox.value
-        settings.flag(REMOVE_SPRITE_LIMIT, removeSpriteLimitCheckBox.isSelected)
-        settings.flag(ADAPTIVE_SPRITE_LIMIT, autoReenableSpriteLimitAsNeededCheckBox.isSelected)
-        settings.flag(FORCE_SPRITES_FIRST_COLUMN, forceSpriteDisplayInFirstColumnCheckBox.isSelected)
-        settings.flag(FORCE_BACKGROUND_FIRST_COLUMN, forceBackgroundDisplayInFirstColumnCheckBox.isSelected)
-        settings.flag(DISABLE_SPRITES, disableSpritesCheckBox.isSelected)
-        settings.flag(DISABLE_BACKGROUND, disableBackgroundCheckBox.isSelected)
-
-        settings.flag(ENABLE_PPU_OAM_ROW_CORRUPTION, enablePPUOAMRowCorruptionEmulationCheckBox.isSelected)
-        settings.flag(ENABLE_PPU_2000_SCROLL_GLITCH, enablePPU200020052006FirstWriteScrollGlitchEmulationCheckBox.isSelected)
-        settings.flag(ENABLE_PPU_2006_SCROLL_GLITCH, enablePPU2006WriteScrollGlitchEmulationCheckBox.isSelected)
-        settings.flag(RANDOMIZE_CPU_PPU_ALIGNMENT, randomizePowerOnCPUPPUAlignmentCheckBox.isSelected)
-        settings.flag(RANDOMIZE_MAPPER_POWER_ON_STATE, randomizePowerOnStateForMappersCheckBox.isSelected)
-        settings.ramPowerOnState = defaultPowerOnStateForRAMChoiceBox.value
-        settings.flag(ENABLE_OAM_DECAY, enableOAMRAMDecayCheckBox.isSelected)
-        settings.flag(DISABLE_PALETTE_READ, disablePPUPaletteReadsCheckBox.isSelected)
-        settings.flag(DISABLE_OAM_ADDR_BUG, disablePPUOAMADDRBugEmulationCheckBox.isSelected)
-        settings.flag(DISABLE_PPU_RESET, doNotResetPPUWhenResettingConsoleCheckBox.isSelected)
-        settings.flag(DISABLE_PPU_2004_READS, disablePPU2004ReadsCheckBox.isSelected)
-        settings.flag(MMC3_IRQ_ALT_BEHAVIOR, useAlternativeMMC3IRQBehaviourCheckBox.isSelected)
-        settings.flag(ALLOW_INVALID_INPUT, allowInvalidInputCheckBox.isSelected)
-        settings.extraScanlinesBeforeNmi = additionalScanlinesBeforeNMISpinner.value.toInt()
-        settings.extraScanlinesAfterNmi = additionalScanlinesAfterNMISpinner.value.toInt()
-
-        settings.flag(FDS_AUTO_LOAD_DISK, autoInsertDisk1SideAWhenStartingCheckBox.isSelected)
-        settings.flag(FDS_AUTO_INSERT_DISK, autoSwitchDisksCheckBox.isSelected)
-
-        preferences.save()
-
-        settings.markAsNeedControllerUpdate()
+        settings.save()
     }
 
-    private fun loadSettings() {
-        automaticallyConfigureControllersWhenLoadingGameCheckBox.isSelected = settings.flag(AUTO_CONFIGURE_INPUT)
-        consoleTypeChoiceBox.value = settings.consoleType
+    private fun EmulationSettings.save() {
+        consoleType = consoleTypeChoiceBox.value
 
-        port1ChoiceBox.value = settings.port1.type
-        port2ChoiceBox.value = settings.port2.type
+        port1.type = port1ChoiceBox.value
+        port2.type = port2ChoiceBox.value
 
-        subPort1ChoiceBox.value = settings.subPort1[0].type
-        subPort2ChoiceBox.value = settings.subPort1[1].type
-        subPort3ChoiceBox.value = settings.subPort1[2].type
-        subPort4ChoiceBox.value = settings.subPort1[3].type
+        subPort1[0].type = subPort1ChoiceBox.value
+        subPort1[1].type = subPort2ChoiceBox.value
+        subPort1[2].type = subPort3ChoiceBox.value
+        subPort1[3].type = subPort4ChoiceBox.value
 
-        expansionPortChoiceBox.value = settings.expansionPort.type
+        expansionPort.type = expansionPortChoiceBox.value
 
-        expansionSubPort1ChoiceBox.value = settings.expansionSubPort[0].type
-        expansionSubPort2ChoiceBox.value = settings.expansionSubPort[1].type
-        expansionSubPort3ChoiceBox.value = settings.expansionSubPort[2].type
-        expansionSubPort4ChoiceBox.value = settings.expansionSubPort[3].type
+        expansionSubPort[0].type = expansionSubPort1ChoiceBox.value
+        expansionSubPort[1].type = expansionSubPort2ChoiceBox.value
+        expansionSubPort[2].type = expansionSubPort3ChoiceBox.value
+        expansionSubPort[3].type = expansionSubPort4ChoiceBox.value
 
-        sampleRateChoiceBox.value = settings.sampleRate.toString()
-        disableNoiseChannelModeFlagCheckBox.isSelected = settings.flag(DISABLE_NOISE_MODE_FLAG)
-        muteUltrasonicFrequenciesOnTriangleChannelCheckBox.isSelected = settings.flag(SILENCE_TRIANGLE_HIGH_FREQ)
-        swapSquareChannelsDutyCyclesCheckBox.isSelected = settings.flag(SWAP_DUTY_CYCLES)
-        reducePoppingSoundsOnTheDMCChannelCheckBox.isSelected = settings.flag(REDUCE_DMC_POPPING)
+        flag(AUTO_CONFIGURE_INPUT, automaticallyConfigureControllersWhenLoadingGameCheckBox.isSelected)
 
-        enableIntegerFPSModeCheckBox.isSelected = settings.flag(INTEGER_FPS_MODE)
-        paletteChoiceBox.value = settings.paletteType
-        removeSpriteLimitCheckBox.isSelected = settings.flag(REMOVE_SPRITE_LIMIT)
-        autoReenableSpriteLimitAsNeededCheckBox.isSelected = settings.flag(ADAPTIVE_SPRITE_LIMIT)
+        flag(DISABLE_NOISE_MODE_FLAG, disableNoiseChannelModeFlagCheckBox.isSelected)
+        flag(SILENCE_TRIANGLE_HIGH_FREQ, muteUltrasonicFrequenciesOnTriangleChannelCheckBox.isSelected)
+        flag(SWAP_DUTY_CYCLES, swapSquareChannelsDutyCyclesCheckBox.isSelected)
+        flag(REDUCE_DMC_POPPING, reducePoppingSoundsOnTheDMCChannelCheckBox.isSelected)
+        sampleRate = sampleRateChoiceBox.value.toInt()
+
+        flag(INTEGER_FPS_MODE, enableIntegerFPSModeCheckBox.isSelected)
+        paletteType = paletteChoiceBox.value
+        flag(REMOVE_SPRITE_LIMIT, removeSpriteLimitCheckBox.isSelected)
+        flag(ADAPTIVE_SPRITE_LIMIT, autoReenableSpriteLimitAsNeededCheckBox.isSelected)
+        flag(FORCE_SPRITES_FIRST_COLUMN, forceSpriteDisplayInFirstColumnCheckBox.isSelected)
+        flag(FORCE_BACKGROUND_FIRST_COLUMN, forceBackgroundDisplayInFirstColumnCheckBox.isSelected)
+        flag(DISABLE_SPRITES, disableSpritesCheckBox.isSelected)
+        flag(DISABLE_BACKGROUND, disableBackgroundCheckBox.isSelected)
+
+        flag(ENABLE_PPU_OAM_ROW_CORRUPTION, enablePPUOAMRowCorruptionEmulationCheckBox.isSelected)
+        flag(ENABLE_PPU_2000_SCROLL_GLITCH, enablePPU200020052006FirstWriteScrollGlitchEmulationCheckBox.isSelected)
+        flag(ENABLE_PPU_2006_SCROLL_GLITCH, enablePPU2006WriteScrollGlitchEmulationCheckBox.isSelected)
+        flag(RANDOMIZE_CPU_PPU_ALIGNMENT, randomizePowerOnCPUPPUAlignmentCheckBox.isSelected)
+        flag(RANDOMIZE_MAPPER_POWER_ON_STATE, randomizePowerOnStateForMappersCheckBox.isSelected)
+        ramPowerOnState = defaultPowerOnStateForRAMChoiceBox.value
+        flag(ENABLE_OAM_DECAY, enableOAMRAMDecayCheckBox.isSelected)
+        flag(DISABLE_PALETTE_READ, disablePPUPaletteReadsCheckBox.isSelected)
+        flag(DISABLE_OAM_ADDR_BUG, disablePPUOAMADDRBugEmulationCheckBox.isSelected)
+        flag(DISABLE_PPU_RESET, doNotResetPPUWhenResettingConsoleCheckBox.isSelected)
+        flag(DISABLE_PPU_2004_READS, disablePPU2004ReadsCheckBox.isSelected)
+        flag(MMC3_IRQ_ALT_BEHAVIOR, useAlternativeMMC3IRQBehaviourCheckBox.isSelected)
+        flag(ALLOW_INVALID_INPUT, allowInvalidInputCheckBox.isSelected)
+        extraScanlinesBeforeNmi = additionalScanlinesBeforeNMISpinner.value.toInt()
+        extraScanlinesAfterNmi = additionalScanlinesAfterNMISpinner.value.toInt()
+
+        flag(FDS_AUTO_LOAD_DISK, autoInsertDisk1SideAWhenStartingCheckBox.isSelected)
+        flag(FDS_AUTO_INSERT_DISK, autoSwitchDisksCheckBox.isSelected)
+
+        if (this === globalSettings) {
+            preferences.save()
+        }
+
+        markAsNeedControllerUpdate()
+    }
+
+    private fun EmulationSettings.load() {
+        automaticallyConfigureControllersWhenLoadingGameCheckBox.isSelected = flag(AUTO_CONFIGURE_INPUT)
+        consoleTypeChoiceBox.value = consoleType
+
+        port1ChoiceBox.value = port1.type
+        port2ChoiceBox.value = port2.type
+
+        subPort1ChoiceBox.value = subPort1[0].type
+        subPort2ChoiceBox.value = subPort1[1].type
+        subPort3ChoiceBox.value = subPort1[2].type
+        subPort4ChoiceBox.value = subPort1[3].type
+
+        expansionPortChoiceBox.value = expansionPort.type
+
+        expansionSubPort1ChoiceBox.value = expansionSubPort[0].type
+        expansionSubPort2ChoiceBox.value = expansionSubPort[1].type
+        expansionSubPort3ChoiceBox.value = expansionSubPort[2].type
+        expansionSubPort4ChoiceBox.value = expansionSubPort[3].type
+
+        sampleRateChoiceBox.value = sampleRate.toString()
+        disableNoiseChannelModeFlagCheckBox.isSelected = flag(DISABLE_NOISE_MODE_FLAG)
+        muteUltrasonicFrequenciesOnTriangleChannelCheckBox.isSelected = flag(SILENCE_TRIANGLE_HIGH_FREQ)
+        swapSquareChannelsDutyCyclesCheckBox.isSelected = flag(SWAP_DUTY_CYCLES)
+        reducePoppingSoundsOnTheDMCChannelCheckBox.isSelected = flag(REDUCE_DMC_POPPING)
+
+        enableIntegerFPSModeCheckBox.isSelected = flag(INTEGER_FPS_MODE)
+        paletteChoiceBox.value = paletteType
+        removeSpriteLimitCheckBox.isSelected = flag(REMOVE_SPRITE_LIMIT)
+        autoReenableSpriteLimitAsNeededCheckBox.isSelected = flag(ADAPTIVE_SPRITE_LIMIT)
         autoReenableSpriteLimitAsNeededCheckBox.disableProperty().bind(!removeSpriteLimitCheckBox.selectedProperty())
-        forceSpriteDisplayInFirstColumnCheckBox.isSelected = settings.flag(FORCE_SPRITES_FIRST_COLUMN)
-        forceBackgroundDisplayInFirstColumnCheckBox.isSelected = settings.flag(FORCE_BACKGROUND_FIRST_COLUMN)
-        disableSpritesCheckBox.isSelected = settings.flag(DISABLE_SPRITES)
-        disableBackgroundCheckBox.isSelected = settings.flag(DISABLE_BACKGROUND)
+        forceSpriteDisplayInFirstColumnCheckBox.isSelected = flag(FORCE_SPRITES_FIRST_COLUMN)
+        forceBackgroundDisplayInFirstColumnCheckBox.isSelected = flag(FORCE_BACKGROUND_FIRST_COLUMN)
+        disableSpritesCheckBox.isSelected = flag(DISABLE_SPRITES)
+        disableBackgroundCheckBox.isSelected = flag(DISABLE_BACKGROUND)
 
-        enablePPUOAMRowCorruptionEmulationCheckBox.isSelected = settings.flag(ENABLE_PPU_OAM_ROW_CORRUPTION)
-        enablePPU200020052006FirstWriteScrollGlitchEmulationCheckBox.isSelected = settings.flag(ENABLE_PPU_2000_SCROLL_GLITCH)
-        enablePPU2006WriteScrollGlitchEmulationCheckBox.isSelected = settings.flag(ENABLE_PPU_2006_SCROLL_GLITCH)
-        randomizePowerOnCPUPPUAlignmentCheckBox.isSelected = settings.flag(RANDOMIZE_CPU_PPU_ALIGNMENT)
-        randomizePowerOnStateForMappersCheckBox.isSelected = settings.flag(RANDOMIZE_MAPPER_POWER_ON_STATE)
-        defaultPowerOnStateForRAMChoiceBox.value = settings.ramPowerOnState
-        enableOAMRAMDecayCheckBox.isSelected = settings.flag(ENABLE_OAM_DECAY)
-        disablePPUPaletteReadsCheckBox.isSelected = settings.flag(DISABLE_PALETTE_READ)
-        disablePPUOAMADDRBugEmulationCheckBox.isSelected = settings.flag(DISABLE_OAM_ADDR_BUG)
-        doNotResetPPUWhenResettingConsoleCheckBox.isSelected = settings.flag(DISABLE_PPU_RESET)
-        disablePPU2004ReadsCheckBox.isSelected = settings.flag(DISABLE_PPU_2004_READS)
-        useAlternativeMMC3IRQBehaviourCheckBox.isSelected = settings.flag(MMC3_IRQ_ALT_BEHAVIOR)
-        allowInvalidInputCheckBox.isSelected = settings.flag(ALLOW_INVALID_INPUT)
-        additionalScanlinesBeforeNMISpinner.valueFactory.value = settings.extraScanlinesBeforeNmi.toDouble()
-        additionalScanlinesAfterNMISpinner.valueFactory.value = settings.extraScanlinesAfterNmi.toDouble()
+        enablePPUOAMRowCorruptionEmulationCheckBox.isSelected = flag(ENABLE_PPU_OAM_ROW_CORRUPTION)
+        enablePPU200020052006FirstWriteScrollGlitchEmulationCheckBox.isSelected = flag(ENABLE_PPU_2000_SCROLL_GLITCH)
+        enablePPU2006WriteScrollGlitchEmulationCheckBox.isSelected = flag(ENABLE_PPU_2006_SCROLL_GLITCH)
+        randomizePowerOnCPUPPUAlignmentCheckBox.isSelected = flag(RANDOMIZE_CPU_PPU_ALIGNMENT)
+        randomizePowerOnStateForMappersCheckBox.isSelected = flag(RANDOMIZE_MAPPER_POWER_ON_STATE)
+        defaultPowerOnStateForRAMChoiceBox.value = ramPowerOnState
+        enableOAMRAMDecayCheckBox.isSelected = flag(ENABLE_OAM_DECAY)
+        disablePPUPaletteReadsCheckBox.isSelected = flag(DISABLE_PALETTE_READ)
+        disablePPUOAMADDRBugEmulationCheckBox.isSelected = flag(DISABLE_OAM_ADDR_BUG)
+        doNotResetPPUWhenResettingConsoleCheckBox.isSelected = flag(DISABLE_PPU_RESET)
+        disablePPU2004ReadsCheckBox.isSelected = flag(DISABLE_PPU_2004_READS)
+        useAlternativeMMC3IRQBehaviourCheckBox.isSelected = flag(MMC3_IRQ_ALT_BEHAVIOR)
+        allowInvalidInputCheckBox.isSelected = flag(ALLOW_INVALID_INPUT)
+        additionalScanlinesBeforeNMISpinner.valueFactory.value = extraScanlinesBeforeNmi.toDouble()
+        additionalScanlinesAfterNMISpinner.valueFactory.value = extraScanlinesAfterNmi.toDouble()
 
-        autoInsertDisk1SideAWhenStartingCheckBox.isSelected = settings.flag(FDS_AUTO_LOAD_DISK)
-        autoSwitchDisksCheckBox.isSelected = settings.flag(FDS_AUTO_INSERT_DISK)
+        autoInsertDisk1SideAWhenStartingCheckBox.isSelected = flag(FDS_AUTO_LOAD_DISK)
+        autoSwitchDisksCheckBox.isSelected = flag(FDS_AUTO_INSERT_DISK)
 
         updatePortOptions()
     }
@@ -344,14 +355,14 @@ class SettingsWindow : AbstractWindow() {
     private fun resetToGlobal() {
         if (settings === consoleSettings) {
             globalSettings.copyTo(consoleSettings)
-            loadSettings()
+            settings.load()
         }
     }
 
     @FXML
     private fun resetToDefault() {
         settings.reset()
-        loadSettings()
+        settings.load()
     }
 
     companion object {

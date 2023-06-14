@@ -328,22 +328,22 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
         // Copy global settings to console settings.
         preferences.settings.copyTo(console.settings)
 
-        if (emulator.settings.port1.type == ControllerType.NONE) {
-            emulator.settings.port1.type = NES_CONTROLLER
-            emulator.settings.markAsNeedControllerUpdate()
+        if (console.settings.port1.type == ControllerType.NONE) {
+            console.settings.port1.type = NES_CONTROLLER
+            console.settings.markAsNeedControllerUpdate()
         }
-        if (emulator.settings.port2.type == ControllerType.NONE) {
-            emulator.settings.port2.type = NES_CONTROLLER
-            emulator.settings.markAsNeedControllerUpdate()
+        if (console.settings.port2.type == ControllerType.NONE) {
+            console.settings.port2.type = NES_CONTROLLER
+            console.settings.markAsNeedControllerUpdate()
         }
 
-        if (emulator.settings.port1.keyMapping.isEmpty()) {
-            KeyMapping.arrowKeys().copyTo(emulator.settings.port1.keyMapping)
-            emulator.settings.markAsNeedControllerUpdate()
+        if (console.settings.port1.keyMapping.isEmpty()) {
+            KeyMapping.arrowKeys().copyTo(console.settings.port1.keyMapping)
+            console.settings.markAsNeedControllerUpdate()
         }
-        if (emulator.settings.port2.keyMapping.isEmpty()) {
-            KeyMapping.wasd().copyTo(emulator.settings.port2.keyMapping)
-            emulator.settings.markAsNeedControllerUpdate()
+        if (console.settings.port2.keyMapping.isEmpty()) {
+            KeyMapping.wasd().copyTo(console.settings.port2.keyMapping)
+            console.settings.markAsNeedControllerUpdate()
         }
     }
 
