@@ -108,6 +108,7 @@ object MapperFactory {
             164 -> Waixing164(console)
             172 -> Txc22211b(console)
             173 -> Txc22211c(console)
+            175 -> Kaiser7022(console)
             177 -> Henggedianzi177(console)
             178 -> Waixing178(console)
             179 -> Henggedianzi179(console)
