@@ -72,6 +72,7 @@ object MapperFactory {
             88 -> Mapper088(console)
             91 -> Mapper091(console)
             92 -> JalecoJF17AndJF19(console, true)
+            94 -> UNROM94(console)
             95 -> Mapper095(console)
             96 -> OekaKids(console)
             97 -> IremTamS1(console)
