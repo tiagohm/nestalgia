@@ -2,6 +2,7 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.EmulationFlag.*
 import br.tiagohm.nestalgia.core.NotificationType.*
+import br.tiagohm.nestalgia.core.Region.*
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.util.concurrent.atomic.AtomicBoolean
@@ -27,8 +28,8 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     lateinit var systemActionManager: SystemActionManager
         private set
 
-    var region = Region.AUTO
-        private set
+    inline val region
+        get() = settings.region
 
     var mapper: Mapper? = null
         internal set
@@ -143,6 +144,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
         memoryManager = MemoryManager(this)
 
         cpu = Cpu(this)
+        cpu.initialize()
 
         apu = Apu(this)
         apu.initialize()
@@ -203,7 +205,6 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
         memoryManager.registerIODevice(controlManager)
         memoryManager.registerIODevice(newMapper)
 
-        region = Region.AUTO
         updateRegion(false)
 
         initialized = true
@@ -276,7 +277,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
         ppu.reset(softReset)
 
         apu.reset(softReset)
-        cpu.reset(softReset, region)
+        cpu.reset(softReset)
         controlManager.reset(softReset)
         soundMixer.reset(softReset)
 
@@ -344,9 +345,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     }
 
     override fun run() {
-        if (mapper == null) {
-            throw IllegalStateException("No mapper!")
-        }
+        require(mapper != null) { "no mapper!" }
 
         clockTimer.reset()
         lastFrameTimer.reset()
@@ -511,26 +510,28 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
             configChanged = true
         }
 
-        var region = settings.region
+        val prevRegion = settings.region
+        var newRegion = prevRegion
 
-        if (region == Region.AUTO) {
-            region = when (mapper!!.info.system) {
-                GameSystem.PAL -> Region.PAL
-                GameSystem.DENDY -> Region.DENDY
-                else -> Region.NTSC
+        if (prevRegion == AUTO) {
+            newRegion = when (mapper!!.info.system) {
+                GameSystem.PAL -> PAL
+                GameSystem.DENDY -> DENDY
+                else -> NTSC
             }
         }
 
-        if (this.region != region) {
-            this.region = region
+        if (newRegion != prevRegion) {
+            LOG.info("region was updated. from={}, to={}", prevRegion, newRegion)
 
+            settings.region = newRegion
             configChanged = true
 
-            cpu.masterClockDivider(region)
-            mapper!!.updateRegion(region)
-            ppu.updateRegion(region)
-            apu.updateRegion(region)
-            soundMixer.updateRegion(region)
+            cpu.masterClockDivider(newRegion)
+            mapper!!.updateRegion(newRegion)
+            ppu.updateRegion(newRegion)
+            apu.updateRegion(newRegion)
+            soundMixer.updateRegion(newRegion)
         }
 
         if (configChanged && sendNotification) {
@@ -538,25 +539,17 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
         }
     }
 
-    val frameDelay: Double
-        get() {
-            val emulationSpeed = settings.emulationSpeed()
-
-            return if (emulationSpeed == 0) {
-                0.0
-            } else {
-                val delay = when (region) {
-                    Region.PAL,
-                    Region.DENDY -> if (settings.flag(INTEGER_FPS_MODE)) 20.0 else 19.99720920217466
-                    else -> if (settings.flag(INTEGER_FPS_MODE)) 16.666666666666668 else 16.63926405550947
-                }
-
-                delay / (emulationSpeed.toDouble() / 100)
-            }
+    val frameDelay
+        get() = settings.emulationSpeed().let {
+            if (it == 0) 0.0 else when (region) {
+                PAL,
+                DENDY -> if (settings.flag(INTEGER_FPS_MODE)) 20.0 else 19.99720920217466
+                else -> if (settings.flag(INTEGER_FPS_MODE)) 16.666666666666668 else 16.63926405550947
+            } / (it / 100.0)
         }
 
     val fps
-        get() = if (region == Region.NTSC) {
+        get() = if (region == NTSC) {
             if (settings.flag(INTEGER_FPS_MODE)) 60.0 else 60.098812
         } else {
             if (settings.flag(INTEGER_FPS_MODE)) 50.0 else 50.006978
@@ -612,6 +605,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
             // Send any unprocessed sound to the SoundMixer.
             apu.endFrame()
 
+            s.write("settings", settings)
             s.write("cpu", cpu)
             s.write("ppu", ppu)
             s.write("memoryManager", memoryManager)
@@ -626,6 +620,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
             // Send any unprocessed sound to the SoundMixer.
             apu.endFrame()
 
+            s.readSnapshotable("settings", settings)
             s.readSnapshotable("cpu", cpu)
             s.readSnapshotable("ppu", ppu)
             s.readSnapshotable("memoryManager", memoryManager)

@@ -108,7 +108,7 @@ class Debugger(private val console: Console) : Closeable {
 
     fun frameStep(count: Int = 1) {
         val extraScanlines = console.settings.extraScanlinesAfterNmi + console.settings.extraScanlinesBeforeNmi
-        val cycleCount = ((if (console.settings.region == Region.NTSC) 262 else 312) + extraScanlines) * 341
+        val cycleCount = ((if (console.region == Region.NTSC) 262 else 312) + extraScanlines) * 341
         ppuStep(count * cycleCount)
     }
 

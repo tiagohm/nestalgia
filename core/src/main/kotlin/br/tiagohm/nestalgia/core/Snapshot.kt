@@ -58,7 +58,7 @@ class Snapshot private constructor(private val data: MutableMap<String, Any>) : 
         data[key] = value
     }
 
-    fun write(key: String, value: Array<*>) {
+    fun write(key: String, value: Array<out Serializable>) {
         data[key] = value
     }
 

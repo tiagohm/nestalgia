@@ -1,43 +1,45 @@
 package br.tiagohm.nestalgia.core
 
-import java.awt.event.KeyEvent
+import br.tiagohm.nestalgia.core.MouseButton.*
 
 data class KeyMapping(
-    @JvmField var a: Int = 0,
-    @JvmField var b: Int = 0,
-    @JvmField var up: Int = 0,
-    @JvmField var down: Int = 0,
-    @JvmField var left: Int = 0,
-    @JvmField var right: Int = 0,
-    @JvmField var start: Int = 0,
-    @JvmField var select: Int = 0,
-    @JvmField var microphone: Int = 0,
-) : Snapshotable {
+    @JvmField var a: Key = Key.UNDEFINED,
+    @JvmField var b: Key = Key.UNDEFINED,
+    @JvmField var up: Key = Key.UNDEFINED,
+    @JvmField var down: Key = Key.UNDEFINED,
+    @JvmField var left: Key = Key.UNDEFINED,
+    @JvmField var right: Key = Key.UNDEFINED,
+    @JvmField var start: Key = Key.UNDEFINED,
+    @JvmField var select: Key = Key.UNDEFINED,
+    @JvmField var microphone: Key = Key.UNDEFINED,
+    @JvmField var zapperFire: MouseButton = LEFT,
+    @JvmField var zapperAimOffscreen: MouseButton = RIGHT,
+) : Snapshotable, Resetable {
 
-    fun key(button: ControllerButton): Int {
-        return when (button) {
-            StandardControllerButton.UP -> up
-            StandardControllerButton.DOWN -> down
-            StandardControllerButton.LEFT -> left
-            StandardControllerButton.RIGHT -> right
-            StandardControllerButton.START -> start
-            StandardControllerButton.SELECT -> select
-            StandardControllerButton.B -> b
-            StandardControllerButton.A -> a
-            StandardControllerButton.MICROPHONE -> microphone
-            else -> 0
-        }
+    fun key(button: ControllerButton) = when (button) {
+        StandardControllerButton.UP -> up
+        StandardControllerButton.DOWN -> down
+        StandardControllerButton.LEFT -> left
+        StandardControllerButton.RIGHT -> right
+        StandardControllerButton.START -> start
+        StandardControllerButton.SELECT -> select
+        StandardControllerButton.B -> b
+        StandardControllerButton.A -> a
+        StandardControllerButton.MICROPHONE -> microphone
+        ZapperButton.FIRE -> zapperFire
+        ZapperButton.AIM_OFFSCREEN -> zapperAimOffscreen
+        else -> Key.UNDEFINED
     }
 
-    fun isEmpty() = a == 0 &&
-        b == 0 &&
-        up == 0 &&
-        down == 0 &&
-        left == 0 &&
-        right == 0 &&
-        start == 0 &&
-        select == 0 &&
-        microphone == 0
+    fun isEmpty() = a.code == 0 &&
+        b.code == 0 &&
+        up.code == 0 &&
+        down.code == 0 &&
+        left.code == 0 &&
+        right.code == 0 &&
+        start.code == 0 &&
+        select.code == 0 &&
+        microphone.code == 0
 
     fun copyTo(keyMapping: KeyMapping) {
         keyMapping.a = a
@@ -49,39 +51,66 @@ data class KeyMapping(
         keyMapping.select = select
         keyMapping.start = start
         keyMapping.microphone = microphone
+        keyMapping.zapperFire = zapperFire
+        keyMapping.zapperAimOffscreen = zapperAimOffscreen
+    }
+
+    override fun reset(softReset: Boolean) {
+        a = Key.UNDEFINED
+        b = Key.UNDEFINED
+        up = Key.UNDEFINED
+        down = Key.UNDEFINED
+        left = Key.UNDEFINED
+        right = Key.UNDEFINED
+        select = Key.UNDEFINED
+        start = Key.UNDEFINED
+        microphone = Key.UNDEFINED
+        zapperFire = LEFT
+        zapperAimOffscreen = RIGHT
     }
 
     override fun saveState(s: Snapshot) {
-        s.write("a", a)
-        s.write("b", b)
-        s.write("up", up)
-        s.write("down", down)
-        s.write("left", left)
-        s.write("right", right)
-        s.write("select", select)
-        s.write("start", start)
-        s.write("microphone", microphone)
+        s.write("a", a.code)
+        s.write("b", b.code)
+        s.write("up", up.code)
+        s.write("down", down.code)
+        s.write("left", left.code)
+        s.write("right", right.code)
+        s.write("select", select.code)
+        s.write("start", start.code)
+        s.write("microphone", microphone.code)
+        s.write("zapperFire", zapperFire.code)
+        s.write("zapperAimOffscreen", zapperAimOffscreen.code)
     }
 
     override fun restoreState(s: Snapshot) {
-        a = s.readInt("a")
-        b = s.readInt("b")
-        up = s.readInt("up")
-        down = s.readInt("down")
-        left = s.readInt("left")
-        right = s.readInt("right")
-        start = s.readInt("start")
-        select = s.readInt("select")
-        microphone = s.readInt("microphone")
+        a = Key.of(s.readInt("a"))
+        b = Key.of(s.readInt("b"))
+        up = Key.of(s.readInt("up"))
+        down = Key.of(s.readInt("down"))
+        left = Key.of(s.readInt("left"))
+        right = Key.of(s.readInt("right"))
+        start = Key.of(s.readInt("start"))
+        select = Key.of(s.readInt("select"))
+        microphone = Key.of(s.readInt("microphone"))
     }
 
     companion object {
 
         @JvmStatic
-        fun defaultKeys() = KeyMapping(
-            KeyEvent.VK_A, KeyEvent.VK_S, // A B
-            KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, // UP DOWN LEFT RIGHT
-            KeyEvent.VK_ENTER, KeyEvent.VK_SPACE, // START SELECT
+        fun wasd() = KeyMapping(
+            KeyboardKeys.E, KeyboardKeys.Q,
+            KeyboardKeys.W, KeyboardKeys.S,
+            KeyboardKeys.A, KeyboardKeys.D,
+            KeyboardKeys.X, KeyboardKeys.Z,
+        )
+
+        @JvmStatic
+        fun arrowKeys() = KeyMapping(
+            KeyboardKeys.L, KeyboardKeys.K,
+            KeyboardKeys.UP, KeyboardKeys.DOWN,
+            KeyboardKeys.LEFT, KeyboardKeys.RIGHT,
+            KeyboardKeys.ENTER, KeyboardKeys.SPACE,
         )
     }
 }

@@ -3,7 +3,7 @@ package br.tiagohm.nestalgia.desktop.gui.cheats
 import br.tiagohm.nestalgia.core.CheatDatabase
 import br.tiagohm.nestalgia.core.CheatInfo
 import br.tiagohm.nestalgia.core.Console
-import br.tiagohm.nestalgia.desktop.gui.AbstractDialog
+import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import javafx.fxml.FXML
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ListCell
@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
-class CheatsWindow : AbstractDialog() {
+class CheatsWindow : AbstractWindow() {
 
     override val resourceName = "Cheats"
 
@@ -22,6 +22,9 @@ class CheatsWindow : AbstractDialog() {
     @FXML private lateinit var cheatsListView: ListView<CheatInfo>
 
     val selectedCheats = hashSetOf<CheatInfo>()
+
+    final var saved = false
+        private set
 
     override fun onCreate() {
         title = "Cheats"
@@ -47,13 +50,6 @@ class CheatsWindow : AbstractDialog() {
         }
     }
 
-    @FXML
-    private fun ok() {
-        saved = true
-
-        close()
-    }
-
     private inner class CheatInfoCellFactory : Callback<ListView<CheatInfo>, ListCell<CheatInfo>> {
 
         override fun call(param: ListView<CheatInfo>): ListCell<CheatInfo> {
@@ -74,6 +70,7 @@ class CheatsWindow : AbstractDialog() {
                 box.isSelected = item in selectedCheats
                 box.selectedProperty().addListener { _, _, value ->
                     if (value) selectedCheats.add(item) else selectedCheats.remove(item)
+                    saved = true
                 }
                 text = null
                 graphic = box

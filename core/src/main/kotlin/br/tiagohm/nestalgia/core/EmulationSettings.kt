@@ -26,10 +26,7 @@ class EmulationSettings : Snapshotable, Resetable {
     @PublishedApi @JvmField internal val flags = BooleanArray(128)
 
     // Zapper
-    @JvmField val zapperDetectionRadius = IntArray(PORT_COUNT)
-
-    // Ascii Turbo File II
-    @JvmField var asciiTurboFileSlot = 0
+    @JvmField val zapperDetectionRadius = IntArray(PORT_COUNT) { 1 }
 
     // Console
     @JvmField var region = Region.AUTO
@@ -38,24 +35,15 @@ class EmulationSettings : Snapshotable, Resetable {
 
     @JvmField var dipSwitches = 0
 
-    // Devices
-    private val controllerTypes = Array(PORT_COUNT) { NONE }
-    private val controllerKeys = Array(PORT_COUNT) { KeyMapping() }
+    @JvmField val port1 = ControllerSettings()
+    @JvmField val port2 = ControllerSettings()
+    @JvmField val expansionPort = ControllerSettings()
+    @JvmField val subPort1 = Array(4) { ControllerSettings() }
+    @JvmField val expansionSubPort = Array(4) { ControllerSettings() }
     private var needControllerUpdate = false
 
     @JvmField var isKeyboardMode = true
-
-    var expansionPortDevice = NONE
-        set(value) {
-            field = value
-            needControllerUpdate = true
-        }
-
-    var consoleType = ConsoleType.NES_001
-        set(value) {
-            field = value
-            needControllerUpdate = true
-        }
+    @JvmField var consoleType = ConsoleType.NES_001
 
     // CPU
     private var emulationSpeed = 100
@@ -113,18 +101,23 @@ class EmulationSettings : Snapshotable, Resetable {
         restoreState(Snapshot(0))
     }
 
+    fun markAsNeedControllerUpdate() {
+        needControllerUpdate = true
+    }
+
     override fun saveState(s: Snapshot) {
         s.write("flags", flags.clone())
         s.write("zapperDetectionRadius", zapperDetectionRadius)
-        s.write("asciiTurboFileSlot", asciiTurboFileSlot)
         s.write("region", region)
         s.write("ramPowerOnState", ramPowerOnState)
         s.write("dipSwitches", dipSwitches)
-        s.write("controllerTypes", controllerTypes)
-        repeat(controllerKeys.size) { s.write("controllerKeys$it", controllerKeys[it]) }
+        s.write("port1", port1)
+        s.write("port2", port2)
+        s.write("expansionPort", expansionPort)
+        repeat(subPort1.size) { s.write("subPort1$it", subPort1[it]) }
+        repeat(expansionSubPort.size) { s.write("expansionSubPort$it", expansionSubPort[it]) }
         s.write("needControllerUpdate", needControllerUpdate)
         s.write("isKeyboardMode", isKeyboardMode)
-        s.write("expansionPortDevice", expansionPortDevice)
         s.write("consoleType", consoleType)
         s.write("emulationSpeed", emulationSpeed)
         s.write("turboSpeed", turboSpeed)
@@ -143,15 +136,16 @@ class EmulationSettings : Snapshotable, Resetable {
         needControllerUpdate = s.readBoolean("needControllerUpdate")
         needAudioSettingsUpdate = s.readBoolean("needAudioSettingsUpdate")
         s.readBooleanArray("flags", flags) ?: resetFlags()
-        s.readIntArray("zapperDetectionRadius", zapperDetectionRadius)
-        asciiTurboFileSlot = s.readInt("asciiTurboFileSlot")
+        s.readIntArrayOrFill("zapperDetectionRadius", zapperDetectionRadius, 1)
         region = s.readEnum("region", Region.AUTO)
         ramPowerOnState = s.readEnum("ramPowerOnState", RamPowerOnState.ALL_ZEROS)
         dipSwitches = s.readInt("dipSwitches")
-        s.readArray("controllerTypes", controllerTypes)
-        repeat(controllerKeys.size) { s.readSnapshotable("controllerKeys$it", controllerKeys[it]) }
+        s.readSnapshotable("port1", port1)
+        s.readSnapshotable("port2", port2)
+        s.readSnapshotable("expansionPort", expansionPort)
+        repeat(subPort1.size) { s.readSnapshotable("subPort1$it", subPort1[it]) }
+        repeat(expansionSubPort.size) { s.readSnapshotable("expansionSubPort$it", expansionSubPort[it]) }
         isKeyboardMode = s.readBoolean("isKeyboardMode")
-        expansionPortDevice = s.readEnum("expansionPortDevice", NONE)
         consoleType = s.readEnum("consoleType", ConsoleType.NES_001)
         emulationSpeed = s.readInt("emulationSpeed", 100)
         turboSpeed = s.readInt("turboSpeed", 300)
@@ -169,6 +163,7 @@ class EmulationSettings : Snapshotable, Resetable {
 
     fun needControllerUpdate(): Boolean {
         return if (needControllerUpdate) {
+            LOG.info("controller was updated")
             needControllerUpdate = false
             true
         } else {
@@ -192,14 +187,12 @@ class EmulationSettings : Snapshotable, Resetable {
         }
     }
 
-    fun emulationSpeed(ignoreTurbo: Boolean = true): Int {
-        return when {
-            ignoreTurbo -> emulationSpeed
-            flag(FORCE_MAX_SPEED) -> 0
-            flag(TURBO) -> turboSpeed
-            flag(REWIND) -> rewindSpeed
-            else -> emulationSpeed
-        }
+    fun emulationSpeed(ignoreTurbo: Boolean = true) = when {
+        ignoreTurbo -> emulationSpeed
+        flag(FORCE_MAX_SPEED) -> 0
+        flag(TURBO) -> turboSpeed
+        flag(REWIND) -> rewindSpeed
+        else -> emulationSpeed
     }
 
     fun emulationSpeed(speed: Int) {
@@ -280,10 +273,7 @@ class EmulationSettings : Snapshotable, Resetable {
     }
 
     fun initializeInputDevices(inputType: GameInputType, gameSystem: GameSystem) {
-        var expansionPortDevice = NONE
-        val controllers = arrayOf(NES_CONTROLLER, NES_CONTROLLER)
-
-        val isFamicom = gameSystem.isFamicom
+        val controllers = arrayOf(NES_CONTROLLER, NES_CONTROLLER, NONE)
 
         if (inputType == VS_ZAPPER) {
             // VS Duck Hunt, etc. need the zapper in the first port.
@@ -291,21 +281,21 @@ class EmulationSettings : Snapshotable, Resetable {
             controllers[0] = NES_ZAPPER
         } else if (inputType == ZAPPER) {
             LOG.info("Zapper connected")
-            if (isFamicom) {
-                expansionPortDevice = FAMICOM_ZAPPER
+            if (gameSystem.isFamicom) {
+                controllers[2] = FAMICOM_ZAPPER
             } else {
                 controllers[1] = NES_ZAPPER
             }
         } else if (inputType == FOUR_SCORE) {
             LOG.info("Four score connected")
             controllers[0] = ControllerType.FOUR_SCORE
-            controllers[1] = ControllerType.FOUR_SCORE
+            controllers[1] = NONE
         } else if (inputType == FOUR_PLAYER_ADAPTER) {
             LOG.info("Four player adapter connected")
-            expansionPortDevice = TWO_PLAYER_ADAPTER
+            controllers[2] = TWO_PLAYER_ADAPTER
         } else if (inputType == ARKANOID_CONTROLLER_FAMICOM) {
             LOG.info("Arkanoid controller (Famicom) connected")
-            expansionPortDevice = FAMICOM_ARKANOID_CONTROLLER
+            controllers[2] = FAMICOM_ARKANOID_CONTROLLER
         } else if (inputType == ARKANOID_CONTROLLER_NES) {
             LOG.info("Arkanoid controller (NES) connected")
             controllers[1] = NES_ARKANOID_CONTROLLER
@@ -315,48 +305,48 @@ class EmulationSettings : Snapshotable, Resetable {
             controllers[1] = NES_ARKANOID_CONTROLLER
         } else if (inputType == OEKA_KIDS_TABLET) {
             LOG.info("Oeka Kids Tablet connected")
-            expansionPortDevice = ControllerType.OEKA_KIDS_TABLET
+            controllers[2] = ControllerType.OEKA_KIDS_TABLET
         } else if (inputType == KONAMI_HYPER_SHOT) {
             LOG.info("Konami Hyper Shot connected")
-            expansionPortDevice = ControllerType.KONAMI_HYPER_SHOT
+            controllers[2] = ControllerType.KONAMI_HYPER_SHOT
         } else if (inputType == FAMILY_BASIC_KEYBOARD) {
             LOG.info("Family Basic Keyboard connected")
-            expansionPortDevice = ControllerType.FAMILY_BASIC_KEYBOARD
+            controllers[2] = ControllerType.FAMILY_BASIC_KEYBOARD
         } else if (inputType == PARTY_TAP) {
             LOG.info("Party Tap connected")
-            expansionPortDevice = ControllerType.PARTY_TAP
+            controllers[2] = ControllerType.PARTY_TAP
         } else if (inputType == PACHINKO_CONTROLLER) {
             LOG.info("Pachinko controller connected")
-            expansionPortDevice = PACHINKO
+            controllers[2] = PACHINKO
         } else if (inputType == EXCITING_BOXING) {
             LOG.info("Exciting Boxing controller connected")
-            expansionPortDevice = ControllerType.EXCITING_BOXING
+            controllers[2] = ControllerType.EXCITING_BOXING
         } else if (inputType == SUBOR_KEYBOARD_MOUSE_1) {
             LOG.info("Subor mouse connected")
             LOG.info("Subor keyboard connected")
-            expansionPortDevice = ControllerType.SUBOR_KEYBOARD
+            controllers[2] = ControllerType.SUBOR_KEYBOARD
             controllers[1] = SUBOR_MOUSE
         } else if (inputType == JISSEN_MAHJONG) {
             LOG.info("Jissen Mahjong controller connected")
-            expansionPortDevice = ControllerType.JISSEN_MAHJONG
+            controllers[2] = ControllerType.JISSEN_MAHJONG
         } else if (inputType == BARCODE_BATTLER) {
             LOG.info("Barcode Battler barcode reader connected")
-            expansionPortDevice = ControllerType.BARCODE_BATTLER
+            controllers[2] = ControllerType.BARCODE_BATTLER
         } else if (inputType == BANDAI_HYPER_SHOT) {
             LOG.info("Bandai Hyper Shot gun connected")
-            expansionPortDevice = ControllerType.BANDAI_HYPER_SHOT
+            controllers[2] = ControllerType.BANDAI_HYPER_SHOT
         } else if (inputType == BATTLE_BOX) {
             LOG.info("Battle Box connected")
-            expansionPortDevice = ControllerType.BATTLE_BOX
+            controllers[2] = ControllerType.BATTLE_BOX
         } else if (inputType == TURBO_FILE) {
             LOG.info("Ascii Turbo File connected")
-            expansionPortDevice = ASCII_TURBO_FILE
+            controllers[2] = ASCII_TURBO_FILE
         } else if (inputType == FAMILY_TRAINER_SIDE_A) {
             LOG.info("Family Trainer mat connected (Side A)")
-            expansionPortDevice = FAMILY_TRAINER_MAT_SIDE_A
+            controllers[2] = FAMILY_TRAINER_MAT_SIDE_A
         } else if (inputType == FAMILY_TRAINER_SIDE_B) {
             LOG.info("Family Trainer mat connected (Side B)")
-            expansionPortDevice = FAMILY_TRAINER_MAT_SIDE_B
+            controllers[2] = FAMILY_TRAINER_MAT_SIDE_B
         } else if (inputType == POWER_PAD_SIDE_A) {
             LOG.info("Power Pad connected (Side A)")
             controllers[1] = ControllerType.POWER_PAD_SIDE_A
@@ -367,40 +357,37 @@ class EmulationSettings : Snapshotable, Resetable {
             LOG.info("2 NES controllers connected")
         }
 
-        // TODO: FOUR SCORE AND TWO PLAYER SUB PORTS!
+        port1.type = controllers[0]
+        port2.type = controllers[1]
+        expansionPort.type = controllers[2]
 
-        repeat(2) { controllerType(it, controllers[it]) }
-        this.expansionPortDevice = expansionPortDevice
-    }
+        if (controllers[0] == ControllerType.FOUR_SCORE) {
+            subPort1[0].type = NES_CONTROLLER
+            subPort1[1].type = NES_CONTROLLER
+            subPort1[2].type = NONE
+            subPort1[3].type = NONE
+        } else if (controllers[2] == TWO_PLAYER_ADAPTER) {
+            expansionSubPort[0].type = NES_CONTROLLER
+            expansionSubPort[1].type = NES_CONTROLLER
+        }
 
-    fun controllerType(index: Int, controllerType: ControllerType) {
-        controllerTypes[index] = controllerType
-        needControllerUpdate = true
-    }
-
-    fun controllerType(port: Int): ControllerType {
-        return controllerTypes[port]
-    }
-
-    fun controllerKeys(port: Int): KeyMapping {
-        return controllerKeys[port]
-    }
-
-    fun controllerKeys(port: Int, keys: KeyMapping) {
-        controllerKeys[port] = keys
-        needControllerUpdate = true
+        markAsNeedControllerUpdate()
     }
 
     val needsPause
         get() = flag(PAUSED)
 
-    val inputEnabled
+    val isInputEnabled
         get() = !flag(IN_BACKGROUND) || flag(ALLOW_BACKGROUND_INPUT)
 
     fun needAudioSettingsUpdate(): Boolean {
-        val value = needAudioSettingsUpdate
-        if (value) needAudioSettingsUpdate = false
-        return value
+        return if (needAudioSettingsUpdate) {
+            LOG.info("audio settings was updated")
+            needAudioSettingsUpdate = false
+            true
+        } else {
+            false
+        }
     }
 
     companion object {

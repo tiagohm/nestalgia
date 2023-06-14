@@ -1,13 +1,13 @@
 package br.tiagohm.nestalgia.desktop.gui.about
 
 import br.tiagohm.nestalgia.desktop.BuildConfig
-import br.tiagohm.nestalgia.desktop.gui.AbstractDialog
+import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import javafx.fxml.FXML
 import javafx.scene.control.Label
 import org.springframework.stereotype.Component
 
 @Component
-class AboutWindow : AbstractDialog() {
+class AboutWindow : AbstractWindow() {
 
     override val resourceName = "About"
 

@@ -11,6 +11,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import java.io.Serializable
 
 class SnapshotTest : StringSpec() {
 
@@ -87,6 +88,7 @@ class SnapshotTest : StringSpec() {
 
     companion object {
 
+        @Suppress("UNCHECKED_CAST")
         private inline fun snapshot(
             vararg data: Pair<String, Any>,
             action: Snapshot.() -> Unit,
@@ -103,7 +105,7 @@ class SnapshotTest : StringSpec() {
                     is Enum<*> -> snapshot.write(key, value)
                     is ShortArray -> snapshot.write(key, value)
                     is IntArray -> snapshot.write(key, value)
-                    is Array<*> -> snapshot.write(key, value)
+                    is Array<*> -> snapshot.write(key, value as Array<out Serializable>)
                     is String -> snapshot.write(key, value)
                 }
             }

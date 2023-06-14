@@ -88,14 +88,7 @@
                 </items>
             </ComboBox>
             <Button text="Apply preset"
-                    onAction="#applyPreset"/>
-        </HBox>
-        <HBox alignment="CENTER"
-              spacing="2.0">
-            <Button text="Reset"
-                    onAction="#reset"/>
-            <Button text="OK"
-                    onAction="#save"/>
+                    onAction="#apply"/>
         </HBox>
     </VBox>
 </AnchorPane>

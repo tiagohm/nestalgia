@@ -2,19 +2,25 @@ package br.tiagohm.nestalgia.core
 
 // https://wiki.nesdev.com/w/index.php/Zapper
 
-class Zapper(console: Console, type: ControllerType, port: Int) : ControlDevice(console, type, port) {
+class Zapper(
+    console: Console, type: ControllerType, port: Int,
+    private val keyMapping: KeyMapping,
+) : ControlDevice(console, type, port) {
 
     @JvmField var x = 0
     @JvmField var y = 0
 
+    private val fireKey = keyMapping.key(ZapperButton.FIRE)
+    private val aimOffscreenKey = keyMapping.key(ZapperButton.AIM_OFFSCREEN)
+
     override fun setStateFromInput() {
         if (console.keyManager == null) return
 
-        if (console.settings.inputEnabled && console.keyManager!!.isMouseButtonPressed(MouseButton.LEFT)) {
+        if (console.settings.isInputEnabled && console.keyManager!!.isKeyPressed(fireKey)) {
             setBit(ZapperButton.FIRE)
         }
 
-        if (console.keyManager!!.isMouseButtonPressed(MouseButton.RIGHT)) {
+        if (console.keyManager!!.isKeyPressed(aimOffscreenKey)) {
             x = 0
             y = 0
         } else {
@@ -73,7 +79,7 @@ class Zapper(console: Console, type: ControllerType, port: Int) : ControlDevice(
                                     pixelBrightnessAt(x, y) >= 85
                                 ) {
                                     // Light cannot be detected if the Y/X position is further
-                                    // ahead than the PPU, or if the PPU drew a dark color
+                                    // ahead than the PPU, or if the PPU drew a dark color.
                                     return true
                                 }
                             }

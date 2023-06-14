@@ -18,11 +18,13 @@ class Nestalgia : Application() {
     override fun start(primaryStage: Stage) {
         val context = runApplication<App>(*parameters.raw.toTypedArray()) {
             addInitializers(ApplicationContextInitializer<ConfigurableApplicationContext> {
-                val emulationSettings = EmulationSettings()
+                val globalSettings = EmulationSettings()
+                val consoleSettings = EmulationSettings()
                 it.beanFactory.registerSingleton("hostServices", hostServices)
                 it.beanFactory.registerSingleton("primaryStage", primaryStage)
-                it.beanFactory.registerSingleton("emulationSettings", emulationSettings)
-                it.beanFactory.registerSingleton("console", Console(settings = emulationSettings))
+                it.beanFactory.registerSingleton("globalSettings", globalSettings)
+                it.beanFactory.registerSingleton("consoleSettings", consoleSettings)
+                it.beanFactory.registerSingleton("console", Console(settings = consoleSettings))
             })
         }
 

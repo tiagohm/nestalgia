@@ -16,7 +16,8 @@ abstract class ApuChannel(
         protected set
 
     val region
-        get() = if (console.region == Region.DENDY) Region.NTSC else console.region
+        get() = if (console.region == Region.DENDY) Region.NTSC
+        else console.region
 
     override fun reset(softReset: Boolean) {
         timer = 0

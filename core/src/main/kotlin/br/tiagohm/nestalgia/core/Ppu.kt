@@ -113,6 +113,8 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Initial
         } else {
             PALETTE_BOOT_RAM.copyInto(paletteRAM)
         }
+
+        updateRegion(console.region)
     }
 
     override fun reset(softReset: Boolean) {

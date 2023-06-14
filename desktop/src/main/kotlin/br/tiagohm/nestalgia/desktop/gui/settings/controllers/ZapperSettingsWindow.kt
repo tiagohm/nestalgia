@@ -1,15 +1,17 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
+import br.tiagohm.nestalgia.core.KeyMapping
 import br.tiagohm.nestalgia.core.MouseButton
-import br.tiagohm.nestalgia.desktop.gui.AbstractDialog
+import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import javafx.fxml.FXML
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Slider
 
 class ZapperSettingsWindow(
     private val zapperDetectionRadius: IntArray,
-    private val player: Int,
-) : AbstractDialog() {
+    private val keyMapping: KeyMapping,
+    private val port: Int,
+) : AbstractWindow() {
 
     override val resourceName = "ZapperSettings"
 
@@ -21,18 +23,18 @@ class ZapperSettingsWindow(
         title = "Zapper"
         resizable = false
 
-        reset()
+        fireComboBox.value = keyMapping.zapperFire
+        aimOffscreenComboBox.value = keyMapping.zapperAimOffscreen
+        lightDetectionRadiusSlider.value = zapperDetectionRadius[port].toDouble()
     }
 
-    @FXML
-    private fun reset() {
-        lightDetectionRadiusSlider.value = zapperDetectionRadius[player].toDouble()
+    override fun onStart() {
+        lightDetectionRadiusSlider.value = zapperDetectionRadius[port].toDouble()
     }
 
-    @FXML
-    private fun save() {
-        zapperDetectionRadius[player] = lightDetectionRadiusSlider.value.toInt()
-        saved = true
-        close()
+    override fun onStop() {
+        keyMapping.zapperFire = fireComboBox.value
+        keyMapping.zapperAimOffscreen = aimOffscreenComboBox.value
+        zapperDetectionRadius[port] = lightDetectionRadiusSlider.value.toInt()
     }
 }

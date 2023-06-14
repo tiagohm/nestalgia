@@ -1,11 +1,30 @@
 package br.tiagohm.nestalgia.core
 
-open class ControllerHub(val portCount: Int, console: Console, type: ControllerType, port: Int) : ControlDevice(console, type, port) {
+import br.tiagohm.nestalgia.core.ControllerType.*
+
+open class ControllerHub(
+    val portCount: Int,
+    console: Console, type: ControllerType, port: Int,
+    vararg controllers: ControllerSettings,
+) : ControlDevice(console, type, port) {
 
     private val ports = arrayOfNulls<ControlDevice>(PORT_COUNT)
 
+    init {
+        for (i in controllers.indices) {
+            val controller = controllers[i]
+
+            when (controller.type) {
+                FAMICOM_CONTROLLER,
+                FAMICOM_CONTROLLER_P2,
+                NES_CONTROLLER -> ports[i] = StandardController(console, controller.type, i, controller.keyMapping)
+                else -> continue
+            }
+        }
+    }
+
     fun controlDevice(port: Int): ControlDevice? {
-        return if (port in 0 until portCount) ports[port] else null
+        return ports[port]
     }
 
     operator fun contains(type: ControllerType): Boolean {
@@ -14,11 +33,17 @@ open class ControllerHub(val portCount: Int, console: Console, type: ControllerT
     }
 
     override fun setStateFromInput() {
-        ports.forEach { it?.setStateFromInput() }
+        for (port in ports) {
+            port?.clearState()
+            port?.setStateFromInput()
+        }
     }
 
     override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         strobeOnWrite(value)
-        repeat(portCount) { ports[it]?.write(addr, value, type) }
+
+        repeat(portCount) {
+            ports[it]?.write(addr, value, type)
+        }
     }
 }

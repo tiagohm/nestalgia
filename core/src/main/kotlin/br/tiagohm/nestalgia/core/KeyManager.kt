@@ -2,9 +2,7 @@ package br.tiagohm.nestalgia.core
 
 interface KeyManager {
 
-    fun isKeyPressed(keyCode: Int): Boolean
-
-    fun isMouseButtonPressed(mouseButton: MouseButton): Boolean
+    fun isKeyPressed(key: Key): Boolean
 
     fun refreshKeyState()
 

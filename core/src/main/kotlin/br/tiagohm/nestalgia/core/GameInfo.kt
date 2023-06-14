@@ -110,6 +110,10 @@ data class GameInfo(
 
     companion object {
 
+        @JvmStatic private val GAME_INPUT_TYPE_VALUES = GameInputType.values()
+        @JvmStatic private val VS_SYSTEM_TYPE_VALUES = VsSystemType.values()
+        @JvmStatic private val PPU_MODEL_VALUES = PpuModel.values()
+
         @JvmStatic
         fun parse(line: String): GameInfo {
             val parts = line.split(";", ",")
@@ -146,7 +150,7 @@ data class GameInfo(
                 else -> throw IOException("Invalid mirroring type: ${parts[12]}")
             }
             val controller = when (val id = parts[13].toIntOrNull() ?: 0) {
-                in 0..0x2D -> GameInputType.values()[id]
+                in 0..0x2D -> GAME_INPUT_TYPE_VALUES[id]
                 else -> GameInputType.UNSPECIFIED
             }
             val busConflict = when (parts[14]) {
@@ -155,8 +159,8 @@ data class GameInfo(
                 else -> BusConflictType.DEFAULT
             }
             val subMapper = parts[15].toIntOrNull() ?: -1
-            val vsSystem = VsSystemType.values()[parts[16].toIntOrNull() ?: 0]
-            val ppuModel = PpuModel.values()[parts[17].toIntOrNull()?.let { if (it > 10) 0 else it } ?: 0]
+            val vsSystem = VS_SYSTEM_TYPE_VALUES[parts[16].toIntOrNull() ?: 0]
+            val ppuModel = PPU_MODEL_VALUES[parts[17].toIntOrNull()?.let { if (it > 10) 0 else it } ?: 0]
 
             if (mapper == 65000) {
                 mapper = UnifLoader.getMapperId(board)
@@ -180,7 +184,7 @@ data class GameInfo(
                 busConflict,
                 subMapper,
                 vsSystem,
-                ppuModel
+                ppuModel,
             )
         }
     }
