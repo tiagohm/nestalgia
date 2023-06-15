@@ -76,6 +76,7 @@ object MapperFactory {
             95 -> Mapper095(console)
             96 -> OekaKids(console)
             97 -> IremTamS1(console)
+            99 -> VsSystem(console)
             101 -> Mapper101(console)
             104 -> GoldenFive(console)
             105 -> Mapper105(console)

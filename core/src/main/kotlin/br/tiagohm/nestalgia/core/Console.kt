@@ -24,9 +24,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     @PublishedApi @JvmField internal var cpu = Cpu(this)
     @PublishedApi @JvmField internal var apu = Apu(this)
     @PublishedApi @JvmField internal var ppu = Ppu(this)
-
-    lateinit var systemActionManager: SystemActionManager
-        private set
+    @PublishedApi @JvmField internal var systemActionManager = SystemActionManager(this)
 
     inline val region
         get() = settings.region
@@ -112,7 +110,8 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
         val previousMapper = mapper
 
         if (previousMapper != null) {
-            // Ensure we save any battery file before loading a new game.
+            // Make sure the battery is saved to disk before we load another
+            // game (or reload the same game).
             saveBattery()
         }
 
@@ -165,28 +164,28 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
                 settings.ppuModel = PpuModel.PPU_2C02
                 systemActionManager = FdsSystemActionManager(this, newMapper as Fds)
             }
+            GameSystem.VS_SYSTEM -> {
+                settings.ppuModel = newMapper.info.vsPpuModel
+            }
             else -> {
                 settings.ppuModel = PpuModel.PPU_2C02
-                systemActionManager = SystemActionManager(this)
             }
         }
 
         // Temporarely disable battery saves to prevent battery files from
-        // being created for the wrong game (for Battle Box & Turbo File)
+        // being created for the wrong game (for Battle Box & Turbo File).
         batteryManager.disable()
 
         var pollCounter = 0
 
         if (!isDifferentGame) {
-            // When power cycling, poll counter must be preserved to allow movies to playback properly
+            // When power cycling, poll counter must be preserved to allow movies
+            // to playback properly.
             pollCounter = controlManager.pollCounter
         }
 
-        if (newMapper.info.system == GameSystem.VS_SYSTEM) {
-            throw UnsupportedOperationException("VS. Dual System is not supported")
-        }
-
-        controlManager = ControlManager(this)
+        controlManager = if (newMapper.info.system == GameSystem.VS_SYSTEM) VsControlManager(this)
+        else ControlManager(this)
         controlManager.initialize()
 
         batteryManager.enable()
@@ -194,6 +193,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
         ppu = if (newMapper is NsfMapper) NsfPpu(this) else Ppu(this)
         ppu.initialize()
 
+        // Restore pollcounter (used by movies when a power cycle is in the movie).
         controlManager.pollCounter = pollCounter
         controlManager.updateControlDevices(true)
 
@@ -592,12 +592,19 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     val isFds
         get() = mapper is Fds
 
+    val isVsSystem
+        get() = running && controlManager is VsControlManager
+
     val canScreenshot
         get() = running && !isNsf
 
     fun takeScreenshot(): IntArray {
         return if (canScreenshot) videoDecoder.takeScreenshot()
         else IntArray(0)
+    }
+
+    fun insertCoin(port: Int) {
+        (controlManager as? VsControlManager)?.insertCoin(port)
     }
 
     override fun saveState(s: Snapshot) {

@@ -174,6 +174,11 @@ data class Emulator(
     val isNsf
         get() = console.isNsf
 
+    val isVsSystem
+        get() = console.isVsSystem
+
+    // TODO: Mover pro Console
+    // TODO: Remover a classe FdsSystemActionManager e substituir por FdsInputButtons
     val fdsSystemActionManager
         get() = if (!console.running) null else console.systemActionManager as? FdsSystemActionManager
 
@@ -195,6 +200,10 @@ data class Emulator(
 
     fun ejectDisk() {
         fdsSystemActionManager?.ejectDisk()
+    }
+
+    fun insertCoin(port: Int) {
+        console.insertCoin(port)
     }
 
     inline val dipSwitchCount
