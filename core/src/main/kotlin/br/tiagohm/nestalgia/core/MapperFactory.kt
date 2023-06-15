@@ -85,6 +85,7 @@ object MapperFactory {
             107 -> Mapper107(console)
             108 -> Bb(console)
             111 -> Cheapocabra(console)
+            112 -> Mapper112(console)
             113 -> Nina0306(console, true)
             114 -> Mapper114(console)
             115 -> Mapper115(console)
