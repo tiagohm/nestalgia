@@ -46,7 +46,7 @@ class Sachen8259(console: Console, private val variant: Int) : Mapper(console) {
         selectPrgPage(0, 0)
     }
 
-    fun updateState() {
+    private fun updateState() {
         val simpleMode = regs[7].bit0
 
         when (regs[7] shr 1 and 0x03) {
