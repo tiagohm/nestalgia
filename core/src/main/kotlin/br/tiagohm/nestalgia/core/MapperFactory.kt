@@ -29,6 +29,7 @@ object MapperFactory {
             15 -> Mapper015(console)
             16 -> Mapper016(console)
             17 -> Mapper017(console)
+            18 -> JalecoSs88006(console)
             28 -> Action53(console)
             29 -> SealieComputing(console)
             30 -> UNROM512(console)
