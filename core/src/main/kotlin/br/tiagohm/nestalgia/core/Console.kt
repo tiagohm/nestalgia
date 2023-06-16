@@ -26,12 +26,6 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     @PublishedApi @JvmField internal var ppu = Ppu(this)
     @PublishedApi @JvmField internal var systemActionManager = SystemActionManager(this)
 
-    inline val region
-        get() = settings.region
-
-    var mapper: Mapper? = null
-        internal set
-
     @JvmField internal val videoDecoder = VideoDecoder(this)
     @JvmField internal val videoRenderer = VideoRenderer(this)
     @JvmField internal val saveStateManager = SaveStateManager(this)
@@ -51,6 +45,12 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     private val stopLock = SimpleLock()
     private val clockTimer = Timer()
     private val lastFrameTimer = Timer()
+
+    var region = AUTO
+        internal set
+
+    var mapper: Mapper? = null
+        internal set
 
     var paused = false
         private set
@@ -510,28 +510,29 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
             configChanged = true
         }
 
-        val prevRegion = settings.region
-        var newRegion = prevRegion
+        val prevRegion = region
 
-        if (prevRegion == AUTO) {
-            newRegion = when (mapper!!.info.system) {
+        region = if (settings.region == AUTO) {
+            when (mapper!!.info.system) {
                 GameSystem.PAL -> PAL
                 GameSystem.DENDY -> DENDY
                 else -> NTSC
             }
+        } else {
+            settings.region
         }
 
-        if (newRegion != prevRegion) {
-            LOG.info("region was updated. from={}, to={}", prevRegion, newRegion)
+        if (region != prevRegion) {
+            LOG.info("region was updated. from={}, to={}", prevRegion, region)
 
-            settings.region = newRegion
+            settings.region = region
             configChanged = true
 
-            cpu.masterClockDivider(newRegion)
-            mapper!!.updateRegion(newRegion)
-            ppu.updateRegion(newRegion)
-            apu.updateRegion(newRegion)
-            soundMixer.updateRegion(newRegion)
+            cpu.masterClockDivider(region)
+            mapper!!.updateRegion(region)
+            ppu.updateRegion(region)
+            apu.updateRegion(region)
+            soundMixer.updateRegion(region)
         }
 
         if (configChanged && sendNotification) {
