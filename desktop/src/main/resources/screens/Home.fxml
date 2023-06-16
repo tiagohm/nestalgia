@@ -222,11 +222,11 @@
                     </accelerator>
                 </MenuItem>
                 <MenuItem fx:id="insertCoin1MenuItem"
-                          text="Insert coin 1"
+                          text="Insert coin (Slot 1)"
                           userData="0"
                           onAction="#insertCoin"/>
                 <MenuItem fx:id="insertCoin2MenuItem"
-                          text="Insert coin 2"
+                          text="Insert coin (Slot 2)"
                           userData="1"
                           onAction="#insertCoin"/>
             </Menu>
