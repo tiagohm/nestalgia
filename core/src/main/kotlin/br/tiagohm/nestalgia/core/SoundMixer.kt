@@ -121,7 +121,7 @@ class SoundMixer(private val console: Console) : Resetable, Closeable, Snapshota
 
         console.mapper!!.applySamples(outputBuffer, sampleCount, 4.0)
 
-        if (devices.isNotEmpty() && !console.paused) {
+        if (devices.isNotEmpty() && !console.isPaused) {
             devices.forEach { it.play(outputBuffer, sampleCount, sampleRate, true) }
         }
 

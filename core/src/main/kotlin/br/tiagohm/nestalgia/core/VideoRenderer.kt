@@ -42,7 +42,7 @@ class VideoRenderer(private val console: Console) : Closeable {
             } catch (e: Throwable) {
                 break
             } finally {
-                if (console.running) {
+                if (console.isRunning) {
                     rendereres.forEach { it.render() }
                 }
             }

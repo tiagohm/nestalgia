@@ -129,7 +129,6 @@
             cursor: pointer;
             text-align: center;
         }
-
     </style>
 </head>
 
@@ -638,15 +637,15 @@
                         <th>CPU</th>
                     </tr>
                     <tr>
-                        <td>branch_timing_tests/branch_basics</td>
+                        <td>branch_timing/branch_basics</td>
                         <td><span class="ms-1 badge badge-success">Pass</span></td>
                     </tr>
                     <tr>
-                        <td>branch_timing_tests/backward_branch</td>
+                        <td>branch_timing/backward_branch</td>
                         <td><span class="ms-1 badge badge-success">Pass</span></td>
                     </tr>
                     <tr>
-                        <td>branch_timing_tests/forward_branch</td>
+                        <td>branch_timing/forward_branch</td>
                         <td><span class="ms-1 badge badge-success">Pass</span></td>
                     </tr>
                     <tr>
@@ -686,7 +685,7 @@
                         <td><span class="ms-1 badge badge-success">Pass</span></td>
                     </tr>
                     <tr>
-                        <td>cpu_timing_test</td>
+                        <td>cpu_timing</td>
                         <td><span class="ms-1 badge badge-success">Pass</span></td>
                     </tr>
                     <tr>
@@ -735,6 +734,10 @@
                     </tr>
                     <tr>
                         <td>nestest</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>blargg_cpu</td>
                         <td><span class="ms-1 badge badge-success">Pass</span></td>
                     </tr>
                 </table>
@@ -983,6 +986,72 @@
                         <td>blargg_apu/pal/len_reload_timing</td>
                         <td><span class="ms-1 badge badge-success">Pass</span></td>
                     </tr>
+                    <tr>
+                        <td>apu_phase_reset</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <table>
+                    <tr>
+                        <th>Mapper</th>
+                    </tr>
+                    <tr>
+                        <td>mmc3_irq/a12_clocking</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>mmc3_irq/clocking</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>mmc3_irq/details</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>mmc3_irq/rev_A</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>mmc3_irq/rev_B</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>mmc3_irq/scanline_timing</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <table>
+                    <tr>
+                        <th>Input</th>
+                    </tr>
+                    <tr>
+                        <td>allpads/nes_controller_1P</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>allpads/nes_controller_2P</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>allpads/four_score</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>allpads/zapper_1P</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>allpads/zapper_2P</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
+                    <tr>
+                        <td>allpads/none</td>
+                        <td><span class="ms-1 badge badge-success">Pass</span></td>
+                    </tr>
                 </table>
             </div>
         </div>
@@ -1018,7 +1087,6 @@
                 navigateToNesDevWiki(event.target.innerText)
             })
         })
-
     </script>
 </body>
 

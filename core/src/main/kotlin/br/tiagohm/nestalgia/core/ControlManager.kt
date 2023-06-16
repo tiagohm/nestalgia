@@ -3,6 +3,7 @@ package br.tiagohm.nestalgia.core
 import br.tiagohm.nestalgia.core.ConsoleType.*
 import br.tiagohm.nestalgia.core.ControlDevice.Companion.EXP_DEVICE_PORT
 import br.tiagohm.nestalgia.core.ControllerType.*
+import org.slf4j.LoggerFactory
 import java.io.Closeable
 
 open class ControlManager(protected val console: Console) : MemoryHandler, Resetable, Initializable, Snapshotable, Closeable {
@@ -112,7 +113,7 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             else -> KeyMapping()
         }
 
-        return when (type) {
+        val device = when (type) {
             NES_CONTROLLER,
             FAMICOM_CONTROLLER,
             FAMICOM_CONTROLLER_P2 -> StandardController(console, type, port, keyMapping)
@@ -123,8 +124,12 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             FOUR_SCORE -> FourScore(console, type, 0, *settings.subPort1)
             TWO_PLAYER_ADAPTER -> TwoPlayerAdapter(console, type, *settings.expansionSubPort)
             FOUR_PLAYER_ADAPTER -> FourScore(console, type, EXP_DEVICE_PORT, *settings.expansionSubPort)
-            else -> null
+            else -> return null
         }
+
+        LOG.info("{} connected. type={}, port={}", device::class.simpleName, device.type, device.port)
+
+        return device
     }
 
     fun processEndOfFrame() {
@@ -228,5 +233,10 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
         pollCounter = s.readInt("pollCounter")
 
         controlDevices.forEachIndexed { i, c -> s.readSnapshotable("controlDevice$i", c) }
+    }
+
+    companion object {
+
+        @JvmStatic private val LOG = LoggerFactory.getLogger(ControlManager::class.java)
     }
 }

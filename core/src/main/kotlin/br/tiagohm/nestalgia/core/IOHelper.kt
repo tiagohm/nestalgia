@@ -14,16 +14,14 @@ fun IntArray.endsWith(text: String): Boolean {
     return true
 }
 
-private const val HEX_DIGIT_CHARS = "0123456789abcdef"
-
-fun ByteArray.hex(range: IntRange = indices): String {
+fun ByteArray.hex(range: IntRange = indices, digits: String = "0123456789abcdef"): String {
     val result = CharArray(size * 2)
     var c = 0
 
     for (i in range) {
-        val b = this[i]
-        result[c++] = HEX_DIGIT_CHARS[b.toInt() shr 4 and 0xF]
-        result[c++] = HEX_DIGIT_CHARS[b.toInt() and 0xF]
+        val value = this[i].toInt()
+        result[c++] = digits[value shr 4 and 0xF]
+        result[c++] = digits[value and 0xF]
     }
 
     return result.concatToString()
@@ -41,18 +39,22 @@ fun IntArray.digest(algorithm: String, range: IntRange = indices): String {
     return hash.digest().hex()
 }
 
-fun IntArray.md5(range: IntRange = indices): String {
+@Suppress("NOTHING_TO_INLINE")
+inline fun IntArray.md5(range: IntRange = indices): String {
     return digest("MD5", range)
 }
 
-fun IntArray.sha1(range: IntRange = indices): String {
+@Suppress("NOTHING_TO_INLINE")
+inline fun IntArray.sha1(range: IntRange = indices): String {
     return digest("SHA-1", range)
 }
 
-fun IntArray.sha256(range: IntRange = indices): String {
+@Suppress("NOTHING_TO_INLINE")
+inline fun IntArray.sha256(range: IntRange = indices): String {
     return digest("SHA-256", range)
 }
 
-fun ByteArray.toIntArray(size: Int = this.size): IntArray {
+@Suppress("NOTHING_TO_INLINE")
+inline fun ByteArray.toIntArray(size: Int = this.size): IntArray {
     return IntArray(size) { this[it].toInt() and 0xFF }
 }

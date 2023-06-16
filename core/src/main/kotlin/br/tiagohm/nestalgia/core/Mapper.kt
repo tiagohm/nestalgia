@@ -581,7 +581,7 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
         accessType: MemoryAccessType = UNSPECIFIED,
     ) {
         if (!validateAddressRange(start, end) || start > 0x3F00 || end > 0x3FFF || end <= start) {
-            System.err.println("Invalid PPU address range")
+            LOG.error("invalid PPU address range. start=%04X, end=%04X".format(start, end))
             return
         }
 

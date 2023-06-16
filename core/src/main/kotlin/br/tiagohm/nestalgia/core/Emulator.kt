@@ -5,6 +5,10 @@ import java.awt.image.DataBufferInt
 import java.io.Closeable
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
+import java.util.concurrent.atomic.AtomicReference
 
 data class Emulator(
     @JvmField val console: Console,
@@ -12,15 +16,16 @@ data class Emulator(
     @JvmField val video: RenderingDevice,
     @JvmField val keyManager: KeyManager,
     @JvmField val inputProviders: Iterable<InputProvider>,
-) : NotificationListener, Resetable, Runnable, Closeable {
+    @JvmField val threadExecutor: ExecutorService = DEFAULT_THREAD_EXECUTOR,
+) : NotificationListener, Resetable, Closeable {
 
-    private var emuThread: Thread? = null
+    private val emuThread = AtomicReference<Future<*>>()
 
     inline val settings
         get() = console.settings
 
     inline val running
-        get() = console.running
+        get() = console.isRunning
 
     init {
         console.videoRenderer.registerRenderingDevice(video)
@@ -30,27 +35,23 @@ data class Emulator(
         console.notificationManager.registerNotificationListener(this)
     }
 
-    override fun run() {
-        console.run()
-    }
-
     override fun close() {
         console.close()
-        emuThread?.interrupt()
-        emuThread = null
+
+        emuThread.getAndSet(null)?.cancel(true)
     }
 
     override fun processNotification(type: NotificationType, vararg data: Any?) {}
 
     fun load(rom: IntArray, name: String, fdsBios: IntArray = IntArray(0)): Boolean {
         return if (console.initialize(rom, name, true, fdsBios)) {
-            if (emuThread == null) {
-                emuThread = Thread(this)
-                emuThread!!.isDaemon = true
-                emuThread!!.start()
+            emuThread.compareAndSet(null, threadExecutor.submit(console))
+
+            for (provider in inputProviders) {
+                console.controlManager.registerInputProvider(provider)
             }
 
-            inputProviders.forEach { console.controlManager.registerInputProvider(it) }
+            while (!console.isRunning) Thread.sleep(10)
 
             true
         } else {
@@ -77,8 +78,7 @@ data class Emulator(
         if (!running) return
 
         console.stop()
-        emuThread?.interrupt()
-        emuThread = null
+        emuThread.getAndSet(null)?.cancel(true)
     }
 
     override fun reset(softReset: Boolean) {
@@ -180,7 +180,7 @@ data class Emulator(
     // TODO: Mover pro Console
     // TODO: Remover a classe FdsSystemActionManager e substituir por FdsInputButtons
     val fdsSystemActionManager
-        get() = if (!console.running) null else console.systemActionManager as? FdsSystemActionManager
+        get() = if (!console.isRunning) null else console.systemActionManager as? FdsSystemActionManager
 
     @Suppress("UNCHECKED_CAST")
     fun <T : ControlDevice> controlDevice(port: Int): T? {
@@ -246,5 +246,10 @@ data class Emulator(
         if (running) {
             console.debugger.step(count)
         }
+    }
+
+    companion object {
+
+        @JvmStatic private val DEFAULT_THREAD_EXECUTOR = Executors.newSingleThreadExecutor()
     }
 }

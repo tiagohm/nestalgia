@@ -342,7 +342,8 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
             console.settings.port1.type = NES_CONTROLLER
             console.settings.markAsNeedControllerUpdate()
         }
-        if (console.settings.port2.type == ControllerType.NONE) {
+        if (console.settings.port1.type != FOUR_SCORE &&
+            console.settings.port2.type == ControllerType.NONE) {
             console.settings.port2.type = NES_CONTROLLER
             console.settings.markAsNeedControllerUpdate()
         }

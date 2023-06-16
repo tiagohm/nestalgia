@@ -1,33 +1,33 @@
 import br.tiagohm.nestalgia.core.*
 import br.tiagohm.nestalgia.core.ControllerType.*
-import java.awt.image.BufferedImage
+import br.tiagohm.nestalgia.core.KeyboardKeys.*
 import java.nio.file.Path
+import java.util.*
+import java.util.concurrent.Executors
 import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.readBytes
 
-class NesTester {
+class NesTester(private val path: Path) {
 
-    private val console = Console()
-    private val speaker = Speaker()
-    private val video = Video()
-    private val controller = Controller()
-    private val emulator = Emulator(console, speaker, video, controller, emptyList())
-    private val pressedButtons = BooleanArray(256)
+    private val pressedButtons = IntArray(256)
 
-    internal val frameHashes = HashSet<String>(2048)
+    val console = Console()
+    val controller: KeyManager = Controller()
+    @JvmField internal val frameHashes = Collections.synchronizedSet(HashSet<String>(2048))
+    private val threadExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+    val emulator = Emulator(console, Speaker, Video(), controller, emptyList(), threadExecutor)
 
-    fun load(path: Path) {
-        frameHashes.clear()
-        emulator.settings.port1.type = NES_CONTROLLER
-        DEFAULT_KEYS.copyTo(emulator.settings.port1.keyMapping)
+    var isAutoPlugController = true
+        internal set
+
+    fun start() {
+        if (isAutoPlugController && emulator.settings.port1.type == NONE) {
+            emulator.settings.port1.type = NES_CONTROLLER
+            CONTROLLER_KEYS_1P.copyTo(emulator.settings.port1.keyMapping)
+        }
+
         emulator.load(path.readBytes().toIntArray(), path.nameWithoutExtension)
     }
-
-    var region
-        get() = emulator.settings.region
-        set(value) {
-            emulator.settings.region = value
-        }
 
     fun softReset() {
         emulator.reset(true)
@@ -37,20 +37,22 @@ class NesTester {
         emulator.stop()
     }
 
-    fun pressButton(button: StandardControllerButton) {
-        val code = DEFAULT_KEYS.key(button).code
-        pressedButtons[code] = true
+    fun press(button: ControllerButton, port: Int = 0) {
+        val keys = CONTROLLER_KEYS[port]
+        pressedButtons[keys.key(button).code] = 1
     }
 
-    fun takeScreenshot(): IntArray {
-        return console.takeScreenshot()
+    fun pressAndRelease(button: ControllerButton, port: Int = 0) {
+        val keys = CONTROLLER_KEYS[port]
+        pressedButtons[keys.key(button).code] = 2
     }
 
-    fun takeScreenshotAsImage(): BufferedImage? {
-        return emulator.takeScreenshot()
+    fun release(button: ControllerButton, port: Int = 0) {
+        val keys = CONTROLLER_KEYS[port]
+        pressedButtons[keys.key(button).code] = 0
     }
 
-    private inner class Speaker : AudioDevice {
+    private object Speaker : AudioDevice {
 
         override fun play(buffer: ShortArray, length: Int, sampleRate: Int, stereo: Boolean) {}
 
@@ -80,8 +82,8 @@ class NesTester {
 
         override fun isKeyPressed(key: Key): Boolean {
             val pressed = pressedButtons[key.code]
-            pressedButtons[key.code] = false
-            return pressed
+            if (pressed == 2) pressedButtons[key.code] = 0
+            return pressed >= 1
         }
 
         override fun refreshKeyState() {}
@@ -95,6 +97,13 @@ class NesTester {
 
     companion object {
 
-        @JvmStatic private val DEFAULT_KEYS = KeyMapping.arrowKeys()
+        @JvmStatic internal val CONTROLLER_KEYS_1P = KeyMapping(A, B, C, D, E, F, G, H)
+        @JvmStatic internal val CONTROLLER_KEYS_2P = KeyMapping(I, J, K, L, M, N, O, P)
+        @JvmStatic internal val CONTROLLER_KEYS_3P = KeyMapping(Q, R, S, T, U, V, W, X)
+        @JvmStatic internal val CONTROLLER_KEYS_4P = KeyMapping(Y, Z, F1, F2, F3, F4, F5, F6)
+
+        @JvmStatic internal val CONTROLLER_KEYS = arrayOf(
+            CONTROLLER_KEYS_1P, CONTROLLER_KEYS_2P, CONTROLLER_KEYS_3P, CONTROLLER_KEYS_4P,
+        )
     }
 }

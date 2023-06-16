@@ -1,9 +1,9 @@
+import br.tiagohm.nestalgia.core.Console
 import br.tiagohm.nestalgia.core.Ppu
-import br.tiagohm.nestalgia.core.Region
-import br.tiagohm.nestalgia.core.StandardControllerButton
 import br.tiagohm.nestalgia.core.md5
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.spec.style.scopes.StringSpecScope
+import io.kotest.matchers.booleans.shouldBeTrue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import java.awt.image.BufferedImage
@@ -16,63 +16,48 @@ import javax.imageio.ImageIO
 
 abstract class NesTesterSpec : StringSpec() {
 
-    private val tester = NesTester()
-
     protected suspend fun StringSpecScope.test(
-        region: Region = Region.NTSC,
-        romPath: String = testCase.name.testName, action: (suspend NesTester.() -> Unit)) {
-        tester.region = region
-        tester.load(Path.of("src/test/resources/roms/$romPath.nes"))
+        romPath: String = testCase.name.testName,
+        autoStart: Boolean = true,
+        action: (suspend NesTester.() -> Unit),
+    ) {
+        val path = Path.of("src/test/resources/roms/$romPath.nes")
+        val tester = NesTester(path)
 
         try {
+            if (autoStart) {
+                tester.start()
+            }
+
             tester.action()
+            tester.console.isRunning.shouldBeTrue()
         } finally {
-            takeScreenshotAndSaveIt()
+            takeScreenshotAndSaveIt(tester.console)
             tester.stop()
         }
     }
 
-    protected suspend fun StringSpecScope.testWithResetAtStartup(
-        resetCount: Int = 1,
-        resetDelay: Long = 1500L,
-        region: Region = Region.NTSC,
-        romPath: String = testCase.name.testName, action: (suspend NesTester.() -> Unit)) {
-        test(region, romPath) {
-            repeat(resetCount) {
-                delay(resetDelay)
-                tester.softReset()
-            }
-
-            action()
-        }
-    }
-
-    protected suspend fun StringSpecScope.testWithButtonPressAtStartup(
-        button: StandardControllerButton,
-        initialDelay: Long = 1000L,
-        region: Region = Region.NTSC,
-        romPath: String = testCase.name.testName, action: (suspend NesTester.() -> Unit)) {
-        test(region, romPath) {
-            delay(initialDelay)
-            pressButton(button)
-            action()
-        }
-    }
-
-    protected fun StringSpecScope.takeScreenshotAndSaveIt(suffix: String = "") {
+    protected fun StringSpecScope.takeScreenshotAndSaveIt(console: Console, suffix: String = "") {
         val testName = testCase.name.testName.replace("/", "_")
         val name = "$testName$suffix"
-        val screenshot = tester.takeScreenshot()
+        val screenshot = console.takeScreenshot()
         val image = BufferedImage(Ppu.SCREEN_WIDTH, Ppu.SCREEN_HEIGHT, BufferedImage.TYPE_INT_RGB)
         screenshot.copyInto((image.raster.dataBuffer as DataBufferInt).data)
         ImageIO.write(image, "PNG", File("src/test/resources/screenshots/$name.png"))
         println("$name: ${screenshot.md5()}")
     }
 
-    protected suspend fun waitForFrame(frameHash: String,
-                                       timeoutDuration: Long = 60, timeoutUnit: TimeUnit = SECONDS) {
-        withTimeout(timeoutUnit.toMillis(timeoutDuration)) {
-            while (frameHash !in tester.frameHashes) delay(100)
+    protected suspend fun NesTester.waitForFrame(
+        frameHash: String,
+        startIfNotRunning: Boolean = true,
+        duration: Long = 60, unit: TimeUnit = SECONDS,
+    ) {
+        if (!console.isRunning && startIfNotRunning) {
+            start()
+        }
+
+        withTimeout(unit.toMillis(duration)) {
+            while (frameHash !in frameHashes) delay(500)
         }
     }
 }

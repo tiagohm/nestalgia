@@ -34,8 +34,8 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
 
     @JvmField internal var keyManager: KeyManager? = null
 
-    private var stop = AtomicBoolean(false)
-    private var mRunning = false
+    private val stop = AtomicBoolean()
+    private val running = AtomicBoolean()
     private var pauseOnNextFrameRequested = false
     private var resetRunTimers = false
     private var disableOcNextFrame = false
@@ -52,7 +52,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     var mapper: Mapper? = null
         internal set
 
-    var paused = false
+    var isPaused = false
         private set
 
     var emulationThreadId = 0L
@@ -291,7 +291,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     }
 
     fun stop() {
-        if (running) {
+        if (isRunning) {
             stop.set(true)
 
             debugger.suspend()
@@ -347,6 +347,8 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     override fun run() {
         require(mapper != null) { "no mapper!" }
 
+        if (!running.compareAndSet(false, true)) return
+
         clockTimer.reset()
         lastFrameTimer.reset()
         var lastDelay = frameDelay
@@ -361,8 +363,6 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
         videoDecoder.startThread()
 
         updateRegion(true)
-
-        mRunning = true
 
         try {
             while (true) {
@@ -433,10 +433,10 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
                     while (pausedRequired && !stop.get()) {
                         Thread.sleep(30)
                         pausedRequired = settings.needsPause
-                        paused = true
+                        isPaused = true
                     }
 
-                    paused = false
+                    isPaused = false
 
                     runLock.acquire()
                     notificationManager.sendNotification(GAME_RESUMED)
@@ -453,12 +453,13 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
                     break
                 }
             }
+        } catch (_: InterruptedException) {
         } catch (e: Throwable) {
-            e.printStackTrace()
+            LOG.error("console error", e)
         }
 
-        paused = false
-        mRunning = false
+        isPaused = false
+        running.set(false)
 
         notificationManager.sendNotification(BEFORE_EMULATION_STOP)
 
@@ -492,11 +493,11 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
         resetRunTimers = true
     }
 
-    val running
-        get() = !stopLock.isFree && mRunning
+    val isRunning
+        get() = !stopLock.isFree && running.get()
 
-    val stopped
-        get() = runLock.isFree || (!runLock.isFree && pauseCounter.get() > 0) || !mRunning
+    val isStopped
+        get() = runLock.isFree || (!runLock.isFree && pauseCounter.get() > 0) || !running.get()
 
     fun pauseOnNextFrame() {
         pauseOnNextFrameRequested = true
@@ -594,10 +595,10 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
         get() = mapper is Fds
 
     val isVsSystem
-        get() = running && controlManager is VsControlManager
+        get() = isRunning && controlManager is VsControlManager
 
     val canScreenshot
-        get() = running && !isNsf
+        get() = isRunning && !isNsf
 
     fun takeScreenshot(): IntArray {
         return if (canScreenshot) videoDecoder.takeScreenshot()
@@ -609,7 +610,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     }
 
     override fun saveState(s: Snapshot) {
-        if (running) {
+        if (isRunning) {
             // Send any unprocessed sound to the SoundMixer.
             apu.endFrame()
 
@@ -624,7 +625,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     }
 
     override fun restoreState(s: Snapshot) {
-        if (running) {
+        if (isRunning) {
             // Send any unprocessed sound to the SoundMixer.
             apu.endFrame()
 

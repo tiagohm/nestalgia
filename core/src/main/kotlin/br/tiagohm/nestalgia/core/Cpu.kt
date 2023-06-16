@@ -112,7 +112,6 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun aac() {
-        // println("aac")
         a = a and fetchOperandValue()
 
         CARRY.clear()
@@ -123,12 +122,10 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun adc() {
-        // println("adc")
         add(fetchOperandValue())
     }
 
     private fun add(value: Int) {
-        // println("add")
         val sum = a + value + if (CARRY.isOn()) 0x01 else 0x00
         val result = sum and 0xFF
 
@@ -151,12 +148,10 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun and() {
-        // println("and")
         a = a and fetchOperandValue()
     }
 
     internal fun arr() {
-        // println("arr")
         a = (a and fetchOperandValue() shr 1) or if (CARRY.isOn()) 0x80 else 0x00
 
         CARRY.clear()
@@ -172,7 +167,6 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     private fun asl(value: Int): Int {
-        // println("asl")
         CARRY.clear()
         NEGATIVE.clear()
         ZERO.clear()
@@ -187,12 +181,10 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun aslAcc() {
-        // println("aslAcc")
         a = asl(a)
     }
 
     internal fun aslMem() {
-        // println("aslMem")
         val addr = operand
         val value = read(addr)
         write(addr, value, DUMMY_WRITE) // Dummy write
@@ -200,7 +192,6 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun asr() {
-        // println("asr")
         CARRY.clear()
 
         a = a and fetchOperandValue()
@@ -213,14 +204,12 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun atx() {
-        // println("atx")
         a = fetchOperandValue() // LDA
         x = a // TAX
         a = a // Update flags based on A
     }
 
     internal fun axa() {
-        // println("axa")
         val addr = operand
         // This opcode stores the result of A AND X AND the high byte of the
         // target address of the operand +1 in memory.
@@ -230,7 +219,6 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun axs() {
-        // println("axs")
         val value = fetchOperandValue()
         val ax = a and x and 0xFF
         val result = ax - value
@@ -266,22 +254,18 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun bcc() {
-        // println("bcc")
         branchRelative(CARRY.isOff())
     }
 
     internal fun bcs() {
-        // println("bcs")
         branchRelative(CARRY.isOn())
     }
 
     internal fun beq() {
-        // println("beq")
         branchRelative(ZERO.isOn())
     }
 
     internal fun bit() {
-        // println("bit")
         val value = fetchOperandValue()
 
         ZERO.clear()
@@ -300,22 +284,18 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun bmi() {
-        // println("bmi")
         branchRelative(NEGATIVE.isOn())
     }
 
     internal fun bne() {
-        // println("bne")
         branchRelative(ZERO.isOff())
     }
 
     internal fun bpl() {
-        // println("bpl")
         branchRelative(NEGATIVE.isOff())
     }
 
     internal fun brk() {
-        // println("brk")
         push16(pc + 1)
 
         val flags = ps or BREAK.code or RESERVED.code
@@ -340,52 +320,42 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun bvc() {
-        // println("bvc")
         branchRelative(OVERFLOW.isOff())
     }
 
     internal fun bvs() {
-        // println("bvs")
         branchRelative(OVERFLOW.isOn())
     }
 
     internal fun clc() {
-        // println("clc")
         CARRY.clear()
     }
 
     internal fun cld() {
-        // println("cld")
         DECIMAL.clear()
     }
 
     internal fun cli() {
-        // println("cli")
         INTERRUPT.clear()
     }
 
     internal fun clv() {
-        // println("clv")
         OVERFLOW.clear()
     }
 
     internal fun cpa() {
-        // println("cpa")
         cmp(a, fetchOperandValue())
     }
 
     internal fun cpx() {
-        // println("cpx")
         cmp(x, fetchOperandValue())
     }
 
     internal fun cpy() {
-        // println("cpy")
         cmp(y, fetchOperandValue())
     }
 
     internal fun dcp() {
-        // println("dcp")
         var value = fetchOperandValue()
         write(operand, value, DUMMY_WRITE) // Dummy write
         value--
@@ -394,7 +364,6 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun dec() {
-        // println("dec")
         val addr = operand
 
         NEGATIVE.clear()
@@ -411,28 +380,23 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun dex() {
-        // println("dex")
         x--
     }
 
     internal fun dey() {
-        // println("dey")
         y--
     }
 
     internal fun eor() {
-        // println("eor")
         a = a xor fetchOperandValue()
     }
 
     internal fun hlt() {
-        // println("hlt")
         // Normally freezes the cpu, we can probably assume nothing will ever call this.
         fetchOperandValue()
     }
 
     internal fun inc() {
-        // println("inc")
         val addr = operand
 
         NEGATIVE.clear()
@@ -449,17 +413,14 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun inx() {
-        // println("inx")
         x++
     }
 
     internal fun iny() {
-        // println("iny")
         y++
     }
 
     internal fun isb() {
-        // println("isb")
         var value = fetchOperandValue()
         write(operand, value, DUMMY_WRITE) // Dummy write
         value++
@@ -468,22 +429,18 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun jmp(addr: Int) {
-        // println("jmp")
         pc = addr
     }
 
     internal fun jmpAbs() {
-        // println("jmpAbs")
         jmp(operand)
     }
 
     internal fun jmpInd() {
-        // println("jmpInd")
         jmp(readInd())
     }
 
     internal fun jsr() {
-        // println("jsr")
         val addr = operand
         dummyRead()
         push16(pc - 1)
@@ -491,7 +448,6 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun las() {
-        // println("las")
         // AND memory with stack pointer, transfer result to accumulator,
         // X register and stack pointer.
         val value = fetchOperandValue()
@@ -501,29 +457,24 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun lax() {
-        // println("lax")
         val value = fetchOperandValue()
         x = value
         a = value
     }
 
     internal fun lda() {
-        // println("lda")
         a = fetchOperandValue()
     }
 
     internal fun ldx() {
-        // println("ldx")
         x = fetchOperandValue()
     }
 
     internal fun ldy() {
-        // println("ldy")
         y = fetchOperandValue()
     }
 
     private fun lsr(value: Int): Int {
-        // println("lsr")
         CARRY.clear()
         NEGATIVE.clear()
         ZERO.clear()
@@ -538,12 +489,10 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun lsrAcc() {
-        // println("lsrAcc")
         a = lsr(a)
     }
 
     internal fun lsrMem() {
-        // println("lsrMem")
         val addr = operand
         val value = read(addr)
         write(addr, value, DUMMY_WRITE) // Dummy write
@@ -551,40 +500,33 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun nop() {
-        // println("nop")
         // Make sure the nop operation takes as many cycles as meant to
         fetchOperandValue()
     }
 
     internal fun ora() {
-        // println("ora")
         a = a or fetchOperandValue()
     }
 
     internal fun pha() {
-        // println("pha")
         push8(a)
     }
 
     internal fun php() {
-        // println("php")
         push8(ps or BREAK.code or RESERVED.code)
     }
 
     internal fun pla() {
-        // println("pla")
         dummyRead()
         a = pop8()
     }
 
     internal fun plp() {
-        // println("plp")
         dummyRead()
         ps = pop8()
     }
 
     internal fun rla() {
-        // println("rla")
         val value = fetchOperandValue()
         write(operand, value, DUMMY_WRITE) // Dummy write
         val shiftedValue = rol(value)
@@ -593,7 +535,6 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     private fun rol(value: Int): Int {
-        // println("rol")
         val isCarry = CARRY.isOn()
 
         CARRY.clear()
@@ -610,12 +551,10 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun rolAcc() {
-        // println("rolAcc")
         a = rol(a)
     }
 
     internal fun rolMem() {
-        // println("rolMem")
         val addr = operand
         val value = read(addr)
         write(addr, value, DUMMY_WRITE) // Dummy write
@@ -623,7 +562,6 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     private fun ror(value: Int): Int {
-        // println("ror")
         val carry = CARRY.isOn()
 
         CARRY.clear()
@@ -640,12 +578,10 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun rorAcc() {
-        // println("rorAcc")
         a = ror(a)
     }
 
     internal fun rorMem() {
-        // println("rorMem")
         val addr = operand
         val value = read(addr)
         write(addr, value, DUMMY_WRITE) // Dummy write
@@ -653,7 +589,6 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun rra() {
-        // println("rra")
         val value = fetchOperandValue()
         write(operand, value, DUMMY_WRITE) // Dummy write
         val shiftedValue = ror(value)
@@ -662,14 +597,12 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun rti() {
-        // println("rti")
         dummyRead()
         ps = pop8()
         pc = pop16()
     }
 
     internal fun rts() {
-        // println("rts")
         val addr = pop16()
         dummyRead()
         dummyRead()
@@ -677,32 +610,26 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun sax() {
-        // println("sax")
         write(operand, a and x)
     }
 
     internal fun sbc() {
-        // println("sbc")
         add(fetchOperandValue() xor 0xFF)
     }
 
     internal fun sec() {
-        // println("sec")
         CARRY.set()
     }
 
     internal fun sed() {
-        // println("sed")
         DECIMAL.set()
     }
 
     internal fun sei() {
-        // println("sei")
         INTERRUPT.set()
     }
 
     internal fun slo() {
-        // println("slo")
         val value = fetchOperandValue()
         write(operand, value, DUMMY_WRITE) // Dummy write
         val shiftedValue = asl(value)
@@ -711,7 +638,6 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun sre() {
-        // println("sre")
         val value = fetchOperandValue()
         write(operand, value, DUMMY_WRITE) // Dummy write
         val shiftedValue = lsr(value)
@@ -720,22 +646,18 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun sta() {
-        // println("sta")
         write(operand, a)
     }
 
     internal fun stx() {
-        // println("stx")
         write(operand, x)
     }
 
     internal fun sty() {
-        // println("sty")
         write(operand, y)
     }
 
     internal fun sxa() {
-        // println("sxa")
         val hi = operand.hiByte
         val lo = operand.loByte
         val value = x and (hi + 1)
@@ -744,7 +666,6 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun sya() {
-        // println("sya")
         val hi = operand.hiByte
         val lo = operand.loByte
         val value = y and (hi + 1)
@@ -756,7 +677,6 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun tas() {
-        // println("tas")
         // AND X register with accumulator and store result in stack
         // pointer, then AND stack pointer with the high byte of the
         // target address of the argument + 1. Store result in memory.
@@ -766,37 +686,30 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     }
 
     internal fun tax() {
-        // println("tax")
         x = a
     }
 
     internal fun tay() {
-        // println("tay")
         y = a
     }
 
     internal fun tsx() {
-        // println("tsx")
         x = sp
     }
 
     internal fun txa() {
-        // println("txa")
         a = x
     }
 
     internal fun txs() {
-        // println("txs")
         sp = x
     }
 
     internal fun tya() {
-        // println("tya")
         a = y
     }
 
     internal fun unk() {
-        // println("unk")
         // Make sure we take the right amount of cycles
         // (not reliable for operations that write to memory, etc).
         fetchOperandValue()
