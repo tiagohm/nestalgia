@@ -64,6 +64,7 @@ object MapperFactory {
             72 -> JalecoJF17AndJF19(console, false)
             74 -> Mapper074(console)
             76 -> Mapper076(console)
+            75 -> VRC1(console)
             77 -> IremLrog017(console)
             78 -> JalecoJF16(console)
             79 -> Nina0306(console, false)
