@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.EmulationFlag.*
+import br.tiagohm.nestalgia.core.IRQSource.*
 import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import br.tiagohm.nestalgia.core.MirroringType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.*
@@ -225,14 +226,14 @@ open class MMC3(console: Console) : Mapper(console) {
             }
             0xE000 -> {
                 irqEnabled = false
-                console.cpu.clearIRQSource(IRQSource.EXTERNAL)
+                console.cpu.clearIRQSource(EXTERNAL)
             }
             0xE001 -> irqEnabled = true
         }
     }
 
     protected open fun triggerIrq() {
-        console.cpu.setIRQSource(IRQSource.EXTERNAL)
+        console.cpu.setIRQSource(EXTERNAL)
     }
 
     override fun notifyVRAMAddressChange(addr: Int) {
@@ -247,7 +248,7 @@ open class MMC3(console: Console) : Mapper(console) {
 
             if (forceMmc3RevAIrqs || console.settings.flag(MMC3_IRQ_ALT_BEHAVIOR)) {
                 // MMC3 Revision A behavior.
-                if ((count > 0 && irqReloadValue > 0 || irqReload) && irqCounter == 0 && irqEnabled) {
+                if ((count > 0 || irqReload) && irqCounter == 0 && irqEnabled) {
                     triggerIrq()
                 }
             } else if (irqCounter == 0 && irqEnabled) {

@@ -1,8 +1,9 @@
 package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.ControllerType.*
+import org.slf4j.LoggerFactory
 
-open class ControllerHub(
+abstract class ControllerHub(
     val portCount: Int,
     console: Console, type: ControllerType, port: Int,
     vararg controllers: ControllerSettings,
@@ -14,12 +15,16 @@ open class ControllerHub(
         for (i in controllers.indices) {
             val controller = controllers[i]
 
-            when (controller.type) {
+            val device = when (controller.type) {
                 FAMICOM_CONTROLLER,
                 FAMICOM_CONTROLLER_P2,
-                NES_CONTROLLER -> ports[i] = StandardController(console, controller.type, i, controller.keyMapping)
+                NES_CONTROLLER -> StandardController(console, controller.type, 0, controller.keyMapping)
                 else -> continue
             }
+
+            LOG.info("{} connected. type={}, port={}", device::class.simpleName, device.type, device.port)
+
+            ports[i] = device
         }
     }
 
@@ -45,5 +50,10 @@ open class ControllerHub(
         repeat(portCount) {
             ports[it]?.write(addr, value, type)
         }
+    }
+
+    companion object {
+
+        @JvmStatic private val LOG = LoggerFactory.getLogger(ControllerHub::class.java)
     }
 }

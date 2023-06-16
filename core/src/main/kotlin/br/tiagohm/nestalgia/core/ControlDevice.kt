@@ -126,5 +126,24 @@ abstract class ControlDevice(
         const val PORT_COUNT = 8
 
         @JvmStatic private val LOG = LoggerFactory.getLogger(ControlDevice::class.java)
+
+        @JvmStatic
+        internal fun swapButtons(
+            device1: ControlDevice, button1: ControllerButton,
+            device2: ControlDevice, button2: ControllerButton,
+        ) {
+            val pressed1 = device1.isPressed(button1)
+            val pressed2 = device2.isPressed(button2)
+
+            device1.clearBit(button1)
+            device2.clearBit(button2)
+
+            if (pressed1) {
+                device2.setBit(button2)
+            }
+            if (pressed2) {
+                device1.setBit(button1)
+            }
+        }
     }
 }

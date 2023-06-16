@@ -112,7 +112,7 @@ class SettingsWindow : AbstractWindow() {
     override fun onStart() {
         super.onStart()
 
-        if (console.running) {
+        if (console.isRunning) {
             profileChoiceBox.items.setAll("GLOBAL", "CONSOLE")
             profileChoiceBox.value = "CONSOLE"
         } else {

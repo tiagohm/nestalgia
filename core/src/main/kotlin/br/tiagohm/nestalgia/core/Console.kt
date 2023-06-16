@@ -24,15 +24,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     @PublishedApi @JvmField internal var cpu = Cpu(this)
     @PublishedApi @JvmField internal var apu = Apu(this)
     @PublishedApi @JvmField internal var ppu = Ppu(this)
-
-    lateinit var systemActionManager: SystemActionManager
-        private set
-
-    inline val region
-        get() = settings.region
-
-    var mapper: Mapper? = null
-        internal set
+    @PublishedApi @JvmField internal var systemActionManager = SystemActionManager(this)
 
     @JvmField internal val videoDecoder = VideoDecoder(this)
     @JvmField internal val videoRenderer = VideoRenderer(this)
@@ -42,8 +34,8 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
 
     @JvmField internal var keyManager: KeyManager? = null
 
-    private var stop = AtomicBoolean(false)
-    private var mRunning = false
+    private val stop = AtomicBoolean()
+    private val running = AtomicBoolean()
     private var pauseOnNextFrameRequested = false
     private var resetRunTimers = false
     private var disableOcNextFrame = false
@@ -54,7 +46,13 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     private val clockTimer = Timer()
     private val lastFrameTimer = Timer()
 
-    var paused = false
+    var region = AUTO
+        internal set
+
+    var mapper: Mapper? = null
+        internal set
+
+    var isPaused = false
         private set
 
     var emulationThreadId = 0L
@@ -112,7 +110,8 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
         val previousMapper = mapper
 
         if (previousMapper != null) {
-            // Ensure we save any battery file before loading a new game.
+            // Make sure the battery is saved to disk before we load another
+            // game (or reload the same game).
             saveBattery()
         }
 
@@ -165,28 +164,28 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
                 settings.ppuModel = PpuModel.PPU_2C02
                 systemActionManager = FdsSystemActionManager(this, newMapper as Fds)
             }
+            GameSystem.VS_SYSTEM -> {
+                settings.ppuModel = newMapper.info.vsPpuModel
+            }
             else -> {
                 settings.ppuModel = PpuModel.PPU_2C02
-                systemActionManager = SystemActionManager(this)
             }
         }
 
         // Temporarely disable battery saves to prevent battery files from
-        // being created for the wrong game (for Battle Box & Turbo File)
+        // being created for the wrong game (for Battle Box & Turbo File).
         batteryManager.disable()
 
         var pollCounter = 0
 
         if (!isDifferentGame) {
-            // When power cycling, poll counter must be preserved to allow movies to playback properly
+            // When power cycling, poll counter must be preserved to allow movies
+            // to playback properly.
             pollCounter = controlManager.pollCounter
         }
 
-        if (newMapper.info.system == GameSystem.VS_SYSTEM) {
-            throw UnsupportedOperationException("VS. Dual System is not supported")
-        }
-
-        controlManager = ControlManager(this)
+        controlManager = if (newMapper.info.system == GameSystem.VS_SYSTEM) VsControlManager(this)
+        else ControlManager(this)
         controlManager.initialize()
 
         batteryManager.enable()
@@ -194,6 +193,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
         ppu = if (newMapper is NsfMapper) NsfPpu(this) else Ppu(this)
         ppu.initialize()
 
+        // Restore pollcounter (used by movies when a power cycle is in the movie).
         controlManager.pollCounter = pollCounter
         controlManager.updateControlDevices(true)
 
@@ -291,7 +291,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     }
 
     fun stop() {
-        if (running) {
+        if (isRunning) {
             stop.set(true)
 
             debugger.suspend()
@@ -347,6 +347,8 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     override fun run() {
         require(mapper != null) { "no mapper!" }
 
+        if (!running.compareAndSet(false, true)) return
+
         clockTimer.reset()
         lastFrameTimer.reset()
         var lastDelay = frameDelay
@@ -361,8 +363,6 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
         videoDecoder.startThread()
 
         updateRegion(true)
-
-        mRunning = true
 
         try {
             while (true) {
@@ -433,10 +433,10 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
                     while (pausedRequired && !stop.get()) {
                         Thread.sleep(30)
                         pausedRequired = settings.needsPause
-                        paused = true
+                        isPaused = true
                     }
 
-                    paused = false
+                    isPaused = false
 
                     runLock.acquire()
                     notificationManager.sendNotification(GAME_RESUMED)
@@ -453,12 +453,13 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
                     break
                 }
             }
+        } catch (_: InterruptedException) {
         } catch (e: Throwable) {
-            e.printStackTrace()
+            LOG.error("console error", e)
         }
 
-        paused = false
-        mRunning = false
+        isPaused = false
+        running.set(false)
 
         notificationManager.sendNotification(BEFORE_EMULATION_STOP)
 
@@ -492,11 +493,11 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
         resetRunTimers = true
     }
 
-    val running
-        get() = !stopLock.isFree && mRunning
+    val isRunning
+        get() = !stopLock.isFree && running.get()
 
-    val stopped
-        get() = runLock.isFree || (!runLock.isFree && pauseCounter.get() > 0) || !mRunning
+    val isStopped
+        get() = runLock.isFree || (!runLock.isFree && pauseCounter.get() > 0) || !running.get()
 
     fun pauseOnNextFrame() {
         pauseOnNextFrameRequested = true
@@ -510,28 +511,29 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
             configChanged = true
         }
 
-        val prevRegion = settings.region
-        var newRegion = prevRegion
+        val prevRegion = region
 
-        if (prevRegion == AUTO) {
-            newRegion = when (mapper!!.info.system) {
+        region = if (settings.region == AUTO) {
+            when (mapper!!.info.system) {
                 GameSystem.PAL -> PAL
                 GameSystem.DENDY -> DENDY
                 else -> NTSC
             }
+        } else {
+            settings.region
         }
 
-        if (newRegion != prevRegion) {
-            LOG.info("region was updated. from={}, to={}", prevRegion, newRegion)
+        if (region != prevRegion) {
+            LOG.info("region was updated. from={}, to={}", prevRegion, region)
 
-            settings.region = newRegion
+            settings.region = region
             configChanged = true
 
-            cpu.masterClockDivider(newRegion)
-            mapper!!.updateRegion(newRegion)
-            ppu.updateRegion(newRegion)
-            apu.updateRegion(newRegion)
-            soundMixer.updateRegion(newRegion)
+            cpu.masterClockDivider(region)
+            mapper!!.updateRegion(region)
+            ppu.updateRegion(region)
+            apu.updateRegion(region)
+            soundMixer.updateRegion(region)
         }
 
         if (configChanged && sendNotification) {
@@ -592,16 +594,23 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     val isFds
         get() = mapper is Fds
 
+    val isVsSystem
+        get() = isRunning && controlManager is VsControlManager
+
     val canScreenshot
-        get() = running && !isNsf
+        get() = isRunning && !isNsf
 
     fun takeScreenshot(): IntArray {
         return if (canScreenshot) videoDecoder.takeScreenshot()
         else IntArray(0)
     }
 
+    fun insertCoin(port: Int) {
+        (controlManager as? VsControlManager)?.insertCoin(port)
+    }
+
     override fun saveState(s: Snapshot) {
-        if (running) {
+        if (isRunning) {
             // Send any unprocessed sound to the SoundMixer.
             apu.endFrame()
 
@@ -616,7 +625,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     }
 
     override fun restoreState(s: Snapshot) {
-        if (running) {
+        if (isRunning) {
             // Send any unprocessed sound to the SoundMixer.
             apu.endFrame()
 

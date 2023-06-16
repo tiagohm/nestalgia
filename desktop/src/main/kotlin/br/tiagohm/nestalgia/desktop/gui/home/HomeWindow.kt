@@ -65,6 +65,8 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
     @FXML private lateinit var openRestoreStateMenuItem: MenuItem
     @FXML private lateinit var regionToggleGroup: ToggleGroup
     @FXML private lateinit var speedToggleGroup: ToggleGroup
+    @FXML private lateinit var insertCoin1MenuItem: MenuItem
+    @FXML private lateinit var insertCoin2MenuItem: MenuItem
     @FXML private lateinit var television: Television
 
     private lateinit var speaker: Speaker
@@ -193,6 +195,8 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
             preferences.save()
             loadSavedStates()
             saveGameToRecentlyOpened(path)
+            insertCoin1MenuItem.isDisable = !emulator.isVsSystem
+            insertCoin2MenuItem.isDisable = !emulator.isVsSystem
             title = "Nestalgia · $name"
         }
     }
@@ -277,6 +281,12 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
     }
 
     @FXML
+    private fun insertCoin(event: ActionEvent) {
+        val port = (event.source as MenuItem).userData as String
+        emulator.insertCoin(port.toInt())
+    }
+
+    @FXML
     private fun debugContinue() {
         emulator.debugRun()
     }
@@ -332,7 +342,8 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
             console.settings.port1.type = NES_CONTROLLER
             console.settings.markAsNeedControllerUpdate()
         }
-        if (console.settings.port2.type == ControllerType.NONE) {
+        if (console.settings.port1.type != FOUR_SCORE &&
+            console.settings.port2.type == ControllerType.NONE) {
             console.settings.port2.type = NES_CONTROLLER
             console.settings.markAsNeedControllerUpdate()
         }

@@ -23,7 +23,7 @@ class Debugger(private val console: Console) : Closeable {
         get() = breakOn.get()
 
     val isExecutionStopped
-        get() = executionStopped.get() || console.stopped
+        get() = executionStopped.get() || console.isStopped
 
     override fun close() {
         release()
