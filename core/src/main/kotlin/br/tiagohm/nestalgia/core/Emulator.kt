@@ -250,6 +250,6 @@ data class Emulator(
 
     companion object {
 
-        @JvmStatic private val DEFAULT_THREAD_EXECUTOR = Executors.newSingleThreadExecutor()
+        @JvmStatic private val DEFAULT_THREAD_EXECUTOR = Executors.newSingleThreadExecutor(EmulatorThreadFactory)
     }
 }
