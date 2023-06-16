@@ -159,6 +159,7 @@ object MapperFactory {
             254 -> Mapper254(console)
             255 -> Bmc255(console)
             286 -> Bs5(console)
+            290 -> BmcNtd03(console)
             328 -> Rt01(console)
             346 -> Kaiser7012(console)
             513 -> Sachen9602(console)
