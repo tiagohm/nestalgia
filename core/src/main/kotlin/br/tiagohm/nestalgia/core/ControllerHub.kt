@@ -14,10 +14,10 @@ open class ControllerHub(
         for (i in controllers.indices) {
             val controller = controllers[i]
 
-            when (controller.type) {
+            ports[i] = when (controller.type) {
                 FAMICOM_CONTROLLER,
                 FAMICOM_CONTROLLER_P2,
-                NES_CONTROLLER -> ports[i] = StandardController(console, controller.type, i, controller.keyMapping)
+                NES_CONTROLLER -> StandardController(console, controller.type, 0, controller.keyMapping)
                 else -> continue
             }
         }
