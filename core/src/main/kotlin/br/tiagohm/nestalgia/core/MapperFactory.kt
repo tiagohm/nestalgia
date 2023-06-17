@@ -165,6 +165,7 @@ object MapperFactory {
             290 -> BmcNtd03(console)
             328 -> Rt01(console)
             346 -> Kaiser7012(console)
+            348 -> Bmc830118C(console)
             513 -> Sachen9602(console)
             FDS_MAPPER_ID -> Fds(console)
             32770 -> Gs2013(console)
