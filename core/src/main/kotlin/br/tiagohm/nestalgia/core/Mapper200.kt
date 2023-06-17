@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.MirroringType.*
 
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_164
+// https://wiki.nesdev.com/w/index.php/INES_Mapper_200
 
 class Mapper200(console: Console) : Mapper(console) {
 
@@ -14,7 +14,8 @@ class Mapper200(console: Console) : Mapper(console) {
         bank(0)
     }
 
-    private fun bank(bank: Int) {
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun bank(bank: Int) {
         selectPrgPage(0, bank)
         selectPrgPage(1, bank)
         selectChrPage(0, bank)
@@ -23,7 +24,6 @@ class Mapper200(console: Console) : Mapper(console) {
     override fun writeRegister(addr: Int, value: Int) {
         bank(addr and 0x07)
 
-        mirroringType = if (value.bit3) VERTICAL
-        else HORIZONTAL
+        mirroringType = if (addr.bit3) HORIZONTAL else VERTICAL
     }
 }
