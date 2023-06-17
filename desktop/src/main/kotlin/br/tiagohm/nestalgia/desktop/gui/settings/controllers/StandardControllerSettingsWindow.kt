@@ -4,9 +4,9 @@ import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
 import br.tiagohm.nestalgia.core.KeyboardKeys
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
+import br.tiagohm.nestalgia.desktop.gui.converters.KeyStringConverter
 import javafx.fxml.FXML
 import javafx.scene.control.ComboBox
-import javafx.util.StringConverter
 
 data class StandardControllerSettingsWindow(private val keyMapping: KeyMapping) : AbstractWindow() {
 
@@ -74,13 +74,6 @@ data class StandardControllerSettingsWindow(private val keyMapping: KeyMapping) 
         startComboBox.value = keyMapping.start
         aComboBox.value = keyMapping.a
         bComboBox.value = keyMapping.b
-    }
-
-    private object KeyStringConverter : StringConverter<Key>() {
-
-        override fun toString(key: Key?) = if (key is KeyboardKeys) key.description else "$key"
-
-        override fun fromString(text: String?) = null
     }
 
     companion object {
