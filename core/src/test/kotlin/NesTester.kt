@@ -14,7 +14,7 @@ class NesTester(private val path: Path) {
     val console = Console()
     val controller: KeyManager = Controller()
     @JvmField internal val frameHashes = Collections.synchronizedSet(HashSet<String>(2048))
-    private val threadExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+    private val threadExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), EmulatorThreadFactory)
     val emulator = Emulator(console, Speaker, Video(), controller, emptyList(), threadExecutor)
 
     var isAutoPlugController = true

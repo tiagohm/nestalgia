@@ -63,7 +63,8 @@ class StandardController(
         }
     }
 
-    private fun pressedStateFromKeys(button: ControllerButton) {
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun pressedStateFromKeys(button: ControllerButton) {
         setPressedState(button, keyMapping.key(button))
     }
 

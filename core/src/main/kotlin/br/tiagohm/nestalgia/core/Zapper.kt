@@ -14,18 +14,16 @@ class Zapper(
     private val aimOffscreenKey = keyMapping.key(ZapperButton.AIM_OFFSCREEN)
 
     override fun setStateFromInput() {
-        if (console.keyManager == null) return
-
-        if (console.settings.isInputEnabled && console.keyManager!!.isKeyPressed(fireKey)) {
+        if (console.settings.isInputEnabled && console.keyManager.isKeyPressed(fireKey)) {
             setBit(ZapperButton.FIRE)
         }
 
-        if (console.keyManager!!.isKeyPressed(aimOffscreenKey)) {
+        if (console.keyManager.isKeyPressed(aimOffscreenKey)) {
             x = 0
             y = 0
         } else {
-            x = console.keyManager!!.mouseX
-            y = console.keyManager!!.mouseY
+            x = console.keyManager.mouseX
+            y = console.keyManager.mouseY
         }
     }
 

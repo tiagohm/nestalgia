@@ -124,6 +124,8 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             FOUR_SCORE -> FourScore(console, type, 0, *settings.subPort1)
             TWO_PLAYER_ADAPTER -> TwoPlayerAdapter(console, type, *settings.expansionSubPort)
             FOUR_PLAYER_ADAPTER -> FourScore(console, type, EXP_DEVICE_PORT, *settings.expansionSubPort)
+            NES_ARKANOID_CONTROLLER -> ArkanoidController(console, type, port, keyMapping)
+            FAMICOM_ARKANOID_CONTROLLER -> ArkanoidController(console, type, EXP_DEVICE_PORT, keyMapping)
             else -> return null
         }
 
@@ -141,7 +143,7 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
     }
 
     fun updateInputState() {
-        console.keyManager?.refreshKeyState()
+        console.keyManager.refreshKeyState()
 
         for (device in controlDevices) {
             device.clearState()

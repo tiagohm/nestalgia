@@ -22,13 +22,11 @@ class ZapperSettingsWindow(
     override fun onCreate() {
         title = "Zapper"
         resizable = false
-
-        fireComboBox.value = keyMapping.zapperFire
-        aimOffscreenComboBox.value = keyMapping.zapperAimOffscreen
-        lightDetectionRadiusSlider.value = zapperDetectionRadius[port].toDouble()
     }
 
     override fun onStart() {
+        fireComboBox.value = keyMapping.zapperFire
+        aimOffscreenComboBox.value = keyMapping.zapperAimOffscreen
         lightDetectionRadiusSlider.value = zapperDetectionRadius[port].toDouble()
     }
 

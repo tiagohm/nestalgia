@@ -25,10 +25,13 @@ class EmulationSettings : Snapshotable, Resetable {
 
     @PublishedApi @JvmField internal val flags = BooleanArray(128)
 
-    // Zapper
+    // Zapper.
     @JvmField val zapperDetectionRadius = IntArray(PORT_COUNT) { 1 }
 
-    // Console
+    // Arkanoid.
+    @JvmField val arkanoidSensibility = IntArray(PORT_COUNT) { 0 }
+
+    // Console.
     @JvmField var region = Region.AUTO
 
     @JvmField var ramPowerOnState = RamPowerOnState.ALL_ZEROS
