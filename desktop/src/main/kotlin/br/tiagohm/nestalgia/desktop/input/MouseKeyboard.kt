@@ -8,7 +8,7 @@ data class MouseKeyboard(
 ) : KeyManager {
 
     private val keyPressed = BooleanArray(65536)
-    private val mouseButtons = BooleanArray(3)
+    private val mouseButtons = BooleanArray(4)
 
     override var mouseX = -1
         private set
@@ -21,7 +21,7 @@ data class MouseKeyboard(
         else keyPressed[key.code]
     }
 
-    override fun refreshKeyState() {}
+    override fun refreshKeyState() = Unit
 
     internal fun onKeyPressed(keyCode: Int) {
         keyPressed[keyCode] = true
@@ -32,12 +32,17 @@ data class MouseKeyboard(
     }
 
     internal fun onMousePressed(button: MouseButton, x: Int, y: Int) {
-        mouseButtons[button.ordinal] = true
-        this.mouseX = x
-        this.mouseY = y
+        mouseButtons[button.code] = true
+        mouseX = x
+        mouseY = y
     }
 
     internal fun onMouseReleased(button: MouseButton) {
-        mouseButtons[button.ordinal] = false
+        mouseButtons[button.code] = false
+    }
+
+    internal fun onMouseMoved(x: Int, y: Int) {
+        mouseX = x
+        mouseY = y
     }
 }

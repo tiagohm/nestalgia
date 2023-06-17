@@ -32,7 +32,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
     @JvmField internal val cheatManager = CheatManager(this)
     @JvmField internal val soundMixer = SoundMixer(this)
 
-    @JvmField internal var keyManager: KeyManager? = null
+    @JvmField internal var keyManager: KeyManager = KeyManager
 
     private val stop = AtomicBoolean()
     private val running = AtomicBoolean()

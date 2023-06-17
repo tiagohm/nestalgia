@@ -6,6 +6,7 @@ import br.tiagohm.nestalgia.core.ControllerType.*
 import br.tiagohm.nestalgia.core.EmulationFlag.*
 import br.tiagohm.nestalgia.desktop.app.Preferences
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
+import br.tiagohm.nestalgia.desktop.gui.settings.controllers.ArkanoidSettingsWindow
 import br.tiagohm.nestalgia.desktop.gui.settings.controllers.StandardControllerSettingsWindow
 import br.tiagohm.nestalgia.desktop.gui.settings.controllers.ZapperSettingsWindow
 import javafx.event.ActionEvent
@@ -295,8 +296,8 @@ class SettingsWindow : AbstractWindow() {
 
     private fun ChoiceBox<ControllerType>.openPortSettings(port: Int, subPort: Int = 0) {
         val keyMapping = when (port) {
-            1 -> settings.port1.keyMapping
-            2 -> settings.port2.keyMapping
+            0 -> settings.port1.keyMapping
+            1 -> settings.port2.keyMapping
             EXP_DEVICE_PORT -> settings.expansionPort.keyMapping
             -1 -> settings.subPort1[subPort - 1].keyMapping
             -EXP_DEVICE_PORT -> settings.expansionSubPort[subPort - 1].keyMapping
@@ -308,6 +309,8 @@ class SettingsWindow : AbstractWindow() {
             FAMICOM_CONTROLLER -> StandardControllerSettingsWindow(keyMapping)
             NES_ZAPPER,
             FAMICOM_ZAPPER -> ZapperSettingsWindow(settings.zapperDetectionRadius, keyMapping, port)
+            NES_ARKANOID_CONTROLLER,
+            FAMICOM_ARKANOID_CONTROLLER -> ArkanoidSettingsWindow(settings.arkanoidSensibility, keyMapping, port)
             else -> return
         }
 
@@ -320,19 +323,19 @@ class SettingsWindow : AbstractWindow() {
 
     @FXML
     private fun openPortSettings(event: ActionEvent) {
-        when (val port = ((event.source as Node).userData as String).toInt()) {
-            1 -> port1ChoiceBox.openPortSettings(port)
-            2 -> port2ChoiceBox.openPortSettings(port)
+        when (((event.source as Node).userData as String).toInt()) {
+            1 -> port1ChoiceBox.openPortSettings(0)
+            2 -> port2ChoiceBox.openPortSettings(1)
         }
     }
 
     @FXML
     private fun openSubPortSettings(event: ActionEvent) {
-        when (val port = ((event.source as Node).userData as String).toInt()) {
-            1 -> subPort1ChoiceBox.openPortSettings(-1, port)
-            2 -> subPort2ChoiceBox.openPortSettings(-1, port)
-            3 -> subPort3ChoiceBox.openPortSettings(-1, port)
-            4 -> subPort4ChoiceBox.openPortSettings(-1, port)
+        when (((event.source as Node).userData as String).toInt()) {
+            1 -> subPort1ChoiceBox.openPortSettings(-1, 0)
+            2 -> subPort2ChoiceBox.openPortSettings(-1, 1)
+            3 -> subPort3ChoiceBox.openPortSettings(-1, 2)
+            4 -> subPort4ChoiceBox.openPortSettings(-1, 3)
         }
     }
 
@@ -343,11 +346,11 @@ class SettingsWindow : AbstractWindow() {
 
     @FXML
     private fun openExpansionSubPortSettings(event: ActionEvent) {
-        when (val port = ((event.source as Node).userData as String).toInt()) {
-            1 -> expansionSubPort1ChoiceBox.openPortSettings(-EXP_DEVICE_PORT, port)
-            2 -> expansionSubPort2ChoiceBox.openPortSettings(-EXP_DEVICE_PORT, port)
-            3 -> expansionSubPort3ChoiceBox.openPortSettings(-EXP_DEVICE_PORT, port)
-            4 -> expansionSubPort4ChoiceBox.openPortSettings(-EXP_DEVICE_PORT, port)
+        when (((event.source as Node).userData as String).toInt()) {
+            1 -> expansionSubPort1ChoiceBox.openPortSettings(-EXP_DEVICE_PORT, 0)
+            2 -> expansionSubPort2ChoiceBox.openPortSettings(-EXP_DEVICE_PORT, 1)
+            3 -> expansionSubPort3ChoiceBox.openPortSettings(-EXP_DEVICE_PORT, 2)
+            4 -> expansionSubPort4ChoiceBox.openPortSettings(-EXP_DEVICE_PORT, 3)
         }
     }
 

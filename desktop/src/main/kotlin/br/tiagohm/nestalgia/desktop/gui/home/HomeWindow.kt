@@ -81,6 +81,7 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
 
         television.setOnMousePressed(::onMousePressed)
         television.setOnMouseReleased(::onMouseReleased)
+        television.setOnMouseMoved(::onMouseMoved)
 
         console.notificationManager.registerNotificationListener(this)
         console.batteryManager.registerProvider(this)
@@ -332,6 +333,12 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
 
     private fun onMouseReleased(event: MouseEvent) {
         mouseKeyboard.onMouseReleased(event.mouseButton)
+    }
+
+    private fun onMouseMoved(event: MouseEvent) {
+        val x = (event.x / television.width * Ppu.SCREEN_WIDTH).toInt()
+        val y = (event.y / television.height * Ppu.SCREEN_HEIGHT).toInt()
+        mouseKeyboard.onMouseMoved(x, y)
     }
 
     private fun loadConsolePreferences() {

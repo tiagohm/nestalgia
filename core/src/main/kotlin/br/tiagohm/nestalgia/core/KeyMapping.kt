@@ -14,6 +14,7 @@ data class KeyMapping(
     @JvmField var microphone: Key = Key.UNDEFINED,
     @JvmField var zapperFire: MouseButton = LEFT,
     @JvmField var zapperAimOffscreen: MouseButton = RIGHT,
+    @JvmField var arkanoidFire: MouseButton = LEFT,
 ) : Snapshotable, Resetable {
 
     fun key(button: ControllerButton) = when (button) {
@@ -28,6 +29,7 @@ data class KeyMapping(
         StandardControllerButton.MICROPHONE -> microphone
         ZapperButton.FIRE -> zapperFire
         ZapperButton.AIM_OFFSCREEN -> zapperAimOffscreen
+        ArkanoidButton.FIRE -> zapperFire
         else -> Key.UNDEFINED
     }
 

@@ -76,12 +76,20 @@ class InputTest : NesTesterSpec() {
                 waitForFrame("1cdf170fe5a452186ea8a4b46e2839f1")
             }
         }
-        "zapper_2P" {
+        "allpads/zapper_2P" {
             test("allpads", false) {
                 console.settings.port1.type = NES_ZAPPER
                 console.settings.expansionPort.type = FAMICOM_ZAPPER
 
                 waitForFrame("cee60e578bbc9fda40d9b8a9a9405836")
+            }
+        }
+        "allpads/arkanoid_1P" {
+            test("allpads", false) {
+                console.settings.port1.type = NES_ARKANOID_CONTROLLER
+                console.settings.expansionPort.type = NONE
+
+                waitForFrame("b3f6a2958d9dda15b06a73d3415e3d20")
             }
         }
         "allpads/none" {

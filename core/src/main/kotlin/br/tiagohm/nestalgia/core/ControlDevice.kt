@@ -88,10 +88,9 @@ abstract class ControlDevice(
             return
         }
 
-        if (console.keyManager != null &&
-            console.settings.isInputEnabled &&
+        if (console.settings.isInputEnabled &&
             (!console.settings.isKeyboardMode || keyCode >= 0x200 || keyboard) &&
-            console.keyManager!!.isKeyPressed(key)
+            console.keyManager.isKeyPressed(key)
         ) {
             setBit(button)
         }
