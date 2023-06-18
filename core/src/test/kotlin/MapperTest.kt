@@ -34,5 +34,10 @@ class MapperTest : NesTesterSpec() {
                 waitForFrame("9725f70cc6d731e02fd8aaa168de935f")
             }
         }
+        "vrc6" {
+            test {
+                waitForFrame("02c92c7b70729af20f97732e4f912a09")
+            }
+        }
     }
 }
