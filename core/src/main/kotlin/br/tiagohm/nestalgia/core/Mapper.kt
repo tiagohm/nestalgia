@@ -577,7 +577,7 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
         start: Int,
         end: Int,
         pageNumber: Int,
-        type: ChrMemoryType,
+        type: ChrMemoryType = DEFAULT,
         accessType: MemoryAccessType = UNSPECIFIED,
     ) {
         if (!validateAddressRange(start, end) || start > 0x3F00 || end > 0x3FFF || end <= start) {
