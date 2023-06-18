@@ -20,7 +20,7 @@ class MMC5Audio(console: Console) : Memory, ExpansionAudio(console) {
         square2.run()
 
         if (audioCounter <= 0) {
-            // ~240hz envelope/length counter
+            // ~240hz envelope/length counter.
             audioCounter = console.region.clockRate / 240
 
             square1.tickLengthCounter()

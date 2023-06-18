@@ -7,7 +7,7 @@ abstract class ApuChannel(
 ) : MemoryHandler, Resetable, Snapshotable {
 
     private var previousCycle = 0
-    protected var lastOutput = 0
+    @JvmField protected var lastOutput = 0
 
     var timer = 0
         protected set
@@ -16,8 +16,7 @@ abstract class ApuChannel(
         protected set
 
     val region
-        get() = if (console.region == Region.DENDY) Region.NTSC
-        else console.region
+        get() = if (console.region == Region.DENDY) Region.NTSC else console.region
 
     override fun reset(softReset: Boolean) {
         timer = 0

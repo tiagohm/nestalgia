@@ -17,6 +17,7 @@ object MapperFactory {
             2 -> UNROM(console)
             3 -> Mapper003(console)
             4 -> if (data.info.subMapperId == 3) McAcc(console) else MMC3(console)
+            5 -> MMC5(console)
             6 -> Mapper006(console)
             7 -> AXROM(console)
             8 -> Mapper008(console)

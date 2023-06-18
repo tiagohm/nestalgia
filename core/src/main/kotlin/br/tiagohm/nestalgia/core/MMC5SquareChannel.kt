@@ -1,9 +1,8 @@
 package br.tiagohm.nestalgia.core
 
-class MMC5SquareChannel(console: Console) : SquareChannel(AudioChannel.MMC5, console, null, false, true), Runnable {
+internal class MMC5SquareChannel(console: Console) : SquareChannel(AudioChannel.MMC5, console, null, false, true), Runnable {
 
-    var output = 0
-        private set
+    @JvmField var output = 0
 
     init {
         output = 0

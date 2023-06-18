@@ -4,7 +4,7 @@ class MMC5MemoryHandler(private val console: Console) : MemoryHandler {
 
     private val ppuReg = IntArray(8)
 
-    override fun memoryRanges(ranges: MemoryRanges) {}
+    override fun memoryRanges(ranges: MemoryRanges) = Unit
 
     fun readRegister(addr: Int) = ppuReg[addr and 0x07]
 

@@ -841,6 +841,18 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
         return internalReadVRAM(a)
     }
 
+    fun debugRead(addr: Int): Int {
+        val hi = addr shr 8
+
+        if (prgMemoryAccess[hi] == READ) {
+            val page = prgPages[hi]
+            return page[addr and 0xFF]
+        }
+
+        // Fake open bus.
+        return addr shr 8
+    }
+
     open fun applySamples(buffer: ShortArray, sampleCount: Int, volume: Double) {}
 
     val dipSwitches
