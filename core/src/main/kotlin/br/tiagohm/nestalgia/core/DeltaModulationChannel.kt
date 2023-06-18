@@ -95,7 +95,7 @@ class DeltaModulationChannel(
             bufferEmpty = false
 
             // The address is incremented; if it exceeds $FFFF, it is wrapped around to $8000.
-            dmcReadAddress++
+            dmcReadAddress = (dmcReadAddress + 1) and 0xFFFF
 
             if (dmcReadAddress == 0) {
                 dmcReadAddress = 0x8000
