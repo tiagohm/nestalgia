@@ -4,6 +4,8 @@ import br.tiagohm.nestalgia.core.IRQSource.*
 import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
+// https://wiki.nesdev.com/w/index.php/INES_Mapper_005
+
 class MMC5(console: Console) : Mapper(console) {
 
     private data class CpuBankInfo(

@@ -20,7 +20,7 @@ class Waixing252(console: Console) : Mapper(console) {
     }
 
     override fun processCpuClock() {
-        vrcIrq.processCpuCycle()
+        vrcIrq.processCpuClock()
     }
 
     private fun updateState() {
