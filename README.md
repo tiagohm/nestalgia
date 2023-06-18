@@ -7,7 +7,7 @@
 [![Active Development](https://img.shields.io/badge/Maintenance%20Level-Actively%20Developed-brightgreen.svg)](https://gist.github.com/cheerfulstoic/d107229326a01ff0f333a1d3476e068d)
 [![CI](https://github.com/tiagohm/nestalgia/actions/workflows/ci.yml/badge.svg)](https://github.com/tiagohm/nestalgia/actions/workflows/ci.yml)
 [![CodeFactor](https://www.codefactor.io/repository/github/tiagohm/nestalgia/badge/main)](https://www.codefactor.io/repository/github/tiagohm/nestalgia/overview/main)
-[![Version](https://img.shields.io/badge/version-0.15.0-blue)](https://github.com/tiagohm/nestalgia/releases/latest)
+[![Version](https://img.shields.io/badge/version-0.16.0-blue)](https://github.com/tiagohm/nestalgia/releases/latest)
 
 Nestalgia is a cross-platform and high-accuracy NES/Famicom emulator built in Kotlin. It's being ported from
 discontinued [Mesen](https://github.com/SourMesen/Mesen) NES/Famicom emulator built in C++ and C#.
@@ -52,8 +52,8 @@ dependencies {
 
 ## Desktop
 
-* [Windows](https://github.com/tiagohm/nestalgia/releases/download/0.15.0/nestalgia-0.15.0-windows.jar)
-* [Linux](https://github.com/tiagohm/nestalgia/releases/download/0.15.0/nestalgia-0.15.0-linux.jar)
+* [Windows](https://github.com/tiagohm/nestalgia/releases/download/0.16.0/nestalgia-0.16.0-windows.jar)
+* [Linux](https://github.com/tiagohm/nestalgia/releases/download/0.16.0/nestalgia-0.16.0-linux.jar)
 
 > Before running, check if you have [Java 17](https://www.azul.com/downloads/?package=jdk#zulu) or newer installed.
 
