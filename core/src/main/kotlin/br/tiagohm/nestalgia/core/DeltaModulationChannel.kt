@@ -190,8 +190,8 @@ class DeltaModulationChannel(
             initSample()
 
             // Delay a number of cycles based on odd/even cycles
-            // Allows behavior to match dmc_dma_start_test
-            needInit = if ((console.cpu.cycleCount and 0x01L) == 0L) 2 else 3
+            // Allows behavior to match dmc_dma_start_test.
+            needInit = if (console.cpu.cycleCount.bit0) 3 else 2
         }
     }
 

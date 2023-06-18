@@ -78,7 +78,7 @@ class ModulationChannel : FdsChannel() {
         var remainder = temp and 0xF
         temp = temp shr 4
 
-        if (remainder > 0 && (temp and 0x80) == 0) {
+        if (remainder > 0 && !temp.bit7) {
             temp += if (counter < 0) -1 else 2
         }
 
