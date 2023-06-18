@@ -164,7 +164,7 @@ class Fds(console: Console) : Mapper(console) {
 
     private inline fun clockIrq() {
         if (irqEnabled) {
-            if (irqCounter == 0) {
+            if (irqCounter <= 0) {
                 console.cpu.setIRQSource(IRQSource.EXTERNAL)
 
                 irqCounter = irqReloadValue
@@ -519,7 +519,7 @@ class Fds(console: Console) : Mapper(console) {
                         lastDiskCheckFrame = console.ppu.frameCount
 
                         if (successiveChecks > 20 &&
-                            autoDiskEjectCounter == 0 &&
+                            autoDiskEjectCounter <= 0 &&
                             autoDiskSwitchCounter == -1
                         ) {
                             // Game tried to check if a disk was inserted or not

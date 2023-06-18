@@ -146,7 +146,7 @@ open class SquareChannel(
     fun tickSweep() {
         sweepDivider--
 
-        if (sweepDivider == 0) {
+        if (sweepDivider <= 0) {
             if (sweepShift > 0 &&
                 sweepEnabled &&
                 realPeriod >= 8 &&

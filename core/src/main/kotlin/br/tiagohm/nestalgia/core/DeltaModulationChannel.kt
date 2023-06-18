@@ -103,7 +103,7 @@ class DeltaModulationChannel(
 
             bytesRemaining--
 
-            if (bytesRemaining == 0) {
+            if (bytesRemaining <= 0) {
                 needToRun = false
 
                 if (loop) {
@@ -135,7 +135,7 @@ class DeltaModulationChannel(
 
         bitsRemaining--
 
-        if (bitsRemaining == 0) {
+        if (bitsRemaining <= 0) {
             bitsRemaining = 8
 
             if (bufferEmpty) {
@@ -186,7 +186,7 @@ class DeltaModulationChannel(
         if (!enabled) {
             bytesRemaining = 0
             needToRun = false
-        } else if (bytesRemaining == 0) {
+        } else if (bytesRemaining <= 0) {
             initSample()
 
             // Delay a number of cycles based on odd/even cycles

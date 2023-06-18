@@ -56,7 +56,7 @@ abstract class BandaiFgc(console: Console) : Mapper(console) {
             // Famicom Jump II - Saikyou no 7 Nin (J) and Magical Taruruuto-kun 2 - Mahou Daibouken (J)
             // to work without glitches with the same code.
 
-            if (irqCounter == 0) {
+            if (irqCounter <= 0) {
                 console.cpu.setIRQSource(EXTERNAL)
             }
 

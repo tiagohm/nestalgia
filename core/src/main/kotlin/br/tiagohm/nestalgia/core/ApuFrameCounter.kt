@@ -102,8 +102,8 @@ class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, 
         if (newValue >= 0) {
             writeDelayCounter--
 
-            if (writeDelayCounter == 0) {
-                // Apply new value after the appropriate number of cycles has elapsed
+            if (writeDelayCounter <= 0) {
+                // Apply new value after the appropriate number of cycles has elapsed.
                 stepMode = newValue.bit7
 
                 writeDelayCounter = -1

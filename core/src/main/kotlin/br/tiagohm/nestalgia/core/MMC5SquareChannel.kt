@@ -14,7 +14,7 @@ internal class MMC5SquareChannel(console: Console) : SquareChannel(AudioChannel.
     }
 
     override fun run() {
-        if (timer == 0) {
+        if (timer <= 0) {
             dutyPos = (dutyPos - 1) and 0x07
             // Frequency values less than 8 do not silence the MMC5 pulse channels; they can output ultrasonic frequencies
             output = DUTY_SEQUENCES[duty][dutyPos] * volume
