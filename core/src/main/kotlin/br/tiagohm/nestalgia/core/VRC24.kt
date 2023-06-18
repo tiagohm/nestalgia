@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_025
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_027
 
-class VRC2And4(console: Console) : Mapper(console) {
+class VRC24(console: Console) : Mapper(console) {
 
     private val vrcIrq = VrcIrq(console)
     private var variant = VRCVariant.VRC_2A
@@ -293,6 +293,6 @@ class VRC2And4(console: Console) : Mapper(console) {
 
     companion object {
 
-        @JvmStatic private val LOG = LoggerFactory.getLogger(VRC2And4::class.java)
+        @JvmStatic private val LOG = LoggerFactory.getLogger(VRC24::class.java)
     }
 }
