@@ -13,7 +13,7 @@ import kotlin.random.Random
 
 // https://wiki.nesdev.com/w/index.php/Mapper
 
-abstract class Mapper(@JvmField protected val console: Console) : Resetable, Battery, Peekable, MemoryHandler, Initializable, Snapshotable, Closeable {
+abstract class Mapper(@JvmField protected val console: Console) : Resetable, Battery, Peekable, MemoryHandler, Initializable, Clockable, Snapshotable, Closeable {
 
     open val prgPageSize = 0
 
@@ -162,7 +162,7 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
         }
     }
 
-    open fun processCpuClock() {}
+    override fun clock() = Unit
 
     fun copyPrgChrRom(mapper: Mapper) {
         if (mPrgSize == mapper.mPrgSize &&

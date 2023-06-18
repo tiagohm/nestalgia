@@ -44,7 +44,7 @@ class JalecoSs88006(console: Console) : Mapper(console) {
         selectChrPage(bankNumber, chrBanks[bankNumber])
     }
 
-    override fun processCpuClock() {
+    override fun clock() {
         // Clock irq counter every memory read/write
         // (each cpu cycle either reads or writes memory).
         if (irqEnabled) {

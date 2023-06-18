@@ -132,8 +132,6 @@ class FdsAudio(console: Console) : ExpansionAudio(console), Memory {
     }
 
     override fun saveState(s: Snapshot) {
-        super.saveState(s)
-
         s.write("volume", volume)
         s.write("mod", mod)
         s.write("waveWriteEnabled", waveWriteEnabled)
@@ -148,8 +146,6 @@ class FdsAudio(console: Console) : ExpansionAudio(console), Memory {
     }
 
     override fun restoreState(s: Snapshot) {
-        super.restoreState(s)
-
         s.readSnapshotable("volume", volume)
         s.readSnapshotable("mod", mod)
         waveWriteEnabled = s.readBoolean("waveWriteEnabled")

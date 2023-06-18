@@ -314,7 +314,7 @@ class MMC5(console: Console) : Mapper(console) {
         }
     }
 
-    override fun processCpuClock() {
+    override fun clock() {
         audio.clock()
 
         if (ppuIdleCounter > 0) {

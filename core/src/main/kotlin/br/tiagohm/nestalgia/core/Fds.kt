@@ -291,7 +291,7 @@ class Fds(console: Console) : Mapper(console) {
         }
     }
 
-    override fun processCpuClock() {
+    override fun clock() {
         processAutoDiskInsert()
 
         clockIrq()

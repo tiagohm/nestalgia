@@ -21,7 +21,7 @@ class VRC3(console: Console) : Mapper(console) {
         selectChrPage(0, 0)
     }
 
-    override fun processCpuClock() {
+    override fun clock() {
         if (irqEnabled) {
             if (smallCounter) {
                 var counter = (irqCounter + 1) and 0xFF
