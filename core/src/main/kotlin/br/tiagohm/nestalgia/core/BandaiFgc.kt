@@ -50,13 +50,13 @@ abstract class BandaiFgc(console: Console) : Mapper(console) {
         }
     }
 
-    override fun processCpuClock() {
+    override fun clock() {
         if (irqEnabled) {
             // Checking counter before decrementing seems to be the only way to get both
             // Famicom Jump II - Saikyou no 7 Nin (J) and Magical Taruruuto-kun 2 - Mahou Daibouken (J)
             // to work without glitches with the same code.
 
-            if (irqCounter == 0) {
+            if (irqCounter <= 0) {
                 console.cpu.setIRQSource(EXTERNAL)
             }
 

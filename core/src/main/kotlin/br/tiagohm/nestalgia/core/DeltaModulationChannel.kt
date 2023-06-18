@@ -95,7 +95,7 @@ class DeltaModulationChannel(
             bufferEmpty = false
 
             // The address is incremented; if it exceeds $FFFF, it is wrapped around to $8000.
-            dmcReadAddress++
+            dmcReadAddress = (dmcReadAddress + 1) and 0xFFFF
 
             if (dmcReadAddress == 0) {
                 dmcReadAddress = 0x8000
@@ -103,7 +103,7 @@ class DeltaModulationChannel(
 
             bytesRemaining--
 
-            if (bytesRemaining == 0) {
+            if (bytesRemaining <= 0) {
                 needToRun = false
 
                 if (loop) {
@@ -135,7 +135,7 @@ class DeltaModulationChannel(
 
         bitsRemaining--
 
-        if (bitsRemaining == 0) {
+        if (bitsRemaining <= 0) {
             bitsRemaining = 8
 
             if (bufferEmpty) {
@@ -186,12 +186,12 @@ class DeltaModulationChannel(
         if (!enabled) {
             bytesRemaining = 0
             needToRun = false
-        } else if (bytesRemaining == 0) {
+        } else if (bytesRemaining <= 0) {
             initSample()
 
             // Delay a number of cycles based on odd/even cycles
-            // Allows behavior to match dmc_dma_start_test
-            needInit = if ((console.cpu.cycleCount and 0x01L) == 0L) 2 else 3
+            // Allows behavior to match dmc_dma_start_test.
+            needInit = if (console.cpu.cycleCount.bit0) 3 else 2
         }
     }
 

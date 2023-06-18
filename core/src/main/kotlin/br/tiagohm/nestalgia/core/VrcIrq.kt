@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.IRQSource.*
+
 class VrcIrq(private val console: Console) : Resetable, Snapshotable {
 
     private var irqReloadValue = 0
@@ -18,14 +20,14 @@ class VrcIrq(private val console: Console) : Resetable, Snapshotable {
         irqCycleMode = false
     }
 
-    fun processCpuCycle() {
+    fun processCpuClock() {
         if (irqEnabled) {
             irqPrescalerCounter -= 3
 
             if (irqCycleMode || irqPrescalerCounter <= 0) {
                 if (irqCounter == 0xFF) {
                     irqCounter = irqReloadValue
-                    console.cpu.setIRQSource(IRQSource.EXTERNAL)
+                    console.cpu.setIRQSource(EXTERNAL)
                 } else {
                     irqCounter++
                 }
@@ -57,12 +59,12 @@ class VrcIrq(private val console: Console) : Resetable, Snapshotable {
             irqPrescalerCounter = 341
         }
 
-        console.cpu.clearIRQSource(IRQSource.EXTERNAL)
+        console.cpu.clearIRQSource(EXTERNAL)
     }
 
     fun acknowledgeIrq() {
         irqEnabled = irqEnabledAfterAck
-        console.cpu.clearIRQSource(IRQSource.EXTERNAL)
+        console.cpu.clearIRQSource(EXTERNAL)
     }
 
     override fun saveState(s: Snapshot) {

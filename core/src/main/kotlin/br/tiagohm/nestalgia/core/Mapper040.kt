@@ -18,7 +18,7 @@ class Mapper040(console: Console) : Mapper(console) {
         selectChrPage(0, 0)
     }
 
-    override fun processCpuClock() {
+    override fun clock() {
         if (irqCounter > 0) {
             irqCounter--
 

@@ -1,9 +1,8 @@
 package br.tiagohm.nestalgia.core
 
-class MMC5SquareChannel(console: Console) : SquareChannel(AudioChannel.MMC5, console, null, false, true), Runnable {
+internal class MMC5SquareChannel(console: Console) : SquareChannel(AudioChannel.MMC5, console, null, false, true), Runnable {
 
-    var output = 0
-        private set
+    @JvmField var output = 0
 
     init {
         output = 0
@@ -15,7 +14,7 @@ class MMC5SquareChannel(console: Console) : SquareChannel(AudioChannel.MMC5, con
     }
 
     override fun run() {
-        if (timer == 0) {
+        if (timer <= 0) {
             dutyPos = (dutyPos - 1) and 0x07
             // Frequency values less than 8 do not silence the MMC5 pulse channels; they can output ultrasonic frequencies
             output = DUTY_SEQUENCES[duty][dutyPos] * volume

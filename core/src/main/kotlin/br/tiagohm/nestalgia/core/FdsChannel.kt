@@ -42,7 +42,7 @@ open class FdsChannel : Memory, Snapshotable {
         if (!envelopeOff && masterSpeed > 0) {
             timer--
 
-            if (timer == 0) {
+            if (timer <= 0) {
                 resetTimer()
 
                 if (volumeIncrease && gain < 32) {

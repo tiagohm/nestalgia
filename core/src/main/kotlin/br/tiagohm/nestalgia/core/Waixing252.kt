@@ -19,8 +19,8 @@ class Waixing252(console: Console) : Mapper(console) {
         selectPrgPage(3, -1)
     }
 
-    override fun processCpuClock() {
-        vrcIrq.processCpuCycle()
+    override fun clock() {
+        vrcIrq.processCpuClock()
     }
 
     private fun updateState() {

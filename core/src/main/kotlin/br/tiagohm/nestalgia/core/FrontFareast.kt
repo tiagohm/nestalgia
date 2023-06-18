@@ -35,7 +35,7 @@ abstract class FrontFareast(console: Console) : Mapper(console) {
         ffeAltMode = s.readBoolean("ffeAltMode", true)
     }
 
-    final override fun processCpuClock() {
+    final override fun clock() {
         if (irqEnabled) {
             irqCounter = (irqCounter + 1) and 0xFFFF
 

@@ -20,7 +20,7 @@ class MMC5Audio(console: Console) : Memory, ExpansionAudio(console) {
         square2.run()
 
         if (audioCounter <= 0) {
-            // ~240hz envelope/length counter
+            // ~240hz envelope/length counter.
             audioCounter = console.region.clockRate / 240
 
             square1.tickLengthCounter()
@@ -85,8 +85,6 @@ class MMC5Audio(console: Console) : Memory, ExpansionAudio(console) {
     }
 
     override fun saveState(s: Snapshot) {
-        super.saveState(s)
-
         s.write("square1", square1)
         s.write("square2", square2)
         s.write("audioCounter", audioCounter)
@@ -97,8 +95,6 @@ class MMC5Audio(console: Console) : Memory, ExpansionAudio(console) {
     }
 
     override fun restoreState(s: Snapshot) {
-        super.restoreState(s)
-
         s.readSnapshotable("square1", square1) { square1.reset(false) }
         s.readSnapshotable("square2", square2) { square2.reset(false) }
         audioCounter = s.readInt("audioCounter")

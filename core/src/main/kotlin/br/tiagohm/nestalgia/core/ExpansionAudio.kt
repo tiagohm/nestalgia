@@ -1,16 +1,12 @@
 package br.tiagohm.nestalgia.core
 
-abstract class ExpansionAudio(@JvmField protected val console: Console) : Snapshotable {
+abstract class ExpansionAudio(@JvmField protected val console: Console) : Clockable, Snapshotable {
 
-    abstract fun clockAudio()
+    protected abstract fun clockAudio()
 
-    fun clock() {
+    override fun clock() {
         if (console.apu.enabled) {
             clockAudio()
         }
     }
-
-    override fun saveState(s: Snapshot) {}
-
-    override fun restoreState(s: Snapshot) {}
 }

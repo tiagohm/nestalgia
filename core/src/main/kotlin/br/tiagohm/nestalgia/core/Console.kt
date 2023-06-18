@@ -230,9 +230,10 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
         return true
     }
 
-    fun processCpuClock() {
-        mapper!!.processCpuClock()
-        apu.processCpuClock()
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun processCpuClock() {
+        mapper!!.clock()
+        apu.clock()
     }
 
     val frameCount

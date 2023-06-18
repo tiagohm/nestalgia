@@ -13,7 +13,7 @@ import kotlin.random.Random
 
 // https://wiki.nesdev.com/w/index.php/Mapper
 
-abstract class Mapper(@JvmField protected val console: Console) : Resetable, Battery, Peekable, MemoryHandler, Initializable, Snapshotable, Closeable {
+abstract class Mapper(@JvmField protected val console: Console) : Resetable, Battery, Peekable, MemoryHandler, Initializable, Clockable, Snapshotable, Closeable {
 
     open val prgPageSize = 0
 
@@ -162,7 +162,7 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
         }
     }
 
-    open fun processCpuClock() {}
+    override fun clock() = Unit
 
     fun copyPrgChrRom(mapper: Mapper) {
         if (mPrgSize == mapper.mPrgSize &&
@@ -577,7 +577,7 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
         start: Int,
         end: Int,
         pageNumber: Int,
-        type: ChrMemoryType,
+        type: ChrMemoryType = DEFAULT,
         accessType: MemoryAccessType = UNSPECIFIED,
     ) {
         if (!validateAddressRange(start, end) || start > 0x3F00 || end > 0x3FFF || end <= start) {
@@ -839,6 +839,18 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
         val a = addr and 0x3FFF
         if (!disableSideEffects) notifyVRAMAddressChange(a)
         return internalReadVRAM(a)
+    }
+
+    fun debugRead(addr: Int): Int {
+        val hi = addr shr 8
+
+        if (prgMemoryAccess[hi] == READ) {
+            val page = prgPages[hi]
+            return page[addr and 0xFF]
+        }
+
+        // Fake open bus.
+        return addr shr 8
     }
 
     open fun applySamples(buffer: ShortArray, sampleCount: Int, volume: Double) {}

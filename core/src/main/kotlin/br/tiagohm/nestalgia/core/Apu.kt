@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, Initializable, Snapshotable, Runnable {
+class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, Initializable, Clockable, Snapshotable, Runnable {
 
     private var currentCycle = 0
     private var previousCycle = 0
@@ -56,7 +56,7 @@ class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, I
         frameCounter.reset(softReset)
     }
 
-    fun processCpuClock() {
+    override fun clock() {
         if (enabled) {
             exec()
         }

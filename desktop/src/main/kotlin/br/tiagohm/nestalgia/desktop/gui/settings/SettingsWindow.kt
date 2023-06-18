@@ -6,6 +6,9 @@ import br.tiagohm.nestalgia.core.ControllerType.*
 import br.tiagohm.nestalgia.core.EmulationFlag.*
 import br.tiagohm.nestalgia.desktop.app.Preferences
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
+import br.tiagohm.nestalgia.desktop.gui.converters.ConsoleTypeStringConverter
+import br.tiagohm.nestalgia.desktop.gui.converters.ControllerTypeStringConverter
+import br.tiagohm.nestalgia.desktop.gui.converters.RamPowerOnStateStringConverter
 import br.tiagohm.nestalgia.desktop.gui.settings.controllers.ArkanoidSettingsWindow
 import br.tiagohm.nestalgia.desktop.gui.settings.controllers.StandardControllerSettingsWindow
 import br.tiagohm.nestalgia.desktop.gui.settings.controllers.ZapperSettingsWindow
@@ -103,6 +106,21 @@ class SettingsWindow : AbstractWindow() {
 
             settings.load()
         }
+
+        consoleTypeChoiceBox.converter = ConsoleTypeStringConverter
+        port1ChoiceBox.converter = ControllerTypeStringConverter
+        port1ChoiceBox.converter = ControllerTypeStringConverter
+        port2ChoiceBox.converter = ControllerTypeStringConverter
+        subPort1ChoiceBox.converter = ControllerTypeStringConverter
+        subPort2ChoiceBox.converter = ControllerTypeStringConverter
+        subPort3ChoiceBox.converter = ControllerTypeStringConverter
+        subPort4ChoiceBox.converter = ControllerTypeStringConverter
+        expansionPortChoiceBox.converter = ControllerTypeStringConverter
+        expansionSubPort1ChoiceBox.converter = ControllerTypeStringConverter
+        expansionSubPort2ChoiceBox.converter = ControllerTypeStringConverter
+        expansionSubPort3ChoiceBox.converter = ControllerTypeStringConverter
+        expansionSubPort4ChoiceBox.converter = ControllerTypeStringConverter
+        defaultPowerOnStateForRAMChoiceBox.converter = RamPowerOnStateStringConverter
 
         expansionPortChoiceBox.selectionModel.selectedItemProperty().addListener { _, _, _ -> updatePortOptions() }
         port1ChoiceBox.selectionModel.selectedItemProperty().addListener { _, _, _ -> updatePortOptions() }

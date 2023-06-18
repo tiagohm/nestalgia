@@ -6,7 +6,7 @@ interface Memory {
 
     fun read(addr: Int, type: MemoryOperationType = READ) = 0
 
-    fun write(addr: Int, value: Int, type: MemoryOperationType = WRITE) {}
+    fun write(addr: Int, value: Int, type: MemoryOperationType = WRITE) = Unit
 
     fun readWord(addr: Int, type: MemoryOperationType = READ): Int {
         val lo = read(addr, type)

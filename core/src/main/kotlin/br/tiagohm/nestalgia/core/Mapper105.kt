@@ -24,7 +24,7 @@ class Mapper105(console: Console) : MMC1(console) {
         stateA000 = stateA000 or 0x10 // Set I bit to 1
     }
 
-    override fun processCpuClock() {
+    override fun clock() {
         if (irqEnabled) {
             irqCounter++
 

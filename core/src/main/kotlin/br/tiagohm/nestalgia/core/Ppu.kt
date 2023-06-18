@@ -805,7 +805,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Initial
             needStateUpdate = true
         }
 
-        if (updateVramAddrDelay != 0) {
+        if (updateVramAddrDelay > 0) {
             updateVramAddrDelay--
 
             if (updateVramAddrDelay == 0) {
@@ -941,7 +941,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Initial
                                 // Note: Using "(_secondaryOAMAddr & 0x03) == 0" instead of "_spriteAddrL == 0" is required
                                 // to replicate a hardware bug noticed in oam_flicker_test_reenable when disabling & re-enabling
                                 // rendering on a single scanline
-                                if ((secondaryOAMAddr and 0x03) == 0) {
+                                if (secondaryOAMAddr and 0x03 == 0) {
                                     // Done copying all 4 bytes
                                     spriteInRange = false
                                     spriteAddrL = 0
@@ -975,9 +975,9 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Initial
                                     spriteAddrL = 0
                                 }
 
-                                if (overflowBugCounter == 0) {
+                                if (overflowBugCounter <= 0) {
                                     overflowBugCounter = 3
-                                } else if (overflowBugCounter > 0) {
+                                } else {
                                     overflowBugCounter--
 
                                     if (overflowBugCounter == 0) {

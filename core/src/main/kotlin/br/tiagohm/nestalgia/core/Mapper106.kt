@@ -20,7 +20,7 @@ class Mapper106(console: Console) : Mapper(console) {
         selectPrgPage(3, -1)
     }
 
-    override fun processCpuClock() {
+    override fun clock() {
         if (irqEnabled) {
             irqCounter = (irqCounter + 1) and 0xFFFF
 

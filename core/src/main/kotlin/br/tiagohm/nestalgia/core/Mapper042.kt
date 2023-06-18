@@ -31,7 +31,7 @@ class Mapper042(console: Console) : Mapper(console) {
         addCpuMemoryMapping(0x6000, 0x7FFF, prgReg and 0x0F, ROM)
     }
 
-    override fun processCpuClock() {
+    override fun clock() {
         if (irqEnabled) {
             irqCounter++
 
