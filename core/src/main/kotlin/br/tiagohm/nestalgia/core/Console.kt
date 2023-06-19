@@ -150,7 +150,7 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
 
         val info = newMapper.info
         LOG.info(
-            "{}, mapper={}, id={} crc={}, md5={}, sha1={}, sha256={}",
+            "[{}]: mapper={}, id={} crc={}, md5={}, sha1={}, sha256={}",
             info.name, newMapper::class.simpleName, info.mapperId, info.hash.crc32,
             info.hash.md5, info.hash.sha1, info.hash.sha256,
         )
