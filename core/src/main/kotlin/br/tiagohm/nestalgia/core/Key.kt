@@ -1,6 +1,8 @@
 package br.tiagohm.nestalgia.core
 
-interface Key {
+import java.io.Serializable
+
+interface Key : Serializable {
 
     val code: Int
 

@@ -1,7 +1,8 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
+import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
-import br.tiagohm.nestalgia.core.MouseButton
+import br.tiagohm.nestalgia.core.ZapperButton.*
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import javafx.fxml.FXML
 import javafx.scene.control.ComboBox
@@ -15,8 +16,8 @@ class ZapperSettingsWindow(
 
     override val resourceName = "ZapperSettings"
 
-    @FXML private lateinit var fireComboBox: ComboBox<MouseButton>
-    @FXML private lateinit var aimOffscreenComboBox: ComboBox<MouseButton>
+    @FXML private lateinit var fireComboBox: ComboBox<Key>
+    @FXML private lateinit var aimOffscreenComboBox: ComboBox<Key>
     @FXML private lateinit var lightDetectionRadiusSlider: Slider
 
     override fun onCreate() {
@@ -25,14 +26,14 @@ class ZapperSettingsWindow(
     }
 
     override fun onStart() {
-        fireComboBox.value = keyMapping.zapperFire
-        aimOffscreenComboBox.value = keyMapping.zapperAimOffscreen
+        fireComboBox.value = keyMapping.customKey(FIRE)
+        aimOffscreenComboBox.value = keyMapping.customKey(AIM_OFFSCREEN)
         lightDetectionRadiusSlider.value = zapperDetectionRadius[port].toDouble()
     }
 
     override fun onStop() {
-        keyMapping.zapperFire = fireComboBox.value
-        keyMapping.zapperAimOffscreen = aimOffscreenComboBox.value
+        keyMapping.customKey(FIRE, fireComboBox.value)
+        keyMapping.customKey(AIM_OFFSCREEN, aimOffscreenComboBox.value)
         zapperDetectionRadius[port] = lightDetectionRadiusSlider.value.toInt()
     }
 }

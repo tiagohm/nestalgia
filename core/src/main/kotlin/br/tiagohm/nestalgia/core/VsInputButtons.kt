@@ -1,7 +1,7 @@
 package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.ControllerType.*
-import br.tiagohm.nestalgia.core.VsButtons.*
+import br.tiagohm.nestalgia.core.VsButton.*
 
 class VsInputButtons(console: Console) : ControlDevice(console, NONE, MAPPER_INPUT_PORT) {
 

@@ -31,7 +31,7 @@ class Zapper(
         get() = console.ppu.isLight(x, y, console.settings.zapperDetectionRadius[port])
 
     override fun read(addr: Int, type: MemoryOperationType): Int {
-        if ((isExpansionDevice && addr == 0x4017) || isCurrentPort(addr)) {
+        if (isExpansionDevice && addr == 0x4017 || isCurrentPort(addr)) {
             return (if (light) 0x00 else 0x08) or
                 (if (isPressed(ZapperButton.FIRE)) 0x10 else 0x00)
         }

@@ -1,7 +1,8 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
+import br.tiagohm.nestalgia.core.ArkanoidButton.*
+import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
-import br.tiagohm.nestalgia.core.MouseButton
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import javafx.fxml.FXML
 import javafx.scene.control.ComboBox
@@ -15,7 +16,7 @@ class ArkanoidSettingsWindow(
 
     override val resourceName = "ArkanoidSettings"
 
-    @FXML private lateinit var fireComboBox: ComboBox<MouseButton>
+    @FXML private lateinit var fireComboBox: ComboBox<Key>
     @FXML private lateinit var sensibilitySlider: Slider
 
     override fun onCreate() {
@@ -24,12 +25,12 @@ class ArkanoidSettingsWindow(
     }
 
     override fun onStart() {
-        fireComboBox.value = keyMapping.arkanoidFire
+        fireComboBox.value = keyMapping.customKey(FIRE)
         sensibilitySlider.value = arkanoidSensibility[port].toDouble()
     }
 
     override fun onStop() {
-        keyMapping.arkanoidFire = fireComboBox.value
+        keyMapping.customKey(FIRE, fireComboBox.value)
         arkanoidSensibility[port] = sensibilitySlider.value.toInt()
     }
 }
