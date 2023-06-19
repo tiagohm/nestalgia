@@ -151,6 +151,7 @@ object MapperFactory {
             200 -> Mapper200(console)
             206 -> Namco108(console)
             207 -> TaitoX1005(console, true)
+            208 -> Mapper208(console)
             210 -> Namco163(console)
             213 -> Mapper213(console)
             214 -> Mapper214(console)
