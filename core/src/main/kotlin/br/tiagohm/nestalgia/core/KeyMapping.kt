@@ -10,6 +10,8 @@ data class KeyMapping(
     @JvmField var start: Key = Key.UNDEFINED,
     @JvmField var select: Key = Key.UNDEFINED,
     @JvmField var microphone: Key = Key.UNDEFINED,
+    @JvmField var turboA: Key = Key.UNDEFINED,
+    @JvmField var turboB: Key = Key.UNDEFINED,
     @JvmField val customKeys: Array<Key> = Array(100) { Key.UNDEFINED },
 ) : Snapshotable, Resetable {
 
@@ -24,6 +26,23 @@ data class KeyMapping(
         StandardControllerButton.A -> a
         StandardControllerButton.MICROPHONE -> microphone
         else -> customKey(button)
+    }
+
+    fun key(button: ControllerButton, key: Key) {
+        when (button) {
+            StandardControllerButton.UP -> up = key
+            StandardControllerButton.DOWN -> down = key
+            StandardControllerButton.LEFT -> left = key
+            StandardControllerButton.RIGHT -> right = key
+            StandardControllerButton.START -> start = key
+            StandardControllerButton.SELECT -> select = key
+            StandardControllerButton.B -> b = key
+            StandardControllerButton.A -> a = key
+            StandardControllerButton.MICROPHONE -> microphone = key
+            StandardControllerButton.TURBO_B -> turboB = key
+            StandardControllerButton.TURBO_A -> turboA = key
+            else -> customKey(button, key)
+        }
     }
 
     fun customKey(button: ControllerButton): Key {
@@ -83,6 +102,8 @@ data class KeyMapping(
         s.write("select", select.code)
         s.write("start", start.code)
         s.write("microphone", microphone.code)
+        s.write("turboA", turboA.code)
+        s.write("turboB", turboB.code)
         s.write("customKeys", customKeys)
     }
 
@@ -96,6 +117,8 @@ data class KeyMapping(
         start = Key.of(s.readInt("start"))
         select = Key.of(s.readInt("select"))
         microphone = Key.of(s.readInt("microphone"))
+        turboA = Key.of(s.readInt("turboA"))
+        turboB = Key.of(s.readInt("turboB"))
         s.readArray("customKeys", customKeys)
     }
 
