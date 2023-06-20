@@ -160,6 +160,7 @@ object MapperFactory {
             219 -> Mapper219(console)
             222 -> Mapper222(console)
             226 -> Mapper226(console)
+            227 -> Mapper227(console)
             228 -> ActionEnterprises(console)
             229 -> Mapper229(console)
             230 -> Mapper230(console)
