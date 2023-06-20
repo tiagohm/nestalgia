@@ -90,7 +90,8 @@ class CpuTest : NesTesterSpec() {
             }
         }
         "dmc_dma_during_read4/dma_4016_read" {
-            test {
+            test(autoStart = false) {
+                console.settings.port1.configureStandardControllerForThisPort()
                 waitForFrame("9c8331e39710bdca6c495754e397d9ef")
             }
         }
@@ -129,7 +130,9 @@ class CpuTest : NesTesterSpec() {
             }
         }
         "nestest" {
-            test {
+            test(autoStart = false) {
+                console.settings.port1.configureStandardControllerForThisPort()
+                start()
                 delay(1000)
                 pressAndRelease(START)
                 waitForFrame("fd3c95a9bc606c483b7922b58a5ee86c")

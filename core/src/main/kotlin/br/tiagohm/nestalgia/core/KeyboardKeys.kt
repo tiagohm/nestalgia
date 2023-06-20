@@ -93,5 +93,6 @@ enum class KeyboardKeys(val description: String, override val code: Int) : Key {
 
         @JvmStatic internal val ENTRIES = values()
         @JvmStatic internal val MAPPED_ENTRIES = ENTRIES.associateBy { it.code }
+        @JvmStatic val SORTED_KEYS = ENTRIES.sortedBy { it.description }
     }
 }

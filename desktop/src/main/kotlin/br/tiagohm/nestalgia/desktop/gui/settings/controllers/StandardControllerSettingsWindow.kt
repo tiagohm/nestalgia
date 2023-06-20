@@ -35,15 +35,15 @@ data class StandardControllerSettingsWindow(private val keyMapping: KeyMapping) 
         aComboBox.converter = KeyStringConverter
         bComboBox.converter = KeyStringConverter
 
-        with(KeyboardKeys.values()) {
-            upComboBox.items.addAll(this)
-            downComboBox.items.addAll(this)
-            leftComboBox.items.addAll(this)
-            rightComboBox.items.addAll(this)
-            selectComboBox.items.addAll(this)
-            startComboBox.items.addAll(this)
-            aComboBox.items.addAll(this)
-            bComboBox.items.addAll(this)
+        with(KeyboardKeys.SORTED_KEYS) {
+            upComboBox.items.setAll(this)
+            downComboBox.items.setAll(this)
+            leftComboBox.items.setAll(this)
+            rightComboBox.items.setAll(this)
+            selectComboBox.items.setAll(this)
+            startComboBox.items.setAll(this)
+            aComboBox.items.setAll(this)
+            bComboBox.items.setAll(this)
         }
 
         apply(keyMapping)
