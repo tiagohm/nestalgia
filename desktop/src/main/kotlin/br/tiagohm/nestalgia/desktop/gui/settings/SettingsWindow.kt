@@ -9,10 +9,7 @@ import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import br.tiagohm.nestalgia.desktop.gui.converters.ConsoleTypeStringConverter
 import br.tiagohm.nestalgia.desktop.gui.converters.ControllerTypeStringConverter
 import br.tiagohm.nestalgia.desktop.gui.converters.RamPowerOnStateStringConverter
-import br.tiagohm.nestalgia.desktop.gui.settings.controllers.ArkanoidSettingsWindow
-import br.tiagohm.nestalgia.desktop.gui.settings.controllers.PowerPadSettingsWindow
-import br.tiagohm.nestalgia.desktop.gui.settings.controllers.StandardControllerSettingsWindow
-import br.tiagohm.nestalgia.desktop.gui.settings.controllers.ZapperSettingsWindow
+import br.tiagohm.nestalgia.desktop.gui.settings.controllers.*
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.Node
@@ -332,6 +329,7 @@ class SettingsWindow : AbstractWindow() {
             FAMICOM_ARKANOID_CONTROLLER -> ArkanoidSettingsWindow(settings.arkanoidSensibility, keyMapping, port)
             POWER_PAD_SIDE_A,
             POWER_PAD_SIDE_B -> PowerPadSettingsWindow(keyMapping)
+            EXCITING_BOXING -> ExcitingBoxingSettingsWindow(keyMapping)
             else -> return
         }
 

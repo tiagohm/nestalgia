@@ -3,9 +3,9 @@ package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
 import br.tiagohm.nestalgia.core.KeyboardKeys
-import br.tiagohm.nestalgia.core.KeyboardKeys.*
 import br.tiagohm.nestalgia.core.PowerPadButton
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
+import br.tiagohm.nestalgia.desktop.gui.converters.KeyStringConverter
 import javafx.fxml.FXML
 import javafx.scene.control.ComboBox
 
@@ -38,9 +38,8 @@ class PowerPadSettingsWindow(private val keyMapping: KeyMapping) : AbstractWindo
             button09ComboBox, button10ComboBox, button11ComboBox, button12ComboBox,
         )
 
-        with(KeyboardKeys.SORTED_KEYS) {
-            buttonComboBoxes.forEach { it.items.setAll(this) }
-        }
+        buttonComboBoxes.forEach { it.converter = KeyStringConverter }
+        buttonComboBoxes.forEach { it.items.setAll(KeyboardKeys.SORTED_KEYS) }
     }
 
     override fun onStart() {
@@ -56,19 +55,7 @@ class PowerPadSettingsWindow(private val keyMapping: KeyMapping) : AbstractWindo
     }
 
     @FXML
-    private fun useDefaultBinding() {
-        for (i in DEFAULT_KEYS.indices) {
-            buttonComboBoxes[i].value = DEFAULT_KEYS[i]
-        }
-    }
-
-    @FXML
     private fun clearKeyBindings() {
         buttonComboBoxes.forEach { it.value = Key.UNDEFINED }
-    }
-
-    companion object {
-
-        @JvmStatic private val DEFAULT_KEYS = arrayOf(R, T, Y, U, F, G, H, J, C, V, B, N)
     }
 }

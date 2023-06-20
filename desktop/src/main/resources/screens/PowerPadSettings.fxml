@@ -117,8 +117,6 @@
             <VBox.margin>
                 <Insets top="16.0"/>
             </VBox.margin>
-            <Button text="Use default bindings"
-                    onAction="#useDefaultBinding"/>
             <Button text="Clear key bindings"
                     onAction="#clearKeyBindings"/>
         </HBox>
