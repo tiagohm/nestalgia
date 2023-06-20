@@ -10,7 +10,7 @@ open class Mapper226(console: Console) : Mapper(console) {
 
     override val chrPageSize = 0x2000
 
-    private val registers = IntArray(2)
+    @JvmField protected val registers = IntArray(2)
 
     override fun initialize() {
         reset(true)
@@ -26,11 +26,12 @@ open class Mapper226(console: Console) : Mapper(console) {
         }
     }
 
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun updatePrg() {
-        val prgPage = registers[0] and 0x1F or
-            (registers[0] and 0x80 shr 2) or
-            (registers[1] and 0x01 shl 6)
+    protected open fun prgPage(): Int {
+        return registers[0] and 0x1F or (registers[0] and 0x80 shr 2) or (registers[1] and 0x01 shl 6)
+    }
+
+    protected fun updatePrg() {
+        val prgPage = prgPage()
 
         if (registers[0].bit5) {
             selectPrgPage(0, prgPage)
