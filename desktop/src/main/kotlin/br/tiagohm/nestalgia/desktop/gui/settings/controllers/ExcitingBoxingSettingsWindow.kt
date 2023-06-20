@@ -38,13 +38,13 @@ class ExcitingBoxingSettingsWindow(private val keyMapping: KeyMapping) : Abstrac
     }
 
     override fun onStart() {
-        for (button in ExcitingBoxingButton.values()) {
+        for (button in ExcitingBoxingButton.entries) {
             buttonComboBoxes[button.ordinal].value = keyMapping.customKey(button)
         }
     }
 
     override fun onStop() {
-        for (button in ExcitingBoxingButton.values()) {
+        for (button in ExcitingBoxingButton.entries) {
             keyMapping.customKey(button, buttonComboBoxes[button.ordinal].value)
         }
     }

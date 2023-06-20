@@ -88,8 +88,8 @@ class SoundMixer(private val console: Console) : Resetable, Closeable, Snapshota
 
     private fun endFrame(time: Int) {
         for (stamp in timestamps) {
-            for (j in 0 until MAX_CHANNEL_COUNT) {
-                currentOutput[j] = (currentOutput[j] + channelOutput[j][stamp]).toShort()
+            repeat(MAX_CHANNEL_COUNT) {
+                currentOutput[it] = (currentOutput[it] + channelOutput[it][stamp]).toShort()
             }
 
             val currentOutput = outputVolume * 4

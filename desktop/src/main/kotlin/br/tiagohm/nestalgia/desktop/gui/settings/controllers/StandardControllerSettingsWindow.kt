@@ -45,7 +45,7 @@ data class StandardControllerSettingsWindow(private val keyMapping: KeyMapping) 
     }
 
     override fun onStop() {
-        for (button in StandardControllerButton.values()) {
+        for (button in StandardControllerButton.entries) {
             keyMapping.key(button, buttonComboBoxes[button.ordinal].value)
         }
     }
@@ -61,7 +61,7 @@ data class StandardControllerSettingsWindow(private val keyMapping: KeyMapping) 
     }
 
     private fun apply(keyMapping: KeyMapping) {
-        for (button in StandardControllerButton.values()) {
+        for (button in StandardControllerButton.entries) {
             buttonComboBoxes[button.ordinal].value = keyMapping.key(button)
         }
     }

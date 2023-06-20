@@ -12,15 +12,12 @@ class MemoryManager(private val console: Console) : Memory, Peekable, Resetable,
         registerIODevice(internalRamHandler)
     }
 
-    lateinit var mapper: Mapper
-        internal set
-
     override fun reset(softReset: Boolean) {
         if (!softReset) {
             console.initializeRam(internalRam)
         }
 
-        mapper.reset(softReset)
+        console.mapper?.reset(softReset)
     }
 
     fun registerIODevice(handler: MemoryHandler) {
@@ -68,8 +65,8 @@ class MemoryManager(private val console: Console) : Memory, Peekable, Resetable,
         size: Int,
         allowOverride: Boolean,
     ) {
-        for (i in 0 until size) {
-            val addr = addresses[i]
+        repeat(size) {
+            val addr = addresses[it]
 
             if (!allowOverride && handlers[addr] != openBusHandler && handlers[addr] != handler) {
                 throw IllegalStateException("Not supported")

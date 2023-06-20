@@ -22,9 +22,9 @@ class PowerPad(
 
                 if (isSideB) {
                     // Invert the order of each row.
-                    setPressedState(POWER_PAD_BUTTON[index], keys[i * 4 + (3 - j)])
+                    setPressedState(PowerPadButton.entries[index], keys[i * 4 + (3 - j)])
                 } else {
-                    setPressedState(POWER_PAD_BUTTON[index], keys[index])
+                    setPressedState(PowerPadButton.entries[index], keys[index])
                 }
             }
         }
@@ -67,10 +67,5 @@ class PowerPad(
 
     override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         strobeOnWrite(value)
-    }
-
-    companion object {
-
-        @JvmStatic private val POWER_PAD_BUTTON = PowerPadButton.values()
     }
 }

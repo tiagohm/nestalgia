@@ -9,10 +9,10 @@ class ExcitingBoxingController(
 ) : ControlDevice(console, EXCITING_BOXING, EXP_DEVICE_PORT) {
 
     private var selectedSensors = false
-    private val keys = Array(8) { keyMapping.customKey(EXCITING_BOXING_BUTTONS[it]) }
+    private val keys = Array(8) { keyMapping.customKey(ExcitingBoxingButton.entries[it]) }
 
     override fun setStateFromInput() {
-        EXCITING_BOXING_BUTTONS.forEach { setPressedState(it, keys[it.ordinal]) }
+        ExcitingBoxingButton.entries.forEach { setPressedState(it, keys[it.ordinal]) }
     }
 
     override fun read(addr: Int, type: MemoryOperationType): Int {
@@ -35,10 +35,5 @@ class ExcitingBoxingController(
 
     override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         selectedSensors = value.bit1
-    }
-
-    companion object {
-
-        @JvmStatic private val EXCITING_BOXING_BUTTONS = ExcitingBoxingButton.values()
     }
 }

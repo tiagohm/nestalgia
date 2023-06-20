@@ -199,7 +199,6 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
 
         newMapper.initialize()
 
-        memoryManager.mapper = newMapper
         memoryManager.registerIODevice(ppu)
         memoryManager.registerIODevice(apu)
         memoryManager.registerIODevice(controlManager)
