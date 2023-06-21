@@ -140,6 +140,7 @@ object MapperFactory {
             190 -> MagicKidGooGoo(console)
             191 -> Mapper191(console)
             192 -> Mapper192(console)
+            193 -> NtdecTc112(console)
             194 -> Mapper194(console)
             195 -> Mapper195(console)
             196 -> Mapper196(console)
