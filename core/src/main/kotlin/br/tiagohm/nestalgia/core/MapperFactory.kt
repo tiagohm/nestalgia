@@ -147,6 +147,7 @@ object MapperFactory {
             198 -> Mapper198(console)
             199 -> Mapper199(console)
             200 -> Mapper200(console)
+            203 -> Mapper203(console)
             204 -> Mapper204(console)
             205 -> Mapper205(console)
             206 -> Namco108(console)
