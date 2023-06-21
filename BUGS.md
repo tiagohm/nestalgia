@@ -15,6 +15,7 @@
 |Dragon Ball - Shen Long no Nazo (Japan)|34|YES|NO|YES|NO|
 |Mississippi Satsujin Jiken (Japan)|34|YES|NO|YES|NO|
 |Takahashi Meijin no Bugutte Honey (Japan)|34|YES|NO|YES|NO|
+|Racemate|168|YES|NO|YES|NO|
 
 * X - Crash
 * ¹ - Minor sprite glitch
