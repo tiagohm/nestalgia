@@ -73,8 +73,10 @@ class SnapshotTest : StringSpec() {
             }
         }
         "write and read enum array" {
-            snapshot("a" to Region.values()) {
-                readArray<Region>("a") shouldBe Region.values()
+            val entries = Region.entries.toTypedArray()
+
+            snapshot("a" to entries) {
+                readArray<Region>("a") shouldBe entries
                 readArray<Region>("b").shouldBeNull()
             }
         }

@@ -37,8 +37,7 @@ abstract class FlashSST39SF040Mapper(console: Console) : Mapper(console) {
     }
 
     protected fun applySaveData() {
-        val ipsData = console.batteryManager.loadBattery(".ips")
-        applyPatch(ipsData)
+        applyPatch(console.batteryManager.loadBattery(".ips"))
     }
 
     protected fun applyPatch(ipsData: IntArray) {

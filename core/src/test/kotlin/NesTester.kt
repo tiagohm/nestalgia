@@ -17,15 +17,7 @@ class NesTester(private val path: Path) {
     private val threadExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), EmulatorThreadFactory)
     val emulator = Emulator(console, Speaker, Video(), controller, emptyList(), threadExecutor)
 
-    var isAutoPlugController = true
-        internal set
-
     fun start() {
-        if (isAutoPlugController && emulator.settings.port1.type == NONE) {
-            emulator.settings.port1.type = NES_CONTROLLER
-            CONTROLLER_KEYS_1P.copyTo(emulator.settings.port1.keyMapping)
-        }
-
         emulator.load(path.readBytes().toIntArray(), path.nameWithoutExtension)
     }
 
@@ -37,19 +29,63 @@ class NesTester(private val path: Path) {
         emulator.stop()
     }
 
+    private fun controllerKeys(button: ControllerButton, port: Int): KeyMapping {
+        return when (button) {
+            is PowerPadButton -> POWER_PAD_KEYS
+            else -> CONTROLLER_KEYS[port]
+        }
+    }
+
     fun press(button: ControllerButton, port: Int = 0) {
-        val keys = CONTROLLER_KEYS[port]
+        val keys = controllerKeys(button, port)
         pressedButtons[keys.key(button).code] = 1
     }
 
     fun pressAndRelease(button: ControllerButton, port: Int = 0) {
-        val keys = CONTROLLER_KEYS[port]
+        val keys = controllerKeys(button, port)
         pressedButtons[keys.key(button).code] = 2
     }
 
     fun release(button: ControllerButton, port: Int = 0) {
-        val keys = CONTROLLER_KEYS[port]
+        val keys = controllerKeys(button, port)
         pressedButtons[keys.key(button).code] = 0
+    }
+
+    fun ControllerSettings.configureNoControllerForThisPort() {
+        type = NONE
+        keyMapping.reset()
+    }
+
+    fun ControllerSettings.configureStandardControllerForThisPort() {
+        type = NES_CONTROLLER
+
+        val port = if (this === console.settings.port1) 0
+        else if (this === console.settings.port2) 1
+        else 0
+
+        CONTROLLER_KEYS[port].copyTo(keyMapping)
+    }
+
+    fun ControllerSettings.configureFourScoreForThisPort() {
+        if (this === console.settings.port1) {
+            type = FOUR_SCORE
+
+            repeat(4) { console.settings.subPort1[it].type = NES_CONTROLLER }
+            repeat(4) { CONTROLLER_KEYS[it].copyTo(console.settings.subPort1[it].keyMapping) }
+        }
+    }
+
+    fun ControllerSettings.configureZapperForThisPort() {
+        type = if (this === console.settings.expansionPort) FAMICOM_ZAPPER else NES_ZAPPER
+    }
+
+    fun ControllerSettings.configureArkanoidForThisPort() {
+        type = if (this === console.settings.expansionPort) FAMICOM_ARKANOID_CONTROLLER else NES_ARKANOID_CONTROLLER
+    }
+
+    fun ControllerSettings.configurePowerPadForThisPort() {
+        type = POWER_PAD_SIDE_A
+        POWER_PAD_KEYS.copyTo(keyMapping)
     }
 
     private object Speaker : AudioDevice {
@@ -97,13 +133,14 @@ class NesTester(private val path: Path) {
 
     companion object {
 
-        @JvmStatic internal val CONTROLLER_KEYS_1P = KeyMapping(A, B, C, D, E, F, G, H)
-        @JvmStatic internal val CONTROLLER_KEYS_2P = KeyMapping(I, J, K, L, M, N, O, P)
-        @JvmStatic internal val CONTROLLER_KEYS_3P = KeyMapping(Q, R, S, T, U, V, W, X)
-        @JvmStatic internal val CONTROLLER_KEYS_4P = KeyMapping(Y, Z, F1, F2, F3, F4, F5, F6)
+        @JvmStatic private val CONTROLLER_KEYS_1P = KeyMapping(A, B, C, D, E, F, G, H)
+        @JvmStatic private val CONTROLLER_KEYS_2P = KeyMapping(I, J, K, L, M, N, O, P)
+        @JvmStatic private val CONTROLLER_KEYS_3P = KeyMapping(Q, R, S, T, U, V, W, X)
+        @JvmStatic private val CONTROLLER_KEYS_4P = KeyMapping(Y, Z, F1, F2, F3, F4, F5, F6)
 
-        @JvmStatic internal val CONTROLLER_KEYS = arrayOf(
-            CONTROLLER_KEYS_1P, CONTROLLER_KEYS_2P, CONTROLLER_KEYS_3P, CONTROLLER_KEYS_4P,
-        )
+        @JvmStatic private val CONTROLLER_KEYS = arrayOf(CONTROLLER_KEYS_1P, CONTROLLER_KEYS_2P, CONTROLLER_KEYS_3P, CONTROLLER_KEYS_4P)
+
+        @JvmStatic private val POWER_PAD_CUSTOM_KEYS = arrayOf<Key>(I, J, K, L, M, N, O, P, Q, R, S, T)
+        @JvmStatic private val POWER_PAD_KEYS = KeyMapping(A, B, C, D, E, F, G, H, customKeys = POWER_PAD_CUSTOM_KEYS)
     }
 }

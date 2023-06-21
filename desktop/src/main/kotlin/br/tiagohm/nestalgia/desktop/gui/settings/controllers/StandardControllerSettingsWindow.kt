@@ -3,6 +3,7 @@ package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
 import br.tiagohm.nestalgia.core.KeyboardKeys
+import br.tiagohm.nestalgia.core.StandardControllerButton
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import br.tiagohm.nestalgia.desktop.gui.converters.KeyStringConverter
 import javafx.fxml.FXML
@@ -16,48 +17,37 @@ data class StandardControllerSettingsWindow(private val keyMapping: KeyMapping) 
     @FXML private lateinit var downComboBox: ComboBox<Key>
     @FXML private lateinit var leftComboBox: ComboBox<Key>
     @FXML private lateinit var rightComboBox: ComboBox<Key>
-    @FXML private lateinit var selectComboBox: ComboBox<Key>
     @FXML private lateinit var startComboBox: ComboBox<Key>
-    @FXML private lateinit var aComboBox: ComboBox<Key>
+    @FXML private lateinit var selectComboBox: ComboBox<Key>
     @FXML private lateinit var bComboBox: ComboBox<Key>
+    @FXML private lateinit var aComboBox: ComboBox<Key>
+    @FXML private lateinit var microphoneComboBox: ComboBox<Key>
+    @FXML private lateinit var turboBComboBox: ComboBox<Key>
+    @FXML private lateinit var turboAComboBox: ComboBox<Key>
     @FXML private lateinit var presetComboBox: ComboBox<String>
+
+    private lateinit var buttonComboBoxes: Array<ComboBox<Key>>
 
     override fun onCreate() {
         title = "NES/Famicom Controller"
         resizable = false
 
-        upComboBox.converter = KeyStringConverter
-        downComboBox.converter = KeyStringConverter
-        leftComboBox.converter = KeyStringConverter
-        rightComboBox.converter = KeyStringConverter
-        selectComboBox.converter = KeyStringConverter
-        startComboBox.converter = KeyStringConverter
-        aComboBox.converter = KeyStringConverter
-        bComboBox.converter = KeyStringConverter
+        buttonComboBoxes = arrayOf(
+            upComboBox, downComboBox, leftComboBox, rightComboBox,
+            startComboBox, selectComboBox, bComboBox, aComboBox,
+            microphoneComboBox, turboBComboBox, turboAComboBox,
+        )
 
-        with(KeyboardKeys.values()) {
-            upComboBox.items.addAll(this)
-            downComboBox.items.addAll(this)
-            leftComboBox.items.addAll(this)
-            rightComboBox.items.addAll(this)
-            selectComboBox.items.addAll(this)
-            startComboBox.items.addAll(this)
-            aComboBox.items.addAll(this)
-            bComboBox.items.addAll(this)
-        }
+        buttonComboBoxes.forEach { it.converter = KeyStringConverter }
+        buttonComboBoxes.forEach { it.items.setAll(KeyboardKeys.SORTED_KEYS) }
 
         apply(keyMapping)
     }
 
     override fun onStop() {
-        keyMapping.up = upComboBox.value!!
-        keyMapping.down = downComboBox.value!!
-        keyMapping.left = leftComboBox.value!!
-        keyMapping.right = rightComboBox.value!!
-        keyMapping.select = selectComboBox.value!!
-        keyMapping.start = startComboBox.value!!
-        keyMapping.a = aComboBox.value!!
-        keyMapping.b = bComboBox.value!!
+        for (button in StandardControllerButton.entries) {
+            keyMapping.key(button, buttonComboBoxes[button.ordinal].value)
+        }
     }
 
     @FXML
@@ -65,15 +55,15 @@ data class StandardControllerSettingsWindow(private val keyMapping: KeyMapping) 
         apply(PRESETS[presetComboBox.value]!!)
     }
 
+    @FXML
+    private fun clearKeyBindings() {
+        buttonComboBoxes.forEach { it.value = Key.UNDEFINED }
+    }
+
     private fun apply(keyMapping: KeyMapping) {
-        upComboBox.value = keyMapping.up
-        downComboBox.value = keyMapping.down
-        leftComboBox.value = keyMapping.left
-        rightComboBox.value = keyMapping.right
-        selectComboBox.value = keyMapping.select
-        startComboBox.value = keyMapping.start
-        aComboBox.value = keyMapping.a
-        bComboBox.value = keyMapping.b
+        for (button in StandardControllerButton.entries) {
+            buttonComboBoxes[button.ordinal].value = keyMapping.key(button)
+        }
     }
 
     companion object {

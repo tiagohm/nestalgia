@@ -20,7 +20,7 @@ data class GamepadInputProvider(
     private val stop = AtomicBoolean(false)
 
     private val standardControllerButtonState =
-        Array(PORT_COUNT) { BooleanArray(STANDARD_CONTROLLER_BUTTONS.size) }
+        Array(PORT_COUNT) { BooleanArray(StandardControllerButton.entries.size) }
 
     init {
         jamepadThread = thread(true, isDaemon = true, name = "Jamepad") {
@@ -36,7 +36,7 @@ data class GamepadInputProvider(
 
                     val state = standardControllerButtonState[it]
 
-                    for (b in JAMEPAD_BUTTONS) {
+                    for (b in ControllerButton.entries) {
                         // Y
                         if (b == ControllerButton.Y) {
                             if (controller.isButtonJustPressed(b)) {
@@ -90,7 +90,7 @@ data class GamepadInputProvider(
 
     override fun setInput(device: ControlDevice): Boolean {
         return if (device is StandardController) {
-            for (button in STANDARD_CONTROLLER_BUTTONS) {
+            for (button in StandardControllerButton.entries) {
                 if (standardControllerButtonState[device.port][button.bit]) {
                     device.setBit(button)
                 }
@@ -109,9 +109,6 @@ data class GamepadInputProvider(
     }
 
     companion object {
-
-        @JvmStatic private val JAMEPAD_BUTTONS = ControllerButton.values()
-        @JvmStatic private val STANDARD_CONTROLLER_BUTTONS = StandardControllerButton.values()
 
         @JvmStatic private val MAP_JAMEPAD_TO_NES = mapOf(
             ControllerButton.A to StandardControllerButton.A,

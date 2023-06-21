@@ -5,10 +5,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.22")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0-RC")
         classpath("com.adarshr:gradle-test-logger-plugin:3.2.0")
         classpath("com.github.gmazzo:gradle-buildconfig-plugin:3.1.0")
-        classpath("org.jetbrains.kotlin:kotlin-allopen:1.8.22")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:1.9.0-RC")
         classpath("org.openjfx:javafx-plugin:0.0.14")
     }
 

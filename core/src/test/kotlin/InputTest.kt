@@ -1,4 +1,4 @@
-import br.tiagohm.nestalgia.core.ControllerType.*
+import br.tiagohm.nestalgia.core.PowerPadButton.*
 import br.tiagohm.nestalgia.core.StandardControllerButton.*
 
 // https://github.com/pinobatch/allpads-nes
@@ -8,9 +8,8 @@ class InputTest : NesTesterSpec() {
     init {
         "allpads/nes_controller_1P" {
             test("allpads", false) {
-                console.settings.port1.type = NES_CONTROLLER
-                NesTester.CONTROLLER_KEYS_1P.copyTo(console.settings.port1.keyMapping)
-                console.settings.port2.type = NONE
+                console.settings.port1.configureStandardControllerForThisPort()
+                console.settings.port2.configureNoControllerForThisPort()
 
                 waitForFrame("b9aeb3e878183816371f17b2b3ce2d23")
                 pressAndRelease(A)
@@ -25,10 +24,8 @@ class InputTest : NesTesterSpec() {
         }
         "allpads/nes_controller_2P" {
             test("allpads", false) {
-                console.settings.port1.type = NES_CONTROLLER
-                NesTester.CONTROLLER_KEYS_1P.copyTo(console.settings.port1.keyMapping)
-                console.settings.port2.type = NES_CONTROLLER
-                NesTester.CONTROLLER_KEYS_2P.copyTo(console.settings.port2.keyMapping)
+                console.settings.port1.configureStandardControllerForThisPort()
+                console.settings.port2.configureStandardControllerForThisPort()
 
                 waitForFrame("3e6320695be26d70e9072433f44148e0")
                 pressAndRelease(A, 1)
@@ -43,18 +40,8 @@ class InputTest : NesTesterSpec() {
         }
         "allpads/four_score" {
             test("allpads", false) {
-                console.settings.port1.type = FOUR_SCORE
-                console.settings.port2.type = NONE
-
-                console.settings.subPort1[0].type = NES_CONTROLLER
-                console.settings.subPort1[1].type = NES_CONTROLLER
-                console.settings.subPort1[2].type = NES_CONTROLLER
-                console.settings.subPort1[3].type = NES_CONTROLLER
-
-                NesTester.CONTROLLER_KEYS_1P.copyTo(console.settings.subPort1[0].keyMapping)
-                NesTester.CONTROLLER_KEYS_2P.copyTo(console.settings.subPort1[1].keyMapping)
-                NesTester.CONTROLLER_KEYS_3P.copyTo(console.settings.subPort1[2].keyMapping)
-                NesTester.CONTROLLER_KEYS_4P.copyTo(console.settings.subPort1[3].keyMapping)
+                console.settings.port1.configureFourScoreForThisPort()
+                console.settings.port2.configureNoControllerForThisPort()
 
                 waitForFrame("979e10df063d6f55bcb77242509dff46")
                 pressAndRelease(A)
@@ -71,32 +58,44 @@ class InputTest : NesTesterSpec() {
         }
         "allpads/zapper_1P" {
             test("allpads", false) {
-                console.settings.port1.type = NES_ZAPPER
+                console.settings.port1.configureZapperForThisPort()
 
                 waitForFrame("1cdf170fe5a452186ea8a4b46e2839f1")
             }
         }
         "allpads/zapper_2P" {
             test("allpads", false) {
-                console.settings.port1.type = NES_ZAPPER
-                console.settings.expansionPort.type = FAMICOM_ZAPPER
+                console.settings.port1.configureZapperForThisPort()
+                console.settings.expansionPort.configureZapperForThisPort()
 
                 waitForFrame("cee60e578bbc9fda40d9b8a9a9405836")
             }
         }
         "allpads/arkanoid_1P" {
             test("allpads", false) {
-                console.settings.port1.type = NES_ARKANOID_CONTROLLER
-                console.settings.expansionPort.type = NONE
+                console.settings.port1.configureArkanoidForThisPort()
+                console.settings.expansionPort.configureNoControllerForThisPort()
 
                 waitForFrame("b3f6a2958d9dda15b06a73d3415e3d20")
             }
         }
+        "allpads/power_pad" {
+            test("allpads", false) {
+                console.settings.port1.configurePowerPadForThisPort()
+
+                waitForFrame("0e9a02779ba7e8837b61ea09da164e51")
+                pressAndRelease(B04)
+                waitForFrame("342abf435f466ffc6957bcac792122f1")
+
+                for ((key, hash) in POWER_PAD_STATES) {
+                    press(key)
+                    waitForFrame(hash)
+                    release(key)
+                }
+            }
+        }
         "allpads/none" {
             test("allpads", false) {
-                console.settings.port1.type = NONE
-                isAutoPlugController = false
-
                 waitForFrame("c298fd8b8aa644339989af01ecb64294")
             }
         }
@@ -173,6 +172,21 @@ class InputTest : NesTesterSpec() {
         @JvmStatic private val FOUR_SCORE_PORT_STATES = arrayOf(
             FOUR_SCORE_1P_STATES, FOUR_SCORE_2P_STATES,
             FOUR_SCORE_3P_STATES, FOUR_SCORE_4P_STATES,
+        )
+
+        @JvmStatic private val POWER_PAD_STATES = mapOf(
+            B01 to "283dfab6057fa72bb34ee6db612cfd7e",
+            B02 to "6630f862a952d31a8dd4a7f759f3910c",
+            B03 to "4d51baedfd1d1dbf9b8280db1c71a39c",
+            B04 to "34d6d4447a248839813546a469cce1d8",
+            B05 to "d7f3a1242c64a0b2cc8831d109e01b65",
+            B06 to "776a5072afea7288a98b446237ac5a21",
+            B07 to "d7dac70f44d661af3d86010d5614160b",
+            B08 to "ed488bf7008784da799efa50c095f671",
+            B09 to "42c1b0ace7c5629e341b281f773699c1",
+            B10 to "bf8b66436ae26468fddf1ec227766c8d",
+            B11 to "faa6947a7ab89d5987c29343397674f7",
+            B12 to "a0e141a4fe1c2dae97093e41509e468b",
         )
     }
 }

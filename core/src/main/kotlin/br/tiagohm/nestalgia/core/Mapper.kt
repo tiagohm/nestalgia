@@ -153,12 +153,10 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
 
     override fun loadBattery() {
         if (hasBattery && mSaveRamSize > 0) {
-            val data = console.batteryManager.loadBattery(".sav", mSaveRamSize)
-            data.copyInto(saveRam)
+            console.batteryManager.loadBattery(".sav", mSaveRamSize).copyInto(saveRam)
         }
         if (hasChrBattery && mChrRamSize > 0) {
-            val data = console.batteryManager.loadBattery(".sav.chr", mChrRamSize)
-            data.copyInto(chrRam)
+            console.batteryManager.loadBattery(".sav.chr", mChrRamSize).copyInto(chrRam)
         }
     }
 
@@ -263,10 +261,6 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
             BusConflictType.NO -> false
         }
 
-        if (mHasBusConflicts) {
-            LOG.info("bus conflicts enabled")
-        }
-
         saveRam = IntArray(mSaveRamSize)
         workRam = IntArray(mWorkRamSize)
 
@@ -326,6 +320,11 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
         this.data = data.copy(info = info)
 
         loadBattery()
+
+        LOG.info(
+            "[{}]: sram={} wram={} chrRom={} chrRam={} mirroringType={} battery={} chrBattery={} busConflict={}",
+            name, mSaveRamSize, mWorkRamSize, mChrRomSize, chrRamSize, mirroringType, hasBattery, hasChrBattery, mHasBusConflicts
+        )
     }
 
     override fun memoryRanges(ranges: MemoryRanges) {

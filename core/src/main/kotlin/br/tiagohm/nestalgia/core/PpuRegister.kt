@@ -9,10 +9,5 @@ enum class PpuRegister(override val address: Int) : Register {
     SCROLL_OFFSET(0x05),
     VIDEO_MEMORY_ADDR(0x06),
     VIDEO_MEMORY_DATA(0x07),
-    SPRITE_DMA(0x4014);
-
-    companion object {
-
-        @JvmStatic val ENTRIES = PpuRegister.values()
-    }
+    SPRITE_DMA(0x4014),
 }

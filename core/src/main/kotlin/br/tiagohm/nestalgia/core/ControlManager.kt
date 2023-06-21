@@ -126,6 +126,9 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             FOUR_PLAYER_ADAPTER -> FourScore(console, type, EXP_DEVICE_PORT, *settings.expansionSubPort)
             NES_ARKANOID_CONTROLLER -> ArkanoidController(console, type, port, keyMapping)
             FAMICOM_ARKANOID_CONTROLLER -> ArkanoidController(console, type, EXP_DEVICE_PORT, keyMapping)
+            POWER_PAD_SIDE_A,
+            POWER_PAD_SIDE_B -> PowerPad(console, type, port, keyMapping)
+            EXCITING_BOXING -> ExcitingBoxingController(console, keyMapping)
             else -> return null
         }
 

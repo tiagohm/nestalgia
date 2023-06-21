@@ -1,0 +1,124 @@
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane maxHeight="-Infinity"
+            maxWidth="-Infinity"
+            minHeight="-Infinity"
+            minWidth="-Infinity"
+            xmlns="http://javafx.com/javafx/20"
+            xmlns:fx="http://javafx.com/fxml/1">
+    <VBox spacing="4.0"
+          alignment="CENTER"
+          AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0">
+        <padding>
+            <Insets topRightBottomLeft="16.0"/>
+        </padding>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <Label text="Button 01 (Top left)"
+                   minWidth="164.0"
+                   maxWidth="164.0"/>
+            <ComboBox fx:id="button01ComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <Label text="Button 02"
+                   minWidth="164.0"
+                   maxWidth="164.0"/>
+            <ComboBox fx:id="button02ComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <Label text="Button 03"
+                   minWidth="164.0"
+                   maxWidth="164.0"/>
+            <ComboBox fx:id="button03ComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <Label text="Button 04 (Top right)"
+                   minWidth="164.0"
+                   maxWidth="164.0"/>
+            <ComboBox fx:id="button04ComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <Label text="Button 05 (Middle left)"
+                   minWidth="164.0"
+                   maxWidth="164.0"/>
+            <ComboBox fx:id="button05ComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <Label text="Button 06"
+                   minWidth="164.0"
+                   maxWidth="164.0"/>
+            <ComboBox fx:id="button06ComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <Label text="Button 07"
+                   minWidth="164.0"
+                   maxWidth="164.0"/>
+            <ComboBox fx:id="button07ComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <Label text="Button 08 (Middle right)"
+                   minWidth="164.0"
+                   maxWidth="164.0"/>
+            <ComboBox fx:id="button08ComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <Label text="Button 09 (Bottom left)"
+                   minWidth="164.0"
+                   maxWidth="164.0"/>
+            <ComboBox fx:id="button09ComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <Label text="Button 10"
+                   minWidth="164.0"
+                   maxWidth="164.0"/>
+            <ComboBox fx:id="button10ComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <Label text="Button 11"
+                   minWidth="164.0"
+                   maxWidth="164.0"/>
+            <ComboBox fx:id="button11ComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <Label text="Button 12 (Bottom right)"
+                   minWidth="164.0"
+                   maxWidth="164.0"/>
+            <ComboBox fx:id="button12ComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <VBox.margin>
+                <Insets top="16.0"/>
+            </VBox.margin>
+            <Button text="Clear key bindings"
+                    onAction="#clearKeyBindings"/>
+        </HBox>
+    </VBox>
+</AnchorPane>

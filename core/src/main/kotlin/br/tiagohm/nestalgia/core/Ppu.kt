@@ -1039,12 +1039,8 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Initial
         ranges.addHandler(MemoryOperation.WRITE, 0x4014)
     }
 
-    private fun registerId(addr: Int): PpuRegister {
-        return if (addr == 0x4014) {
-            SPRITE_DMA
-        } else {
-            PpuRegister.ENTRIES[addr and 0x07]
-        }
+    private inline fun registerId(addr: Int): PpuRegister {
+        return if (addr == 0x4014) SPRITE_DMA else PpuRegister.entries[addr and 0x07]
     }
 
     private fun processStatusRegOpenBus(result: Int): IntArray {

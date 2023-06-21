@@ -20,8 +20,7 @@ class AsciiTurboFile(console: Console) : ControlDevice(console, ASCII_TURBO_FILE
     }
 
     override fun loadBattery() {
-        val savedData = console.batteryManager.loadBattery(".tf", FILE_SIZE)
-        savedData.copyInto(data, 0)
+        console.batteryManager.loadBattery(".tf", FILE_SIZE).copyInto(data)
     }
 
     override fun read(addr: Int, type: MemoryOperationType): Int {

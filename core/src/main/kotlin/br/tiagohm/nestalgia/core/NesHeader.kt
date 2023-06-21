@@ -66,7 +66,7 @@ data class NesHeader(
         get() {
             if (romHeaderVersion == RomHeaderVersion.NES20) {
                 if (byte15 <= GameInputType.UFORCE.ordinal) {
-                    return GameInputType.values()[byte15]
+                    return GameInputType.entries[byte15]
                 }
             }
 
@@ -77,7 +77,7 @@ data class NesHeader(
         get() {
             if (romHeaderVersion == RomHeaderVersion.NES20) {
                 if ((byte13 shr 4) <= 0x06) {
-                    return VsSystemType.values()[(byte13 shr 4)]
+                    return VsSystemType.entries[(byte13 shr 4)]
                 }
             }
 

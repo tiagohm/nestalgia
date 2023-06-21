@@ -1,7 +1,5 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MouseButton.*
-
 data class KeyMapping(
     @JvmField var a: Key = Key.UNDEFINED,
     @JvmField var b: Key = Key.UNDEFINED,
@@ -12,9 +10,9 @@ data class KeyMapping(
     @JvmField var start: Key = Key.UNDEFINED,
     @JvmField var select: Key = Key.UNDEFINED,
     @JvmField var microphone: Key = Key.UNDEFINED,
-    @JvmField var zapperFire: MouseButton = LEFT,
-    @JvmField var zapperAimOffscreen: MouseButton = RIGHT,
-    @JvmField var arkanoidFire: MouseButton = LEFT,
+    @JvmField var turboA: Key = Key.UNDEFINED,
+    @JvmField var turboB: Key = Key.UNDEFINED,
+    @JvmField val customKeys: Array<Key> = Array(100) { Key.UNDEFINED },
 ) : Snapshotable, Resetable {
 
     fun key(button: ControllerButton) = when (button) {
@@ -27,10 +25,34 @@ data class KeyMapping(
         StandardControllerButton.B -> b
         StandardControllerButton.A -> a
         StandardControllerButton.MICROPHONE -> microphone
-        ZapperButton.FIRE -> zapperFire
-        ZapperButton.AIM_OFFSCREEN -> zapperAimOffscreen
-        ArkanoidButton.FIRE -> zapperFire
-        else -> Key.UNDEFINED
+        else -> customKey(button)
+    }
+
+    fun key(button: ControllerButton, key: Key) {
+        when (button) {
+            StandardControllerButton.UP -> up = key
+            StandardControllerButton.DOWN -> down = key
+            StandardControllerButton.LEFT -> left = key
+            StandardControllerButton.RIGHT -> right = key
+            StandardControllerButton.START -> start = key
+            StandardControllerButton.SELECT -> select = key
+            StandardControllerButton.B -> b = key
+            StandardControllerButton.A -> a = key
+            StandardControllerButton.MICROPHONE -> microphone = key
+            StandardControllerButton.TURBO_B -> turboB = key
+            StandardControllerButton.TURBO_A -> turboA = key
+            else -> customKey(button, key)
+        }
+    }
+
+    fun customKey(button: ControllerButton): Key {
+        return if (button.isCustomKey) customKeys[button.bit] else Key.UNDEFINED
+    }
+
+    fun customKey(button: ControllerButton, key: Key) {
+        if (button.bit in customKeys.indices) {
+            customKeys[button.bit] = key
+        }
     }
 
     fun isEmpty() = a.code == 0 &&
@@ -41,7 +63,8 @@ data class KeyMapping(
         right.code == 0 &&
         start.code == 0 &&
         select.code == 0 &&
-        microphone.code == 0
+        microphone.code == 0 &&
+        customKeys.all { it.code == 0 }
 
     fun copyTo(keyMapping: KeyMapping) {
         keyMapping.a = a
@@ -53,8 +76,7 @@ data class KeyMapping(
         keyMapping.select = select
         keyMapping.start = start
         keyMapping.microphone = microphone
-        keyMapping.zapperFire = zapperFire
-        keyMapping.zapperAimOffscreen = zapperAimOffscreen
+        customKeys.copyInto(keyMapping.customKeys)
     }
 
     override fun reset(softReset: Boolean) {
@@ -67,8 +89,7 @@ data class KeyMapping(
         select = Key.UNDEFINED
         start = Key.UNDEFINED
         microphone = Key.UNDEFINED
-        zapperFire = LEFT
-        zapperAimOffscreen = RIGHT
+        customKeys.fill(Key.UNDEFINED)
     }
 
     override fun saveState(s: Snapshot) {
@@ -81,8 +102,9 @@ data class KeyMapping(
         s.write("select", select.code)
         s.write("start", start.code)
         s.write("microphone", microphone.code)
-        s.write("zapperFire", zapperFire.code)
-        s.write("zapperAimOffscreen", zapperAimOffscreen.code)
+        s.write("turboA", turboA.code)
+        s.write("turboB", turboB.code)
+        s.write("customKeys", customKeys)
     }
 
     override fun restoreState(s: Snapshot) {
@@ -95,6 +117,41 @@ data class KeyMapping(
         start = Key.of(s.readInt("start"))
         select = Key.of(s.readInt("select"))
         microphone = Key.of(s.readInt("microphone"))
+        turboA = Key.of(s.readInt("turboA"))
+        turboB = Key.of(s.readInt("turboB"))
+        s.readArray("customKeys", customKeys)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as KeyMapping
+
+        if (a != other.a) return false
+        if (b != other.b) return false
+        if (up != other.up) return false
+        if (down != other.down) return false
+        if (left != other.left) return false
+        if (right != other.right) return false
+        if (start != other.start) return false
+        if (select != other.select) return false
+        if (microphone != other.microphone) return false
+        return customKeys.contentEquals(other.customKeys)
+    }
+
+    override fun hashCode(): Int {
+        var result = a.hashCode()
+        result = 31 * result + b.hashCode()
+        result = 31 * result + up.hashCode()
+        result = 31 * result + down.hashCode()
+        result = 31 * result + left.hashCode()
+        result = 31 * result + right.hashCode()
+        result = 31 * result + start.hashCode()
+        result = 31 * result + select.hashCode()
+        result = 31 * result + microphone.hashCode()
+        result = 31 * result + customKeys.contentHashCode()
+        return result
     }
 
     companion object {
