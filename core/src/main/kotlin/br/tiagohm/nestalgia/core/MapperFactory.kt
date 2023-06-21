@@ -156,6 +156,7 @@ object MapperFactory {
             214 -> Mapper214(console)
             218 -> MagicFloor218(console)
             219 -> Mapper219(console)
+            220 -> Kaiser7057(console)
             221 -> Mapper221(console)
             222 -> Mapper222(console)
             224 -> Mapper224(console)
