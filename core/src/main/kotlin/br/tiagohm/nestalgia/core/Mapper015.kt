@@ -27,7 +27,8 @@ class Mapper015(console: Console) : Mapper(console) {
         var bank = value and 0x7F shl 1
         val mode = addr and 0x03
 
-        addPpuMemoryMapping(0, 0x1FFF, 0, DEFAULT, if (mode == 0 || mode == 3) READ else READ_WRITE)
+        // Protecting CHR writes only for mode 3 fixes some subor/waixing cart.
+        addPpuMemoryMapping(0, 0x1FFF, 0, DEFAULT, if (mode == 3) READ else READ_WRITE)
 
         when (mode) {
             0 -> {
