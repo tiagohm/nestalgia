@@ -136,6 +136,7 @@ object MapperFactory {
             178 -> Waixing178(console)
             179 -> Henggedianzi179(console)
             180 -> UNROM180(console)
+            182 -> Mapper182(console)
             185 -> Mapper185(console)
             189 -> Mapper189(console)
             190 -> MagicKidGooGoo(console)
