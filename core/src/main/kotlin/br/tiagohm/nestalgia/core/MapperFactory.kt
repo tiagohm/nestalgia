@@ -129,6 +129,8 @@ object MapperFactory {
             159 -> Mapper159(console)
             162 -> Waixing162(console)
             164 -> Waixing164(console)
+            166 -> Subor166(console)
+            167 -> Subor166(console)
             168 -> Racermate(console)
             170 -> Mapper170(console)
             171 -> Kaiser7058(console)
