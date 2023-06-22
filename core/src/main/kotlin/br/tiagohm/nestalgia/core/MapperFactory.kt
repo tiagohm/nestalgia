@@ -123,6 +123,7 @@ object MapperFactory {
             148 -> Sachen148(console)
             149 -> Sachen149(console)
             150 -> Sachen74LS374N(console)
+            151 -> VRC1(console)
             152 -> Bandai74161And7432(console, true)
             153 -> Mapper153(console)
             154 -> Mapper154(console)
