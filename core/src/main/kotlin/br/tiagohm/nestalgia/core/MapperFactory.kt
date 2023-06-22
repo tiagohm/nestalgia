@@ -65,6 +65,7 @@ object MapperFactory {
             48 -> TaitoTc0690(console)
             49 -> Mapper049(console)
             52 -> Mapper052(console)
+            54 -> NovelDiamond(console)
             62 -> Mapper062(console)
             63 -> Bmc63(console)
             66 -> GxROM(console)
