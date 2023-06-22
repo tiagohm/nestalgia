@@ -207,6 +207,21 @@
                         <Button text="Settings"
                                 onAction="#openExpansionPortSettings"/>
                     </HBox>
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="4.0">
+                        <Label text="Cartridge"/>
+                        <ChoiceBox fx:id="mapperPortChoiceBox"
+                                   minWidth="270.0"
+                                   maxWidth="270.0">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <ControllerType fx:value="BANDAI_MICROPHONE"/>
+                                </FXCollections>
+                            </items>
+                        </ChoiceBox>
+                        <Button text="Settings"
+                                onAction="#openMapperPortSettings"/>
+                    </HBox>
                     <VBox fx:id="twoFourPlayerAdapterPane"
                           spacing="2.0">
                         <HBox alignment="CENTER_LEFT"

@@ -43,6 +43,7 @@ class EmulationSettings : Snapshotable, Resetable {
     @JvmField val expansionPort = ControllerSettings()
     @JvmField val subPort1 = Array(4) { ControllerSettings() }
     @JvmField val expansionSubPort = Array(4) { ControllerSettings() }
+    @JvmField val mapperPort = ControllerSettings()
     private var needControllerUpdate = false
 
     @JvmField var isKeyboardMode = true
@@ -119,6 +120,7 @@ class EmulationSettings : Snapshotable, Resetable {
         s.write("expansionPort", expansionPort)
         repeat(subPort1.size) { s.write("subPort1$it", subPort1[it]) }
         repeat(expansionSubPort.size) { s.write("expansionSubPort$it", expansionSubPort[it]) }
+        s.write("mapperPort", mapperPort)
         s.write("needControllerUpdate", needControllerUpdate)
         s.write("isKeyboardMode", isKeyboardMode)
         s.write("consoleType", consoleType)
@@ -148,6 +150,7 @@ class EmulationSettings : Snapshotable, Resetable {
         s.readSnapshotable("expansionPort", expansionPort)
         repeat(subPort1.size) { s.readSnapshotable("subPort1$it", subPort1[it]) }
         repeat(expansionSubPort.size) { s.readSnapshotable("expansionSubPort$it", expansionSubPort[it]) }
+        s.readSnapshotable("mapperPort", mapperPort)
         isKeyboardMode = s.readBoolean("isKeyboardMode")
         consoleType = s.readEnum("consoleType", ConsoleType.NES_001)
         emulationSpeed = s.readInt("emulationSpeed", 100)

@@ -32,9 +32,8 @@ abstract class ControllerHub(
         return ports[port]
     }
 
-    operator fun contains(type: ControllerType): Boolean {
-        return if (this.type == type) true
-        else ports.any { it != null && it.type == type }
+    override fun hasControllerType(type: ControllerType): Boolean {
+        return super.hasControllerType(type) || ports.any { it != null && it.hasControllerType(type) }
     }
 
     override fun setStateFromInput() {

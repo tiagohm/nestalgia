@@ -2,6 +2,7 @@ package br.tiagohm.nestalgia.desktop.gui.settings
 
 import br.tiagohm.nestalgia.core.*
 import br.tiagohm.nestalgia.core.ControlDevice.Companion.EXP_DEVICE_PORT
+import br.tiagohm.nestalgia.core.ControlDevice.Companion.MAPPER_INPUT_PORT
 import br.tiagohm.nestalgia.core.ControllerType.*
 import br.tiagohm.nestalgia.core.EmulationFlag.*
 import br.tiagohm.nestalgia.desktop.app.Preferences
@@ -48,6 +49,7 @@ class SettingsWindow : AbstractWindow() {
     @FXML private lateinit var subPort3ChoiceBox: ChoiceBox<ControllerType>
     @FXML private lateinit var subPort4ChoiceBox: ChoiceBox<ControllerType>
     @FXML private lateinit var expansionPortChoiceBox: ChoiceBox<ControllerType>
+    @FXML private lateinit var mapperPortChoiceBox: ChoiceBox<ControllerType>
     @FXML private lateinit var expansionSubPort1ChoiceBox: ChoiceBox<ControllerType>
     @FXML private lateinit var expansionSubPort2ChoiceBox: ChoiceBox<ControllerType>
     @FXML private lateinit var expansionSubPort3ChoiceBox: ChoiceBox<ControllerType>
@@ -114,6 +116,7 @@ class SettingsWindow : AbstractWindow() {
         subPort3ChoiceBox.converter = ControllerTypeStringConverter
         subPort4ChoiceBox.converter = ControllerTypeStringConverter
         expansionPortChoiceBox.converter = ControllerTypeStringConverter
+        mapperPortChoiceBox.converter = ControllerTypeStringConverter
         expansionSubPort1ChoiceBox.converter = ControllerTypeStringConverter
         expansionSubPort2ChoiceBox.converter = ControllerTypeStringConverter
         expansionSubPort3ChoiceBox.converter = ControllerTypeStringConverter
@@ -260,6 +263,9 @@ class SettingsWindow : AbstractWindow() {
         autoSwitchDisksCheckBox.isSelected = flag(FDS_AUTO_INSERT_DISK)
 
         updatePortOptions()
+
+        mapperPortChoiceBox.parent.isVisible = console.hasControllerType(BANDAI_MICROPHONE)
+        mapperPortChoiceBox.parent.isManaged = mapperPortChoiceBox.isVisible
     }
 
     private fun updatePortOptions() {
@@ -315,6 +321,7 @@ class SettingsWindow : AbstractWindow() {
             0 -> settings.port1.keyMapping
             1 -> settings.port2.keyMapping
             EXP_DEVICE_PORT -> settings.expansionPort.keyMapping
+            MAPPER_INPUT_PORT -> settings.mapperPort.keyMapping
             -1 -> settings.subPort1[subPort - 1].keyMapping
             -EXP_DEVICE_PORT -> settings.expansionSubPort[subPort - 1].keyMapping
             else -> return
@@ -333,6 +340,7 @@ class SettingsWindow : AbstractWindow() {
             FAMILY_TRAINER_MAT_SIDE_B -> PowerPadSettingsWindow(keyMapping, value)
             EXCITING_BOXING -> ExcitingBoxingSettingsWindow(keyMapping)
             BANDAI_HYPER_SHOT -> BandaiHyperShotSettingsWindow(keyMapping)
+            BANDAI_MICROPHONE -> BandaiMicrophoneSettingsWindow(keyMapping)
             else -> return
         }
 
@@ -364,6 +372,11 @@ class SettingsWindow : AbstractWindow() {
     @FXML
     private fun openExpansionPortSettings(event: ActionEvent) {
         expansionPortChoiceBox.openPortSettings(EXP_DEVICE_PORT)
+    }
+
+    @FXML
+    private fun openMapperPortSettings(event: ActionEvent) {
+        mapperPortChoiceBox.openPortSettings(MAPPER_INPUT_PORT)
     }
 
     @FXML
