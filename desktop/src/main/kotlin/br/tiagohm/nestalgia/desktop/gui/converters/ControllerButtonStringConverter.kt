@@ -24,7 +24,6 @@ object ControllerButtonStringConverter : StringConverter<ControllerButton>() {
         StandardControllerButton.TURBO_A to "Turbo (A)",
         StandardControllerButton.TURBO_B to "Turbo (B)",
         ZapperButton.FIRE to "Fire",
-        ZapperButton.AIM_OFFSCREEN to "Aim Offscreen",
         ArkanoidButton.FIRE to "Fire",
     )
 }

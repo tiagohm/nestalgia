@@ -8,7 +8,6 @@ data class A12RisingEdgeWatcher(private val console: Console) : Resetable, Snaps
         a12LowClock = 0L
     }
 
-    // Replace "a12Watcher.updateVRAMAddress(addr, console.ppu.frameCycle) == RISE"
     fun isRisingEdge(addr: Int): Boolean {
         if (addr and 0x1000 != 0) {
             val isRisingEdge = a12LowClock > 0 && (console.masterClock - a12LowClock) >= 3

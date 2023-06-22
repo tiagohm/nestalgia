@@ -46,12 +46,20 @@ data class KeyMapping(
     }
 
     fun customKey(button: ControllerButton): Key {
-        return if (button.isCustomKey) customKeys[button.bit] else Key.UNDEFINED
+        return if (button.isCustomKey) customKey(button.bit) else Key.UNDEFINED
+    }
+
+    fun customKey(index: Int): Key {
+        return if (index in customKeys.indices) customKeys[index] else Key.UNDEFINED
     }
 
     fun customKey(button: ControllerButton, key: Key) {
-        if (button.bit in customKeys.indices) {
-            customKeys[button.bit] = key
+        customKey(button.bit, key)
+    }
+
+    fun customKey(index: Int, key: Key) {
+        if (index in customKeys.indices) {
+            customKeys[index] = key
         }
     }
 

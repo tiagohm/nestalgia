@@ -330,6 +330,7 @@ class SettingsWindow : AbstractWindow() {
             POWER_PAD_SIDE_A,
             POWER_PAD_SIDE_B -> PowerPadSettingsWindow(keyMapping)
             EXCITING_BOXING -> ExcitingBoxingSettingsWindow(keyMapping)
+            BANDAI_HYPER_SHOT -> BandaiHyperShotSettingsWindow(keyMapping)
             else -> return
         }
 

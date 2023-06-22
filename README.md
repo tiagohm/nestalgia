@@ -23,7 +23,7 @@ It implements only the emulator (no debugging tools).
 * Configurable Region and Speed
 * Fullscreen and Screenshot support
 * Audio, Video, Controller and Emulation config support
-* Zapper, Arkanoid, Ascii Turbo File, Power Pad, Exciting Boxing Punching Bag and Battle Box are supported
+* Zapper, Arkanoid, Ascii Turbo File, Power Pad, Bandai Hyper Shot, Exciting Boxing Punching Bag and Battle Box are supported
 * Gamepad Support
 
 <p align="center">

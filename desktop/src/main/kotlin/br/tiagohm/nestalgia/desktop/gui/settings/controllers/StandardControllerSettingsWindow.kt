@@ -9,24 +9,24 @@ import br.tiagohm.nestalgia.desktop.gui.converters.KeyStringConverter
 import javafx.fxml.FXML
 import javafx.scene.control.ComboBox
 
-data class StandardControllerSettingsWindow(private val keyMapping: KeyMapping) : AbstractWindow() {
+open class StandardControllerSettingsWindow(protected val keyMapping: KeyMapping) : AbstractWindow() {
 
     override val resourceName = "StandardControllerSettings"
 
-    @FXML private lateinit var upComboBox: ComboBox<Key>
-    @FXML private lateinit var downComboBox: ComboBox<Key>
-    @FXML private lateinit var leftComboBox: ComboBox<Key>
-    @FXML private lateinit var rightComboBox: ComboBox<Key>
-    @FXML private lateinit var startComboBox: ComboBox<Key>
-    @FXML private lateinit var selectComboBox: ComboBox<Key>
-    @FXML private lateinit var bComboBox: ComboBox<Key>
-    @FXML private lateinit var aComboBox: ComboBox<Key>
-    @FXML private lateinit var microphoneComboBox: ComboBox<Key>
-    @FXML private lateinit var turboBComboBox: ComboBox<Key>
-    @FXML private lateinit var turboAComboBox: ComboBox<Key>
-    @FXML private lateinit var presetComboBox: ComboBox<String>
+    @FXML protected lateinit var upComboBox: ComboBox<Key>
+    @FXML protected lateinit var downComboBox: ComboBox<Key>
+    @FXML protected lateinit var leftComboBox: ComboBox<Key>
+    @FXML protected lateinit var rightComboBox: ComboBox<Key>
+    @FXML protected lateinit var startComboBox: ComboBox<Key>
+    @FXML protected lateinit var selectComboBox: ComboBox<Key>
+    @FXML protected lateinit var bComboBox: ComboBox<Key>
+    @FXML protected lateinit var aComboBox: ComboBox<Key>
+    @FXML protected lateinit var microphoneComboBox: ComboBox<Key>
+    @FXML protected lateinit var turboBComboBox: ComboBox<Key>
+    @FXML protected lateinit var turboAComboBox: ComboBox<Key>
+    @FXML protected lateinit var presetComboBox: ComboBox<String>
 
-    private lateinit var buttonComboBoxes: Array<ComboBox<Key>>
+    protected lateinit var buttonComboBoxes: Array<ComboBox<Key>>
 
     override fun onCreate() {
         title = "NES/Famicom Controller"
