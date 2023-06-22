@@ -145,6 +145,7 @@ object MapperFactory {
             179 -> Henggedianzi179(console)
             180 -> UNROM180(console)
             182 -> Mapper182(console)
+            183 -> Mapper183(console)
             185 -> Mapper185(console)
             187 -> Mapper187(console)
             188 -> BandaiKaraoke(console)
