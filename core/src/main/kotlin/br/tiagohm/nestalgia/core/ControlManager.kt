@@ -130,6 +130,8 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             POWER_PAD_SIDE_B -> PowerPad(console, type, port, keyMapping)
             EXCITING_BOXING -> ExcitingBoxingController(console, keyMapping)
             BANDAI_HYPER_SHOT -> BandaiHyperShot(console, keyMapping)
+            FAMILY_TRAINER_MAT_SIDE_A,
+            FAMILY_TRAINER_MAT_SIDE_B -> FamilyTrainerMat(console, type, keyMapping)
             else -> return null
         }
 

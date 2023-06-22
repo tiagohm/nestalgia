@@ -328,7 +328,9 @@ class SettingsWindow : AbstractWindow() {
             NES_ARKANOID_CONTROLLER,
             FAMICOM_ARKANOID_CONTROLLER -> ArkanoidSettingsWindow(settings.arkanoidSensibility, keyMapping, port)
             POWER_PAD_SIDE_A,
-            POWER_PAD_SIDE_B -> PowerPadSettingsWindow(keyMapping)
+            POWER_PAD_SIDE_B,
+            FAMILY_TRAINER_MAT_SIDE_A,
+            FAMILY_TRAINER_MAT_SIDE_B -> PowerPadSettingsWindow(keyMapping, value)
             EXCITING_BOXING -> ExcitingBoxingSettingsWindow(keyMapping)
             BANDAI_HYPER_SHOT -> BandaiHyperShotSettingsWindow(keyMapping)
             else -> return
