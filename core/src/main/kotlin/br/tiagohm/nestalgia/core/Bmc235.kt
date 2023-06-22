@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MirroringType.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_235
 
 class Bmc235(console: Console) : Mapper(console) {
@@ -22,9 +24,9 @@ class Bmc235(console: Console) : Mapper(console) {
 
     override fun writeRegister(addr: Int, value: Int) {
         mirroringType = when {
-            addr and 0x0400 != 0 -> MirroringType.SCREEN_A_ONLY
-            addr and 0x2000 != 0 -> MirroringType.HORIZONTAL
-            else -> MirroringType.VERTICAL
+            addr and 0x0400 != 0 -> SCREEN_A_ONLY
+            addr and 0x2000 != 0 -> HORIZONTAL
+            else -> VERTICAL
         }
 
         val mode = when (prgPageCount) {

@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.ZapperButton.*
+
 // https://wiki.nesdev.com/w/index.php/Zapper
 
 class Zapper(
@@ -7,15 +9,15 @@ class Zapper(
     private val keyMapping: KeyMapping,
 ) : ControlDevice(console, type, port) {
 
-    @JvmField var x = 0
-    @JvmField var y = 0
+    private var x = 0
+    private var y = 0
 
-    private val fireKey = keyMapping.key(ZapperButton.FIRE)
-    private val aimOffscreenKey = keyMapping.key(ZapperButton.AIM_OFFSCREEN)
+    private val fireKey = keyMapping.key(FIRE)
+    private val aimOffscreenKey = keyMapping.customKey(1)
 
     override fun setStateFromInput() {
         if (console.settings.isInputEnabled && console.keyManager.isKeyPressed(fireKey)) {
-            setBit(ZapperButton.FIRE)
+            setBit(FIRE)
         }
 
         if (console.keyManager.isKeyPressed(aimOffscreenKey)) {
@@ -27,13 +29,12 @@ class Zapper(
         }
     }
 
-    val light
+    val isLight
         get() = console.ppu.isLight(x, y, console.settings.zapperDetectionRadius[port])
 
     override fun read(addr: Int, type: MemoryOperationType): Int {
         if (isExpansionDevice && addr == 0x4017 || isCurrentPort(addr)) {
-            return (if (light) 0x00 else 0x08) or
-                (if (isPressed(ZapperButton.FIRE)) 0x10 else 0x00)
+            return (if (isLight) 0x00 else 0x08) or if (isPressed(FIRE)) 0x10 else 0x00
         }
 
         return 0
@@ -41,24 +42,10 @@ class Zapper(
 
     override fun write(addr: Int, value: Int, type: MemoryOperationType) {}
 
-    override fun saveState(s: Snapshot) {
-        super.saveState(s)
-
-        s.write("x", x)
-        s.write("y", y)
-    }
-
-    override fun restoreState(s: Snapshot) {
-        super.restoreState(s)
-
-        x = s.readInt("x", x)
-        y = s.readInt("y", y)
-    }
-
     companion object {
 
         @JvmStatic
-        private fun Ppu.isLight(mx: Int, my: Int, radius: Int): Boolean {
+        internal fun Ppu.isLight(mx: Int, my: Int, radius: Int): Boolean {
             val scanline = scanline
             val cycle = cycle
 

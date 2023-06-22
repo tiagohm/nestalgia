@@ -35,7 +35,10 @@ abstract class BandaiFgc(console: Console) : Mapper(console) {
         removeRegisterRange(0x8000, 0xFFFF, READ)
 
         // Last bank.
-        selectPrgPage(1, 0x0F)
+        if (info.mapperId != 153 && prgPageCount >= 0x20)
+            selectPrgPage(1, 0x1F)
+        else
+            selectPrgPage(1, 0x0F)
     }
 
     override fun saveBattery() {
@@ -81,7 +84,7 @@ abstract class BandaiFgc(console: Console) : Mapper(console) {
             0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 -> {
                 chrRegs[addr and 0x07] = value
 
-                if (info.mapperId == 153 || prgPageCount >= 0x20) {
+                if (info.mapperId == 153) {
                     prgBankSelect = 0
 
                     repeat(8) { prgBankSelect = prgBankSelect or (chrRegs[it] and 0x01 shl 4) }
@@ -97,7 +100,9 @@ abstract class BandaiFgc(console: Console) : Mapper(console) {
                 }
             }
             0x08 -> {
-                prgPage = value and 0x0F
+                prgPage = if (info.mapperId != 153 && prgPageCount >= 0x20) value and 0x1F
+                else value and 0x0F
+
                 selectPrgPage(0, prgPage or prgBankSelect)
             }
             0x09 -> {

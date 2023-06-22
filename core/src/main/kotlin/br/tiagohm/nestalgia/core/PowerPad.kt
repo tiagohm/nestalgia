@@ -4,12 +4,12 @@ import br.tiagohm.nestalgia.core.ControllerType.*
 
 // https://www.nesdev.org/wiki/Power_Pad
 
-class PowerPad(
+open class PowerPad(
     console: Console, type: ControllerType, port: Int,
     private val keyMapping: KeyMapping,
 ) : ControlDevice(console, type, port) {
 
-    private val isSideB = type == POWER_PAD_SIDE_B
+    private val isSideB = type == POWER_PAD_SIDE_B || type == FAMILY_TRAINER_MAT_SIDE_B
     private val keys = Array(12) { keyMapping.customKeys[it] }
 
     private var stateBufferL = 0
