@@ -131,6 +131,7 @@ object MapperFactory {
             155 -> Mapper155(console)
             156 -> DaouInfosys(console)
             157 -> Mapper157(console)
+            158 -> Mapper158(console)
             159 -> Mapper159(console)
             162 -> Waixing162(console)
             164 -> Waixing164(console)
