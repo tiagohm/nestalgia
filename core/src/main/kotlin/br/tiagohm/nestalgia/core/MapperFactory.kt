@@ -115,6 +115,7 @@ object MapperFactory {
             113 -> Nina0306(console, true)
             114 -> Mapper114(console)
             115 -> Mapper115(console)
+            117 -> Mapper117(console)
             118 -> TxSRom(console)
             119 -> Mapper119(console)
             120 -> Mapper120(console)
