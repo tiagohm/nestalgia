@@ -82,6 +82,7 @@ object MapperFactory {
             65 -> IremH3001(console)
             66 -> GxROM(console)
             67 -> Sunsoft3(console)
+            68 -> Sunsoft4(console)
             70 -> Bandai74161And7432(console, false)
             71 -> BF909x(console)
             72 -> JalecoJF17AndJF19(console, false)
