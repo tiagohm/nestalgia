@@ -93,6 +93,7 @@ object MapperFactory {
             79 -> Nina0306(console, false)
             80 -> TaitoX1005(console, false)
             87 -> Mapper087(console)
+            83 -> Mapper083(console)
             86 -> JalecoJF13(console)
             88 -> Mapper088(console)
             91 -> Mapper091(console)
