@@ -58,6 +58,7 @@ object MapperFactory {
             38 -> UnlPci556(console)
             39 -> Mapper039(console)
             40 -> Mapper040(console)
+            41 -> Caltron41(console)
             42 -> Mapper042(console)
             44 -> Mapper044(console)
             45 -> Mapper045(console)
