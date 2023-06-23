@@ -70,6 +70,7 @@ object MapperFactory {
             50 -> Mapper050(console)
             51 -> Bmc51(console)
             52 -> Mapper052(console)
+            53 -> Supervision(console)
             54 -> NovelDiamond(console)
             56 -> Kaiser202(console)
             57 -> Mapper057(console)
