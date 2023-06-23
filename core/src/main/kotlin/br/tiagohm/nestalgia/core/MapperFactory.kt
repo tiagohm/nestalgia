@@ -72,6 +72,7 @@ object MapperFactory {
             52 -> Mapper052(console)
             54 -> NovelDiamond(console)
             56 -> Kaiser202(console)
+            57 -> Mapper057(console)
             62 -> Mapper062(console)
             63 -> Bmc63(console)
             64 -> Rambo1(console)
