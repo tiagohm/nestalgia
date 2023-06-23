@@ -67,6 +67,7 @@ object MapperFactory {
             47 -> Mapper047(console)
             48 -> TaitoTc0690(console)
             49 -> Mapper049(console)
+            50 -> Mapper050(console)
             52 -> Mapper052(console)
             54 -> NovelDiamond(console)
             62 -> Mapper062(console)
