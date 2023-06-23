@@ -74,6 +74,7 @@ object MapperFactory {
             62 -> Mapper062(console)
             63 -> Bmc63(console)
             64 -> Rambo1(console)
+            65 -> IremH3001(console)
             66 -> GxROM(console)
             70 -> Bandai74161And7432(console, false)
             71 -> BF909x(console)
