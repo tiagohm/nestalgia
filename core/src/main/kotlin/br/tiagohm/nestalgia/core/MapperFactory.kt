@@ -60,6 +60,7 @@ object MapperFactory {
             40 -> Mapper040(console)
             41 -> Caltron41(console)
             42 -> Mapper042(console)
+            43 -> Mapper043(console)
             44 -> Mapper044(console)
             45 -> Mapper045(console)
             46 -> ColorDreams46(console)
