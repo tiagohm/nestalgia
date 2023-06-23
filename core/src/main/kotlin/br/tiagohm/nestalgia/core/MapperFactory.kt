@@ -75,6 +75,7 @@ object MapperFactory {
             57 -> Mapper057(console)
             58 -> Mapper058(console)
             60 -> Mapper060(console)
+            61 -> Mapper061(console)
             62 -> Mapper062(console)
             63 -> Bmc63(console)
             64 -> Rambo1(console)
