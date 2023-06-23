@@ -110,6 +110,7 @@ object MapperFactory {
             115 -> Mapper115(console)
             118 -> TxSRom(console)
             119 -> Mapper119(console)
+            120 -> Mapper120(console)
             121 -> Mapper121(console)
             123 -> Mapper123(console)
             125 -> Lh32(console)
