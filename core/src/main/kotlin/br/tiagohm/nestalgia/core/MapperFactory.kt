@@ -158,6 +158,7 @@ object MapperFactory {
             183 -> Mapper183(console)
             184 -> Sunsoft184(console)
             185 -> Mapper185(console)
+            // 186 -> The Study Box is handled as a BIOS file, not a iNES ROM.
             187 -> Mapper187(console)
             188 -> BandaiKaraoke(console)
             189 -> Mapper189(console)
