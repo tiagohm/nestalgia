@@ -112,6 +112,7 @@ object MapperFactory {
             119 -> Mapper119(console)
             121 -> Mapper121(console)
             123 -> Mapper123(console)
+            125 -> Lh32(console)
             132 -> Txc22211a(console)
             133 -> Sachen133(console)
             134 -> Mapper134(console)
