@@ -68,6 +68,7 @@ object MapperFactory {
             54 -> NovelDiamond(console)
             62 -> Mapper062(console)
             63 -> Bmc63(console)
+            64 -> Rambo1(console)
             66 -> GxROM(console)
             70 -> Bandai74161And7432(console, false)
             71 -> BF909x(console)
