@@ -43,6 +43,7 @@ object MapperFactory {
             29 -> SealieComputing(console)
             30 -> UNROM512(console)
             31 -> NsfCart31(console)
+            32 -> IremG101(console)
             33 -> TaitoTc0190(console)
             34 -> when (val sid = data.info.subMapperId) {
                 // BnROM uses CHR RAM (so no CHR rom in the NES file)
