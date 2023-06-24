@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.A12StateChange.*
+
 class A12Watcher : Resetable, Snapshotable {
 
     private var lastCycle = 0
@@ -21,7 +23,7 @@ class A12Watcher : Resetable, Snapshotable {
     }
 
     fun updateVRAMAddress(addr: Int, frameCycle: Int, minDelay: Long = 10): A12StateChange {
-        var result = A12StateChange.NONE
+        var result = NONE
 
         if (cyclesDown > 0) {
             cyclesDown += if (lastCycle > frameCycle) {
@@ -34,12 +36,12 @@ class A12Watcher : Resetable, Snapshotable {
 
         if (addr and 0x1000 == 0) {
             if (cyclesDown == 0L) {
-                cyclesDown = 1
-                result = A12StateChange.FALL
+                cyclesDown = 1L
+                result = FALL
             }
         } else {
             if (cyclesDown > minDelay) {
-                result = A12StateChange.RISE
+                result = RISE
             }
 
             cyclesDown = 0

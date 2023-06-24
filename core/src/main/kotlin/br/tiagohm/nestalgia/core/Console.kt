@@ -609,6 +609,10 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
         (controlManager as? VsControlManager)?.insertCoin(port)
     }
 
+    fun hasControllerType(type: ControllerType): Boolean {
+        return controlManager.hasControlDevice(type)
+    }
+
     override fun saveState(s: Snapshot) {
         if (isRunning) {
             // Send any unprocessed sound to the SoundMixer.

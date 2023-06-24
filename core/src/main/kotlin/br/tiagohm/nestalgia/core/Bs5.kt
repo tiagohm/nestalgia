@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+// https://www.nesdev.org/wiki/NES_2.0_Mapper_286
+
 class Bs5(console: Console) : Mapper(console) {
 
     override val dipSwitchCount = 2

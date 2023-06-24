@@ -100,6 +100,10 @@ abstract class ControlDevice(
 
     open fun onAfterSetState() {}
 
+    open fun hasControllerType(type: ControllerType): Boolean {
+        return this.type == type
+    }
+
     override fun saveState(s: Snapshot) {
         s.write("strobe", strobe)
         s.write("state", state)

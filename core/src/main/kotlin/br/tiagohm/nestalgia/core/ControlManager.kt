@@ -229,6 +229,10 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
         controlDevices.add(device)
     }
 
+    fun hasControlDevice(type: ControllerType): Boolean {
+        return controlDevices.any { it.hasControllerType(type) }
+    }
+
     override fun saveState(s: Snapshot) {
         s.write("lagCounter", lagCounter)
         s.write("pollCounter", pollCounter)

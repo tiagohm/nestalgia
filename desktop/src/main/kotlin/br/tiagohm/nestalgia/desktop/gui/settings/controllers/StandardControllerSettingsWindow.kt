@@ -40,7 +40,9 @@ open class StandardControllerSettingsWindow(protected val keyMapping: KeyMapping
 
         buttonComboBoxes.forEach { it.converter = KeyStringConverter }
         buttonComboBoxes.forEach { it.items.setAll(KeyboardKeys.SORTED_KEYS) }
+    }
 
+    override fun onStart() {
         apply(keyMapping)
     }
 

@@ -2,6 +2,8 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.MirroringType.*
 
+// https://www.nesdev.org/wiki/NES_2.0_Mapper_290
+
 class BmcNtd03(console: Console) : Mapper(console) {
 
     override val prgPageSize = 0x4000

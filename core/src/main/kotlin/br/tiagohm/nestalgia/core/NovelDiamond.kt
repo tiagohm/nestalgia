@@ -1,5 +1,6 @@
 package br.tiagohm.nestalgia.core
 
+// https://wiki.nesdev.com/w/index.php/INES_Mapper_054
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_201
 
 class NovelDiamond(console: Console) : Mapper(console) {
