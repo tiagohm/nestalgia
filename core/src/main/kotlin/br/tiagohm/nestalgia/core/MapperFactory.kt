@@ -235,6 +235,7 @@ object MapperFactory {
             254 -> Mapper254(console)
             255 -> Bmc255(console)
             263 -> MMC3Kof97(console)
+            265 -> T262(console)
             286 -> Bs5(console)
             290 -> BmcNtd03(console)
             328 -> Rt01(console)
