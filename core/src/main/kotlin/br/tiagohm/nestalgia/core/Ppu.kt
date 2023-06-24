@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.EmulationFlag.*
+import br.tiagohm.nestalgia.core.MemoryOperationType.*
 import br.tiagohm.nestalgia.core.PpuModel.*
 import br.tiagohm.nestalgia.core.PpuRegister.*
 import br.tiagohm.nestalgia.core.RamPowerOnState.*
@@ -1181,7 +1182,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Initial
                     openBusMask = 0xFF
                 } else {
                     result = memoryReadBuffer
-                    memoryReadBuffer = readVRam(ppuBusAddress and 0x3FFF)
+                    memoryReadBuffer = readVRam(ppuBusAddress and 0x3FFF, READ)
 
                     if ((ppuBusAddress and 0x3FFF) >= 0x3F00 && !settings.flag(DISABLE_PALETTE_READ)) {
                         result = readPaletteRam(ppuBusAddress) or (openBus and 0xC0)
@@ -1279,9 +1280,9 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Initial
         return paletteRAM[a] and paletteRamMask
     }
 
-    protected fun readVRam(addr: Int): Int {
+    protected fun readVRam(addr: Int, type: MemoryOperationType = PPU_RENDERING_READ): Int {
         busAddress(addr)
-        return console.mapper!!.readVRAM(addr)
+        return console.mapper!!.readVRAM(addr, type)
     }
 
     protected fun writeVRam(addr: Int, value: Int) {
