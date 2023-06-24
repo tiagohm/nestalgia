@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+// https://www.nesdev.org/wiki/NES_2.0_Mapper_346
+
 class Kaiser7012(console: Console) : Mapper(console) {
 
     override val prgPageSize = 0x8000

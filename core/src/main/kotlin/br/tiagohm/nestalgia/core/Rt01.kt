@@ -2,6 +2,8 @@ package br.tiagohm.nestalgia.core
 
 import kotlin.random.Random
 
+// https://www.nesdev.org/wiki/NES_2.0_Mapper_328
+
 class Rt01(console: Console) : Mapper(console) {
 
     override val prgPageSize = 0x4000

@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+// https://www.nesdev.org/wiki/NES_2.0_Mapper_513
+
 class Sachen9602(console: Console) : MMC3(console) {
 
     override val chrRamSize = 0x8000
