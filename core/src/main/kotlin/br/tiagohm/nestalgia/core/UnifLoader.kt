@@ -159,7 +159,7 @@ object UnifLoader {
             prgChr.crc32(), prgChr.md5(), prgChr.sha1(), prgChr.sha256(),
         )
 
-        val db = GameDatabase[hash.crc32]
+        // val db = GameDatabase[hash.crc32]
 
         val info = RomInfo(
             name,
@@ -170,17 +170,17 @@ object UnifLoader {
             mirroring = mirroring,
             hash = hash,
             unifBoard = board,
-            gameInfo = db,
+            // gameInfo = db,
         )
 
-        val data = RomData(
+        return RomData(
             info,
             prgRom = prgRom,
             chrRom = chrRom,
             rawData = rom,
         )
 
-        return db?.update(data, false) ?: data
+        // return db?.update(data, false) ?: data
     }
 
     fun mapperId(board: String): Int {
