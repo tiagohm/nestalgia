@@ -160,6 +160,7 @@ object MapperFactory {
             158 -> Mapper158(console)
             159 -> Mapper159(console)
             162 -> Waixing162(console)
+            163 -> Nanjing(console)
             164 -> Waixing164(console)
             165 -> Mapper165(console)
             166 -> Subor166(console)
