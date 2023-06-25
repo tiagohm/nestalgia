@@ -84,7 +84,7 @@ class VRC24(console: Console) : Mapper(console) {
     override fun clock() {
         if (useHeuristics && info.mapperId != 22 || variant.ordinal >= VRCVariant.VRC_4A.ordinal) {
             // Only VRC4 supports IRQs.
-            vrcIrq.processCpuClock()
+            vrcIrq.clock()
         }
     }
 
