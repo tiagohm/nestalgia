@@ -2,6 +2,7 @@ package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
 import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
+import br.tiagohm.nestalgia.core.Zapper.Companion.AIM_OFFSCREEN_CUSTOM_KEY
 import br.tiagohm.nestalgia.core.ZapperButton.*
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import br.tiagohm.nestalgia.desktop.gui.converters.KeyStringConverter
@@ -31,13 +32,13 @@ class ZapperSettingsWindow(
 
     override fun onStart() {
         fireComboBox.value = keyMapping.customKey(FIRE)
-        aimOffscreenComboBox.value = keyMapping.customKey(1)
+        aimOffscreenComboBox.value = keyMapping.customKey(AIM_OFFSCREEN_CUSTOM_KEY)
         lightDetectionRadiusSlider.value = zapperDetectionRadius[port].toDouble()
     }
 
     override fun onStop() {
         keyMapping.customKey(FIRE, fireComboBox.value)
-        keyMapping.customKey(1, aimOffscreenComboBox.value)
+        keyMapping.customKey(AIM_OFFSCREEN_CUSTOM_KEY, aimOffscreenComboBox.value)
         zapperDetectionRadius[port] = lightDetectionRadiusSlider.value.toInt()
     }
 }

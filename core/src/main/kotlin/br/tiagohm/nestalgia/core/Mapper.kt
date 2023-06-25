@@ -3,6 +3,8 @@ package br.tiagohm.nestalgia.core
 import br.tiagohm.nestalgia.core.ChrMemoryType.*
 import br.tiagohm.nestalgia.core.EmulationFlag.*
 import br.tiagohm.nestalgia.core.MemoryAccessType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.READ
+import br.tiagohm.nestalgia.core.MemoryOperationType.*
 import br.tiagohm.nestalgia.core.MirroringType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.ROM
@@ -363,9 +365,7 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
         return if (page !== Pointer.NULL) page[addr.loByte] else 0
     }
 
-    fun readVRAM(addr: Int) = mapperReadVRAM(addr)
-
-    open fun mapperReadVRAM(addr: Int) = internalReadVRAM(addr)
+    open fun readVRAM(addr: Int, type: MemoryOperationType = PPU_RENDERING_READ) = internalReadVRAM(addr)
 
     fun internalReadVRAM(addr: Int): Int {
         val hi = addr.hiByte

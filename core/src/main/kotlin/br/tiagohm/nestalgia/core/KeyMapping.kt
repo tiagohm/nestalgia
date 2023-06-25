@@ -12,7 +12,7 @@ data class KeyMapping(
     @JvmField var microphone: Key = Key.UNDEFINED,
     @JvmField var turboA: Key = Key.UNDEFINED,
     @JvmField var turboB: Key = Key.UNDEFINED,
-    @JvmField val customKeys: Array<Key> = Array(100) { Key.UNDEFINED },
+    @JvmField val customKeys: Array<Key> = Array(256) { Key.UNDEFINED },
 ) : Snapshotable, Resetable {
 
     fun key(button: ControllerButton) = when (button) {
@@ -46,7 +46,7 @@ data class KeyMapping(
     }
 
     fun customKey(button: ControllerButton): Key {
-        return if (button.isCustomKey) customKey(button.bit) else Key.UNDEFINED
+        return if (button is HasCustomKey) customKey(button.keyIndex) else Key.UNDEFINED
     }
 
     fun customKey(index: Int): Key {
@@ -54,7 +54,9 @@ data class KeyMapping(
     }
 
     fun customKey(button: ControllerButton, key: Key) {
-        customKey(button.bit, key)
+        if (button is HasCustomKey) {
+            customKey(button.keyIndex, key)
+        }
     }
 
     fun customKey(index: Int, key: Key) {

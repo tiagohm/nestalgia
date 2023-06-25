@@ -13,7 +13,7 @@ class Zapper(
     private var y = 0
 
     private val fireKey = keyMapping.key(FIRE)
-    private val aimOffscreenKey = keyMapping.customKey(1)
+    private val aimOffscreenKey = keyMapping.customKey(AIM_OFFSCREEN_CUSTOM_KEY)
 
     override fun setStateFromInput() {
         if (console.settings.isInputEnabled && console.keyManager.isKeyPressed(fireKey)) {
@@ -43,6 +43,8 @@ class Zapper(
     override fun write(addr: Int, value: Int, type: MemoryOperationType) {}
 
     companion object {
+
+        const val AIM_OFFSCREEN_CUSTOM_KEY = 255
 
         @JvmStatic
         internal fun Ppu.isLight(mx: Int, my: Int, radius: Int): Boolean {

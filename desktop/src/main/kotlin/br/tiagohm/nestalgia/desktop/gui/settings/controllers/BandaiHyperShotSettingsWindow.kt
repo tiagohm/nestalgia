@@ -1,5 +1,6 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
+import br.tiagohm.nestalgia.core.BandaiHyperShot.Companion.AIM_OFFSCREEN_CUSTOM_KEY
 import br.tiagohm.nestalgia.core.BandaiHyperShotButton.*
 import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
@@ -27,13 +28,13 @@ class BandaiHyperShotSettingsWindow(keyMapping: KeyMapping) : StandardController
         super.onStart()
 
         fireComboBox.value = keyMapping.customKey(FIRE)
-        aimOffscreenComboBox.value = keyMapping.customKey(1)
+        aimOffscreenComboBox.value = keyMapping.customKey(AIM_OFFSCREEN_CUSTOM_KEY)
     }
 
     override fun onStop() {
         super.onStop()
 
         keyMapping.customKey(FIRE, fireComboBox.value)
-        keyMapping.customKey(1, aimOffscreenComboBox.value)
+        keyMapping.customKey(AIM_OFFSCREEN_CUSTOM_KEY, aimOffscreenComboBox.value)
     }
 }

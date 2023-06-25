@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.IRQSource.*
 
-class VrcIrq(private val console: Console) : Resetable, Snapshotable {
+class VrcIrq(private val console: Console) : Resetable, Clockable, Snapshotable {
 
     private var irqReloadValue = 0
     private var irqCounter = 0
@@ -20,7 +20,7 @@ class VrcIrq(private val console: Console) : Resetable, Snapshotable {
         irqCycleMode = false
     }
 
-    fun processCpuClock() {
+    override fun clock() {
         if (irqEnabled) {
             irqPrescalerCounter -= 3
 

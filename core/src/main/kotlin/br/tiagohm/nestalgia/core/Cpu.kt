@@ -16,7 +16,7 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
 
     private val memoryManager = console.memoryManager
 
-    private var isCpuWrite = false
+    @JvmField internal var isCpuWrite = false
     private var needHalt = false
 
     private var needDummyRead = false

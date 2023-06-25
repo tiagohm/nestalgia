@@ -1,8 +1,7 @@
 package br.tiagohm.nestalgia.core
 
-enum class BandaiHyperShotButton(override val bit: Int) : ControllerButton {
+enum class BandaiHyperShotButton(override val bit: Int) : ControllerButton, HasCustomKey {
     FIRE(9);
 
-    override val isCustomKey
-        get() = true
+    override val keyIndex = 2
 }

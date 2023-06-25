@@ -434,7 +434,7 @@ class MMC5(console: Console) : Mapper(console) {
         }
     }
 
-    override fun mapperReadVRAM(addr: Int): Int {
+    override fun readVRAM(addr: Int, type: MemoryOperationType): Int {
         val isNtFetch = addr in 0x2000..0x2FFF && addr and 0x3FF < 0x3C0
 
         if (isNtFetch) {

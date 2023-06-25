@@ -34,7 +34,7 @@ open class VRC6(console: Console) : Mapper(console) {
     }
 
     override fun clock() {
-        vrcIrq.processCpuClock()
+        vrcIrq.clock()
         audio.clock()
     }
 

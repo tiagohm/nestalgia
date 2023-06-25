@@ -159,7 +159,7 @@ data class GameInfo(
             val ppuModel = PpuModel.entries[parts[17].toIntOrNull()?.let { if (it > 10) 0 else it } ?: 0]
 
             if (mapper == 65000) {
-                mapper = UnifLoader.getMapperId(board)
+                mapper = UnifLoader.mapperId(board)
             }
 
             return GameInfo(

@@ -8,7 +8,7 @@ class BandaiHyperShot(console: Console, keyMapping: KeyMapping) : StandardContro
 
     private var hyperShotStateBuffer = 0
     private val fireKey = keyMapping.key(FIRE)
-    private val aimOffscreenKey = keyMapping.customKey(1)
+    private val aimOffscreenKey = keyMapping.customKey(AIM_OFFSCREEN_CUSTOM_KEY)
     private var x = 0
     private var y = 0
 
@@ -57,5 +57,10 @@ class BandaiHyperShot(console: Console, keyMapping: KeyMapping) : StandardContro
         super.restoreState(s)
 
         hyperShotStateBuffer = s.readInt("hyperShotStateBuffer")
+    }
+
+    companion object {
+
+        const val AIM_OFFSCREEN_CUSTOM_KEY = 254
     }
 }
