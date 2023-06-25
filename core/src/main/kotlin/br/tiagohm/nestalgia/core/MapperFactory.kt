@@ -260,6 +260,7 @@ object MapperFactory {
             513 -> Sachen9602(console)
             FDS_MAPPER_ID -> Fds(console)
             UnifBoard.GS_2013.id -> Gs2013(console)
+            UnifBoard.GHOST_BUSTERS_63_IN_1.id -> Ghostbusters63in1(console)
             UnifBoard.UNL_PUZZLE.id -> UnlPuzzle(console)
             else -> {
                 LOG.error("{} has unsupported mapper id={}", data.info.name, id)
