@@ -258,6 +258,7 @@ object MapperFactory {
             346 -> Kaiser7012(console)
             348 -> Bmc830118C(console)
             513 -> Sachen9602(console)
+            530 -> Ax5705(console)
             FDS_MAPPER_ID -> Fds(console)
             UnifBoard.GS_2013.id -> Gs2013(console)
             UnifBoard.GHOST_BUSTERS_63_IN_1.id -> Ghostbusters63in1(console)
