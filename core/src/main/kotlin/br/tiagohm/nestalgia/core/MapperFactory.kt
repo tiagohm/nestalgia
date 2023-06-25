@@ -105,6 +105,7 @@ object MapperFactory {
             90 -> JyCompany(console)
             91 -> Mapper091(console)
             92 -> JalecoJF17AndJF19(console, true)
+            93 -> Sunsoft93(console)
             94 -> UNROM94(console)
             95 -> Mapper095(console)
             96 -> OekaKids(console)
