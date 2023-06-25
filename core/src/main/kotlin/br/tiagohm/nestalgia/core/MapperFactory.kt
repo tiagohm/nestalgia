@@ -254,6 +254,7 @@ object MapperFactory {
             331 -> Bmc12in1(console)
             332 -> Super40in1Ws(console)
             333 -> Bmc8in1(console)
+            336 -> BmcK3046(console)
             346 -> Kaiser7012(console)
             348 -> Bmc830118C(console)
             513 -> Sachen9602(console)
