@@ -1,0 +1,60 @@
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane maxHeight="-Infinity"
+            maxWidth="-Infinity"
+            minHeight="-Infinity"
+            minWidth="-Infinity"
+            xmlns="http://javafx.com/javafx/20"
+            xmlns:fx="http://javafx.com/fxml/1">
+    <VBox spacing="4.0"
+          alignment="CENTER"
+          AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0">
+        <padding>
+            <Insets topRightBottomLeft="16.0"/>
+        </padding>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <Label text="Jump (P1)"
+                   minWidth="128.0"
+                   maxWidth="128.0"/>
+            <ComboBox fx:id="jumpP1ComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <Label text="Run (P1)"
+                   minWidth="128.0"
+                   maxWidth="128.0"/>
+            <ComboBox fx:id="runP1ComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <Label text="Jump (P2)"
+                   minWidth="128.0"
+                   maxWidth="128.0"/>
+            <ComboBox fx:id="jumpP2ComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <Label text="Run (P2)"
+                   minWidth="128.0"
+                   maxWidth="128.0"/>
+            <ComboBox fx:id="runP2ComboBox"
+                      minWidth="220.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT"
+              spacing="2.0">
+            <VBox.margin>
+                <Insets top="16.0"/>
+            </VBox.margin>
+            <Button text="Clear key bindings"
+                    onAction="#clearKeyBindings"/>
+        </HBox>
+    </VBox>
+</AnchorPane>

@@ -341,6 +341,7 @@ class SettingsWindow : AbstractWindow() {
             EXCITING_BOXING -> ExcitingBoxingSettingsWindow(keyMapping)
             BANDAI_HYPER_SHOT -> BandaiHyperShotSettingsWindow(keyMapping)
             BANDAI_MICROPHONE -> BandaiMicrophoneSettingsWindow(keyMapping)
+            KONAMI_HYPER_SHOT -> KonamiHyperShotSettingsWindow(keyMapping)
             else -> return
         }
 
