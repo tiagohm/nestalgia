@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-enum class UnifBoard(val id: Int) {
+enum class UnifBoard(@JvmField internal val id: Int) {
     UNKNOWN(32768),
     MALEE(32769),
     GS_2013(32770),

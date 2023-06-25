@@ -253,7 +253,8 @@ object MapperFactory {
             348 -> Bmc830118C(console)
             513 -> Sachen9602(console)
             FDS_MAPPER_ID -> Fds(console)
-            32770 -> Gs2013(console)
+            UnifBoard.GS_2013.id -> Gs2013(console)
+            UnifBoard.UNL_PUZZLE.id -> UnlPuzzle(console)
             else -> {
                 LOG.error("{} has unsupported mapper id={}", data.info.name, id)
                 throw IOException("Unsupported mapper $id")

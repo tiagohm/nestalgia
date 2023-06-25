@@ -67,7 +67,7 @@ object UnifLoader {
                     if (board.isNotEmpty()) {
                         System.err.println("UNIF Board: $board")
 
-                        mapperId = getMapperId(board)
+                        mapperId = mapperId(board)
 
                         if (mapperId == UnifBoard.UNKNOWN.id) {
                             System.err.println("[UNIF] ERROR: Unknown board")
@@ -183,7 +183,7 @@ object UnifLoader {
         return db?.update(data, false) ?: data
     }
 
-    fun getMapperId(board: String): Int {
+    fun mapperId(board: String): Int {
         val name = when (board.substring(0, 4)) {
             "NES-",
             "UNL-",
@@ -280,7 +280,8 @@ object UnifLoader {
         "NovelDiamond9999999in1" to 201,
         "OneBus" to UnifBoard.UNKNOWN.id,
         "PEC-586" to UnifBoard.UNKNOWN.id,
-        "PUZZLE" to UnifBoard.UNL_PUZZLE.id, // Doesn't actually exist as a UNIF file (used to reassign a new mapper number to the Puzzle beta)
+        // Doesn't actually exist as a UNIF file (used to reassign a new mapper number to the Puzzle beta).
+        "PUZZLE" to UnifBoard.UNL_PUZZLE.id,
         "RESET-TXROM" to 313,
         "RET-CUFROM" to 29,
         "RROM" to 0,
