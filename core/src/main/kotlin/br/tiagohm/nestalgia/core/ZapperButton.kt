@@ -1,8 +1,7 @@
 package br.tiagohm.nestalgia.core
 
-enum class ZapperButton(override val bit: Int) : ControllerButton {
+enum class ZapperButton(override val bit: Int) : ControllerButton, HasCustomKey {
     FIRE(0);
 
-    override val isCustomKey
-        get() = true
+    override val keyIndex = 0
 }

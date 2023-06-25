@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-enum class PowerPadButton(override val bit: Int) : ControllerButton {
+enum class PowerPadButton(override val bit: Int) : ControllerButton, HasCustomKey {
     B01(0),
     B02(1),
     B03(2),
@@ -14,6 +14,5 @@ enum class PowerPadButton(override val bit: Int) : ControllerButton {
     B11(10),
     B12(11);
 
-    override val isCustomKey
-        get() = true
+    override val keyIndex = 18 + ordinal
 }

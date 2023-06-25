@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-enum class ExcitingBoxingButton(override val bit: Int) : ControllerButton {
+enum class ExcitingBoxingButton(override val bit: Int) : ControllerButton, HasCustomKey {
     HIT_BODY(5),
     HOOK_LEFT(0),
     HOOK_RIGHT(3),
@@ -10,6 +10,5 @@ enum class ExcitingBoxingButton(override val bit: Int) : ControllerButton {
     MOVE_RIGHT(1),
     STRAIGHT(7);
 
-    override val isCustomKey
-        get() = true
+    override val keyIndex = 10 + ordinal
 }
