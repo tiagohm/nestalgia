@@ -248,6 +248,7 @@ object MapperFactory {
             265 -> T262(console)
             286 -> Bs5(console)
             290 -> BmcNtd03(console)
+            309 -> Lh51(console)
             313 -> ResetTxrom(console)
             325 -> MaliSB(console)
             328 -> Rt01(console)
