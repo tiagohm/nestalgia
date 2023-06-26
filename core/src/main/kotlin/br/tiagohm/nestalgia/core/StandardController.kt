@@ -14,7 +14,8 @@ open class StandardController(
     private val turboSpeed = 2 // 0..4
     private val turboFreq = 1 shl (4 - turboSpeed) and 0xFF
 
-    private var stateBuffer = 0
+    protected var stateBuffer = 0
+        private set
 
     protected val value
         get() = (if (isPressed(A)) 0x01 else 0x00) or

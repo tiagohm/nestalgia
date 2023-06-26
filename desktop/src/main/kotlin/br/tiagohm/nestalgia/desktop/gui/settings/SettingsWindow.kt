@@ -329,7 +329,8 @@ class SettingsWindow : AbstractWindow() {
 
         val window = when (value) {
             NES_CONTROLLER,
-            FAMICOM_CONTROLLER -> StandardControllerSettingsWindow(keyMapping)
+            FAMICOM_CONTROLLER,
+            HORI_TRACK -> StandardControllerSettingsWindow(keyMapping, value)
             NES_ZAPPER,
             FAMICOM_ZAPPER -> ZapperSettingsWindow(settings.zapperDetectionRadius, keyMapping, port)
             NES_ARKANOID_CONTROLLER,

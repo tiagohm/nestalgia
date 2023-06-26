@@ -1,15 +1,16 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
-import br.tiagohm.nestalgia.core.Key
-import br.tiagohm.nestalgia.core.KeyMapping
-import br.tiagohm.nestalgia.core.KeyboardKeys
-import br.tiagohm.nestalgia.core.StandardControllerButton
+import br.tiagohm.nestalgia.core.*
+import br.tiagohm.nestalgia.core.ControllerType.*
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import br.tiagohm.nestalgia.desktop.gui.converters.KeyStringConverter
 import javafx.fxml.FXML
 import javafx.scene.control.ComboBox
 
-open class StandardControllerSettingsWindow(protected val keyMapping: KeyMapping) : AbstractWindow() {
+open class StandardControllerSettingsWindow(
+    protected val keyMapping: KeyMapping,
+    private val type: ControllerType,
+) : AbstractWindow() {
 
     override val resourceName = "StandardControllerSettings"
 
@@ -29,7 +30,12 @@ open class StandardControllerSettingsWindow(protected val keyMapping: KeyMapping
     protected lateinit var buttonComboBoxes: Array<ComboBox<Key>>
 
     override fun onCreate() {
-        title = "NES/Famicom Controller"
+        title = when (type) {
+            HORI_TRACK -> "Hori Track"
+            BANDAI_HYPER_SHOT -> "Bandai Hyper Shot"
+            else -> "NES/Famicom Controller"
+        }
+
         resizable = false
 
         buttonComboBoxes = arrayOf(

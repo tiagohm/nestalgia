@@ -133,6 +133,7 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             FAMILY_TRAINER_MAT_SIDE_A,
             FAMILY_TRAINER_MAT_SIDE_B -> FamilyTrainerMat(console, type, keyMapping)
             KONAMI_HYPER_SHOT -> KonamiHyperShot(console, keyMapping)
+            HORI_TRACK -> HoriTrack(console, keyMapping)
             else -> return null
         }
 
