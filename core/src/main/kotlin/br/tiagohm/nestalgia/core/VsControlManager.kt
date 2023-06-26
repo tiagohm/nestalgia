@@ -1,7 +1,7 @@
 package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.GameInputType.*
-import br.tiagohm.nestalgia.core.MemoryOperation.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import br.tiagohm.nestalgia.core.StandardController.Button.*
 import br.tiagohm.nestalgia.core.VsSystemType.*
 

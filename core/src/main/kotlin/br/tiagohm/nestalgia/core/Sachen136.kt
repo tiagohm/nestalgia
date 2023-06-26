@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_136
 
 @Suppress("NOTHING_TO_INLINE")
@@ -18,8 +20,8 @@ class Sachen136(console: Console) : Mapper(console) {
     override val allowRegisterRead = true
 
     override fun initialize() {
-        addRegisterRange(0x4020, 0x5FFF, MemoryOperation.ANY)
-        removeRegisterRange(0x8000, 0xFFFF, MemoryOperation.READ)
+        addRegisterRange(0x4020, 0x5FFF, READ_WRITE)
+        removeRegisterRange(0x8000, 0xFFFF, READ)
 
         selectPrgPage(0, 0)
         selectChrPage(0, 0)

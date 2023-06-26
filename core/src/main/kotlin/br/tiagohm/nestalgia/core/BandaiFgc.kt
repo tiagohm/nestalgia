@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.IRQSource.*
 import br.tiagohm.nestalgia.core.MemoryAccessType.*
-import br.tiagohm.nestalgia.core.MemoryOperation.READ
 import br.tiagohm.nestalgia.core.MirroringType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.*
 

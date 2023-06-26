@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_179
 
 class Henggedianzi179(console: Console) : Mapper(console) {
@@ -13,7 +15,7 @@ class Henggedianzi179(console: Console) : Mapper(console) {
     override val registerEndAddress = 0xFFFF
 
     override fun initialize() {
-        addRegisterRange(0x5000, 0x5FFF, MemoryOperation.WRITE)
+        addRegisterRange(0x5000, 0x5FFF, WRITE)
         selectPrgPage(0, 0)
         selectChrPage(0, 0)
     }

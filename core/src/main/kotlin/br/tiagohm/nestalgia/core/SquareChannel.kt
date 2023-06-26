@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
+
 @Suppress("NOTHING_TO_INLINE")
 open class SquareChannel(
     channel: AudioChannel,
@@ -73,9 +75,9 @@ open class SquareChannel(
 
     override fun memoryRanges(ranges: MemoryRanges) {
         if (channel1) {
-            ranges.addHandler(MemoryOperation.WRITE, 0x4000, 0x4003)
+            ranges.addHandler(WRITE, 0x4000, 0x4003)
         } else {
-            ranges.addHandler(MemoryOperation.WRITE, 0x4004, 0x4007)
+            ranges.addHandler(WRITE, 0x4004, 0x4007)
         }
     }
 

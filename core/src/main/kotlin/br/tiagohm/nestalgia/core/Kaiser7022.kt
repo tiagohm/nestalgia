@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryOperation.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import br.tiagohm.nestalgia.core.MirroringType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_175
@@ -21,7 +21,7 @@ class Kaiser7022(console: Console) : Mapper(console) {
 
     override fun initialize() {
         removeRegisterRange(0x8000, 0xFFFF, READ)
-        addRegisterRange(0xFFFC, 0xFFFC, ANY)
+        addRegisterRange(0xFFFC, 0xFFFC, READ_WRITE)
         selectPrgPage(0, 0)
     }
 

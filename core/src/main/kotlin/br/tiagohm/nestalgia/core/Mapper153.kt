@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryOperation.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
 
 class Mapper153(console: Console) : BandaiFgc(console) {
 
@@ -12,6 +12,6 @@ class Mapper153(console: Console) : BandaiFgc(console) {
 
         // Mapper 153 has regular save ram from $6000-$7FFF, need to remove the
         // register for both read & writes.
-        removeRegisterRange(0x6000, 0x7FFF, ANY)
+        removeRegisterRange(0x6000, 0x7FFF, READ_WRITE)
     }
 }

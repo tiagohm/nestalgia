@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 import br.tiagohm.nestalgia.core.ChrMemoryType.*
 import br.tiagohm.nestalgia.core.EmulationFlag.*
 import br.tiagohm.nestalgia.core.MemoryAccessType.*
-import br.tiagohm.nestalgia.core.MemoryAccessType.READ
 import br.tiagohm.nestalgia.core.MemoryOperationType.*
 import br.tiagohm.nestalgia.core.MirroringType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.*
@@ -244,7 +243,7 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
         isReadRegisterAddr.fill(false)
         isWriteRegisterAddr.fill(false)
 
-        addRegisterRange(registerStartAddress, registerEndAddress, MemoryOperation.ANY)
+        addRegisterRange(registerStartAddress, registerEndAddress, READ_WRITE)
 
         mPrgSize = data.prgRom.size
         mChrRomSize = data.chrRom.size
@@ -331,11 +330,11 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
 
     override fun memoryRanges(ranges: MemoryRanges) {
         if (info.system == GameSystem.VS_SYSTEM) {
-            ranges.addHandler(MemoryOperation.READ, 0x6000, 0xFFFF)
-            ranges.addHandler(MemoryOperation.WRITE, 0x6000, 0xFFFF)
+            ranges.addHandler(READ, 0x6000, 0xFFFF)
+            ranges.addHandler(WRITE, 0x6000, 0xFFFF)
         } else {
-            ranges.addHandler(MemoryOperation.READ, 0x4018, 0xFFFF)
-            ranges.addHandler(MemoryOperation.WRITE, 0x4018, 0xFFFF)
+            ranges.addHandler(READ, 0x4018, 0xFFFF)
+            ranges.addHandler(WRITE, 0x4018, 0xFFFF)
         }
     }
 
@@ -743,7 +742,7 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
         }
     }
 
-    protected fun addRegisterRange(start: Int, end: Int, operation: MemoryOperation = MemoryOperation.ANY) {
+    protected fun addRegisterRange(start: Int, end: Int, operation: MemoryAccessType) {
         for (i in start..end) {
             if (operation.read) {
                 isReadRegisterAddr[i] = true
@@ -754,7 +753,7 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
         }
     }
 
-    protected fun removeRegisterRange(start: Int, end: Int, operation: MemoryOperation = MemoryOperation.ANY) {
+    protected fun removeRegisterRange(start: Int, end: Int, operation: MemoryAccessType) {
         for (i in start..end) {
             if (operation.read) {
                 isReadRegisterAddr[i] = false

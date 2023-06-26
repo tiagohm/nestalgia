@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
+
 class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, Snapshotable {
 
     private val stepCycles = Array(2) { IntArray(6) }
@@ -137,7 +139,7 @@ class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, 
     }
 
     override fun memoryRanges(ranges: MemoryRanges) {
-        ranges.addHandler(MemoryOperation.WRITE, 0x4017)
+        ranges.addHandler(WRITE, 0x4017)
     }
 
     override fun write(addr: Int, value: Int, type: MemoryOperationType) {

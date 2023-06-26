@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
+
 class InternalRamHandler(
     private val ram: IntArray,
     private val mask: Int,
@@ -7,7 +9,7 @@ class InternalRamHandler(
 
     override fun memoryRanges(ranges: MemoryRanges) {
         ranges.allowOverride = true
-        ranges.addHandler(MemoryOperation.ANY, 0, 0x1FFF)
+        ranges.addHandler(READ_WRITE, 0, 0x1FFF)
     }
 
     override fun read(addr: Int, type: MemoryOperationType): Int {

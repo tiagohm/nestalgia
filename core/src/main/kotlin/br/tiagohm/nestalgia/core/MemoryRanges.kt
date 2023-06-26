@@ -16,7 +16,7 @@ class MemoryRanges {
     internal var writeSize = 0
         private set
 
-    fun addHandler(operation: MemoryOperation, start: Int, end: Int = 0) {
+    fun addHandler(operation: MemoryAccessType, start: Int, end: Int = 0) {
         val b = if (end == 0) start else end
 
         if (operation.read) {

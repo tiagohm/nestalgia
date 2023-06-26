@@ -1,8 +1,8 @@
 package br.tiagohm.nestalgia.core
 
 enum class MemoryOperationType {
-    READ,
-    WRITE,
+    MEMORY_READ,
+    MEMORY_WRITE,
     OPCODE,
     OPERAND,
     DMA_READ,

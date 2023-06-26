@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.IRQSource.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import br.tiagohm.nestalgia.core.MirroringType.*
 
 // https://wiki.nesdev.com/w/index.php/INESMapper083
@@ -25,9 +26,9 @@ class Mapper083(console: Console) : Mapper(console) {
     private var irqEnabled = false
 
     override fun initialize() {
-        addRegisterRange(0x5000, 0x5000, MemoryOperation.READ)
-        addRegisterRange(0x5100, 0x5103, MemoryOperation.ANY)
-        removeRegisterRange(0x8000, 0xFFFF, MemoryOperation.READ)
+        addRegisterRange(0x5000, 0x5000, READ)
+        addRegisterRange(0x5100, 0x5103, READ_WRITE)
+        removeRegisterRange(0x8000, 0xFFFF, READ)
 
         updateState()
     }

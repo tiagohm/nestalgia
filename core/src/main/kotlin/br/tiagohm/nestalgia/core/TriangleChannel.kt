@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
+
 class TriangleChannel(
     channel: AudioChannel,
     console: Console,
@@ -47,7 +49,7 @@ class TriangleChannel(
     }
 
     override fun memoryRanges(ranges: MemoryRanges) {
-        ranges.addHandler(MemoryOperation.WRITE, 0x4008, 0x400B)
+        ranges.addHandler(WRITE, 0x4008, 0x400B)
     }
 
     override fun write(addr: Int, value: Int, type: MemoryOperationType) {

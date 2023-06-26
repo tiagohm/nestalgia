@@ -1,5 +1,6 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
 // https://www.nesdev.org/wiki/NES_2.0_Mapper_522
@@ -15,7 +16,7 @@ class Lh10(console: Console) : Mapper(console) {
 
     override fun initialize() {
         selectChrPage(0, 0)
-        removeRegisterRange(0xC000, 0xDFFF)
+        removeRegisterRange(0xC000, 0xDFFF, READ_WRITE)
 
         updateState()
     }

@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryOperation.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_121
 
@@ -13,7 +13,7 @@ class Mapper121(console: Console) : MMC3(console) {
     override fun initialize() {
         super.initialize()
 
-        addRegisterRange(0x5000, 0x5FFF)
+        addRegisterRange(0x5000, 0x5FFF, READ_WRITE)
         removeRegisterRange(0x8000, 0xFFFF, READ)
     }
 

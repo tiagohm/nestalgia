@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryOperation.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_016
 
