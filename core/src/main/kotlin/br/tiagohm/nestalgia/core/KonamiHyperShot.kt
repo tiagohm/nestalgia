@@ -1,7 +1,7 @@
 package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.ControllerType.*
-import br.tiagohm.nestalgia.core.KonamiHyperShotButton.*
+import br.tiagohm.nestalgia.core.KonamiHyperShot.Button.*
 
 // https://www.nesdev.org/wiki/Konami_Hyper_Shot
 
@@ -10,13 +10,22 @@ class KonamiHyperShot(
     private val keyMapping: KeyMapping,
 ) : ControlDevice(console, KONAMI_HYPER_SHOT, EXP_DEVICE_PORT) {
 
+    enum class Button(override val bit: Int) : ControllerButton, HasCustomKey {
+        RUN_P1(0),
+        JUMP_P1(1),
+        RUN_P2(2),
+        JUMP_P2(3);
+
+        override val keyIndex = 3 + ordinal
+    }
+
     private var enableP1 = true
     private var enableP2 = true
 
-    private val keys = Array(4) { keyMapping.customKey(KonamiHyperShotButton.entries[it]) }
+    private val keys = Array(4) { keyMapping.customKey(Button.entries[it]) }
 
     override fun setStateFromInput() {
-        KonamiHyperShotButton.entries.forEach { setPressedState(it, keys[it.ordinal]) }
+        Button.entries.forEach { setPressedState(it, keys[it.ordinal]) }
     }
 
     override fun read(addr: Int, type: MemoryOperationType): Int {

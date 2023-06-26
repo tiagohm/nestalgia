@@ -1,10 +1,16 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.BandaiHyperShotButton.*
+import br.tiagohm.nestalgia.core.BandaiHyperShot.Button.*
 import br.tiagohm.nestalgia.core.ControllerType.*
 import br.tiagohm.nestalgia.core.Zapper.Companion.isLight
 
 class BandaiHyperShot(console: Console, keyMapping: KeyMapping) : StandardController(console, BANDAI_HYPER_SHOT, EXP_DEVICE_PORT, keyMapping) {
+
+    enum class Button(override val bit: Int) : ControllerButton, HasCustomKey {
+        FIRE(9);
+
+        override val keyIndex = 2
+    }
 
     private var hyperShotStateBuffer = 0
     private val fireKey = keyMapping.key(FIRE)

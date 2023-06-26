@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
-import br.tiagohm.nestalgia.core.ArkanoidButton.*
+import br.tiagohm.nestalgia.core.ArkanoidController.Button.*
 import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow

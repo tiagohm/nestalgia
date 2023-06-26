@@ -1,7 +1,7 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
+import br.tiagohm.nestalgia.core.BandaiHyperShot.Button.*
 import br.tiagohm.nestalgia.core.BandaiHyperShot.Companion.AIM_OFFSCREEN_CUSTOM_KEY
-import br.tiagohm.nestalgia.core.BandaiHyperShotButton.*
 import br.tiagohm.nestalgia.core.ControllerType.*
 import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping

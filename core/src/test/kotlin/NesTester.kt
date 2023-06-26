@@ -29,27 +29,25 @@ class NesTester(private val path: Path) {
         emulator.stop()
     }
 
-    private fun controllerKeys(button: ControllerButton, port: Int): KeyMapping {
-        return when (button) {
-            is PowerPadButton -> POWER_PAD_KEYS
-            else -> CONTROLLER_KEYS[port]
-        }
-    }
-
     fun press(button: ControllerButton, port: Int = 0) {
-        val keys = controllerKeys(button, port)
+        val keys = CONTROLLER_KEYS[port]
         pressedButtons[keys.key(button).code] = 1
     }
 
     fun pressAndRelease(button: ControllerButton, port: Int = 0) {
-        val keys = controllerKeys(button, port)
+        val keys = CONTROLLER_KEYS[port]
         pressedButtons[keys.key(button).code] = 2
     }
 
     fun release(button: ControllerButton, port: Int = 0) {
-        val keys = controllerKeys(button, port)
+        val keys = CONTROLLER_KEYS[port]
         pressedButtons[keys.key(button).code] = 0
     }
+
+    private val ControllerSettings.port
+        get() = if (this === console.settings.port1) 0
+        else if (this === console.settings.port2) 1
+        else 0
 
     fun ControllerSettings.configureNoControllerForThisPort() {
         type = NONE
@@ -58,11 +56,6 @@ class NesTester(private val path: Path) {
 
     fun ControllerSettings.configureStandardControllerForThisPort() {
         type = NES_CONTROLLER
-
-        val port = if (this === console.settings.port1) 0
-        else if (this === console.settings.port2) 1
-        else 0
-
         CONTROLLER_KEYS[port].copyTo(keyMapping)
     }
 
@@ -85,7 +78,7 @@ class NesTester(private val path: Path) {
 
     fun ControllerSettings.configurePowerPadForThisPort() {
         type = POWER_PAD_SIDE_A
-        POWER_PAD_KEYS.copyTo(keyMapping)
+        CONTROLLER_KEYS[port].copyTo(keyMapping)
     }
 
     private object Speaker : AudioDevice {
@@ -133,14 +126,17 @@ class NesTester(private val path: Path) {
 
     companion object {
 
-        @JvmStatic private val CONTROLLER_KEYS_1P = KeyMapping(A, B, C, D, E, F, G, H)
-        @JvmStatic private val CONTROLLER_KEYS_2P = KeyMapping(I, J, K, L, M, N, O, P)
-        @JvmStatic private val CONTROLLER_KEYS_3P = KeyMapping(Q, R, S, T, U, V, W, X)
-        @JvmStatic private val CONTROLLER_KEYS_4P = KeyMapping(Y, Z, F1, F2, F3, F4, F5, F6)
+        private val CONTROLLER_KEYS_1P = KeyMapping(A, B, C, D, E, F, G, H)
+        private val CONTROLLER_KEYS_2P = KeyMapping(I, J, K, L, M, N, O, P)
+        private val CONTROLLER_KEYS_3P = KeyMapping(Q, R, S, T, U, V, W, X)
+        private val CONTROLLER_KEYS_4P = KeyMapping(Y, Z, F1, F2, F3, F4, F5, F6)
 
-        @JvmStatic private val CONTROLLER_KEYS = arrayOf(CONTROLLER_KEYS_1P, CONTROLLER_KEYS_2P, CONTROLLER_KEYS_3P, CONTROLLER_KEYS_4P)
+        private val CONTROLLER_KEYS = arrayOf(CONTROLLER_KEYS_1P, CONTROLLER_KEYS_2P, CONTROLLER_KEYS_3P, CONTROLLER_KEYS_4P)
 
-        @JvmStatic private val POWER_PAD_CUSTOM_KEYS = arrayOf<Key>(I, J, K, L, M, N, O, P, Q, R, S, T)
-        @JvmStatic private val POWER_PAD_KEYS = KeyMapping(A, B, C, D, E, F, G, H, customKeys = POWER_PAD_CUSTOM_KEYS)
+        private val POWER_PAD_CUSTOM_KEYS = arrayOf<Key>(I, J, K, L, M, N, O, P, Q, R, S, T)
+
+        init {
+            PowerPad.Button.entries.forEach { CONTROLLER_KEYS_1P.customKey(it, POWER_PAD_CUSTOM_KEYS[it.ordinal]) }
+        }
     }
 }

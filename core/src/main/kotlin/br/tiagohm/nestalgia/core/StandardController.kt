@@ -1,7 +1,7 @@
 package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.ControllerType.*
-import br.tiagohm.nestalgia.core.StandardControllerButton.*
+import br.tiagohm.nestalgia.core.StandardController.Button.*
 
 // https://wiki.nesdev.com/w/index.php/Standard_controller
 
@@ -9,6 +9,20 @@ open class StandardController(
     console: Console, type: ControllerType, port: Int,
     private val keyMapping: KeyMapping,
 ) : ControlDevice(console, type, port) {
+
+    enum class Button(override val bit: Int) : ControllerButton {
+        UP(0),
+        DOWN(1),
+        LEFT(2),
+        RIGHT(3),
+        START(4),
+        SELECT(5),
+        B(6),
+        A(7),
+        MICROPHONE(8),
+        TURBO_B(6),
+        TURBO_A(7),
+    }
 
     private var microphoneEnabled = port == 1 && type == FAMICOM_CONTROLLER_P2
     private val turboSpeed = 2 // 0..4

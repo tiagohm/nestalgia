@@ -1,5 +1,5 @@
-import br.tiagohm.nestalgia.core.PowerPadButton.*
-import br.tiagohm.nestalgia.core.StandardControllerButton.*
+import br.tiagohm.nestalgia.core.PowerPad.Button.*
+import br.tiagohm.nestalgia.core.StandardController.Button.*
 
 // https://github.com/pinobatch/allpads-nes
 

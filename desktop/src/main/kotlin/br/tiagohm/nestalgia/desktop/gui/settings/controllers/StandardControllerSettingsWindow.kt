@@ -53,7 +53,7 @@ open class StandardControllerSettingsWindow(
     }
 
     override fun onStop() {
-        for (button in StandardControllerButton.entries) {
+        for (button in StandardController.Button.entries) {
             keyMapping.key(button, buttonComboBoxes[button.ordinal].value)
         }
     }
@@ -69,7 +69,7 @@ open class StandardControllerSettingsWindow(
     }
 
     private fun apply(keyMapping: KeyMapping) {
-        for (button in StandardControllerButton.entries) {
+        for (button in StandardController.Button.entries) {
             buttonComboBoxes[button.ordinal].value = keyMapping.key(button)
         }
     }

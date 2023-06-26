@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.ZapperButton.*
+import br.tiagohm.nestalgia.core.Zapper.Button.*
 
 // https://wiki.nesdev.com/w/index.php/Zapper
 
@@ -8,6 +8,12 @@ class Zapper(
     console: Console, type: ControllerType, port: Int,
     private val keyMapping: KeyMapping,
 ) : ControlDevice(console, type, port) {
+
+    enum class Button(override val bit: Int) : ControllerButton, HasCustomKey {
+        FIRE(0);
+
+        override val keyIndex = 0
+    }
 
     private var x = 0
     private var y = 0

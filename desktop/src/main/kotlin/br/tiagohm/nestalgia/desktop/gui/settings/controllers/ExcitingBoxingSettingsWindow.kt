@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
-import br.tiagohm.nestalgia.core.ExcitingBoxingButton
+import br.tiagohm.nestalgia.core.ExcitingBoxingController
 import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
 import br.tiagohm.nestalgia.core.KeyboardKeys
@@ -38,13 +38,13 @@ class ExcitingBoxingSettingsWindow(private val keyMapping: KeyMapping) : Abstrac
     }
 
     override fun onStart() {
-        for (button in ExcitingBoxingButton.entries) {
+        for (button in ExcitingBoxingController.Button.entries) {
             buttonComboBoxes[button.ordinal].value = keyMapping.customKey(button)
         }
     }
 
     override fun onStop() {
-        for (button in ExcitingBoxingButton.entries) {
+        for (button in ExcitingBoxingController.Button.entries) {
             keyMapping.customKey(button, buttonComboBoxes[button.ordinal].value)
         }
     }

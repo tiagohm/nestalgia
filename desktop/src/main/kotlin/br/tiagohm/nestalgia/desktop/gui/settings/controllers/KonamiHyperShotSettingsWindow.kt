@@ -3,7 +3,7 @@ package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
 import br.tiagohm.nestalgia.core.KeyboardKeys
-import br.tiagohm.nestalgia.core.KonamiHyperShotButton
+import br.tiagohm.nestalgia.core.KonamiHyperShot
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import br.tiagohm.nestalgia.desktop.gui.converters.KeyStringConverter
 import javafx.fxml.FXML
@@ -31,13 +31,13 @@ class KonamiHyperShotSettingsWindow(private val keyMapping: KeyMapping) : Abstra
     }
 
     override fun onStart() {
-        for (button in KonamiHyperShotButton.entries) {
+        for (button in KonamiHyperShot.Button.entries) {
             buttonComboBoxes[button.ordinal].value = keyMapping.customKey(button)
         }
     }
 
     override fun onStop() {
-        for (button in KonamiHyperShotButton.entries) {
+        for (button in KonamiHyperShot.Button.entries) {
             keyMapping.customKey(button, buttonComboBoxes[button.ordinal].value)
         }
     }
