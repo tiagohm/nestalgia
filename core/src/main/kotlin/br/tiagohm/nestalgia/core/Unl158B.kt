@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.MemoryAccessType.*
 
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_258
+// https://www.nesdev.org/wiki/NES_2.0_Mapper_258
 
 class Unl158B(console: Console) : MMC3(console) {
 
