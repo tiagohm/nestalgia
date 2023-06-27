@@ -21,3 +21,6 @@
 * ¹ - Minor sprite glitch
 
 > Some bugs seem to be related to incorrect region or mirroring from NesDB!
+
+* 2-in-1 - Aladdin + Lion King, The - (Mapper 260) - Após soft reset não é
+  possível selecionar o jogo 2, e o jogo 1 está com glitch.
