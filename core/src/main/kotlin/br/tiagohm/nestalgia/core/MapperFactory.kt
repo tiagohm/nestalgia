@@ -249,6 +249,7 @@ object MapperFactory {
             259 -> BmcF15(console)
             260 -> BmcHpxx(console)
             261 -> Bmc810544CA1(console)
+            262 -> StreetHeroes(console)
             263 -> MMC3Kof97(console)
             265 -> T262(console)
             286 -> Bs5(console)
