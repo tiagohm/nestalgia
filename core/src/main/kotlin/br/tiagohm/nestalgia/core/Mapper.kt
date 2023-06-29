@@ -22,6 +22,8 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
 
     open val chrRamSize = 0
 
+    open val internalRamSize = MemoryManager.INTERNAL_RAM_SIZE
+
     open val dipSwitchCount = 0
 
     open val isForceSaveRamSize = false

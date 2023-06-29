@@ -273,6 +273,7 @@ object MapperFactory {
             UnifBoard.CC21.id -> Cc21(console)
             UnifBoard.AC08.id -> Ac08(console)
             UnifBoard.UNL_PUZZLE.id -> UnlPuzzle(console)
+            UnifBoard.SSS_NROM_256.id -> FamicomBox(console)
             else -> {
                 LOG.error("{} has unsupported mapper id={}", data.info.name, id)
                 throw IOException("Unsupported mapper $id")
