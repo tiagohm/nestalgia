@@ -248,6 +248,7 @@ object MapperFactory {
             258 -> Unl158B(console)
             259 -> BmcF15(console)
             260 -> BmcHpxx(console)
+            261 -> Bmc810544CA1(console)
             263 -> MMC3Kof97(console)
             265 -> T262(console)
             286 -> Bs5(console)
