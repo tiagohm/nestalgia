@@ -253,6 +253,7 @@ object MapperFactory {
             263 -> MMC3Kof97(console)
             265 -> T262(console)
             283 -> Gs2004(console)
+            285 -> A65AS(console)
             286 -> Bs5(console)
             290 -> BmcNtd03(console)
             309 -> Lh51(console)
