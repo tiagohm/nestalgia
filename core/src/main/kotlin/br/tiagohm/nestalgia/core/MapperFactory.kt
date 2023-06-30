@@ -256,6 +256,7 @@ object MapperFactory {
             285 -> A65AS(console)
             286 -> Bs5(console)
             287 -> Bmc411120C(console)
+            288 -> Gkcx1(console)
             290 -> BmcNtd03(console)
             309 -> Lh51(console)
             313 -> ResetTxrom(console)
