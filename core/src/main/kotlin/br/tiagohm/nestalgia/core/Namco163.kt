@@ -3,8 +3,6 @@ package br.tiagohm.nestalgia.core
 import br.tiagohm.nestalgia.core.ChrMemoryType.*
 import br.tiagohm.nestalgia.core.IRQSource.*
 import br.tiagohm.nestalgia.core.MemoryAccessType.*
-import br.tiagohm.nestalgia.core.MemoryAccessType.READ
-import br.tiagohm.nestalgia.core.MemoryOperation.*
 import br.tiagohm.nestalgia.core.MirroringType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.*
 import org.slf4j.LoggerFactory
@@ -73,8 +71,8 @@ class Namco163(console: Console) : Mapper(console) {
 
         LOG.info("variant={}, autoDetectVariant={}", variant, autoDetectVariant)
 
-        addRegisterRange(0x4800, 0x5FFF, ANY)
-        removeRegisterRange(0x6000, 0xFFFF, MemoryOperation.READ)
+        addRegisterRange(0x4800, 0x5FFF, READ_WRITE)
+        removeRegisterRange(0x6000, 0xFFFF, READ)
 
         selectPrgPage(3, -1)
         updateSaveRamAccess()

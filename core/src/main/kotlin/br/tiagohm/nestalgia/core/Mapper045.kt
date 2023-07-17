@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_045
 
 class Mapper045(console: Console) : MMC3(console) {
@@ -28,7 +30,7 @@ class Mapper045(console: Console) : MMC3(console) {
     override fun reset(softReset: Boolean) {
         super.reset(softReset)
 
-        addRegisterRange(0x6000, 0x7FFF)
+        addRegisterRange(0x6000, 0x7FFF, READ_WRITE)
 
         regIndex = 0
         resetReg()
@@ -66,7 +68,7 @@ class Mapper045(console: Console) : MMC3(console) {
                 reg[regIndex] = value
                 regIndex = (regIndex + 1) and 0x03
             } else {
-                removeRegisterRange(0x6000, 0x7FFF)
+                removeRegisterRange(0x6000, 0x7FFF, READ_WRITE)
             }
 
             updateState()
@@ -89,7 +91,7 @@ class Mapper045(console: Console) : MMC3(console) {
         s.readIntArray("reg", reg) ?: resetReg()
 
         if (reg[3].bit6) {
-            removeRegisterRange(0x6000, 0x7FFF)
+            removeRegisterRange(0x6000, 0x7FFF, READ_WRITE)
         }
     }
 }

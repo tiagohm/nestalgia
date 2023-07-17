@@ -1,18 +1,31 @@
 package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.ControllerType.*
-import br.tiagohm.nestalgia.core.ExcitingBoxingButton.*
+import br.tiagohm.nestalgia.core.ExcitingBoxingController.Button.*
 
 class ExcitingBoxingController(
     console: Console,
     private val keyMapping: KeyMapping,
 ) : ControlDevice(console, EXCITING_BOXING, EXP_DEVICE_PORT) {
 
+    enum class Button(override val bit: Int) : ControllerButton, HasCustomKey {
+        HIT_BODY(5),
+        HOOK_LEFT(0),
+        HOOK_RIGHT(3),
+        JAB_LEFT(4),
+        JAB_RIGHT(6),
+        MOVE_LEFT(2),
+        MOVE_RIGHT(1),
+        STRAIGHT(7);
+
+        override val keyIndex = 10 + ordinal
+    }
+
     private var selectedSensors = false
-    private val keys = Array(8) { keyMapping.customKey(ExcitingBoxingButton.entries[it]) }
+    private val keys = Array(8) { keyMapping.customKey(Button.entries[it]) }
 
     override fun setStateFromInput() {
-        ExcitingBoxingButton.entries.forEach { setPressedState(it, keys[it.ordinal]) }
+        Button.entries.forEach { setPressedState(it, keys[it.ordinal]) }
     }
 
     override fun read(addr: Int, type: MemoryOperationType): Int {

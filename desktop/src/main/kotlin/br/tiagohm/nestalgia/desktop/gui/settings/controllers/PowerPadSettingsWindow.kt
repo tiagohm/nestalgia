@@ -44,13 +44,13 @@ class PowerPadSettingsWindow(
     }
 
     override fun onStart() {
-        for (button in PowerPadButton.entries) {
+        for (button in PowerPad.Button.entries) {
             buttonComboBoxes[button.ordinal].value = keyMapping.customKey(button)
         }
     }
 
     override fun onStop() {
-        for (button in PowerPadButton.entries) {
+        for (button in PowerPad.Button.entries) {
             keyMapping.customKey(button, buttonComboBoxes[button.ordinal].value)
         }
     }

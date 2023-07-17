@@ -3,6 +3,7 @@ package br.tiagohm.nestalgia.core
 import br.tiagohm.nestalgia.core.ConsoleType.*
 import br.tiagohm.nestalgia.core.ControlDevice.Companion.EXP_DEVICE_PORT
 import br.tiagohm.nestalgia.core.ControllerType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 
@@ -133,6 +134,7 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             FAMILY_TRAINER_MAT_SIDE_A,
             FAMILY_TRAINER_MAT_SIDE_B -> FamilyTrainerMat(console, type, keyMapping)
             KONAMI_HYPER_SHOT -> KonamiHyperShot(console, keyMapping)
+            HORI_TRACK -> HoriTrack(console, keyMapping)
             else -> return null
         }
 
@@ -193,8 +195,8 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
     }
 
     override fun memoryRanges(ranges: MemoryRanges) {
-        ranges.addHandler(MemoryOperation.READ, 0x4016, 0x4017)
-        ranges.addHandler(MemoryOperation.WRITE, 0x4016)
+        ranges.addHandler(READ, 0x4016, 0x4017)
+        ranges.addHandler(WRITE, 0x4016)
     }
 
     override fun read(addr: Int, type: MemoryOperationType): Int {

@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_132
 
 open class Txc22211a(console: Console) : Mapper(console) {
@@ -17,8 +19,8 @@ open class Txc22211a(console: Console) : Mapper(console) {
     protected val txChip = TxcChip(false)
 
     override fun initialize() {
-        addRegisterRange(0x4020, 0x5FFF, MemoryOperation.ANY)
-        removeRegisterRange(0x8000, 0xFFFF, MemoryOperation.READ)
+        addRegisterRange(0x4020, 0x5FFF, READ_WRITE)
+        removeRegisterRange(0x8000, 0xFFFF, READ)
 
         selectPrgPage(0, 0)
         selectChrPage(0, 0)

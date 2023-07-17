@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.ChrMemoryType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import br.tiagohm.nestalgia.core.MirroringType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_030
@@ -57,11 +59,11 @@ class UNROM512(console: Console) : FlashSST39SF040Mapper(console) {
             // is always mapped to 0x2000-0x3FFF (0x3EFF due to palette).
             // This "breaks" the "UNROM512_4screen_test" test ROM - was the ROM actually
             // tested on this board? Seems to contradict hardware specs.
-            addPpuMemoryMapping(0x2000, 0x3FFF, ChrMemoryType.RAM, 0x6000, MemoryAccessType.READ_WRITE)
+            addPpuMemoryMapping(0x2000, 0x3FFF, RAM, 0x6000, READ_WRITE)
         }
 
         if (hasBattery) {
-            addRegisterRange(0x8000, 0xFFFF, MemoryOperation.READ)
+            addRegisterRange(0x8000, 0xFFFF, READ)
             orgPrgRom = prgRom.copyOf()
             applySaveData()
         }

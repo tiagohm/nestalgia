@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
+
 class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, Initializable, Clockable, Snapshotable, Runnable {
 
     private var currentCycle = 0
@@ -101,8 +103,8 @@ class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, I
     }
 
     override fun memoryRanges(ranges: MemoryRanges) {
-        ranges.addHandler(MemoryOperation.READ, 0x4015)
-        ranges.addHandler(MemoryOperation.WRITE, 0x4015)
+        ranges.addHandler(READ, 0x4015)
+        ranges.addHandler(WRITE, 0x4015)
     }
 
     val status: Int

@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryOperation.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import br.tiagohm.nestalgia.core.MirroringType.*
 import org.slf4j.LoggerFactory
 
@@ -50,7 +50,7 @@ class VRC24(console: Console) : Mapper(console) {
         removeRegisterRange(0, 0xFFFF, READ)
 
         if (!useHeuristics && variant.ordinal <= VRCVariant.VRC_2C.ordinal && mWorkRamSize == 0 && mSaveRamSize == 0) {
-            addRegisterRange(0x6000, 0x7FFF, ANY)
+            addRegisterRange(0x6000, 0x7FFF, READ_WRITE)
         }
     }
 

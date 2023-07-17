@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_012
 
 class Mapper012(console: Console) : MMC3(console) {
@@ -9,7 +11,7 @@ class Mapper012(console: Console) : MMC3(console) {
     override val forceMmc3RevAIrqs = true
 
     override fun initialize() {
-        addRegisterRange(0x4020, 0x5FFF)
+        addRegisterRange(0x4020, 0x5FFF, READ_WRITE)
 
         super.initialize()
     }

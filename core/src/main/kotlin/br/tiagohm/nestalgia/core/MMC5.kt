@@ -110,7 +110,7 @@ class MMC5(console: Console) : Mapper(console) {
     override val allowRegisterRead = true
 
     override fun initialize() {
-        addRegisterRange(0xFFFA, 0xFFFB, MemoryOperation.READ)
+        addRegisterRange(0xFFFA, 0xFFFB, READ)
 
         extendedRamMode(0)
 

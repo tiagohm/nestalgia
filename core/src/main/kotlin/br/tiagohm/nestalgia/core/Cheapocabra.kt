@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_111
 // Único jogo "Ninja Ryukenden (China)" e não roda (tela verde).
 
@@ -28,10 +30,10 @@ class Cheapocabra(console: Console) : FlashSST39SF040Mapper(console) {
     override fun initialize() {
         super.initialize()
 
-        addRegisterRange(0x7000, 0x7FFF, MemoryOperation.WRITE)
+        addRegisterRange(0x7000, 0x7FFF, WRITE)
 
-        addRegisterRange(0x8000, 0xFFFF, MemoryOperation.ANY)
-        removeRegisterRange(0x5000, 0x5FFF, MemoryOperation.READ)
+        addRegisterRange(0x8000, 0xFFFF, READ_WRITE)
+        removeRegisterRange(0x5000, 0x5FFF, READ)
 
         writeRegister(0x5000, powerOnByte())
 

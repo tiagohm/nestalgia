@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
-import br.tiagohm.nestalgia.core.BandaiMicrophoneButton
+import br.tiagohm.nestalgia.core.BandaiMicrophone
 import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
 import br.tiagohm.nestalgia.core.KeyboardKeys
@@ -30,13 +30,13 @@ open class BandaiMicrophoneSettingsWindow(protected val keyMapping: KeyMapping) 
     }
 
     override fun onStart() {
-        for (button in BandaiMicrophoneButton.entries) {
+        for (button in BandaiMicrophone.Button.entries) {
             buttonComboBoxes[button.ordinal].value = keyMapping.customKey(button)
         }
     }
 
     override fun onStop() {
-        for (button in BandaiMicrophoneButton.entries) {
+        for (button in BandaiMicrophone.Button.entries) {
             keyMapping.customKey(button, buttonComboBoxes[button.ordinal].value)
         }
     }

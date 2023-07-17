@@ -3,12 +3,19 @@ package br.tiagohm.nestalgia.core
 class MemoryManager(private val console: Console) : Memory, Peekable, Resetable, Snapshotable {
 
     private val openBusHandler = OpenBusHandler()
-    private val ramReadHandlers = Array<MemoryHandler>(RAM_SIZE) { openBusHandler }
-    private val ramWriteHandlers = Array<MemoryHandler>(RAM_SIZE) { openBusHandler }
-    private val internalRam = IntArray(INTERNAL_RAM_SIZE)
-    private val internalRamHandler = InternalRamHandler(internalRam, 0x7FF)
+    private val ramReadHandlers by lazy { Array<MemoryHandler>(RAM_SIZE) { openBusHandler } }
+    private val ramWriteHandlers by lazy { Array<MemoryHandler>(RAM_SIZE) { openBusHandler } }
+    private val internalRam = IntArray(console.mapper?.internalRamSize ?: 0)
+    private val internalRamHandler by lazy { InternalRamHandler(internalRam, internalRam.size - 1) }
 
     init {
+        if (console.mapper != null) {
+            require(
+                internalRam.size == INTERNAL_RAM_SIZE ||
+                    internalRam.size == FAMICOM_BOX_INTERNAL_RAM_SIZE
+            ) { "unsupported internal ram memory size" }
+        }
+
         registerIODevice(internalRamHandler)
     }
 
@@ -93,5 +100,6 @@ class MemoryManager(private val console: Console) : Memory, Peekable, Resetable,
         const val RAM_SIZE = 0x10000
         const val VRAM_SIZE = 0x4000
         const val INTERNAL_RAM_SIZE = 0x800
+        const val FAMICOM_BOX_INTERNAL_RAM_SIZE = 0x2000
     }
 }

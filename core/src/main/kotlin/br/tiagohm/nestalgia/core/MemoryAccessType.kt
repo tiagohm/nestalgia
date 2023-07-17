@@ -1,6 +1,9 @@
 package br.tiagohm.nestalgia.core
 
-enum class MemoryAccessType(val read: Boolean, val write: Boolean) {
+enum class MemoryAccessType(
+    @JvmField internal val read: Boolean,
+    @JvmField internal val write: Boolean,
+) {
     UNSPECIFIED(true, true),
     NO_ACCESS(false, false),
     READ(true, false),

@@ -1,4 +1,4 @@
-import br.tiagohm.nestalgia.core.StandardControllerButton.*
+import br.tiagohm.nestalgia.core.StandardController.Button.*
 import kotlinx.coroutines.delay
 
 class CpuTest : NesTesterSpec() {

@@ -1,5 +1,6 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import kotlin.math.abs
 
 class DeltaModulationChannel(
@@ -167,7 +168,7 @@ class DeltaModulationChannel(
         get() = bytesRemaining > 0
 
     override fun memoryRanges(ranges: MemoryRanges) {
-        ranges.addHandler(MemoryOperation.WRITE, 0x4010, 0x4013)
+        ranges.addHandler(WRITE, 0x4010, 0x4013)
     }
 
     fun needToRun(): Boolean {

@@ -1,7 +1,10 @@
 package br.tiagohm.nestalgia.desktop.input
 
-import br.tiagohm.nestalgia.core.*
+import br.tiagohm.nestalgia.core.Console
+import br.tiagohm.nestalgia.core.ControlDevice
 import br.tiagohm.nestalgia.core.ControlDevice.Companion.PORT_COUNT
+import br.tiagohm.nestalgia.core.InputProvider
+import br.tiagohm.nestalgia.core.StandardController
 import br.tiagohm.nestalgia.desktop.input.GamepadInputAction.*
 import com.studiohartman.jamepad.ControllerAxis
 import com.studiohartman.jamepad.ControllerButton
@@ -20,7 +23,7 @@ data class GamepadInputProvider(
     private val stop = AtomicBoolean(false)
 
     private val standardControllerButtonState =
-        Array(PORT_COUNT) { BooleanArray(StandardControllerButton.entries.size) }
+        Array(PORT_COUNT) { BooleanArray(StandardController.Button.entries.size) }
 
     init {
         jamepadThread = thread(true, isDaemon = true, name = "Jamepad") {
@@ -71,15 +74,15 @@ data class GamepadInputProvider(
                     val ly = controller.getAxisState(ControllerAxis.LEFTY)
 
                     if (lx > 0.7f) {
-                        state[StandardControllerButton.RIGHT.bit] = true
+                        state[StandardController.Button.RIGHT.bit] = true
                     } else if (lx < -0.7f) {
-                        state[StandardControllerButton.LEFT.bit] = true
+                        state[StandardController.Button.LEFT.bit] = true
                     }
 
                     if (ly > 0.7f) {
-                        state[StandardControllerButton.UP.bit] = true
+                        state[StandardController.Button.UP.bit] = true
                     } else if (ly < -0.7f) {
-                        state[StandardControllerButton.DOWN.bit] = true
+                        state[StandardController.Button.DOWN.bit] = true
                     }
                 }
 
@@ -90,7 +93,7 @@ data class GamepadInputProvider(
 
     override fun setInput(device: ControlDevice): Boolean {
         return if (device is StandardController) {
-            for (button in StandardControllerButton.entries) {
+            for (button in StandardController.Button.entries) {
                 if (standardControllerButtonState[device.port][button.bit]) {
                     device.setBit(button)
                 }
@@ -111,14 +114,14 @@ data class GamepadInputProvider(
     companion object {
 
         @JvmStatic private val MAP_JAMEPAD_TO_NES = mapOf(
-            ControllerButton.A to StandardControllerButton.A,
-            ControllerButton.B to StandardControllerButton.B,
-            ControllerButton.DPAD_DOWN to StandardControllerButton.DOWN,
-            ControllerButton.DPAD_UP to StandardControllerButton.UP,
-            ControllerButton.DPAD_RIGHT to StandardControllerButton.RIGHT,
-            ControllerButton.DPAD_LEFT to StandardControllerButton.LEFT,
-            ControllerButton.BACK to StandardControllerButton.SELECT,
-            ControllerButton.START to StandardControllerButton.START,
+            ControllerButton.A to StandardController.Button.A,
+            ControllerButton.B to StandardController.Button.B,
+            ControllerButton.DPAD_DOWN to StandardController.Button.DOWN,
+            ControllerButton.DPAD_UP to StandardController.Button.UP,
+            ControllerButton.DPAD_RIGHT to StandardController.Button.RIGHT,
+            ControllerButton.DPAD_LEFT to StandardController.Button.LEFT,
+            ControllerButton.BACK to StandardController.Button.SELECT,
+            ControllerButton.START to StandardController.Button.START,
         )
     }
 }

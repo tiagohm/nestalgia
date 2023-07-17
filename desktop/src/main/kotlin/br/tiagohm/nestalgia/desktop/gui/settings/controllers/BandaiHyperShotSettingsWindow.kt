@@ -1,14 +1,15 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
+import br.tiagohm.nestalgia.core.BandaiHyperShot.Button.*
 import br.tiagohm.nestalgia.core.BandaiHyperShot.Companion.AIM_OFFSCREEN_CUSTOM_KEY
-import br.tiagohm.nestalgia.core.BandaiHyperShotButton.*
+import br.tiagohm.nestalgia.core.ControllerType.*
 import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
 import br.tiagohm.nestalgia.desktop.gui.converters.KeyStringConverter
 import javafx.fxml.FXML
 import javafx.scene.control.ComboBox
 
-class BandaiHyperShotSettingsWindow(keyMapping: KeyMapping) : StandardControllerSettingsWindow(keyMapping) {
+class BandaiHyperShotSettingsWindow(keyMapping: KeyMapping) : StandardControllerSettingsWindow(keyMapping, BANDAI_HYPER_SHOT) {
 
     override val resourceName = "BandaiHyperShotSettings"
 
@@ -17,8 +18,6 @@ class BandaiHyperShotSettingsWindow(keyMapping: KeyMapping) : StandardController
 
     override fun onCreate() {
         super.onCreate()
-
-        title = "Bandai Hyper Shot"
 
         fireComboBox.converter = KeyStringConverter
         aimOffscreenComboBox.converter = KeyStringConverter

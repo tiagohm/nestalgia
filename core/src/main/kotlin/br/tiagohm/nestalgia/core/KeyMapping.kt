@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.StandardController.Button.*
+
 data class KeyMapping(
     @JvmField var a: Key = Key.UNDEFINED,
     @JvmField var b: Key = Key.UNDEFINED,
@@ -16,31 +18,31 @@ data class KeyMapping(
 ) : Snapshotable, Resetable {
 
     fun key(button: ControllerButton) = when (button) {
-        StandardControllerButton.UP -> up
-        StandardControllerButton.DOWN -> down
-        StandardControllerButton.LEFT -> left
-        StandardControllerButton.RIGHT -> right
-        StandardControllerButton.START -> start
-        StandardControllerButton.SELECT -> select
-        StandardControllerButton.B -> b
-        StandardControllerButton.A -> a
-        StandardControllerButton.MICROPHONE -> microphone
+        UP -> up
+        DOWN -> down
+        LEFT -> left
+        RIGHT -> right
+        START -> start
+        SELECT -> select
+        B -> b
+        A -> a
+        MICROPHONE -> microphone
         else -> customKey(button)
     }
 
     fun key(button: ControllerButton, key: Key) {
         when (button) {
-            StandardControllerButton.UP -> up = key
-            StandardControllerButton.DOWN -> down = key
-            StandardControllerButton.LEFT -> left = key
-            StandardControllerButton.RIGHT -> right = key
-            StandardControllerButton.START -> start = key
-            StandardControllerButton.SELECT -> select = key
-            StandardControllerButton.B -> b = key
-            StandardControllerButton.A -> a = key
-            StandardControllerButton.MICROPHONE -> microphone = key
-            StandardControllerButton.TURBO_B -> turboB = key
-            StandardControllerButton.TURBO_A -> turboA = key
+            UP -> up = key
+            DOWN -> down = key
+            LEFT -> left = key
+            RIGHT -> right = key
+            START -> start = key
+            SELECT -> select = key
+            B -> b = key
+            A -> a = key
+            MICROPHONE -> microphone = key
+            TURBO_B -> turboB = key
+            TURBO_A -> turboA = key
             else -> customKey(button, key)
         }
     }

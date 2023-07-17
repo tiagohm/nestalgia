@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_036
 
 class Txc22000(console: Console) : Mapper(console) {
@@ -18,8 +20,8 @@ class Txc22000(console: Console) : Mapper(console) {
     private var chrBank = 0
 
     override fun initialize() {
-        addRegisterRange(0x4100, 0x5FFF, MemoryOperation.ANY)
-        removeRegisterRange(0x8000, 0xFFFF, MemoryOperation.READ)
+        addRegisterRange(0x4100, 0x5FFF, READ_WRITE)
+        removeRegisterRange(0x8000, 0xFFFF, READ)
 
         chrBank = 0
 

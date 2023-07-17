@@ -9,8 +9,25 @@ open class PowerPad(
     private val keyMapping: KeyMapping,
 ) : ControlDevice(console, type, port) {
 
+    enum class Button(override val bit: Int) : ControllerButton, HasCustomKey {
+        B01(0),
+        B02(1),
+        B03(2),
+        B04(3),
+        B05(4),
+        B06(5),
+        B07(6),
+        B08(7),
+        B09(8),
+        B10(9),
+        B11(10),
+        B12(11);
+
+        override val keyIndex = 18 + ordinal
+    }
+
     private val isSideB = type == POWER_PAD_SIDE_B || type == FAMILY_TRAINER_MAT_SIDE_B
-    private val keys = Array(12) { keyMapping.customKeys[it] }
+    private val keys = Array(12) { keyMapping.customKey(Button.entries[it]) }
 
     private var stateBufferL = 0
     private var stateBufferH = 0
@@ -22,9 +39,9 @@ open class PowerPad(
 
                 if (isSideB) {
                     // Invert the order of each row.
-                    setPressedState(PowerPadButton.entries[index], keys[i * 4 + (3 - j)])
+                    setPressedState(Button.entries[index], keys[i * 4 + (3 - j)])
                 } else {
-                    setPressedState(PowerPadButton.entries[index], keys[index])
+                    setPressedState(Button.entries[index], keys[index])
                 }
             }
         }

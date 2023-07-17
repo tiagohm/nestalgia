@@ -1,7 +1,7 @@
 package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.IRQSource.*
-import br.tiagohm.nestalgia.core.MemoryOperation.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import br.tiagohm.nestalgia.core.MirroringType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
@@ -63,7 +63,7 @@ class JyCompany(console: Console) : Mapper(console) {
 
     override fun initialize() {
         removeRegisterRange(0x8000, 0xFFFF, READ)
-        addRegisterRange(0x5000, 0x5FFF, ANY)
+        addRegisterRange(0x5000, 0x5FFF, READ_WRITE)
 
         chrLatch[0] = 0
         chrLatch[1] = 4
