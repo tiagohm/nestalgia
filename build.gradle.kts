@@ -9,7 +9,7 @@ buildscript {
         classpath("com.adarshr:gradle-test-logger-plugin:3.2.0")
         classpath("com.github.gmazzo:gradle-buildconfig-plugin:3.1.0")
         classpath("org.jetbrains.kotlin:kotlin-allopen:1.9.10")
-        classpath("org.openjfx:javafx-plugin:0.0.14")
+        classpath("org.openjfx:javafx-plugin:0.1.0")
     }
 
     repositories {
