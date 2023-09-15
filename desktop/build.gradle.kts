@@ -30,7 +30,7 @@ dependencies {
     implementation("com.badlogicgames.gdx:gdx-jnigen:2.4.1") // 1.9.10
 
     implementation("org.springframework.boot:spring-boot-starter")
-    kapt("org.springframework:spring-context-indexer:6.0.11")
+    kapt("org.springframework:spring-context-indexer:6.0.12")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation(libs.logback)
