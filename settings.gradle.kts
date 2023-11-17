@@ -13,7 +13,7 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             library("okio", "com.squareup.okio:okio:3.6.0")
-            library("jackson", "com.fasterxml.jackson.core:jackson-databind:2.15.3")
+            library("jackson", "com.fasterxml.jackson.core:jackson-databind:2.16.0")
             library("csv", "de.siegmar:fastcsv:2.2.2")
             library("oshi", "com.github.oshi:oshi-core:6.4.7")
             library("logback", "ch.qos.logback:logback-classic:1.4.11")
