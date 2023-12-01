@@ -27,7 +27,7 @@ dependencies {
     // sdl2gdx's dependencies.
     implementation("com.badlogicgames.gdx:gdx:1.12.1") // 1.9.9
     implementation("com.badlogicgames.gdx:gdx-controllers:1.9.13") // 1.9.9
-    implementation("com.badlogicgames.gdx:gdx-jnigen:2.4.1") // 1.9.10
+    implementation("com.badlogicgames.gdx:gdx-jnigen:2.5.0") // 1.9.10
 
     implementation("org.springframework.boot:spring-boot-starter")
     kapt("org.springframework:spring-context-indexer:6.1.1")
