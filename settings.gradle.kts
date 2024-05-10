@@ -18,7 +18,7 @@ dependencyResolutionManagement {
             library("oshi", "com.github.oshi:oshi-core:6.6.0")
             library("logback", "ch.qos.logback:logback-classic:1.5.6")
             library("kotest-assertions-core", "io.kotest:kotest-assertions-core:5.9.0")
-            library("kotest-runner-junit5", "io.kotest:kotest-runner-junit5:5.8.1")
+            library("kotest-runner-junit5", "io.kotest:kotest-runner-junit5:5.9.0")
             bundle("kotest", listOf("kotest-assertions-core", "kotest-runner-junit5"))
         }
     }
