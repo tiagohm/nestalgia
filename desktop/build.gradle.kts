@@ -9,7 +9,7 @@ plugins {
     kotlin("kapt")
     id("maven-publish")
     id("com.github.gmazzo.buildconfig")
-    id("org.springframework.boot") version "3.3.1"
+    id("org.springframework.boot") version "3.3.2"
     id("io.spring.dependency-management") version "1.1.6"
     kotlin("plugin.spring")
     id("org.openjfx.javafxplugin")
