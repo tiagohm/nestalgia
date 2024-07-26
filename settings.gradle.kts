@@ -15,7 +15,7 @@ dependencyResolutionManagement {
             library("okio", "com.squareup.okio:okio:3.9.0")
             library("jackson", "com.fasterxml.jackson.core:jackson-databind:2.17.2")
             library("csv", "de.siegmar:fastcsv:3.2.0")
-            library("oshi", "com.github.oshi:oshi-core:6.6.1")
+            library("oshi", "com.github.oshi:oshi-core:6.6.2")
             library("logback", "ch.qos.logback:logback-classic:1.5.6")
             library("kotest-assertions-core", "io.kotest:kotest-assertions-core:5.9.1")
             library("kotest-runner-junit5", "io.kotest:kotest-runner-junit5:5.9.1")
