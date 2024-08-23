@@ -8,7 +8,7 @@ buildscript {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.20")
         classpath("com.adarshr:gradle-test-logger-plugin:4.0.0")
         classpath("com.github.gmazzo:gradle-buildconfig-plugin:3.1.0")
-        classpath("org.jetbrains.kotlin:kotlin-allopen:2.0.10")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:2.0.20")
         classpath("org.openjfx:javafx-plugin:0.1.0")
     }
 
