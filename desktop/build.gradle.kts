@@ -9,8 +9,8 @@ plugins {
     kotlin("kapt")
     id("maven-publish")
     id("com.github.gmazzo.buildconfig")
-    id("org.springframework.boot") version "3.2.2"
-    id("io.spring.dependency-management") version "1.1.4"
+    id("org.springframework.boot") version "3.3.3"
+    id("io.spring.dependency-management") version "1.1.6"
     kotlin("plugin.spring")
     id("org.openjfx.javafxplugin")
 }
@@ -27,10 +27,10 @@ dependencies {
     // sdl2gdx's dependencies.
     implementation("com.badlogicgames.gdx:gdx:1.12.1") // 1.9.9
     implementation("com.badlogicgames.gdx:gdx-controllers:1.9.13") // 1.9.9
-    implementation("com.badlogicgames.gdx:gdx-jnigen:2.5.1") // 1.9.10
+    implementation("com.badlogicgames.gdx:gdx-jnigen:2.5.2") // 1.9.10
 
     implementation("org.springframework.boot:spring-boot-starter")
-    kapt("org.springframework:spring-context-indexer:6.1.4")
+    kapt("org.springframework:spring-context-indexer:6.1.12")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation(libs.logback)
