@@ -1,12 +1,11 @@
 package br.tiagohm.nestalgia.core
 
-import java.io.Closeable
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-class VideoRenderer(private val console: Console) : Closeable {
+data class VideoRenderer(private val console: Console) : AutoCloseable {
 
     private var stop = AtomicBoolean(false)
     private var renderThread: Thread? = null

@@ -83,15 +83,15 @@ class NesTester(private val path: Path) {
 
     private object Speaker : AudioDevice {
 
-        override fun play(buffer: ShortArray, length: Int, sampleRate: Int, stereo: Boolean) {}
+        override fun play(buffer: ShortArray, length: Int, sampleRate: Int, stereo: Boolean) = Unit
 
-        override fun stop() {}
+        override fun stop() = Unit
 
-        override fun pause() {}
+        override fun pause() = Unit
 
-        override fun processEndOfFrame() {}
+        override fun processEndOfFrame() = Unit
 
-        override fun close() {}
+        override fun close() = Unit
     }
 
     private inner class Video : RenderingDevice {
@@ -100,11 +100,11 @@ class NesTester(private val path: Path) {
             frameHashes.add(buffer.md5())
         }
 
-        override fun render() {}
+        override fun render() = Unit
 
-        override fun reset(softReset: Boolean) {}
+        override fun reset(softReset: Boolean) = Unit
 
-        override fun close() {}
+        override fun close() = Unit
     }
 
     private inner class Controller : KeyManager {
@@ -115,7 +115,7 @@ class NesTester(private val path: Path) {
             return pressed >= 1
         }
 
-        override fun refreshKeyState() {}
+        override fun refreshKeyState() = Unit
 
         override var mouseX = 0
             private set

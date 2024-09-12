@@ -25,6 +25,6 @@ data class StudyBoxData(
 
     companion object {
 
-        @JvmStatic val EMPTY = StudyBoxData()
+        val EMPTY = StudyBoxData()
     }
 }

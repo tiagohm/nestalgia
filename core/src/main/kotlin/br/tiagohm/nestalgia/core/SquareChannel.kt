@@ -206,7 +206,7 @@ open class SquareChannel(
 
     companion object {
 
-        @JvmStatic val DUTY_SEQUENCES = arrayOf(
+        @PublishedApi internal val DUTY_SEQUENCES = arrayOf(
             intArrayOf(0, 0, 0, 0, 0, 0, 0, 1),
             intArrayOf(0, 0, 0, 0, 0, 0, 1, 1),
             intArrayOf(0, 0, 0, 0, 1, 1, 1, 1),

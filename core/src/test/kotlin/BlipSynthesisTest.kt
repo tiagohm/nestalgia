@@ -132,7 +132,6 @@ class BlipSynthesisTest : StringSpec() {
         private const val OVERSAMPLE = Blip.BLIP_MAX_RATIO
         private const val BLIP_SIZE = 32
 
-        @JvmStatic
         private fun Blip.endFrameAndReadSamples(): ShortArray {
             val buffer = ShortArray(BLIP_SIZE)
             endFrame(BLIP_SIZE * OVERSAMPLE)

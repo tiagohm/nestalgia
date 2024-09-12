@@ -66,14 +66,12 @@ class Txc22211b(console: Console) : Mapper(console) {
 
     companion object {
 
-        @JvmStatic
-        private fun convertValue(v: Int): Int {
-            return (v and 0x01 shl 5) or
-                (v and 0x02 shl 3) or
-                (v and 0x04 shl 1) or
-                (v and 0x08 shr 1) or
-                (v and 0x10 shr 3) or
-                (v and 0x20 shr 5)
-        }
+        @Suppress("NOTHING_TO_INLINE")
+        private inline fun convertValue(v: Int) = (v and 0x01 shl 5) or
+            (v and 0x02 shl 3) or
+            (v and 0x04 shl 1) or
+            (v and 0x08 shr 1) or
+            (v and 0x10 shr 3) or
+            (v and 0x20 shr 5)
     }
 }

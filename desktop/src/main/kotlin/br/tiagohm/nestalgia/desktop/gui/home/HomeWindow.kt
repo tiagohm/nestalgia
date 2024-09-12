@@ -131,9 +131,9 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
         }
     }
 
-    override fun onAction(action: GamepadInputAction) {}
+    override fun onAction(action: GamepadInputAction) = Unit
 
-    override fun processNotification(type: NotificationType, vararg data: Any?) {}
+    override fun processNotification(type: NotificationType, vararg data: Any?) = Unit
 
     override fun loadBattery(name: String): IntArray {
         val path = Path.of("$saveDir", name)
@@ -142,7 +142,7 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
             LOG.info("loading battery. path={}", path)
             // TODO: Avoid read bytes.
             path.readBytes().toIntArray()
-        } catch (e: NoSuchFileException) {
+        } catch (_: NoSuchFileException) {
             LOG.warn("no battery found")
             IntArray(0)
         } catch (e: Throwable) {
@@ -445,11 +445,10 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
 
     companion object {
 
-        @JvmStatic private val LOG = LoggerFactory.getLogger(HomeWindow::class.java)
-        @JvmStatic private val SPEEDS = intArrayOf(100, 200, 300, 50, 25)
-        @JvmStatic private val DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        private val LOG = LoggerFactory.getLogger(HomeWindow::class.java)
+        private val SPEEDS = intArrayOf(100, 200, 300, 50, 25)
+        private val DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 
-        @JvmStatic
         private val MouseEvent.mouseButton
             get() = when (button) {
                 MIDDLE -> MouseButton.MIDDLE
@@ -457,7 +456,7 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
                 else -> LEFT
             }
 
-        @JvmStatic val FDS_BIOS by lazy {
+        internal val FDS_BIOS by lazy {
             resource(FdsBios.NINTENDO_FDS_FILENAME)
                 ?.use { it.readBytes().toIntArray() }
                 ?: IntArray(0)

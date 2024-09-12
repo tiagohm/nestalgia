@@ -187,17 +187,17 @@ class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, 
 
     companion object {
 
-        @JvmStatic private val STEP_CYCLES_NTSC = arrayOf(
+        private val STEP_CYCLES_NTSC = arrayOf(
             intArrayOf(7457, 14913, 22371, 29828, 29829, 29830),
             intArrayOf(7457, 14913, 22371, 29829, 37281, 37282),
         )
 
-        @JvmStatic private val STEP_CYCLES_PAL = arrayOf(
+        private val STEP_CYCLES_PAL = arrayOf(
             intArrayOf(8313, 16627, 24939, 33252, 33253, 33254),
             intArrayOf(8313, 16627, 24939, 33253, 41565, 41566),
         )
 
-        @JvmStatic private val FRAME_TYPE = arrayOf(
+        private val FRAME_TYPE = arrayOf(
             arrayOf(
                 FrameType.QUARTER,
                 FrameType.HALF,

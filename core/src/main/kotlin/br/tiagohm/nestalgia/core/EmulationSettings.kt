@@ -398,10 +398,10 @@ class EmulationSettings : Snapshotable, Resetable {
 
     companion object {
 
-        @JvmStatic private val LOG = LoggerFactory.getLogger(EmulationSettings::class.java)
+        private val LOG = LoggerFactory.getLogger(EmulationSettings::class.java)
 
         // @formatter:off
-        @JvmStatic private val PALETTE_LUT = arrayOf(
+        private val PALETTE_LUT = arrayOf(
             /* 2C02 */      intArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63),
             /* 2C03 */      intArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 15, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 15, 62, 63),
             /* 2C04-0001 */ intArrayOf(53, 35, 22, 34, 28, 9, 29, 21, 32, 0, 39, 5, 4, 40, 8, 32, 33, 62, 31, 41, 60, 50, 54, 18, 63, 43, 46, 30, 61, 45, 36, 1, 14, 49, 51, 42, 44, 12, 27, 20, 46, 7, 52, 6, 19, 2, 38, 46, 46, 25, 16, 10, 57, 3, 55, 23, 15, 17, 11, 13, 56, 37, 24, 58),
@@ -415,7 +415,7 @@ class EmulationSettings : Snapshotable, Resetable {
             /* 2C05-05 */   intArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 15, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 15, 62, 63),
         )
 
-        @JvmStatic private val PPU_PALETTE_ARGB = arrayOf(
+        private val PPU_PALETTE_ARGB = arrayOf(
             /* 2C02 */         intArrayOf(0xFF666666.toInt(), 0xFF002A88.toInt(), 0xFF1412A7.toInt(), 0xFF3B00A4.toInt(), 0xFF5C007E.toInt(), 0xFF6E0040.toInt(), 0xFF6C0600.toInt(), 0xFF561D00.toInt(), 0xFF333500.toInt(), 0xFF0B4800.toInt(), 0xFF005200.toInt(), 0xFF004F08.toInt(), 0xFF00404D.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFADADAD.toInt(), 0xFF155FD9.toInt(), 0xFF4240FF.toInt(), 0xFF7527FE.toInt(), 0xFFA01ACC.toInt(), 0xFFB71E7B.toInt(), 0xFFB53120.toInt(), 0xFF994E00.toInt(), 0xFF6B6D00.toInt(), 0xFF388700.toInt(), 0xFF0C9300.toInt(), 0xFF008F32.toInt(), 0xFF007C8D.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFEFF.toInt(), 0xFF64B0FF.toInt(), 0xFF9290FF.toInt(), 0xFFC676FF.toInt(), 0xFFF36AFF.toInt(), 0xFFFE6ECC.toInt(), 0xFFFE8170.toInt(), 0xFFEA9E22.toInt(), 0xFFBCBE00.toInt(), 0xFF88D800.toInt(), 0xFF5CE430.toInt(), 0xFF45E082.toInt(), 0xFF48CDDE.toInt(), 0xFF4F4F4F.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFEFF.toInt(), 0xFFC0DFFF.toInt(), 0xFFD3D2FF.toInt(), 0xFFE8C8FF.toInt(), 0xFFFBC2FF.toInt(), 0xFFFEC4EA.toInt(), 0xFFFECCC5.toInt(), 0xFFF7D8A5.toInt(), 0xFFE4E594.toInt(), 0xFFCFEF96.toInt(), 0xFFBDF4AB.toInt(), 0xFFB3F3CC.toInt(), 0xFFB5EBF2.toInt(), 0xFFB8B8B8.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt()),
             /* 2C03 */         intArrayOf(0xFF6D6D6D.toInt(), 0xFF002491.toInt(), 0xFF0000DA.toInt(), 0xFF6D48DA.toInt(), 0xFF91006D.toInt(), 0xFFB6006D.toInt(), 0xFFB62400.toInt(), 0xFF914800.toInt(), 0xFF6D4800.toInt(), 0xFF244800.toInt(), 0xFF006D24.toInt(), 0xFF009100.toInt(), 0xFF004848.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFB6B6B6.toInt(), 0xFF006DDA.toInt(), 0xFF0048FF.toInt(), 0xFF9100FF.toInt(), 0xFFB600FF.toInt(), 0xFFFF0091.toInt(), 0xFFFF0000.toInt(), 0xFFDA6D00.toInt(), 0xFF916D00.toInt(), 0xFF249100.toInt(), 0xFF009100.toInt(), 0xFF00B66D.toInt(), 0xFF009191.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFF6DB6FF.toInt(), 0xFF9191FF.toInt(), 0xFFDA6DFF.toInt(), 0xFFFF00FF.toInt(), 0xFFFF6DFF.toInt(), 0xFFFF9100.toInt(), 0xFFFFB600.toInt(), 0xFFDADA00.toInt(), 0xFF6DDA00.toInt(), 0xFF00FF00.toInt(), 0xFF48FFDA.toInt(), 0xFF00FFFF.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFFB6DAFF.toInt(), 0xFFDAB6FF.toInt(), 0xFFFFB6FF.toInt(), 0xFFFF91FF.toInt(), 0xFFFFB6B6.toInt(), 0xFFFFDA91.toInt(), 0xFFFFFF48.toInt(), 0xFFFFFF6D.toInt(), 0xFFB6FF48.toInt(), 0xFF91FF6D.toInt(), 0xFF48FFDA.toInt(), 0xFF91DAFF.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt()),
             /* 2C04-0001 */    intArrayOf(0xFFFFB6B6.toInt(), 0xFFDA6DFF.toInt(), 0xFFFF0000.toInt(), 0xFF9191FF.toInt(), 0xFF009191.toInt(), 0xFF244800.toInt(), 0xFF484848.toInt(), 0xFFFF0091.toInt(), 0xFFFFFFFF.toInt(), 0xFF6D6D6D.toInt(), 0xFFFFB600.toInt(), 0xFFB6006D.toInt(), 0xFF91006D.toInt(), 0xFFDADA00.toInt(), 0xFF6D4800.toInt(), 0xFFFFFFFF.toInt(), 0xFF6DB6FF.toInt(), 0xFFDAB66D.toInt(), 0xFF6D2400.toInt(), 0xFF6DDA00.toInt(), 0xFF91DAFF.toInt(), 0xFFDAB6FF.toInt(), 0xFFFFDA91.toInt(), 0xFF0048FF.toInt(), 0xFFFFDA00.toInt(), 0xFF48FFDA.toInt(), 0xFF000000.toInt(), 0xFF480000.toInt(), 0xFFDADADA.toInt(), 0xFF919191.toInt(), 0xFFFF00FF.toInt(), 0xFF002491.toInt(), 0xFF00006D.toInt(), 0xFFB6DAFF.toInt(), 0xFFFFB6FF.toInt(), 0xFF00FF00.toInt(), 0xFF00FFFF.toInt(), 0xFF004848.toInt(), 0xFF00B66D.toInt(), 0xFFB600FF.toInt(), 0xFF000000.toInt(), 0xFF914800.toInt(), 0xFFFF91FF.toInt(), 0xFFB62400.toInt(), 0xFF9100FF.toInt(), 0xFF0000DA.toInt(), 0xFFFF9100.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(), 0xFF249100.toInt(), 0xFFB6B6B6.toInt(), 0xFF006D24.toInt(), 0xFFB6FF48.toInt(), 0xFF6D48DA.toInt(), 0xFFFFFF00.toInt(), 0xFFDA6D00.toInt(), 0xFF004800.toInt(), 0xFF006DDA.toInt(), 0xFF009100.toInt(), 0xFF242424.toInt(), 0xFFFFFF6D.toInt(), 0xFFFF6DFF.toInt(), 0xFF916D00.toInt(), 0xFF91FF6D.toInt()),
@@ -430,7 +430,7 @@ class EmulationSettings : Snapshotable, Resetable {
         )
         // @formatter:on
 
-        @JvmStatic val DEFAULT_PALETTE = intArrayOf(
+        internal val DEFAULT_PALETTE = intArrayOf(
             0xFF666666.toInt(), 0xFF002A88.toInt(), 0xFF1412A7.toInt(), 0xFF3B00A4.toInt(),
             0xFF5C007E.toInt(), 0xFF6E0040.toInt(), 0xFF6C0600.toInt(), 0xFF561D00.toInt(),
             0xFF333500.toInt(), 0xFF0B4800.toInt(), 0xFF005200.toInt(), 0xFF004F08.toInt(),
@@ -449,7 +449,7 @@ class EmulationSettings : Snapshotable, Resetable {
             0xFFB5EBF2.toInt(), 0xFFB8B8B8.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val UNSATURATED_PALETTE = intArrayOf(
+        internal val UNSATURATED_PALETTE = intArrayOf(
             0xFF6B6B6B.toInt(), 0xFF001E87.toInt(), 0xFF1F0B96.toInt(), 0xFF3B0C87.toInt(),
             0xFF590D61.toInt(), 0xFF5E0528.toInt(), 0xFF551100.toInt(), 0xFF461B00.toInt(),
             0xFF303200.toInt(), 0xFF0A4800.toInt(), 0xFF004E00.toInt(), 0xFF004619.toInt(),
@@ -468,7 +468,7 @@ class EmulationSettings : Snapshotable, Resetable {
             0xFFB7F0EE.toInt(), 0xFFBEBEBE.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val YUV_PALETTE = intArrayOf(
+        internal val YUV_PALETTE = intArrayOf(
             0xFF666666.toInt(), 0xFF002A88.toInt(), 0xFF1412A7.toInt(), 0xFF3B00A4.toInt(),
             0xFF5C007E.toInt(), 0xFF6E0040.toInt(), 0xFF6C0700.toInt(), 0xFF561D00.toInt(),
             0xFF333500.toInt(), 0xFF0C4800.toInt(), 0xFF005200.toInt(), 0xFF004C18.toInt(),
@@ -487,7 +487,7 @@ class EmulationSettings : Snapshotable, Resetable {
             0xFFB5EBF2.toInt(), 0xFFB8B8B8.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val NESTOPIA_PALETTE = intArrayOf(
+        internal val NESTOPIA_PALETTE = intArrayOf(
             0xFF6D6D6D.toInt(), 0xFF002492.toInt(), 0xFF0000DB.toInt(), 0xFF6D49DB.toInt(),
             0xFF92006D.toInt(), 0xFFB6006D.toInt(), 0xFFB62400.toInt(), 0xFF924900.toInt(),
             0xFF6D4900.toInt(), 0xFF244900.toInt(), 0xFF006D24.toInt(), 0xFF009200.toInt(),
@@ -506,7 +506,7 @@ class EmulationSettings : Snapshotable, Resetable {
             0xFF92DBFF.toInt(), 0xFF929292.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val COMPOSITE_DIRECT_PALETTE = intArrayOf(
+        internal val COMPOSITE_DIRECT_PALETTE = intArrayOf(
             0xFF656565.toInt(), 0xFF00127D.toInt(), 0xFF18008E.toInt(), 0xFF360082.toInt(),
             0xFF56005D.toInt(), 0xFF5A0018.toInt(), 0xFF4F0500.toInt(), 0xFF381900.toInt(),
             0xFF1D3100.toInt(), 0xFF003D00.toInt(), 0xFF004100.toInt(), 0xFF003B17.toInt(),
@@ -525,7 +525,7 @@ class EmulationSettings : Snapshotable, Resetable {
             0xFFBFF1F1.toInt(), 0xFFB9B9B9.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val NES_CLASSIC_PALETTE = intArrayOf(
+        internal val NES_CLASSIC_PALETTE = intArrayOf(
             0xFF60615F.toInt(), 0xFF000083.toInt(), 0xFF1D0195.toInt(), 0xFF340875.toInt(),
             0xFF51055E.toInt(), 0xFF56000F.toInt(), 0xFF4C0700.toInt(), 0xFF372308.toInt(),
             0xFF203A0B.toInt(), 0xFF0F4B0E.toInt(), 0xFF194C16.toInt(), 0xFF02421E.toInt(),
@@ -544,7 +544,7 @@ class EmulationSettings : Snapshotable, Resetable {
             0xFFB9EAE9.toInt(), 0xFFABABAB.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val ORIGINAL_HARDWARE_PALETTE = intArrayOf(
+        internal val ORIGINAL_HARDWARE_PALETTE = intArrayOf(
             0xFF6A6D6A.toInt(), 0xFF00127D.toInt(), 0xFF1E008A.toInt(), 0xFF3B007D.toInt(),
             0xFF56005D.toInt(), 0xFF5A0018.toInt(), 0xFF4F0D00.toInt(), 0xFF381E00.toInt(),
             0xFF203100.toInt(), 0xFF003D00.toInt(), 0xFF004000.toInt(), 0xFF003B1E.toInt(),
@@ -563,7 +563,7 @@ class EmulationSettings : Snapshotable, Resetable {
             0xFFC4F6F6.toInt(), 0xFFBEC1BE.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val PVM_STYLE_PALETTE = intArrayOf(
+        internal val PVM_STYLE_PALETTE = intArrayOf(
             0xFF696964.toInt(), 0xFF001774.toInt(), 0xFF28007D.toInt(), 0xFF3E006D.toInt(),
             0xFF560057.toInt(), 0xFF5E0013.toInt(), 0xFF531A00.toInt(), 0xFF3B2400.toInt(),
             0xFF2A3000.toInt(), 0xFF143A00.toInt(), 0xFF003F00.toInt(), 0xFF003B1E.toInt(),
@@ -582,7 +582,7 @@ class EmulationSettings : Snapshotable, Resetable {
             0xFFCAF3F3.toInt(), 0xFFBEBEB9.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val SONY_CXA_2025_PALETTE = intArrayOf(
+        internal val SONY_CXA_2025_PALETTE = intArrayOf(
             0xFF585858.toInt(), 0xFF00238C.toInt(), 0xFF00139B.toInt(), 0xFF2D0585.toInt(),
             0xFF5D0052.toInt(), 0xFF7A0017.toInt(), 0xFF7A0800.toInt(), 0xFF5F1800.toInt(),
             0xFF352A00.toInt(), 0xFF093900.toInt(), 0xFF003F00.toInt(), 0xFF003C22.toInt(),
@@ -601,7 +601,7 @@ class EmulationSettings : Snapshotable, Resetable {
             0xFF91E4FE.toInt(), 0xFFACACAC.toInt(), 0xFF000000.toInt(), 0xFF000000.toInt(),
         )
 
-        @JvmStatic val WAVEBEAM_PALETTE = intArrayOf(
+        internal val WAVEBEAM_PALETTE = intArrayOf(
             0xFF6B6B6B.toInt(), 0xFF001B88.toInt(), 0xFF21009A.toInt(), 0xFF40008C.toInt(),
             0xFF600067.toInt(), 0xFF64001E.toInt(), 0xFF590800.toInt(), 0xFF481600.toInt(),
             0xFF283600.toInt(), 0xFF004500.toInt(), 0xFF004908.toInt(), 0xFF00421D.toInt(),

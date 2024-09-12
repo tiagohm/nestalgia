@@ -5,7 +5,6 @@ import java.util.*
 
 object RomLoader {
 
-    @JvmStatic
     fun load(
         rom: IntArray,
         name: String,

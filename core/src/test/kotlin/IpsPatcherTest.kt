@@ -44,12 +44,12 @@ class IpsPatcherTest : StringSpec() {
 
     companion object {
 
-        @JvmStatic private val ORIG_DATA = intArrayOf(
+        private val ORIG_DATA = intArrayOf(
             0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7,
             0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7,
         )
 
-        @JvmStatic private val MOD_DATA = intArrayOf(
+        private val MOD_DATA = intArrayOf(
             0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 4, 3, 4, 5, 6, 7,
             0, 1, 2, 3, 6, 6, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7,
         )

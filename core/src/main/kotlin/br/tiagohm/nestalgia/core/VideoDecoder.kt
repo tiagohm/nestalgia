@@ -1,11 +1,10 @@
 package br.tiagohm.nestalgia.core
 
-import java.io.Closeable
 import java.util.concurrent.Semaphore
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-class VideoDecoder(private val console: Console) : Closeable, Resetable {
+class VideoDecoder(private val console: Console) : AutoCloseable, Resetable {
 
     private val stop = AtomicBoolean()
     private val decoder = DecoderVideoFilter(console)

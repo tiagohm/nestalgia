@@ -168,7 +168,6 @@ data class KeyMapping(
 
     companion object {
 
-        @JvmStatic
         fun wasd() = KeyMapping(
             KeyboardKeys.E, KeyboardKeys.Q,
             KeyboardKeys.W, KeyboardKeys.S,
@@ -176,7 +175,6 @@ data class KeyMapping(
             KeyboardKeys.X, KeyboardKeys.Z,
         )
 
-        @JvmStatic
         fun arrowKeys() = KeyMapping(
             KeyboardKeys.L, KeyboardKeys.K,
             KeyboardKeys.UP, KeyboardKeys.DOWN,

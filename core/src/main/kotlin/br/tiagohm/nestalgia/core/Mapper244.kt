@@ -23,14 +23,14 @@ class Mapper244(console: Console) : Mapper(console) {
 
     companion object {
 
-        @JvmStatic private val LUT_PRG = arrayOf(
+        private val LUT_PRG = arrayOf(
             intArrayOf(0, 1, 2, 3),
             intArrayOf(3, 2, 1, 0),
             intArrayOf(0, 2, 1, 3),
             intArrayOf(3, 1, 2, 0),
         )
 
-        @JvmStatic private val LUT_CHR = arrayOf(
+        private val LUT_CHR = arrayOf(
             intArrayOf(0, 1, 2, 3, 4, 5, 6, 7),
             intArrayOf(0, 2, 1, 3, 4, 6, 5, 7),
             intArrayOf(0, 1, 4, 5, 2, 3, 6, 7),

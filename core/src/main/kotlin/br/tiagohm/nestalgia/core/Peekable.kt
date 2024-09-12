@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-interface Peekable {
+sealed interface Peekable {
 
     fun peek(addr: Int) = 0
 

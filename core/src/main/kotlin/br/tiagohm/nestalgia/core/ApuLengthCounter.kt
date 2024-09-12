@@ -100,7 +100,7 @@ abstract class ApuLengthCounter(
 
     companion object {
 
-        @JvmStatic protected val LC_LOOKUP_TABLE = intArrayOf(
+        private val LC_LOOKUP_TABLE = intArrayOf(
             10, 254, 20, 2, 40, 4, 80, 6,
             160, 8, 60, 10, 14, 12, 26, 14,
             12, 16, 24, 18, 48, 20, 96, 22,

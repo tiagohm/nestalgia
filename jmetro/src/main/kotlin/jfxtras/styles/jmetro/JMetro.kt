@@ -127,11 +127,11 @@ class JMetro() {
 
     companion object {
 
-        @JvmStatic private val BASE_STYLESHEET_URL =
+        private val BASE_STYLESHEET_URL =
             Thread.currentThread().contextClassLoader.getResource("base.css")!!.toExternalForm()
-        @JvmStatic private val BASE_OTHER_LIBRARIES_STYLESHEET_URL =
+        private val BASE_OTHER_LIBRARIES_STYLESHEET_URL =
             Thread.currentThread().contextClassLoader.getResource("base-other-libraries.css")!!.toExternalForm()
-        @JvmStatic private val BASE_EXTRAS_STYLESHEET_URL =
+        private val BASE_EXTRAS_STYLESHEET_URL =
             Thread.currentThread().contextClassLoader.getResource("base-extras.css")!!.toExternalForm()
     }
 }

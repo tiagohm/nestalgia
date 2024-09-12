@@ -164,7 +164,7 @@ data class Speaker(private val console: Console) : AudioDevice {
         pause.set(true)
     }
 
-    override fun processEndOfFrame() {}
+    override fun processEndOfFrame() = Unit
 
     private inline fun updateSoundSettings() {
         val sampleRate = console.settings.sampleRate

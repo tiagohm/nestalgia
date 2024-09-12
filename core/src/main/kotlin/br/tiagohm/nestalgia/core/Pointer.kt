@@ -59,6 +59,6 @@ open class Pointer(
 
     companion object {
 
-        @JvmStatic val NULL = Pointer(IntArray(0), 0)
+        internal val NULL = Pointer(IntArray(0), 0)
     }
 }

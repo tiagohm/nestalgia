@@ -91,8 +91,7 @@ enum class KeyboardKeys(val description: String, override val code: Int) : Key {
 
     companion object {
 
-        @JvmStatic internal val ENTRIES = values()
-        @JvmStatic internal val MAPPED_ENTRIES = ENTRIES.associateBy { it.code }
-        @JvmStatic val SORTED_KEYS = ENTRIES.sortedBy { it.description }
+        internal val MAPPED_ENTRIES = entries.associateBy { it.code }
+        val SORTED_KEYS = entries.sortedBy { it.description }
     }
 }

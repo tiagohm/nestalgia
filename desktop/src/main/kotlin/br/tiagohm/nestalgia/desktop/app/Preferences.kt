@@ -54,6 +54,6 @@ class Preferences(
 
     companion object {
 
-        @JvmStatic private val LOG = LoggerFactory.getLogger(Preferences::class.java)
+        private val LOG = LoggerFactory.getLogger(Preferences::class.java)
     }
 }

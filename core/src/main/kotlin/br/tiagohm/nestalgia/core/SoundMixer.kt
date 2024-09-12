@@ -1,9 +1,8 @@
 package br.tiagohm.nestalgia.core
 
-import java.io.Closeable
 import java.util.*
 
-class SoundMixer(private val console: Console) : Resetable, Closeable, Snapshotable {
+class SoundMixer(private val console: Console) : Resetable, AutoCloseable, Snapshotable {
 
     private var clockRate = 0
     private val outputBuffer = ShortArray(MAX_SAMPLES_PER_FRAME)

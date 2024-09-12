@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.MemoryOperationType.*
 
-interface Memory {
+sealed interface Memory {
 
     fun read(addr: Int, type: MemoryOperationType = MEMORY_READ) = 0
 

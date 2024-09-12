@@ -14,10 +14,9 @@ import javafx.stage.Stage
 import jfxtras.styles.jmetro.JMetro
 import jfxtras.styles.jmetro.JMetroStyleClass
 import jfxtras.styles.jmetro.Style
-import java.io.Closeable
 import java.util.concurrent.atomic.AtomicBoolean
 
-abstract class AbstractWindow : Closeable {
+abstract class AbstractWindow : AutoCloseable {
 
     protected abstract val resourceName: String
 

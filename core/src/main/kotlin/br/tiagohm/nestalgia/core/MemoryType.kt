@@ -1,3 +1,3 @@
 package br.tiagohm.nestalgia.core
 
-interface MemoryType
+sealed interface MemoryType

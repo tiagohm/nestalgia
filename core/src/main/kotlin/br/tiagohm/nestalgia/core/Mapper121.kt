@@ -142,6 +142,6 @@ class Mapper121(console: Console) : MMC3(console) {
 
     companion object {
 
-        @JvmStatic private val LOOKUP = intArrayOf(0x83, 0x83, 0x42, 0x00)
+        private val LOOKUP = intArrayOf(0x83, 0x83, 0x42, 0x00)
     }
 }

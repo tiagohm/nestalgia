@@ -1670,10 +1670,10 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Initial
         const val PIXEL_COUNT = SCREEN_WIDTH * SCREEN_HEIGHT
         const val OAM_DECAY_CYCLE_COUNT = 3000L
 
-        @JvmStatic private val STATUS_REG_2C05E = intArrayOf(0x00, -1)
-        @JvmStatic private val STATUS_REG_NULL = intArrayOf(-1, -1)
+        private val STATUS_REG_2C05E = intArrayOf(0x00, -1)
+        private val STATUS_REG_NULL = intArrayOf(-1, -1)
 
-        @JvmStatic val PALETTE_BOOT_RAM = intArrayOf(
+        internal val PALETTE_BOOT_RAM = intArrayOf(
             0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D, //
             0x08, 0x10, 0x08, 0x24, 0x00, 0x00, 0x04, 0x2C, //
             0x09, 0x01, 0x34, 0x03, 0x00, 0x04, 0x00, 0x14, //

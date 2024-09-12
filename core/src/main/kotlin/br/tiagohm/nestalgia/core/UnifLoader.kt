@@ -4,10 +4,8 @@ import java.io.IOException
 
 object UnifLoader {
 
-    @JvmStatic
     fun load(rom: IntArray, name: String) = read(rom, name)
 
-    @JvmStatic
     private fun read(rom: IntArray, name: String): RomData {
         // Skip header, version & null bytes, start reading at first chunk
         var offset = 32

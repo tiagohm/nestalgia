@@ -82,9 +82,9 @@ open class TextFieldWithButtonSkin(protected var textField: TextField) : TextFie
         rightButtonGraphic.isVisible = shouldBeVisible
     }
 
-    protected open fun onRightButtonPressed(event: MouseEvent) {}
+    protected open fun onRightButtonPressed(event: MouseEvent) = Unit
 
-    protected open fun onRightButtonReleased(event: MouseEvent) {}
+    protected open fun onRightButtonReleased(event: MouseEvent) = Unit
 
     override fun layoutChildren(x: Double, y: Double, w: Double, h: Double) {
         super.layoutChildren(x, y, w, h)
@@ -112,7 +112,7 @@ open class TextFieldWithButtonSkin(protected var textField: TextField) : TextFie
 
         private const val RIGHT_BUTTON_VISIBLE_PROPERTY_NAME = "-right-button-visible"
 
-        @JvmStatic private val RIGHT_BUTTON_VISIBLE_META_DATA = object : CssMetaData<TextField, Boolean>(
+        private val RIGHT_BUTTON_VISIBLE_META_DATA = object : CssMetaData<TextField, Boolean>(
             RIGHT_BUTTON_VISIBLE_PROPERTY_NAME,
             BooleanConverter.getInstance(), true
         ) {
@@ -127,7 +127,7 @@ open class TextFieldWithButtonSkin(protected var textField: TextField) : TextFie
             }
         }
 
-        @JvmStatic val STYLEABLES: List<CssMetaData<out Styleable, *>>
+        val STYLEABLES: List<CssMetaData<out Styleable, *>>
 
         init {
             val styleables = ArrayList(SkinBase.getClassCssMetaData())

@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 import java.awt.image.BufferedImage
 import java.awt.image.DataBufferInt
-import java.io.Closeable
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.concurrent.ExecutorService
@@ -17,7 +16,7 @@ data class Emulator(
     @JvmField val keyManager: KeyManager,
     @JvmField val inputProviders: Iterable<InputProvider>,
     @JvmField val threadExecutor: ExecutorService = DEFAULT_THREAD_EXECUTOR,
-) : NotificationListener, Resetable, Closeable {
+) : NotificationListener, Resetable, AutoCloseable {
 
     private val emuThread = AtomicReference<Future<*>>()
 
@@ -41,7 +40,7 @@ data class Emulator(
         emuThread.getAndSet(null)?.cancel(true)
     }
 
-    override fun processNotification(type: NotificationType, vararg data: Any?) {}
+    override fun processNotification(type: NotificationType, vararg data: Any?) = Unit
 
     fun load(rom: IntArray, name: String, fdsBios: IntArray = IntArray(0)): Boolean {
         return if (console.initialize(rom, name, true, fdsBios)) {
@@ -250,6 +249,6 @@ data class Emulator(
 
     companion object {
 
-        @JvmStatic private val DEFAULT_THREAD_EXECUTOR = Executors.newSingleThreadExecutor(EmulatorThreadFactory)
+        private val DEFAULT_THREAD_EXECUTOR = Executors.newSingleThreadExecutor(EmulatorThreadFactory)
     }
 }

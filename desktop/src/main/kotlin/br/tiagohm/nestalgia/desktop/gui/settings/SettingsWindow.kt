@@ -407,7 +407,7 @@ class SettingsWindow : AbstractWindow() {
 
     companion object {
 
-        @JvmStatic private val TWO_PLAYER_ADAPTER_CONTROLLER_TYPES = listOf(
+        private val TWO_PLAYER_ADAPTER_CONTROLLER_TYPES = listOf(
             PACHINKO, SNES_MOUSE, SUBOR_MOUSE, VIRTUAL_BOY_CONTROLLER,
         )
     }

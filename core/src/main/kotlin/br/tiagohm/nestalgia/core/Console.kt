@@ -4,12 +4,11 @@ import br.tiagohm.nestalgia.core.EmulationFlag.*
 import br.tiagohm.nestalgia.core.NotificationType.*
 import br.tiagohm.nestalgia.core.Region.*
 import org.slf4j.LoggerFactory
-import java.io.Closeable
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
-class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) : Battery, Resetable, Closeable, Snapshotable, Runnable {
+data class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) : Battery, Resetable, AutoCloseable, Snapshotable, Runnable {
 
     private val pauseCounter = AtomicInteger(0)
 
@@ -647,6 +646,6 @@ class Console(@JvmField val settings: EmulationSettings = EmulationSettings()) :
 
     companion object {
 
-        @JvmStatic private val LOG = LoggerFactory.getLogger(Console::class.java)
+        private val LOG = LoggerFactory.getLogger(Console::class.java)
     }
 }

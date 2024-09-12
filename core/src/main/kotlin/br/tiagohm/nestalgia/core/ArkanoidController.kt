@@ -80,6 +80,6 @@ class ArkanoidController(
 
     companion object {
 
-        @JvmStatic private val SENSIBILITY_PX = intArrayOf(0, 16, 32, 64)
+        private val SENSIBILITY_PX = intArrayOf(0, 16, 32, 64)
     }
 }

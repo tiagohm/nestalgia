@@ -4,7 +4,7 @@ class FamilyTrainerMat(console: Console, type: ControllerType, keyMapping: KeyMa
 
     private var ignoreRows = 0
 
-    override fun refreshStateBuffer() {}
+    override fun refreshStateBuffer() = Unit
 
     override fun read(addr: Int, type: MemoryOperationType): Int {
         return if (addr == 0x4017) {

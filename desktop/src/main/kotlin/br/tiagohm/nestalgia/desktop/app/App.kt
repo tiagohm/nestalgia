@@ -22,5 +22,5 @@ class App : CommandLineRunner {
     @Bean
     fun saveDir(appDir: Path) = Path.of("$appDir", "saves").createDirectories()
 
-    override fun run(vararg args: String?) {}
+    override fun run(vararg args: String?) = Unit
 }

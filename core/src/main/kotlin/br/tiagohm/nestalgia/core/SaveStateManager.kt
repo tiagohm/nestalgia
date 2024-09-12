@@ -4,7 +4,7 @@ import java.io.IOException
 
 class SaveStateManager(private val console: Console) : Snapshotable, Resetable {
 
-    override fun reset(softReset: Boolean) {}
+    override fun reset(softReset: Boolean) = Unit
 
     override fun saveState(s: Snapshot) {
         val data = Snapshot()

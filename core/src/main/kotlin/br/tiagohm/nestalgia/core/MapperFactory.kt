@@ -7,9 +7,8 @@ object MapperFactory {
 
     const val FDS_MAPPER_ID = 65535
 
-    @JvmStatic private val LOG = LoggerFactory.getLogger(MapperFactory::class.java)
+    private val LOG = LoggerFactory.getLogger(MapperFactory::class.java)
 
-    @JvmStatic
     fun from(console: Console, data: RomData): Mapper {
         return when (val id = data.info.mapperId) {
             0 -> NROM(console)

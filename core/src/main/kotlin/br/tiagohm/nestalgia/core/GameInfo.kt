@@ -110,7 +110,6 @@ data class GameInfo(
 
     companion object {
 
-        @JvmStatic
         fun parse(line: String): GameInfo {
             val parts = line.split(";", ",")
 

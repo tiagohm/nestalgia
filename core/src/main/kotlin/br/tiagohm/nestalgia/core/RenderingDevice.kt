@@ -1,8 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import java.io.Closeable
-
-interface RenderingDevice : Resetable, Closeable {
+interface RenderingDevice : Resetable, AutoCloseable {
 
     fun updateFrame(buffer: IntArray, width: Int, height: Int)
 

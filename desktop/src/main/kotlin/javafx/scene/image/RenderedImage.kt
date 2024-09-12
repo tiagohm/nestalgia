@@ -12,6 +12,6 @@ class RenderedImage(
 
     companion object {
 
-        @JvmStatic private val PIXEL_FORMAT = PixelFormat.getIntArgbPreInstance()
+        private val PIXEL_FORMAT = PixelFormat.getIntArgbPreInstance()
     }
 }

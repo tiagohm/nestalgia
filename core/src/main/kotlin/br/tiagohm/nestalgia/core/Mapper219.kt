@@ -13,9 +13,9 @@ class Mapper219(console: Console) : MMC3(console) {
         selectChrPage8x(0, 0)
     }
 
-    override fun updatePrgMapping() {}
+    override fun updatePrgMapping() = Unit
 
-    override fun updateChrMapping() {}
+    override fun updateChrMapping() = Unit
 
     override fun writeRegister(addr: Int, value: Int) {
         if (addr < 0xA000) {

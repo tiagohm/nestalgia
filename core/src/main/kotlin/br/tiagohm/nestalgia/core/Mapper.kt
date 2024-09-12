@@ -8,13 +8,12 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.ROM
 import org.slf4j.LoggerFactory
-import java.io.Closeable
 import kotlin.math.min
 import kotlin.random.Random
 
 // https://wiki.nesdev.com/w/index.php/Mapper
 
-abstract class Mapper(@JvmField protected val console: Console) : Resetable, Battery, Peekable, MemoryHandler, Initializable, Clockable, Snapshotable, Closeable {
+abstract class Mapper(@JvmField protected val console: Console) : Resetable, Battery, Peekable, MemoryHandler, Initializable, Clockable, Snapshotable, AutoCloseable {
 
     open val prgPageSize = 0
 
@@ -135,15 +134,15 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
     private val chrMemoryOffset = IntArray(0x100)
     private val chrMemoryType = Array(0x100) { DEFAULT }
 
-    override fun close() {}
+    override fun close() = Unit
 
-    override fun reset(softReset: Boolean) {}
+    override fun reset(softReset: Boolean) = Unit
 
-    protected open fun writeRegister(addr: Int, value: Int) {}
+    protected open fun writeRegister(addr: Int, value: Int) = Unit
 
     protected open fun readRegister(addr: Int) = 0
 
-    open fun updateRegion(region: Region) {}
+    open fun updateRegion(region: Region) = Unit
 
     override fun saveBattery() {
         if (hasBattery && mSaveRamSize > 0) {
@@ -853,7 +852,7 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
         return addr shr 8
     }
 
-    open fun applySamples(buffer: ShortArray, sampleCount: Int, volume: Double) {}
+    open fun applySamples(buffer: ShortArray, sampleCount: Int, volume: Double) = Unit
 
     val dipSwitches
         get() = console.settings.dipSwitches and ((1 shl dipSwitchCount) - 1)
@@ -934,16 +933,14 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
 
     companion object {
 
-        @JvmStatic private val LOG = LoggerFactory.getLogger(Mapper::class.java)
+        private val LOG = LoggerFactory.getLogger(Mapper::class.java)
 
-        @JvmStatic
         private fun wrapPageNumber(page: Int, pageCount: Int): Int {
             // Can't use modulo for negative number because pageCount
             // is sometimes not a power of 2. (Fixes some Mapper 191 games).
             return if (page < 0) pageCount + page else page % pageCount
         }
 
-        @JvmStatic
         fun initialize(
             console: Console,
             rom: IntArray,

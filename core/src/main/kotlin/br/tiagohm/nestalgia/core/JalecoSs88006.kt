@@ -136,6 +136,6 @@ class JalecoSs88006(console: Console) : Mapper(console) {
 
     companion object {
 
-        @JvmStatic private val IRQ_MASK = intArrayOf(0xFFFF, 0x0FFF, 0x00FF, 0x000F)
+        private val IRQ_MASK = intArrayOf(0xFFFF, 0x0FFF, 0x00FF, 0x000F)
     }
 }
