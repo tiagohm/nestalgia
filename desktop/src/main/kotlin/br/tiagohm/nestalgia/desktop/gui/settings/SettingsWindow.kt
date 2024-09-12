@@ -322,8 +322,8 @@ class SettingsWindow : AbstractWindow() {
             1 -> settings.port2.keyMapping
             EXP_DEVICE_PORT -> settings.expansionPort.keyMapping
             MAPPER_INPUT_PORT -> settings.mapperPort.keyMapping
-            -1 -> settings.subPort1[subPort - 1].keyMapping
-            -EXP_DEVICE_PORT -> settings.expansionSubPort[subPort - 1].keyMapping
+            -1 -> settings.subPort1[subPort].keyMapping
+            -EXP_DEVICE_PORT -> settings.expansionSubPort[subPort].keyMapping
             else -> return
         }
 
