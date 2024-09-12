@@ -257,6 +257,7 @@ object MapperFactory {
             286 -> Bs5(console)
             287 -> Bmc411120C(console)
             288 -> Gkcx1(console)
+            289 -> Bmc60311C(console)
             290 -> BmcNtd03(console)
             299 -> Bmc11160(console)
             300 -> Bmc190in1(console)
