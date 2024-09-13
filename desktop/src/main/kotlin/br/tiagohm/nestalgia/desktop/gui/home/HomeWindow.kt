@@ -3,17 +3,20 @@ package br.tiagohm.nestalgia.desktop.gui.home
 import br.tiagohm.nestalgia.core.*
 import br.tiagohm.nestalgia.core.ControllerType.*
 import br.tiagohm.nestalgia.core.MouseButton.*
-import br.tiagohm.nestalgia.desktop.app.Preferences
+import br.tiagohm.nestalgia.desktop.aboutWindow
 import br.tiagohm.nestalgia.desktop.audio.Speaker
+import br.tiagohm.nestalgia.desktop.cheatsWindow
+import br.tiagohm.nestalgia.desktop.console
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
-import br.tiagohm.nestalgia.desktop.gui.about.AboutWindow
-import br.tiagohm.nestalgia.desktop.gui.cheats.CheatsWindow
-import br.tiagohm.nestalgia.desktop.gui.settings.SettingsWindow
 import br.tiagohm.nestalgia.desktop.helper.resource
 import br.tiagohm.nestalgia.desktop.input.GamepadInputAction
 import br.tiagohm.nestalgia.desktop.input.GamepadInputListener
 import br.tiagohm.nestalgia.desktop.input.GamepadInputProvider
 import br.tiagohm.nestalgia.desktop.input.MouseKeyboard
+import br.tiagohm.nestalgia.desktop.preferences
+import br.tiagohm.nestalgia.desktop.saveDir
+import br.tiagohm.nestalgia.desktop.screenshotDir
+import br.tiagohm.nestalgia.desktop.settingsWindow
 import br.tiagohm.nestalgia.desktop.video.Television
 import javafx.beans.InvalidationListener
 import javafx.event.ActionEvent
@@ -31,10 +34,6 @@ import javafx.stage.FileChooser
 import javafx.stage.FileChooser.*
 import javafx.stage.Stage
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.context.ConfigurableApplicationContext
-import org.springframework.stereotype.Component
 import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 import java.time.Instant
@@ -44,20 +43,9 @@ import java.time.format.DateTimeFormatter
 import javax.imageio.ImageIO
 import kotlin.io.path.*
 
-@Component
-class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stage) : AbstractWindow(),
-    GamepadInputListener, NotificationListener, BatteryProvider {
+data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInputListener, NotificationListener, BatteryProvider {
 
     override val resourceName = "Home"
-
-    @Autowired private lateinit var console: Console
-    @Autowired private lateinit var preferences: Preferences
-    @Autowired private lateinit var saveDir: Path
-    @Autowired private lateinit var screenshotDir: Path
-    @Autowired private lateinit var settingsWindow: SettingsWindow
-    @Autowired private lateinit var cheatsWindow: CheatsWindow
-    @Autowired private lateinit var aboutWindow: AboutWindow
-    @Autowired private lateinit var configurableApplicationContext: ConfigurableApplicationContext
 
     @FXML private lateinit var menuBar: MenuBar
     @FXML private lateinit var recentGamesMenu: Menu
@@ -111,7 +99,6 @@ class HomeWindow(@Autowired @Qualifier("primaryStage") override val window: Stag
     }
 
     override fun onClose() {
-        configurableApplicationContext.close()
         emulator.close()
     }
 

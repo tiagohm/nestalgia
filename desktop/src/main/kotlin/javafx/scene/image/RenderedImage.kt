@@ -1,6 +1,6 @@
 package javafx.scene.image
 
-class RenderedImage(
+data class RenderedImage(
     private val buffer: IntArray,
     private val width: Int,
     private val height: Int,

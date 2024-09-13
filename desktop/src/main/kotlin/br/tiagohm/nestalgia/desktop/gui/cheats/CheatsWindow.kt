@@ -2,28 +2,23 @@ package br.tiagohm.nestalgia.desktop.gui.cheats
 
 import br.tiagohm.nestalgia.core.CheatDatabase
 import br.tiagohm.nestalgia.core.CheatInfo
-import br.tiagohm.nestalgia.core.Console
+import br.tiagohm.nestalgia.desktop.console
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import javafx.fxml.FXML
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ListCell
 import javafx.scene.control.ListView
 import javafx.util.Callback
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Component
 
-@Component
 class CheatsWindow : AbstractWindow() {
 
     override val resourceName = "Cheats"
-
-    @Autowired private lateinit var console: Console
 
     @FXML private lateinit var cheatsListView: ListView<CheatInfo>
 
     val selectedCheats = hashSetOf<CheatInfo>()
 
-    final var saved = false
+    var saved = false
         private set
 
     override fun onCreate() {
