@@ -5,13 +5,13 @@ import br.tiagohm.nestalgia.core.MemoryAccessType.*
 class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, Snapshotable {
 
     private val stepCycles = Array(2) { IntArray(6) }
-    private var previousCycle = 0
-    private var currentStep = 0
-    private var stepMode = false // 0: 4-step mode, 1: 5-step mode
-    private var inhibitIRQ = false
-    private var blockFrameCounterTick = 0
-    private var newValue = 0
-    private var writeDelayCounter = 0
+    @Volatile private var previousCycle = 0
+    @Volatile private var currentStep = 0
+    @Volatile private var stepMode = false // 0: 4-step mode, 1: 5-step mode
+    @Volatile private var inhibitIRQ = false
+    @Volatile private var blockFrameCounterTick = 0
+    @Volatile private var newValue = 0
+    @Volatile private var writeDelayCounter = 0
 
     init {
         reset(false)

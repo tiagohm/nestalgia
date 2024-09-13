@@ -10,11 +10,11 @@ class VRC3(console: Console) : Mapper(console) {
 
     override val chrPageSize = 0x2000
 
-    private var irqEnableOnAck = false
-    private var irqEnabled = false
-    private var smallCounter = false
-    private var irqReload = 0
-    private var irqCounter = 0
+    @Volatile private var irqEnableOnAck = false
+    @Volatile private var irqEnabled = false
+    @Volatile private var smallCounter = false
+    @Volatile private var irqReload = 0
+    @Volatile private var irqCounter = 0
 
     override fun initialize() {
         selectPrgPage(1, -1)

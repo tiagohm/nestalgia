@@ -6,11 +6,11 @@ abstract class ApuEnvelope(
     mixer: SoundMixer?,
 ) : ApuLengthCounter(channel, console, mixer) {
 
-    private var constantVolume = false
-    private var start = false
-    private var divider = 0
-    private var counter = 0
-    private var mVolume = 0
+    @Volatile private var constantVolume = false
+    @Volatile private var start = false
+    @Volatile private var divider = 0
+    @Volatile private var counter = 0
+    @Volatile private var mVolume = 0
 
     fun initializeEnvelope(regValue: Int) {
         constantVolume = regValue.bit4

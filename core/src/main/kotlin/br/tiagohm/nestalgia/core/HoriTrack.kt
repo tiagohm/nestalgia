@@ -8,7 +8,7 @@ import kotlin.math.min
 
 class HoriTrack(console: Console, keyMapping: KeyMapping) : StandardController(console, HORI_TRACK, EXP_DEVICE_PORT, keyMapping) {
 
-    private var horiTrackStateBuffer = 0
+    @Volatile private var horiTrackStateBuffer = 0
 
     override fun read(addr: Int, type: MemoryOperationType): Int {
         return if (addr == 0x4016) {

@@ -19,8 +19,8 @@ class KonamiHyperShot(
         override val keyIndex = 3 + ordinal
     }
 
-    private var enableP1 = true
-    private var enableP2 = true
+    @Volatile private var enableP1 = true
+    @Volatile private var enableP2 = true
 
     private val keys = Array(4) { keyMapping.customKey(Button.entries[it]) }
 

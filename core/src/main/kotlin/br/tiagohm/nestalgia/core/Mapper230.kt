@@ -10,7 +10,7 @@ class Mapper230(console: Console) : Mapper(console) {
 
     override val chrPageSize = 0x2000
 
-    private var contraMode = false
+    @Volatile private var contraMode = false
 
     override fun initialize() {
         selectChrPage(0, 0)

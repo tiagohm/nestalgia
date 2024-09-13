@@ -9,11 +9,11 @@ import br.tiagohm.nestalgia.core.PrgMemoryType.*
 class Mapper183(console: Console) : Mapper(console) {
 
     private val chrRegs = IntArray(8)
-    private var prgReg = 0
-    private var irqCounter = 0
-    private var irqScaler = 0
-    private var irqEnabled = false
-    private var needIrq = false
+    @Volatile private var prgReg = 0
+    @Volatile private var irqCounter = 0
+    @Volatile private var irqScaler = 0
+    @Volatile private var irqEnabled = false
+    @Volatile private var needIrq = false
 
     override val prgPageSize = 0x2000
 

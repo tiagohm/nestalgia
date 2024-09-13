@@ -6,8 +6,8 @@ import br.tiagohm.nestalgia.core.IRQSource.*
 
 class Mapper106(console: Console) : Mapper(console) {
 
-    private var irqCounter = 0 // unsigned 16-bits
-    private var irqEnabled = false
+    @Volatile private var irqCounter = 0 // unsigned 16-bits
+    @Volatile private var irqEnabled = false
 
     override val prgPageSize = 0x2000
 

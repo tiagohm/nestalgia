@@ -17,7 +17,7 @@ class Sachen8259(console: Console, private val variant: Int) : Mapper(console) {
 
     override val registerEndAddress = 0x7FFF
 
-    private var currentReg = 0
+    @Volatile private var currentReg = 0
     private val regs = IntArray(8)
     private val chrOr = IntArray(3)
 

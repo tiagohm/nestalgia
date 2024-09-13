@@ -14,7 +14,7 @@ class VsSystem(console: Console) : Mapper(console) {
     override val workRamSize = 0x800
 
     private val isVsMainConsole = true
-    private var vsControlManager: VsControlManager? = null
+    @Volatile private var vsControlManager: VsControlManager? = null
 
     override fun initialize() {
         if (!isNes20) {

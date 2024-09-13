@@ -6,7 +6,7 @@ class Mapper189(console: Console) : MMC3(console) {
 
     override val registerStartAddress = 0x4120
 
-    private var prgReg = 0
+    @Volatile private var prgReg = 0
 
     override fun updateState() {
         super.updateState()

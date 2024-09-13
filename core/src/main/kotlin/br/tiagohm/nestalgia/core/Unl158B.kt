@@ -8,7 +8,7 @@ class Unl158B(console: Console) : MMC3(console) {
 
     override val allowRegisterRead = true
 
-    private var reg = 0
+    @Volatile private var reg = 0
 
     override fun initialize() {
         addRegisterRange(0x5000, 0x5FFF, READ_WRITE)

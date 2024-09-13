@@ -13,17 +13,17 @@ import org.slf4j.LoggerFactory
 class VRC24(console: Console) : Mapper(console) {
 
     private val vrcIrq = VrcIrq(console)
-    private var variant = VRCVariant.VRC_2A
-    private var useHeuristics = false
+    @Volatile private var variant = VRCVariant.VRC_2A
+    @Volatile private var useHeuristics = false
 
-    private var prgReg0 = 0
-    private var prgReg1 = 0
-    private var prgMode = 0
+    @Volatile private var prgReg0 = 0
+    @Volatile private var prgReg1 = 0
+    @Volatile private var prgMode = 0
 
     private val hiCHRRegs = IntArray(8)
     private val loCHRRegs = IntArray(8)
 
-    private var latch = 0
+    @Volatile private var latch = 0
 
     override val prgPageSize = 0x2000
 

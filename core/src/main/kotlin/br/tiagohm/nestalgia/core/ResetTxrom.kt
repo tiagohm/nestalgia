@@ -4,7 +4,7 @@ package br.tiagohm.nestalgia.core
 
 class ResetTxrom(console: Console) : MMC3(console) {
 
-    private var resetCounter = 0
+    @Volatile private var resetCounter = 0
 
     override fun reset(softReset: Boolean) {
         super.reset(softReset)

@@ -9,9 +9,9 @@ import br.tiagohm.nestalgia.core.VsSystemType.*
 
 class VsControlManager(console: Console) : ControlManager(console) {
 
-    private var refreshState = false
-    private var vsSystemType = DEFAULT
-    private var protectionCounter = 0
+    @Volatile private var refreshState = false
+    @Volatile private var vsSystemType = DEFAULT
+    @Volatile private var protectionCounter = 0
     @JvmField internal var prgChrSelectBit = 0
 
     private val input = VsInputButtons(console)

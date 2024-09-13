@@ -6,7 +6,7 @@ import br.tiagohm.nestalgia.core.MemoryAccessType.*
 
 class Mapper249(console: Console) : MMC3(console) {
 
-    private var exReg = 0
+    @Volatile private var exReg = 0
 
     override fun initialize() {
         super.initialize()

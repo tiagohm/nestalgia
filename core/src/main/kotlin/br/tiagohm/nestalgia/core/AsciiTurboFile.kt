@@ -8,8 +8,8 @@ class AsciiTurboFile(console: Console) : ControlDevice(console, ASCII_TURBO_FILE
 
     private val data = IntArray(FILE_SIZE)
 
-    private var lastWrite = 0
-    private var position = 0
+    @Volatile private var lastWrite = 0
+    @Volatile private var position = 0
 
     init {
         loadBattery()

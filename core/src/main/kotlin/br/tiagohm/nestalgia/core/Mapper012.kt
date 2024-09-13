@@ -6,7 +6,7 @@ import br.tiagohm.nestalgia.core.MemoryAccessType.*
 
 class Mapper012(console: Console) : MMC3(console) {
 
-    private var chrSelection = 0
+    @Volatile private var chrSelection = 0
 
     override val forceMmc3RevAIrqs = true
 

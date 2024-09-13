@@ -4,12 +4,12 @@ import br.tiagohm.nestalgia.core.IRQSource.*
 
 class VrcIrq(private val console: Console) : Resetable, Clockable, Snapshotable {
 
-    private var irqReloadValue = 0
-    private var irqCounter = 0
-    private var irqPrescalerCounter = 0
-    private var irqEnabled = false
-    private var irqEnabledAfterAck = false
-    private var irqCycleMode = false
+    @Volatile private var irqReloadValue = 0
+    @Volatile private var irqCounter = 0
+    @Volatile private var irqPrescalerCounter = 0
+    @Volatile private var irqEnabled = false
+    @Volatile private var irqEnabledAfterAck = false
+    @Volatile private var irqCycleMode = false
 
     override fun reset(softReset: Boolean) {
         irqReloadValue = 0

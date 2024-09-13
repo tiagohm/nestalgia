@@ -4,16 +4,16 @@ import br.tiagohm.nestalgia.core.ControllerType.*
 
 class BattleBox(console: Console) : ControlDevice(console, BATTLE_BOX, EXP_DEVICE_PORT), Battery {
 
-    private var lastWrite = 0
-    private var address = 0
-    private var chipSelect = false
+    @Volatile private var lastWrite = 0
+    @Volatile private var address = 0
+    @Volatile private var chipSelect = false
     private val data = IntArray(FILE_SIZE / 2)
-    private var output = 0
-    private var writeEnabled = false
-    private var inputBitPosition = 0
-    private var inputData = 0
-    private var isWrite = false
-    private var isRead = false
+    @Volatile private var output = 0
+    @Volatile private var writeEnabled = false
+    @Volatile private var inputBitPosition = 0
+    @Volatile private var inputData = 0
+    @Volatile private var isWrite = false
+    @Volatile private var isRead = false
 
     init {
         loadBattery()

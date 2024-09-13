@@ -20,7 +20,7 @@ class Sachen74LS374N(console: Console) : Mapper(console) {
     override val dipSwitchCount
         get() = if (info.mapperId == 150) 1 else 0
 
-    private var currentReg = 0
+    @Volatile private var currentReg = 0
     private val regs = IntArray(8)
 
     override fun initialize() {

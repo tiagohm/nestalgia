@@ -9,9 +9,9 @@ import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
 class Mapper105(console: Console) : MMC1(console) {
 
-    private var initState = 0
-    private var irqCounter = 0L
-    private var irqEnabled = false
+    @Volatile private var initState = 0
+    @Volatile private var irqCounter = 0L
+    @Volatile private var irqEnabled = false
 
     override val dipSwitchCount = 4
 

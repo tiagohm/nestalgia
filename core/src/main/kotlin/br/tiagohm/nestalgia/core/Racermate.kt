@@ -17,7 +17,7 @@ class Racermate(console: Console) : Mapper(console) {
 
     override val isForceChrBattery = true
 
-    private var irqCounter = 0
+    @Volatile private var irqCounter = 0
 
     override fun initialize() {
         selectPrgPage(1, -1)

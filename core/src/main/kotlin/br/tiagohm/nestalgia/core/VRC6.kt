@@ -11,7 +11,7 @@ open class VRC6(console: Console) : Mapper(console) {
     private val vrcIrq = VrcIrq(console)
     private val audio = VRC6Audio(console)
 
-    private var bankingMode = 0
+    @Volatile private var bankingMode = 0
     private val chrRegisters = IntArray(8)
 
     override val prgPageSize = 0x2000

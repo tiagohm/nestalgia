@@ -25,7 +25,7 @@ class TaitoX1005(console: Console, private val alternateMirroring: Boolean) : Ma
 
     override val saveRamPageSize = 0x100
 
-    private var ramPermission = 0
+    @Volatile private var ramPermission = 0
 
     override fun initialize() {
         selectPrgPage(3, -1)

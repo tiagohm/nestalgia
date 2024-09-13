@@ -15,8 +15,8 @@ class Mapper112(console: Console) : Mapper(console) {
 
     override val registerEndAddress = 0xFFFF
 
-    private var currentReg = 0
-    private var outerChrBank = 0
+    @Volatile private var currentReg = 0
+    @Volatile private var outerChrBank = 0
     private val registers = IntArray(8)
 
     override fun initialize() {

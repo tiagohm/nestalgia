@@ -7,7 +7,7 @@ import br.tiagohm.nestalgia.core.ChrMemoryType.*
 class Mapper165(console: Console) : MMC3(console) {
 
     private val chrLatch = BooleanArray(2)
-    private var needUpdate = false
+    @Volatile private var needUpdate = false
 
     override val chrPageSize = 0x1000
 

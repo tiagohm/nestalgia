@@ -4,9 +4,9 @@ package br.tiagohm.nestalgia.core
 
 class Bmc60311C(console: Console) : Mapper(console) {
 
-    private var innerPrg = 0
-    private var outerPrg = 0
-    private var mode = 0
+    @Volatile private var innerPrg = 0
+    @Volatile private var outerPrg = 0
+    @Volatile private var mode = 0
 
     override val prgPageSize = 0x4000
 

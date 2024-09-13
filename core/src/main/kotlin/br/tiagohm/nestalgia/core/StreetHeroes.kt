@@ -13,8 +13,8 @@ class StreetHeroes(console: Console) : MMC3(console) {
 
     override val allowRegisterRead = true
 
-    private var exReg = 0
-    private var resetSwitch = 0
+    @Volatile private var exReg = 0
+    @Volatile private var resetSwitch = 0
 
     override fun initialize() {
         super.initialize()

@@ -8,9 +8,9 @@ import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
 class Mapper042(console: Console) : Mapper(console) {
 
-    private var irqCounter = 0 // unsigned 16-bits
-    private var irqEnabled = false
-    private var prgReg = 0
+    @Volatile private var irqCounter = 0 // unsigned 16-bits
+    @Volatile private var irqEnabled = false
+    @Volatile private var prgReg = 0
 
     override val prgPageSize = 0x2000
 

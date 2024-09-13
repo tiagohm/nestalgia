@@ -122,8 +122,8 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
     @JvmField protected var workRam = IntArray(0)
     @JvmField protected var nametableRam = IntArray(0)
 
-    private var hasChrBattery = false
-    private var mHasBusConflicts = false
+    @Volatile private var hasChrBattery = false
+    @Volatile private var mHasBusConflicts = false
 
     private val prgMemoryAccess = Array(0x100) { NO_ACCESS }
     private val prgPages = Array(0x100) { Pointer.NULL }
@@ -176,7 +176,7 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
         }
     }
 
-    private var mMirroringType = HORIZONTAL
+    @Volatile private var mMirroringType = HORIZONTAL
 
     var mirroringType: MirroringType
         get() = mMirroringType

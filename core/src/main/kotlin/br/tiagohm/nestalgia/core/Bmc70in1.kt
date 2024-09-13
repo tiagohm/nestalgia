@@ -14,12 +14,12 @@ class Bmc70in1(console: Console) : Mapper(console) {
 
     override val dipSwitchCount = 4
 
-    private var bankMode = 0
-    private var outerBank = 0
-    private var prgReg = 0
-    private var chrReg = 0
+    @Volatile private var bankMode = 0
+    @Volatile private var outerBank = 0
+    @Volatile private var prgReg = 0
+    @Volatile private var chrReg = 0
 
-    private var useOuterBank = false
+    @Volatile private var useOuterBank = false
 
     override fun initialize() {
         useOuterBank = !hasChrRom

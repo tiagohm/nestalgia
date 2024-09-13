@@ -4,7 +4,7 @@ package br.tiagohm.nestalgia.core
 
 class Mapper052(console: Console) : MMC3(console) {
 
-    private var extraReg = 0
+    @Volatile private var extraReg = 0
 
     override val registerStartAddress = 0x6000
 

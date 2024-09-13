@@ -10,7 +10,7 @@ class Ac08(console: Console) : Mapper(console) {
 
     override val chrPageSize = 0x2000
 
-    private var reg = 0
+    @Volatile private var reg = 0
 
     override fun initialize() {
         addRegisterRange(0x4025, 0x4025, WRITE)

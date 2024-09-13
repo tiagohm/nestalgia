@@ -2,8 +2,8 @@ package br.tiagohm.nestalgia.core
 
 class McAcc(console: Console) : MMC3(console) {
 
-    private var counter = 0
-    private var prevAddr = 0
+    @Volatile private var counter = 0
+    @Volatile private var prevAddr = 0
 
     override fun writeRegister(addr: Int, value: Int) {
         // Writing to $C001 resets pulse counter.

@@ -8,11 +8,11 @@ class Mapper253(console: Console) : Mapper(console) {
 
     private val chrLow = IntArray(8)
     private val chrHigh = IntArray(8)
-    private var forceChrRom = false
-    private var irqReloadValue = 0
-    private var irqCounter = 0
-    private var irqEnabled = false
-    private var irqScaler = 0
+    @Volatile private var forceChrRom = false
+    @Volatile private var irqReloadValue = 0
+    @Volatile private var irqCounter = 0
+    @Volatile private var irqEnabled = false
+    @Volatile private var irqScaler = 0
 
     override val prgPageSize = 0x2000
 

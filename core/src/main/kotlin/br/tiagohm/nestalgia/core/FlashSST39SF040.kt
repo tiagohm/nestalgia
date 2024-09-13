@@ -8,9 +8,9 @@ class FlashSST39SF040(private val data: IntArray) : Snapshotable, Resetable {
         ERASE,
     }
 
-    private var mode = ChipMode.WAITING
-    private var cycle = 0
-    private var softwareId = false
+    @Volatile private var mode = ChipMode.WAITING
+    @Volatile private var cycle = 0
+    @Volatile private var softwareId = false
 
     override fun saveState(s: Snapshot) {
         s.write("mode", mode)

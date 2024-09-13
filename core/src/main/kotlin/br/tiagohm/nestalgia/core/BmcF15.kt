@@ -6,7 +6,7 @@ import br.tiagohm.nestalgia.core.MemoryAccessType.*
 
 class BmcF15(console: Console) : MMC3(console) {
 
-    private var exReg = 0
+    @Volatile private var exReg = 0
 
     override fun initialize() {
         addRegisterRange(0x6000, 0xFFFF, WRITE)

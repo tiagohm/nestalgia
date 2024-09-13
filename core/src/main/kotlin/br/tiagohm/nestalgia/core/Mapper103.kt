@@ -19,8 +19,8 @@ class Mapper103(console: Console) : Mapper(console) {
 
     override val registerEndAddress = 0xFFFF
 
-    private var prgRamDisabled = false
-    private var prgReg = 0
+    @Volatile private var prgRamDisabled = false
+    @Volatile private var prgReg = 0
 
     override fun initialize() {
         selectChrPage(0, 0)

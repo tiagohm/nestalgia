@@ -6,10 +6,10 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 class T262(console: Console) : Mapper(console) {
 
-    private var locked = false
-    private var base = 0
-    private var bank = 0
-    private var mode = false
+    @Volatile private var locked = false
+    @Volatile private var base = 0
+    @Volatile private var bank = 0
+    @Volatile private var mode = false
 
     override val prgPageSize = 0x4000
 

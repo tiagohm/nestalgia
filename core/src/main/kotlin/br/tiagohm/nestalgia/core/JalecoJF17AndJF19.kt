@@ -5,8 +5,8 @@ package br.tiagohm.nestalgia.core
 
 class JalecoJF17AndJF19(console: Console, private val jf19Mode: Boolean) : Mapper(console) {
 
-    private var prgFlag = false
-    private var chrFlag = false
+    @Volatile private var prgFlag = false
+    @Volatile private var chrFlag = false
 
     override val prgPageSize = 0x4000
 

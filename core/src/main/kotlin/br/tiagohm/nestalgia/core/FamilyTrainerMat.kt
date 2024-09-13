@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 class FamilyTrainerMat(console: Console, type: ControllerType, keyMapping: KeyMapping) : PowerPad(console, type, EXP_DEVICE_PORT, keyMapping) {
 
-    private var ignoreRows = 0
+    @Volatile private var ignoreRows = 0
 
     override fun refreshStateBuffer() = Unit
 

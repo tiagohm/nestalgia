@@ -28,8 +28,8 @@ class UNROM512(console: Console) : FlashSST39SF040Mapper(console) {
     override val allowRegisterRead
         get() = hasBattery
 
-    private var enableMirroringBit = false
-    private var prgBank = 0
+    @Volatile private var enableMirroringBit = false
+    @Volatile private var prgBank = 0
 
     override lateinit var orgPrgRom: IntArray
 

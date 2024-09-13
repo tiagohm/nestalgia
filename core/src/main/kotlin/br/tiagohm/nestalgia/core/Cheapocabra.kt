@@ -23,7 +23,7 @@ class Cheapocabra(console: Console) : FlashSST39SF040Mapper(console) {
 
     override val allowRegisterRead = true
 
-    private var prgReg = 0
+    @Volatile private var prgReg = 0
 
     override lateinit var orgPrgRom: IntArray
 

@@ -2,12 +2,12 @@ package br.tiagohm.nestalgia.core
 
 class ModulationChannel : FdsChannel() {
 
-    private var counter = 0
-    private var modulationDisabled = false
+    @Volatile private var counter = 0
+    @Volatile private var modulationDisabled = false
 
     private val modTable = IntArray(64)
-    private var modTablePosition = 0
-    private var overflowCounter = 0
+    @Volatile private var modTablePosition = 0
+    @Volatile private var overflowCounter = 0
 
     var output = 0
         private set

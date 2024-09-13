@@ -6,7 +6,7 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 class Super40in1Ws(console: Console) : Mapper(console) {
 
-    private var regLock = false
+    @Volatile private var regLock = false
 
     override val prgPageSize = 0x4000
 

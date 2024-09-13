@@ -35,10 +35,10 @@ data class Console(@JvmField val settings: EmulationSettings = EmulationSettings
 
     private val stop = AtomicBoolean()
     private val running = AtomicBoolean()
-    private var pauseOnNextFrameRequested = false
-    private var resetRunTimers = false
-    private var disableOcNextFrame = false
-    private var initialized = false
+    @Volatile private var pauseOnNextFrameRequested = false
+    @Volatile private var resetRunTimers = false
+    @Volatile private var disableOcNextFrame = false
+    @Volatile private var initialized = false
 
     private val runLock = SimpleLock()
     private val stopLock = SimpleLock()

@@ -11,9 +11,9 @@ class Sunsoft3(console: Console) : Mapper(console) {
 
     override val chrPageSize = 0x800
 
-    private var irqEnabled = false
-    private var irqLatch = false
-    private var irqCounter = 0
+    @Volatile private var irqEnabled = false
+    @Volatile private var irqLatch = false
+    @Volatile private var irqCounter = 0
 
     override fun initialize() {
         selectPrgPage(1, -1)

@@ -12,38 +12,38 @@ import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
 class Fk23C(console: Console) : Mapper(console) {
 
-    private var prgBankingMode = 0
-    private var outerChrBankSize = 0
-    private var selectChrRam = false
-    private var mmc3ChrMode = true
-    private var cnromChrMode = false
-    private var prgBaseBits = 0
-    private var chrBaseBits = 0
-    private var extendedMmc3Mode = false
-    private var wramBankSelect = 0
-    private var ramInFirstChrBank = false
-    private var allowSingleScreenMirroring = false
-    private var fk23RegistersEnabled = false
-    private var wramConfigEnabled = false
+    @Volatile private var prgBankingMode = 0
+    @Volatile private var outerChrBankSize = 0
+    @Volatile private var selectChrRam = false
+    @Volatile private var mmc3ChrMode = true
+    @Volatile private var cnromChrMode = false
+    @Volatile private var prgBaseBits = 0
+    @Volatile private var chrBaseBits = 0
+    @Volatile private var extendedMmc3Mode = false
+    @Volatile private var wramBankSelect = 0
+    @Volatile private var ramInFirstChrBank = false
+    @Volatile private var allowSingleScreenMirroring = false
+    @Volatile private var fk23RegistersEnabled = false
+    @Volatile private var wramConfigEnabled = false
 
-    private var wramEnabled = false
-    private var wramWriteProtected = false
+    @Volatile private var wramEnabled = false
+    @Volatile private var wramWriteProtected = false
 
-    private var invertPrgA14 = false
-    private var invertChrA12 = false
+    @Volatile private var invertPrgA14 = false
+    @Volatile private var invertChrA12 = false
 
-    private var currentRegister = 0
+    @Volatile private var currentRegister = 0
 
-    private var irqReloadValue = 0
-    private var irqCounter = 0
-    private var irqReload = false
-    private var irqEnabled = false
+    @Volatile private var irqReloadValue = 0
+    @Volatile private var irqCounter = 0
+    @Volatile private var irqReload = false
+    @Volatile private var irqEnabled = false
 
-    private var mirroringReg = 0
+    @Volatile private var mirroringReg = 0
 
-    private var cnromChrReg = 0
+    @Volatile private var cnromChrReg = 0
 
-    private var irqDelay = 0
+    @Volatile private var irqDelay = 0
 
     private val mmc3Registers = intArrayOf(0, 2, 4, 5, 6, 7, 0, 1, 0xFE, 0xFF, 0xFF, 0xFF)
     private val a12Watcher = A12Watcher()

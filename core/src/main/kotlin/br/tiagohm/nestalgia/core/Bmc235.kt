@@ -6,7 +6,7 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 class Bmc235(console: Console) : Mapper(console) {
 
-    private var openBus = false
+    @Volatile private var openBus = false
 
     override val prgPageSize = 0x4000
 

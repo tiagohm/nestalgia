@@ -5,9 +5,9 @@ class FdsSystemActionManager(
     val mapper: Fds,
 ) : SystemActionManager(console) {
 
-    private var needEjectDisk = false
-    private var insertDiskNumber = 0
-    private var insertDiskDelay = 0
+    @Volatile private var needEjectDisk = false
+    @Volatile private var insertDiskNumber = 0
+    @Volatile private var insertDiskDelay = 0
 
     val sideCount
         get() = mapper.sideCount

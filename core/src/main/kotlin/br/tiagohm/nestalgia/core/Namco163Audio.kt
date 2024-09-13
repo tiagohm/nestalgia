@@ -8,12 +8,12 @@ class Namco163Audio(console: Console) : ExpansionAudio(console), Memory {
 
     @JvmField internal val internalRam = IntArray(RAM_SIZE)
     private val channelOutput = IntArray(8)
-    private var ramPosition = 0
-    private var autoIncrement = false
-    private var updateCounter = 0
-    private var currentChannel = 7
-    private var lastOutput = 0
-    private var disableSound = false
+    @Volatile private var ramPosition = 0
+    @Volatile private var autoIncrement = false
+    @Volatile private var updateCounter = 0
+    @Volatile private var currentChannel = 7
+    @Volatile private var lastOutput = 0
+    @Volatile private var disableSound = false
 
     init {
         console.initializeRam(internalRam)

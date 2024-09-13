@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 data class A12RisingEdgeWatcher(private val console: Console) : Resetable, Snapshotable {
 
-    private var a12LowClock = 0L
+    @Volatile private var a12LowClock = 0L
 
     override fun reset(softReset: Boolean) {
         a12LowClock = 0L

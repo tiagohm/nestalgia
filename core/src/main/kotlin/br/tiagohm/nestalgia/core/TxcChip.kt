@@ -3,10 +3,10 @@ package br.tiagohm.nestalgia.core
 @Suppress("NOTHING_TO_INLINE")
 class TxcChip(val isJv001: Boolean) : Memory, Resetable, Snapshotable {
 
-    private var accumulator = 0
-    private var inverter = 0
-    private var staging = 0
-    private var increase = false
+    @Volatile private var accumulator = 0
+    @Volatile private var inverter = 0
+    @Volatile private var staging = 0
+    @Volatile private var increase = false
 
     private val mask = if (isJv001) 0x0F else 0x07
     private val maskInv = mask.inv() and 0xFF

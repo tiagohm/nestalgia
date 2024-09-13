@@ -7,22 +7,22 @@ import kotlin.math.min
 class FdsAudio(console: Console) : ExpansionAudio(console), Memory {
 
     private val waveTable = IntArray(64)
-    private var waveWriteEnabled = false
+    @Volatile private var waveWriteEnabled = false
 
     private val volume = FdsChannel()
     private val mod = ModulationChannel()
 
-    private var disableEnvelopes = false
-    private var haltWaveform = false
+    @Volatile private var disableEnvelopes = false
+    @Volatile private var haltWaveform = false
 
-    private var masterVolume = 0
+    @Volatile private var masterVolume = 0
 
     // Internal values
-    private var waveOverflowCounter = 0
-    private var wavePitch = 0
-    private var wavePosition = 0
+    @Volatile private var waveOverflowCounter = 0
+    @Volatile private var wavePitch = 0
+    @Volatile private var wavePosition = 0
 
-    private var lastOutput = 0
+    @Volatile private var lastOutput = 0
 
     override fun clockAudio() {
         val frequency = volume.frequency

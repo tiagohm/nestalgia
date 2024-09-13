@@ -4,9 +4,9 @@ package br.tiagohm.nestalgia.core
 
 class OekaKids(console: Console) : Mapper(console) {
 
-    private var outerChrBank = 0
-    private var innerChrBank = 0
-    private var lastAddress = 0
+    @Volatile private var outerChrBank = 0
+    @Volatile private var innerChrBank = 0
+    @Volatile private var lastAddress = 0
 
     override val prgPageSize = 0x8000
 

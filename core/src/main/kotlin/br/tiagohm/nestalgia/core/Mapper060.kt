@@ -8,7 +8,7 @@ class Mapper060(console: Console) : Mapper(console) {
 
     override val chrPageSize = 0x2000
 
-    private var resetCounter = 0
+    @Volatile private var resetCounter = 0
 
     override fun initialize() {
         updatePage(0)

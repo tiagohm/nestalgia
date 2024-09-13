@@ -11,7 +11,7 @@ class Mapper222(console: Console) : Mapper(console) {
 
     override val chrPageSize = 0x400
 
-    private var irqCounter = 0
+    @Volatile private var irqCounter = 0
     private val a12Watcher = A12RisingEdgeWatcher(console)
 
     override fun initialize() {

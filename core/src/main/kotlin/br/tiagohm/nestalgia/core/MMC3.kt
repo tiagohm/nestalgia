@@ -29,9 +29,9 @@ open class MMC3(console: Console) : Mapper(console) {
         }
     }
 
-    private var wramEnabled = false
-    private var wramWriteProtected = false
-    private var mForceMmc3RevAIrqs = false
+    @Volatile private var wramEnabled = false
+    @Volatile private var wramWriteProtected = false
+    @Volatile private var mForceMmc3RevAIrqs = false
     private val a12Watcher = A12RisingEdgeWatcher(console)
 
     @JvmField protected var irqReloadValue = 0

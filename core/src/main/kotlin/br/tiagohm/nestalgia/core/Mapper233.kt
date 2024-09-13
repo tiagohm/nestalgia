@@ -4,7 +4,7 @@ package br.tiagohm.nestalgia.core
 
 class Mapper233(console: Console) : Mapper226(console) {
 
-    private var reset = 0
+    @Volatile private var reset = 0
 
     override fun reset(softReset: Boolean) {
         super.reset(softReset)

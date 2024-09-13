@@ -10,9 +10,9 @@ class JalecoSs88006(console: Console) : Mapper(console) {
     private val prgBanks = IntArray(3)
     private val chrBanks = IntArray(8)
     private val irqReloadValue = IntArray(4)
-    private var irqCounter = 0
-    private var irqCounterSize = 0
-    private var irqEnabled = false
+    @Volatile private var irqCounter = 0
+    @Volatile private var irqCounterSize = 0
+    @Volatile private var irqEnabled = false
 
     override val prgPageSize = 0x2000
 

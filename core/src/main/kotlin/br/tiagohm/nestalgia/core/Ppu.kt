@@ -14,80 +14,80 @@ import kotlin.random.Random
 open class Ppu(private val console: Console) : MemoryHandler, Resetable, Initializable, Snapshotable {
 
     private val settings = console.settings
-    private var standardVBlankEnd = 0
-    private var standardNmiScanline = 0
-    private var vBlankEnd = 0
-    private var nmiScanline = 0
-    private var palSpriteEvalScanline = 0
+    @Volatile private var standardVBlankEnd = 0
+    @Volatile private var standardNmiScanline = 0
+    @Volatile private var vBlankEnd = 0
+    @Volatile private var nmiScanline = 0
+    @Volatile private var palSpriteEvalScanline = 0
 
     @JvmField protected var masterClock = 0L
     @JvmField protected var masterClockDivider = 4
-    private var memoryReadBuffer = 0
+    @Volatile private var memoryReadBuffer = 0
 
     private val outputBuffers = arrayOf(IntArray(PIXEL_COUNT), IntArray(PIXEL_COUNT))
 
-    private var currentOutputBuffer = outputBuffers[0]
+    @Volatile private var currentOutputBuffer = outputBuffers[0]
 
     private val paletteRAM = IntArray(32)
     private val spriteRAM = IntArray(0x100)
     private val secondarySpriteRAM = IntArray(0x20)
     private val hasSprite = BooleanArray(257)
 
-    private var spriteCount = 0
-    private var secondaryOAMAddr = 0
-    private var sprite0Visible = false
+    @Volatile private var spriteCount = 0
+    @Volatile private var secondaryOAMAddr = 0
+    @Volatile private var sprite0Visible = false
 
-    private var firstVisibleSpriteAddr = 0
-    private var lastVisibleSpriteAddr = 0
-    private var spriteIndex = 0
+    @Volatile private var firstVisibleSpriteAddr = 0
+    @Volatile private var lastVisibleSpriteAddr = 0
+    @Volatile private var spriteIndex = 0
 
-    private var intensifyColorBits = 0
-    private var paletteRamMask = 0
-    private var lastUpdatedPixel = 0
+    @Volatile private var intensifyColorBits = 0
+    @Volatile private var paletteRamMask = 0
+    @Volatile private var lastUpdatedPixel = 0
 
-    private var lastSprite: SpriteInfo? = null
+    @Volatile private var lastSprite: SpriteInfo? = null
 
     private val spriteTiles = Array(64) { SpriteInfo() }
 
     private val openBusDecayStamp = IntArray(8)
-    private var ignoreVramRead = 0
+    @Volatile private var ignoreVramRead = 0
 
-    private var oamCopybuffer = 0
-    private var spriteInRange = false
-    private var sprite0Added = false
-    private var spriteAddrH = 0
-    private var spriteAddrL = 0
-    private var oamCopyDone = false
-    private var overflowBugCounter = 0
+    @Volatile private var oamCopybuffer = 0
+    @Volatile private var spriteInRange = false
+    @Volatile private var sprite0Added = false
+    @Volatile private var spriteAddrH = 0
+    @Volatile private var spriteAddrL = 0
+    @Volatile private var oamCopyDone = false
+    @Volatile private var overflowBugCounter = 0
 
-    private var ppuBusAddress = 0
+    @Volatile private var ppuBusAddress = 0
 
-    private var needStateUpdate = false
-    private var renderingEnabled = false
-    private var prevRenderingEnabled = false
-    private var preventVBlankFlag = false
+    @Volatile private var needStateUpdate = false
+    @Volatile private var renderingEnabled = false
+    @Volatile private var prevRenderingEnabled = false
+    @Volatile private var preventVBlankFlag = false
 
     private val oamDecayCycles = LongArray(0x40)
     private val corruptOamRow = BooleanArray(32)
-    private var enableOamDecay = false
+    @Volatile private var enableOamDecay = false
 
-    private var updateVramAddr = 0
-    private var updateVramAddrDelay = 0
+    @Volatile private var updateVramAddr = 0
+    @Volatile private var updateVramAddrDelay = 0
 
     private val state = PpuState()
 
     private val flags = PpuControl()
     private val statusFlags = PpuStatus()
 
-    private var minimumDrawBgCycle = 0
-    private var minimumDrawSpriteCycle = 0
-    private var minimumDrawSpriteStandardCycle = 0
+    @Volatile private var minimumDrawBgCycle = 0
+    @Volatile private var minimumDrawSpriteCycle = 0
+    @Volatile private var minimumDrawSpriteStandardCycle = 0
 
-    private var tile = TileInfo()
-    private var currentTilePalette = 0
-    private var previousTilePalette = 0
+    @Volatile private var tile = TileInfo()
+    @Volatile private var currentTilePalette = 0
+    @Volatile private var previousTilePalette = 0
 
-    private var needVideoRamIncrement = false
+    @Volatile private var needVideoRamIncrement = false
 
     var scanline = 0
         private set
@@ -101,7 +101,7 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Initial
     val frameCycle
         get() = (scanline + 1) * 341 + cycle
 
-    private var openBus = 0
+    @Volatile private var openBus = 0
 
     override fun initialize() {
         console.initializeRam(spriteRAM)

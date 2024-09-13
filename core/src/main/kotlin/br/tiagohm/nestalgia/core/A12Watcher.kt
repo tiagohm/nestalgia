@@ -4,8 +4,8 @@ import br.tiagohm.nestalgia.core.A12StateChange.*
 
 class A12Watcher : Resetable, Snapshotable {
 
-    private var lastCycle = 0
-    private var cyclesDown = 0L
+    @Volatile private var lastCycle = 0
+    @Volatile private var cyclesDown = 0L
 
     override fun reset(softReset: Boolean) {
         lastCycle = 0

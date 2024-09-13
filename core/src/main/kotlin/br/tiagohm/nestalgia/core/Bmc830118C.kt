@@ -4,7 +4,7 @@ package br.tiagohm.nestalgia.core
 
 class Bmc830118C(console: Console) : MMC3(console) {
 
-    private var reg = 0
+    @Volatile private var reg = 0
 
     override fun reset(softReset: Boolean) {
         reg = 0

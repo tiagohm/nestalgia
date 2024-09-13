@@ -2,8 +2,8 @@ package br.tiagohm.nestalgia.core
 
 class VRC6Audio(console: Console) : ExpansionAudio(console), Memory, Resetable {
 
-    private var haltAudio = false
-    private var lastOutput = 0
+    @Volatile private var haltAudio = false
+    @Volatile private var lastOutput = 0
 
     private val pulse1 = Vrc6Pulse()
     private val pulse2 = Vrc6Pulse()

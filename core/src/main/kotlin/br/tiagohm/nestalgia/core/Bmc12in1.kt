@@ -7,7 +7,7 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 class Bmc12in1(console: Console) : Mapper(console) {
 
     private val regs = IntArray(2)
-    private var mode = 0
+    @Volatile private var mode = 0
 
     override val prgPageSize = 0x4000
 

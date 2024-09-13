@@ -7,8 +7,8 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 class Mapper035(console: Console) : Mapper(console) {
 
-    private var irqCounter = 0
-    private var irqEnabled = false
+    @Volatile private var irqCounter = 0
+    @Volatile private var irqEnabled = false
     private val a12Watcher = A12RisingEdgeWatcher(console)
 
     override val prgPageSize = 0x2000

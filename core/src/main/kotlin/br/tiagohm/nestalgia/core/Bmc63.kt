@@ -4,7 +4,7 @@ package br.tiagohm.nestalgia.core
 
 class Bmc63(console: Console) : Mapper(console) {
 
-    private var openBus = false
+    @Volatile private var openBus = false
 
     override val prgPageSize = 0x2000
 

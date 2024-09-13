@@ -2,13 +2,13 @@ package br.tiagohm.nestalgia.core
 
 class Vrc6Saw : Memory, Clockable, Snapshotable {
 
-    private var accumulatorRate = 0
-    private var accumulator = 0
-    private var frequency = 1
-    private var enabled = false
+    @Volatile private var accumulatorRate = 0
+    @Volatile private var accumulator = 0
+    @Volatile private var frequency = 1
+    @Volatile private var enabled = false
 
-    private var timer = 1
-    private var step = 0
+    @Volatile private var timer = 1
+    @Volatile private var step = 0
     @JvmField internal var frequencyShift = 0
 
     val volume

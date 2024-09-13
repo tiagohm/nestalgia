@@ -8,7 +8,7 @@ class Bmc411120C(console: Console) : MMC3(console) {
 
     override val dipSwitchCount = 1
 
-    private var exReg = 0
+    @Volatile private var exReg = 0
 
     override fun initialize() {
         addRegisterRange(0x6000, 0xFFFF, WRITE)
