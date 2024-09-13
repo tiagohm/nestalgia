@@ -1,18 +1,15 @@
-import org.springframework.boot.gradle.tasks.bundling.BootJar
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     kotlin("jvm")
-    kotlin("kapt")
     id("maven-publish")
     id("com.github.gmazzo.buildconfig")
-    id("org.springframework.boot") version "3.3.3"
-    id("io.spring.dependency-management") version "1.1.6"
-    kotlin("plugin.spring")
     id("org.openjfx.javafxplugin")
+    id("com.gradleup.shadow") version "8.3.1"
 }
 
 dependencies {
@@ -29,8 +26,6 @@ dependencies {
     implementation("com.badlogicgames.gdx:gdx-controllers:1.9.13") // 1.9.9
     implementation("com.badlogicgames.gdx:gdx-jnigen:2.5.2") // 1.9.10
 
-    implementation("org.springframework.boot:spring-boot-starter")
-    kapt("org.springframework:spring-context-indexer:6.1.12")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation(libs.logback)
@@ -58,12 +53,15 @@ javafx {
     modules = listOf("javafx.controls", "javafx.fxml")
 }
 
-tasks.withType<BootJar> {
+tasks.withType<ShadowJar> {
     archiveFileName.set("nestalgia.jar")
 
     isZip64 = true
+    minimize {
+        exclude(dependency("org.openjfx:.*:.*"))
+    }
 
     manifest {
-        attributes["Start-Class"] = "br.tiagohm.nestalgia.desktop.MainKt"
+        attributes["Main-Class"] = "br.tiagohm.nestalgia.desktop.MainKt"
     }
 }

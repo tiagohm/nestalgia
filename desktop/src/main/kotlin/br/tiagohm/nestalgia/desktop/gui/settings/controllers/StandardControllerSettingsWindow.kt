@@ -76,7 +76,7 @@ open class StandardControllerSettingsWindow(
 
     companion object {
 
-        @JvmStatic private val PRESETS = mapOf(
+        private val PRESETS = mapOf(
             "WASD" to KeyMapping.wasd(),
             "ARROW" to KeyMapping.arrowKeys(),
         )

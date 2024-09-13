@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.desktop.gui
 import br.tiagohm.nestalgia.desktop.gui.home.HomeWindow
 import br.tiagohm.nestalgia.desktop.helper.resource
 import br.tiagohm.nestalgia.desktop.helper.resourceUrl
-import jakarta.annotation.PostConstruct
 import javafx.application.Platform
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
@@ -14,10 +13,9 @@ import javafx.stage.Stage
 import jfxtras.styles.jmetro.JMetro
 import jfxtras.styles.jmetro.JMetroStyleClass
 import jfxtras.styles.jmetro.Style
-import java.io.Closeable
 import java.util.concurrent.atomic.AtomicBoolean
 
-abstract class AbstractWindow : Closeable {
+abstract class AbstractWindow : AutoCloseable {
 
     protected abstract val resourceName: String
 
@@ -25,8 +23,7 @@ abstract class AbstractWindow : Closeable {
 
     private val showingAtFirstTime = AtomicBoolean(true)
 
-    @PostConstruct
-    protected fun setUp() {
+    fun setUp() {
         window.setOnShowing {
             if (showingAtFirstTime.compareAndSet(true, false)) {
                 val loader = FXMLLoader(resourceUrl("screens/$resourceName.fxml")!!)

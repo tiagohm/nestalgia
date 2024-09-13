@@ -160,15 +160,13 @@ class Snapshot private constructor(private val data: MutableMap<String, Any>) : 
 
     companion object {
 
-        @JvmStatic private val serialVersionUID = 1L
+        private val serialVersionUID = 1L
 
-        @JvmStatic
         fun from(source: InputStream): Snapshot {
             val stream = ObjectInputStream(source)
             return stream.readObject() as Snapshot
         }
 
-        @JvmStatic
         fun from(source: ByteArray): Snapshot {
             return from(ByteArrayInputStream(source))
         }

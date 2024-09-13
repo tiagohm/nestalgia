@@ -52,6 +52,6 @@ data class RomData(
 
     companion object {
 
-        @JvmStatic val EMPTY = RomData()
+        val EMPTY = RomData()
     }
 }

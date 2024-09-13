@@ -1,10 +1,9 @@
 package br.tiagohm.nestalgia.core
 
-import java.io.Closeable
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
-class Debugger(private val console: Console) : Closeable {
+data class Debugger(private val console: Console) : AutoCloseable {
 
     private val stepCount = AtomicInteger(-1)
     private val ppuStepCount = AtomicInteger(-1)

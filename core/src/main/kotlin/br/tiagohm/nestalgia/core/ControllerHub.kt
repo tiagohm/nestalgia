@@ -53,6 +53,6 @@ abstract class ControllerHub(
 
     companion object {
 
-        @JvmStatic private val LOG = LoggerFactory.getLogger(ControllerHub::class.java)
+        private val LOG = LoggerFactory.getLogger(ControllerHub::class.java)
     }
 }

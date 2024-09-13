@@ -110,6 +110,6 @@ class Mapper217(console: Console) : MMC3(console) {
 
     companion object {
 
-        @JvmStatic private val LUT = intArrayOf(0, 6, 3, 7, 5, 2, 4, 1)
+        private val LUT = intArrayOf(0, 6, 3, 7, 5, 2, 4, 1)
     }
 }

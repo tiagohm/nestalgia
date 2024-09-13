@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-interface NotificationListener {
+fun interface NotificationListener {
 
     fun processNotification(type: NotificationType, vararg data: Any?)
 }

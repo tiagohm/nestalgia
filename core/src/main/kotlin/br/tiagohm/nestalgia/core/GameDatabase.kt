@@ -7,13 +7,11 @@ object GameDatabase {
 
     const val FILENAME = "NesDB.csv"
 
-    @JvmStatic private val ENTRIES = HashMap<Long, GameInfo>(8192)
-    @JvmStatic private val LOG = LoggerFactory.getLogger(GameDatabase::class.java)
+    private val ENTRIES = HashMap<Long, GameInfo>(8192)
+    private val LOG = LoggerFactory.getLogger(GameDatabase::class.java)
 
-    @JvmStatic
     operator fun get(crc: Long) = ENTRIES[crc]
 
-    @JvmStatic
     fun load(data: Stream<String>) {
         for (line in data) {
             if (line.isEmpty() || line.startsWith("#")) continue

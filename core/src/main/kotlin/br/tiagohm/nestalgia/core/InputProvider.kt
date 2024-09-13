@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-interface InputProvider {
+fun interface InputProvider {
 
     fun setInput(device: ControlDevice): Boolean
 }

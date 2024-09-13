@@ -5,10 +5,9 @@ import java.nio.IntBuffer
 
 object IpsPatcher {
 
-    @JvmStatic private val PATCH_BYTES = "PATCH".toByteArray(Charsets.US_ASCII)
-    @JvmStatic private val EOF_BYTES = "EOF".toByteArray(Charsets.US_ASCII)
+    private val PATCH_BYTES = "PATCH".toByteArray(Charsets.US_ASCII)
+    private val EOF_BYTES = "EOF".toByteArray(Charsets.US_ASCII)
 
-    @JvmStatic
     fun patch(
         ipsData: IntArray,
         input: IntArray,

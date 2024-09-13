@@ -46,13 +46,12 @@ class Zapper(
         return 0
     }
 
-    override fun write(addr: Int, value: Int, type: MemoryOperationType) {}
+    override fun write(addr: Int, value: Int, type: MemoryOperationType) = Unit
 
     companion object {
 
         const val AIM_OFFSCREEN_CUSTOM_KEY = 255
 
-        @JvmStatic
         internal fun Ppu.isLight(mx: Int, my: Int, radius: Int): Boolean {
             val scanline = scanline
             val cycle = cycle

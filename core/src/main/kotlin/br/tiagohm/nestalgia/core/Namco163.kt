@@ -285,6 +285,6 @@ class Namco163(console: Console) : Mapper(console) {
 
     companion object {
 
-        @JvmStatic private val LOG = LoggerFactory.getLogger(Namco163::class.java)
+        private val LOG = LoggerFactory.getLogger(Namco163::class.java)
     }
 }

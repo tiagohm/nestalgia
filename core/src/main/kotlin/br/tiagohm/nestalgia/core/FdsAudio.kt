@@ -161,6 +161,6 @@ class FdsAudio(console: Console) : ExpansionAudio(console), Memory {
 
     companion object {
 
-        @JvmStatic private val WAVE_VOLUME_TABLE = intArrayOf(36, 24, 17, 14)
+        private val WAVE_VOLUME_TABLE = intArrayOf(36, 24, 17, 14)
     }
 }

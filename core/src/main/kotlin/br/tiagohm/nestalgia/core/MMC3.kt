@@ -295,6 +295,6 @@ open class MMC3(console: Console) : Mapper(console) {
 
     companion object {
 
-        @JvmStatic protected val MEMORY_ACCESS_TYPES = arrayOf(NO_ACCESS, READ, WRITE, READ_WRITE)
+        internal val MEMORY_ACCESS_TYPES = arrayOf(NO_ACCESS, READ, WRITE, READ_WRITE)
     }
 }

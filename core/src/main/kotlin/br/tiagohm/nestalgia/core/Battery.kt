@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-interface Battery {
+sealed interface Battery {
 
     fun saveBattery()
 

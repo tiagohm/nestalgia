@@ -5,9 +5,8 @@ import java.io.IOException
 
 object INesLoader {
 
-    @JvmStatic private val LOG = LoggerFactory.getLogger(INesLoader::class.java)
+    private val LOG = LoggerFactory.getLogger(INesLoader::class.java)
 
-    @JvmStatic
     fun load(rom: IntArray, name: String, preloadedHeader: NesHeader? = null): RomData {
         var dataSize = rom.size
         var offset = 0

@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-interface Clockable {
+fun interface Clockable {
 
     fun clock()
 }

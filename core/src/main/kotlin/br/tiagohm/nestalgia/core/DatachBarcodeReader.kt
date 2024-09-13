@@ -128,7 +128,7 @@ class DatachBarcodeReader(console: Console) : ControlDevice(console, DATACH_BARC
 
     companion object {
 
-        @JvmStatic private val PREFIX_PARITY_TYPE = arrayOf(
+        private val PREFIX_PARITY_TYPE = arrayOf(
             intArrayOf(8, 8, 8, 8, 8, 8), intArrayOf(8, 8, 0, 8, 0, 0),
             intArrayOf(8, 8, 0, 0, 8, 0), intArrayOf(8, 8, 0, 0, 0, 8),
             intArrayOf(8, 0, 8, 8, 0, 0), intArrayOf(8, 0, 0, 8, 8, 0),
@@ -136,7 +136,7 @@ class DatachBarcodeReader(console: Console) : ControlDevice(console, DATACH_BARC
             intArrayOf(8, 0, 8, 0, 0, 8), intArrayOf(8, 0, 0, 8, 0, 8),
         )
 
-        @JvmStatic private val DATA_LEFT_ODD = arrayOf(
+        private val DATA_LEFT_ODD = arrayOf(
             intArrayOf(8, 8, 8, 0, 0, 8, 0), intArrayOf(8, 8, 0, 0, 8, 8, 0),
             intArrayOf(8, 8, 0, 8, 8, 0, 0), intArrayOf(8, 0, 0, 0, 0, 8, 0),
             intArrayOf(8, 0, 8, 8, 8, 0, 0), intArrayOf(8, 0, 0, 8, 8, 8, 0),
@@ -144,7 +144,7 @@ class DatachBarcodeReader(console: Console) : ControlDevice(console, DATACH_BARC
             intArrayOf(8, 0, 0, 8, 0, 0, 0), intArrayOf(8, 8, 8, 0, 8, 0, 0),
         )
 
-        @JvmStatic private val DATA_LEFT_EVEN = arrayOf(
+        private val DATA_LEFT_EVEN = arrayOf(
             intArrayOf(8, 0, 8, 8, 0, 0, 0), intArrayOf(8, 0, 0, 8, 8, 0, 0),
             intArrayOf(8, 8, 0, 0, 8, 0, 0), intArrayOf(8, 0, 8, 8, 8, 8, 0),
             intArrayOf(8, 8, 0, 0, 0, 8, 0), intArrayOf(8, 0, 0, 0, 8, 8, 0),
@@ -152,7 +152,7 @@ class DatachBarcodeReader(console: Console) : ControlDevice(console, DATACH_BARC
             intArrayOf(8, 8, 8, 0, 8, 8, 0), intArrayOf(8, 8, 0, 8, 0, 0, 0),
         )
 
-        @JvmStatic private val DATA_RIGHT = arrayOf(
+        private val DATA_RIGHT = arrayOf(
             intArrayOf(0, 0, 0, 8, 8, 0, 8), intArrayOf(0, 0, 8, 8, 0, 0, 8),
             intArrayOf(0, 0, 8, 0, 0, 8, 8), intArrayOf(0, 8, 8, 8, 8, 0, 8),
             intArrayOf(0, 8, 0, 0, 0, 8, 8), intArrayOf(0, 8, 8, 0, 0, 0, 8),

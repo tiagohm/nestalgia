@@ -7,9 +7,8 @@ object MapperFactory {
 
     const val FDS_MAPPER_ID = 65535
 
-    @JvmStatic private val LOG = LoggerFactory.getLogger(MapperFactory::class.java)
+    private val LOG = LoggerFactory.getLogger(MapperFactory::class.java)
 
-    @JvmStatic
     fun from(console: Console, data: RomData): Mapper {
         return when (val id = data.info.mapperId) {
             0 -> NROM(console)
@@ -257,6 +256,7 @@ object MapperFactory {
             286 -> Bs5(console)
             287 -> Bmc411120C(console)
             288 -> Gkcx1(console)
+            289 -> Bmc60311C(console)
             290 -> BmcNtd03(console)
             299 -> Bmc11160(console)
             300 -> Bmc190in1(console)

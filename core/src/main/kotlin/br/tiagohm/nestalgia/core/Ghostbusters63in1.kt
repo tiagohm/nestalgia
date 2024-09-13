@@ -10,7 +10,7 @@ class Ghostbusters63in1(console: Console) : Mapper(console) {
 
     private var regs = IntArray(2)
 
-    override fun initialize() {}
+    override fun initialize() = Unit
 
     override fun reset(softReset: Boolean) {
         regs.fill(0)

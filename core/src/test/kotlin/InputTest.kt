@@ -103,7 +103,7 @@ class InputTest : NesTesterSpec() {
 
     companion object {
 
-        @JvmStatic private val NES_CONTROLLER_1P_STATES = mapOf(
+        private val NES_CONTROLLER_1P_STATES = mapOf(
             A to "537b3d6d36c0b6f555e07cf40bd2fc22",
             B to "607f6384c877ab00e7a6ad70193ad028",
             SELECT to "a32285236280acf49f4afb6f3ec85b71",
@@ -114,7 +114,7 @@ class InputTest : NesTesterSpec() {
             RIGHT to "0271fe1978e6b4d3e402bea34aecc240",
         )
 
-        @JvmStatic private val NES_CONTROLLER_2P_STATES = mapOf(
+        private val NES_CONTROLLER_2P_STATES = mapOf(
             A to "9154d60b6fb4fc5c0c7b2474c3d47476",
             B to "95e34fc822057b1d8c4735b153d83bbc",
             SELECT to "516fc022ab3819cf41a20e7ff67ca1ac",
@@ -125,7 +125,7 @@ class InputTest : NesTesterSpec() {
             RIGHT to "b4ac3a3e51da3db7355fd94b919902c3",
         )
 
-        @JvmStatic private val FOUR_SCORE_1P_STATES = mapOf(
+        private val FOUR_SCORE_1P_STATES = mapOf(
             A to "ec6b56f5df412e0221226ce17341a297",
             B to "c285c56048902ce36c29fe3dcd9dd366",
             SELECT to "bb65d0ba475a56eae5fe8701632ee873",
@@ -136,7 +136,7 @@ class InputTest : NesTesterSpec() {
             RIGHT to "efa6c1076aa58df5afccbbea9c49e82d",
         )
 
-        @JvmStatic private val FOUR_SCORE_2P_STATES = mapOf(
+        private val FOUR_SCORE_2P_STATES = mapOf(
             A to "0b819ae1a0915a0cf28cfcd6e9da2dec",
             B to "73eebf1864b855100b9384a642bd1f14",
             SELECT to "6c3b897d4261cdf04abc53cfde838429",
@@ -147,7 +147,7 @@ class InputTest : NesTesterSpec() {
             RIGHT to "20ab5a4a987c3360d3fde35b945ecb11",
         )
 
-        @JvmStatic private val FOUR_SCORE_3P_STATES = mapOf(
+        private val FOUR_SCORE_3P_STATES = mapOf(
             A to "e93154d7febf5dbc0f96da60a5ac8fa7",
             B to "a782582adb13d580c325a1771ac7b289",
             SELECT to "323b2346042b9244e8c9b1ee9fba6e8b",
@@ -158,7 +158,7 @@ class InputTest : NesTesterSpec() {
             RIGHT to "cd52e2140483a40b79c5ced00f71fe45",
         )
 
-        @JvmStatic private val FOUR_SCORE_4P_STATES = mapOf(
+        private val FOUR_SCORE_4P_STATES = mapOf(
             A to "dc032df0eac4d1583a89c0dc3b3f3d94",
             B to "e1445511bf982e797c873f66b5c41209",
             SELECT to "94ec14ef6b8745832dd66e9440ffce1c",
@@ -169,12 +169,12 @@ class InputTest : NesTesterSpec() {
             RIGHT to "5845f30f1f27787e7047afba2774545f",
         )
 
-        @JvmStatic private val FOUR_SCORE_PORT_STATES = arrayOf(
+        private val FOUR_SCORE_PORT_STATES = arrayOf(
             FOUR_SCORE_1P_STATES, FOUR_SCORE_2P_STATES,
             FOUR_SCORE_3P_STATES, FOUR_SCORE_4P_STATES,
         )
 
-        @JvmStatic private val POWER_PAD_STATES = mapOf(
+        private val POWER_PAD_STATES = mapOf(
             B01 to "283dfab6057fa72bb34ee6db612cfd7e",
             B02 to "6630f862a952d31a8dd4a7f759f3910c",
             B03 to "4d51baedfd1d1dbf9b8280db1c71a39c",

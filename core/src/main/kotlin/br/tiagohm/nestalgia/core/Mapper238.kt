@@ -43,6 +43,6 @@ class Mapper238(console: Console) : MMC3(console) {
 
     companion object {
 
-        @JvmStatic private val SECURITY_LUT = intArrayOf(0x00, 0x02, 0x02, 0x03)
+        private val SECURITY_LUT = intArrayOf(0x00, 0x02, 0x02, 0x03)
     }
 }

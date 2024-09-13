@@ -12,7 +12,7 @@ object ControllerButtonStringConverter : StringConverter<ControllerButton>() {
 
     override fun fromString(text: String?) = null
 
-    @JvmStatic private val LABELS = mapOf(
+    private val LABELS = mapOf(
         StandardController.Button.A to "A",
         StandardController.Button.B to "B",
         StandardController.Button.UP to "Up",

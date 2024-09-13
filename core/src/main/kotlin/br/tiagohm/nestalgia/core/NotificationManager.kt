@@ -1,8 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import java.io.Closeable
-
-class NotificationManager : Closeable {
+class NotificationManager : AutoCloseable {
 
     private val listeners = ArrayList<NotificationListener>()
 

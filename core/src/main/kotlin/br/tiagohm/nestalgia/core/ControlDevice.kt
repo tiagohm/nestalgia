@@ -17,13 +17,13 @@ abstract class ControlDevice(
 
     open val keyboard = false
 
-    override fun reset(softReset: Boolean) {}
+    override fun reset(softReset: Boolean) = Unit
 
     protected fun isCurrentPort(addr: Int): Boolean {
         return port == (addr - 0x4016)
     }
 
-    protected open fun refreshStateBuffer() {}
+    protected open fun refreshStateBuffer() = Unit
 
     protected fun strobeOnRead() {
         if (strobe) refreshStateBuffer()
@@ -96,9 +96,9 @@ abstract class ControlDevice(
         }
     }
 
-    open fun setStateFromInput() {}
+    open fun setStateFromInput() = Unit
 
-    open fun onAfterSetState() {}
+    open fun onAfterSetState() = Unit
 
     open fun hasControllerType(type: ControllerType): Boolean {
         return this.type == type
@@ -128,9 +128,8 @@ abstract class ControlDevice(
         const val EXP_DEVICE_PORT_2 = 7
         const val PORT_COUNT = 8
 
-        @JvmStatic private val LOG = LoggerFactory.getLogger(ControlDevice::class.java)
+        private val LOG = LoggerFactory.getLogger(ControlDevice::class.java)
 
-        @JvmStatic
         internal fun swapButtons(
             device1: ControlDevice, button1: ControllerButton,
             device2: ControlDevice, button2: ControllerButton,

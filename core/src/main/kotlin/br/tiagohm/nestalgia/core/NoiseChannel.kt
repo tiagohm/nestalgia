@@ -89,7 +89,7 @@ class NoiseChannel(
 
     companion object {
 
-        @JvmStatic val NOISE_PERIOD_LOOKUP_TABLE_NTSC = intArrayOf(4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068)
-        @JvmStatic val NOISE_PERIOD_LOOKUP_TABLE_PAL = intArrayOf(4, 8, 14, 30, 60, 88, 118, 148, 188, 236, 354, 472, 708, 944, 1890, 3778)
+        internal val NOISE_PERIOD_LOOKUP_TABLE_NTSC = intArrayOf(4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068)
+        internal val NOISE_PERIOD_LOOKUP_TABLE_PAL = intArrayOf(4, 8, 14, 30, 60, 88, 118, 148, 188, 236, 354, 472, 708, 944, 1890, 3778)
     }
 }

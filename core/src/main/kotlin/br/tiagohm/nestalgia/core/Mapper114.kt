@@ -73,6 +73,6 @@ class Mapper114(console: Console) : MMC3(console) {
 
     companion object {
 
-        @JvmStatic private val SECURITY = intArrayOf(0, 3, 1, 5, 6, 7, 2, 4)
+        private val SECURITY = intArrayOf(0, 3, 1, 5, 6, 7, 2, 4)
     }
 }

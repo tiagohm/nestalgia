@@ -87,6 +87,6 @@ class Mapper043(console: Console) : Mapper(console) {
 
     companion object {
 
-        @JvmStatic private val LUT = intArrayOf(4, 3, 5, 3, 6, 3, 7, 3)
+        private val LUT = intArrayOf(4, 3, 5, 3, 6, 3, 7, 3)
     }
 }

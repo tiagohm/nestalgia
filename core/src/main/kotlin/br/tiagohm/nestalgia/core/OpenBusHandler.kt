@@ -4,7 +4,7 @@ class OpenBusHandler : MemoryHandler {
 
     @JvmField var openBus = 0
 
-    override fun memoryRanges(ranges: MemoryRanges) {}
+    override fun memoryRanges(ranges: MemoryRanges) = Unit
 
     override fun read(addr: Int, type: MemoryOperationType) = openBus
 

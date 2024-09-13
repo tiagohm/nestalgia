@@ -9,14 +9,13 @@ import br.tiagohm.nestalgia.desktop.input.GamepadInputAction.*
 import com.studiohartman.jamepad.ControllerAxis
 import com.studiohartman.jamepad.ControllerButton
 import com.studiohartman.jamepad.ControllerManager
-import java.io.Closeable
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 data class GamepadInputProvider(
     private val console: Console,
     private val listener: GamepadInputListener,
-) : InputProvider, Closeable {
+) : InputProvider, AutoCloseable {
 
     private val jamepad = ControllerManager(PORT_COUNT)
     private var jamepadThread: Thread? = null
@@ -113,7 +112,7 @@ data class GamepadInputProvider(
 
     companion object {
 
-        @JvmStatic private val MAP_JAMEPAD_TO_NES = mapOf(
+        private val MAP_JAMEPAD_TO_NES = mapOf(
             ControllerButton.A to StandardController.Button.A,
             ControllerButton.B to StandardController.Button.B,
             ControllerButton.DPAD_DOWN to StandardController.Button.DOWN,

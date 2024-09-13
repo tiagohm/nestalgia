@@ -5,12 +5,15 @@ import br.tiagohm.nestalgia.core.ControlDevice.Companion.EXP_DEVICE_PORT
 import br.tiagohm.nestalgia.core.ControlDevice.Companion.MAPPER_INPUT_PORT
 import br.tiagohm.nestalgia.core.ControllerType.*
 import br.tiagohm.nestalgia.core.EmulationFlag.*
-import br.tiagohm.nestalgia.desktop.app.Preferences
+import br.tiagohm.nestalgia.desktop.console
+import br.tiagohm.nestalgia.desktop.consoleSettings
+import br.tiagohm.nestalgia.desktop.globalSettings
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import br.tiagohm.nestalgia.desktop.gui.converters.ConsoleTypeStringConverter
 import br.tiagohm.nestalgia.desktop.gui.converters.ControllerTypeStringConverter
 import br.tiagohm.nestalgia.desktop.gui.converters.RamPowerOnStateStringConverter
 import br.tiagohm.nestalgia.desktop.gui.settings.controllers.*
+import br.tiagohm.nestalgia.desktop.preferences
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.Node
@@ -19,20 +22,10 @@ import javafx.scene.control.CheckBox
 import javafx.scene.control.ChoiceBox
 import javafx.scene.control.Spinner
 import javafx.scene.layout.Pane
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory
-import org.springframework.stereotype.Component
 
-@Component
 class SettingsWindow : AbstractWindow() {
 
     override val resourceName = "Settings"
-
-    @Autowired private lateinit var preferences: Preferences
-    @Autowired private lateinit var console: Console
-    @Autowired private lateinit var globalSettings: EmulationSettings
-    @Autowired private lateinit var consoleSettings: EmulationSettings
-    @Autowired private lateinit var beanFactory: AutowireCapableBeanFactory
 
     @FXML private lateinit var profileChoiceBox: ChoiceBox<String>
     @FXML private lateinit var fourScorePane: Pane
@@ -322,8 +315,8 @@ class SettingsWindow : AbstractWindow() {
             1 -> settings.port2.keyMapping
             EXP_DEVICE_PORT -> settings.expansionPort.keyMapping
             MAPPER_INPUT_PORT -> settings.mapperPort.keyMapping
-            -1 -> settings.subPort1[subPort - 1].keyMapping
-            -EXP_DEVICE_PORT -> settings.expansionSubPort[subPort - 1].keyMapping
+            -1 -> settings.subPort1[subPort].keyMapping
+            -EXP_DEVICE_PORT -> settings.expansionSubPort[subPort].keyMapping
             else -> return
         }
 
@@ -346,11 +339,7 @@ class SettingsWindow : AbstractWindow() {
             else -> return
         }
 
-        with(window) {
-            beanFactory.autowireBean(this)
-            beanFactory.initializeBean(this, "portSettingsWindow")
-            showAndWait(this@SettingsWindow)
-        }
+        window.showAndWait(this@SettingsWindow)
     }
 
     @FXML
@@ -407,7 +396,7 @@ class SettingsWindow : AbstractWindow() {
 
     companion object {
 
-        @JvmStatic private val TWO_PLAYER_ADAPTER_CONTROLLER_TYPES = listOf(
+        private val TWO_PLAYER_ADAPTER_CONTROLLER_TYPES = listOf(
             PACHINKO, SNES_MOUSE, SUBOR_MOUSE, VIRTUAL_BOY_CONTROLLER,
         )
     }

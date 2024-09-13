@@ -30,7 +30,7 @@ class Television : CanvasPane(Ppu.SCREEN_WIDTH, Ppu.SCREEN_HEIGHT), RenderingDev
         }
     }
 
-    override fun reset(softReset: Boolean) {}
+    override fun reset(softReset: Boolean) = Unit
 
-    override fun close() {}
+    override fun close() = Unit
 }

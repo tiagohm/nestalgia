@@ -141,7 +141,7 @@ class VsControlManager(console: Console) : ControlManager(console) {
 
     companion object {
 
-        @JvmStatic private val PROTECTION_DATA = arrayOf(
+        private val PROTECTION_DATA = arrayOf(
             intArrayOf(
                 0xFF, 0xBF, 0xB7, 0x97, 0x97, 0x17, 0x57, 0x4F,
                 0x6F, 0x6B, 0xEB, 0xA9, 0xB1, 0x90, 0x94, 0x14,

@@ -10,7 +10,7 @@ class Bmc11160(console: Console) : Mapper(console) {
 
     override val chrPageSize = 0x2000
 
-    override fun initialize() {}
+    override fun initialize() = Unit
 
     override fun reset(softReset: Boolean) {
         writeRegister(0x8000, 0)

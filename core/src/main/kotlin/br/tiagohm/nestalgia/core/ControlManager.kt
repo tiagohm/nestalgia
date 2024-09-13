@@ -5,9 +5,8 @@ import br.tiagohm.nestalgia.core.ControlDevice.Companion.EXP_DEVICE_PORT
 import br.tiagohm.nestalgia.core.ControllerType.*
 import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import org.slf4j.LoggerFactory
-import java.io.Closeable
 
-open class ControlManager(protected val console: Console) : MemoryHandler, Resetable, Initializable, Snapshotable, Closeable {
+open class ControlManager(protected val console: Console) : MemoryHandler, Resetable, Initializable, Snapshotable, AutoCloseable {
 
     private val inputProviders = HashSet<InputProvider>()
     private val inputRecorders = HashSet<InputRecorder>()
@@ -174,10 +173,10 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
         pollCounter++
     }
 
-    protected open fun remapControllerButtons() {}
+    protected open fun remapControllerButtons() = Unit
 
     val hasKeyboard
-        get() = controlDevice(EXP_DEVICE_PORT)?.keyboard ?: false
+        get() = controlDevice(EXP_DEVICE_PORT)?.keyboard == true
 
     open fun openBusMask(port: Int): Int {
         // In the NES and Famicom, the top three (or five) bits are not driven,
@@ -252,6 +251,6 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
 
     companion object {
 
-        @JvmStatic private val LOG = LoggerFactory.getLogger(ControlManager::class.java)
+        private val LOG = LoggerFactory.getLogger(ControlManager::class.java)
     }
 }

@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-interface Register {
+sealed interface Register {
 
     val address: Int
 }

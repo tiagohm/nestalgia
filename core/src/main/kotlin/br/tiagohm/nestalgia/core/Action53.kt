@@ -97,7 +97,7 @@ class Action53(console: Console) : Mapper(console) {
 
     companion object {
 
-        @JvmStatic private val OUTER_AND = intArrayOf(0x1FE, 0x1FC, 0x1F8, 0x1F0)
-        @JvmStatic private val INNER_AND = intArrayOf(0x01, 0x03, 0x07, 0x0F)
+        private val OUTER_AND = intArrayOf(0x1FE, 0x1FC, 0x1F8, 0x1F0)
+        private val INNER_AND = intArrayOf(0x01, 0x03, 0x07, 0x0F)
     }
 }

@@ -92,7 +92,7 @@ class Mapper215(console: Console) : MMC3(console) {
 
     companion object {
 
-        @JvmStatic private val LUT_REG = arrayOf(
+        private val LUT_REG = arrayOf(
             intArrayOf(0, 1, 2, 3, 4, 5, 6, 7),
             intArrayOf(0, 2, 6, 1, 7, 3, 4, 5),
             intArrayOf(0, 5, 4, 1, 7, 2, 6, 3),
@@ -103,7 +103,7 @@ class Mapper215(console: Console) : MMC3(console) {
             intArrayOf(0, 1, 2, 3, 4, 5, 6, 7),
         )
 
-        @JvmStatic private val LUT_ADDR = arrayOf(
+        private val LUT_ADDR = arrayOf(
             intArrayOf(0, 1, 2, 3, 4, 5, 6, 7),
             intArrayOf(3, 2, 0, 4, 1, 5, 6, 7),
             intArrayOf(0, 1, 2, 3, 4, 5, 6, 7),

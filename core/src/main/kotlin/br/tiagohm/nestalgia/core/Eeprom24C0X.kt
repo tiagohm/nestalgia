@@ -1,8 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import java.io.Closeable
-
-abstract class Eeprom24C0X(size: Int) : Battery, Closeable, Snapshotable {
+abstract class Eeprom24C0X(size: Int) : Battery, AutoCloseable, Snapshotable {
 
     enum class Mode {
         IDLE,

@@ -110,7 +110,6 @@ class BlipInvarianceTest : StringSpec() {
         private const val FRAME_LENGTH = 20 * OVERSAMPLE + OVERSAMPLE / 4
         private const val BLIP_SIZE = (FRAME_LENGTH * 2) / OVERSAMPLE
 
-        @JvmStatic
         private fun Blip.addDeltas(offset: Int) {
             addDelta(FRAME_LENGTH / 2 + offset, 1000)
             addDelta(FRAME_LENGTH + offset + Blip.END_FRAME_EXTRA * OVERSAMPLE, 1000)

@@ -1352,7 +1352,7 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
         const val CLOCK_RATE_PAL = 1662607
         const val CLOCK_RATE_DENDY = 1773448
 
-        @JvmStatic private val ADDRESS_MODES = arrayOf(
+        private val ADDRESS_MODES = arrayOf(
             AddressMode.IMP, AddressMode.IND_X, AddressMode.NONE, AddressMode.IND_X,
             AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO, AddressMode.ZERO,
             AddressMode.IMP, AddressMode.IMM, AddressMode.ACC, AddressMode.IMM,

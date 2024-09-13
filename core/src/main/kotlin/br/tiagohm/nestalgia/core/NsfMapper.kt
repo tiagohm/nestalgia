@@ -5,7 +5,7 @@ class NsfMapper(console: Console) : Mapper(console) {
     override val dipSwitchCount: Int
         get() = TODO("Not yet implemented")
 
-    override fun initialize() {}
+    override fun initialize() = Unit
 
     override fun close() {
         console.settings.disableOverclocking = false

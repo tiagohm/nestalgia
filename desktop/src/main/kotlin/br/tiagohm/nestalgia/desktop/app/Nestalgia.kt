@@ -1,32 +1,23 @@
 package br.tiagohm.nestalgia.desktop.app
 
 import br.tiagohm.nestalgia.core.CheatDatabase
-import br.tiagohm.nestalgia.core.Console
-import br.tiagohm.nestalgia.core.EmulationSettings
 import br.tiagohm.nestalgia.core.GameDatabase
+import br.tiagohm.nestalgia.desktop.aboutWindow
+import br.tiagohm.nestalgia.desktop.application
+import br.tiagohm.nestalgia.desktop.cheatsWindow
 import br.tiagohm.nestalgia.desktop.gui.home.HomeWindow
 import br.tiagohm.nestalgia.desktop.helper.resource
+import br.tiagohm.nestalgia.desktop.homeWindow
+import br.tiagohm.nestalgia.desktop.settingsWindow
 import javafx.application.Application
+import javafx.application.Platform
 import javafx.stage.Stage
-import org.springframework.boot.runApplication
-import org.springframework.context.ApplicationContextInitializer
-import org.springframework.context.ConfigurableApplicationContext
 import kotlin.concurrent.thread
 
 class Nestalgia : Application() {
 
     override fun start(primaryStage: Stage) {
-        val context = runApplication<App>(*parameters.raw.toTypedArray()) {
-            addInitializers(ApplicationContextInitializer<ConfigurableApplicationContext> {
-                val globalSettings = EmulationSettings()
-                val consoleSettings = EmulationSettings()
-                it.beanFactory.registerSingleton("hostServices", hostServices)
-                it.beanFactory.registerSingleton("primaryStage", primaryStage)
-                it.beanFactory.registerSingleton("globalSettings", globalSettings)
-                it.beanFactory.registerSingleton("consoleSettings", consoleSettings)
-                it.beanFactory.registerSingleton("console", Console(settings = consoleSettings))
-            })
-        }
+        application = this
 
         thread(isDaemon = true) {
             resource(GameDatabase.FILENAME)?.use {
@@ -40,7 +31,12 @@ class Nestalgia : Application() {
             }
         }
 
-        val homeWindow = context.getBean(HomeWindow::class.java)
+        Platform.runLater(settingsWindow::setUp)
+        Platform.runLater(cheatsWindow::setUp)
+        Platform.runLater(aboutWindow::setUp)
+
+        homeWindow = HomeWindow(primaryStage)
+        homeWindow.setUp()
         homeWindow.show()
     }
 }

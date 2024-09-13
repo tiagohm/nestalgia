@@ -46,13 +46,11 @@ class FlatDialog<R> : Dialog<R>() {
 
     companion object {
 
-        @JvmStatic
         fun initDialog(dialog: Dialog<*>, iconless: Boolean) {
             dialog.title = ""
             initDialogIcon(dialog, iconless)
         }
 
-        @JvmStatic
         fun initDialogIcon(dialog: Dialog<*>, iconless: Boolean) {
             if (!iconless) return
             val stage = dialog.dialogPane.scene.window as Stage

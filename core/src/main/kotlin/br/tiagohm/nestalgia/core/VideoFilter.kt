@@ -1,12 +1,10 @@
 package br.tiagohm.nestalgia.core
 
-import java.io.Closeable
-
-interface VideoFilter : Closeable {
+sealed interface VideoFilter : AutoCloseable {
 
     fun sendFrame(input: IntArray): IntArray
 
     fun takeScreenshot(): IntArray
 
-    override fun close() {}
+    override fun close() = Unit
 }

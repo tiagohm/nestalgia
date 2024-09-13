@@ -206,6 +206,6 @@ data class NesHeader(
 
     companion object {
 
-        @JvmStatic val EMPTY = NesHeader()
+        val EMPTY = NesHeader()
     }
 }

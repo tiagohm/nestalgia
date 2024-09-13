@@ -29,7 +29,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build
-        run: ./gradlew --no-daemon :desktop:bootJar
+        run: ./gradlew --no-daemon :desktop:shadowJar
 
       - name: Rename Build
         if: ${{ matrix.os == 'ubuntu-latest' }}

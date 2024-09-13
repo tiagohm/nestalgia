@@ -155,7 +155,7 @@ class Blip(private val size: Int) {
         const val MIN_SAMPLE = -32768
         const val BLIP_MAX_FRAME = 4000
 
-        @JvmStatic private val BL_STEP = arrayOf(
+        private val BL_STEP = arrayOf(
             shortArrayOf(43, -115, 350, -488, 1136, -914, 5861, 21022),
             shortArrayOf(44, -118, 348, -473, 1076, -799, 5274, 21001),
             shortArrayOf(45, -121, 344, -454, 1011, -677, 4706, 20936),
