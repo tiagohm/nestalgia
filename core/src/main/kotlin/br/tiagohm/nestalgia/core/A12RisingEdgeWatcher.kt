@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-data class A12RisingEdgeWatcher(private val console: Console) : Resetable, Snapshotable {
+class A12RisingEdgeWatcher(private val console: Console) : Resetable, Snapshotable {
 
     @Volatile private var a12LowClock = 0L
 

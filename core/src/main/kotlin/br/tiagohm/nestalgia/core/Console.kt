@@ -409,7 +409,7 @@ data class Console(@JvmField val settings: EmulationSettings = EmulationSettings
                     // Need to temporarely pause the emu (to save/load a state, etc.)
                     runLock.release()
                     // Spin wait until we are allowed to start again
-                    while (pauseCounter.get() > 0);
+                    while (pauseCounter.get() > 0) Thread.sleep(10)
 
                     runLock.acquire()
                 }

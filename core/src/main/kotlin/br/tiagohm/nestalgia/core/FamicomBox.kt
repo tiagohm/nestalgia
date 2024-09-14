@@ -52,6 +52,7 @@ class FamicomBox(console: Console) : Mapper(console) {
         }
     }
 
+    @Suppress("WhenWithOnlyElse")
     override fun writeRegister(addr: Int, value: Int) {
         when (addr and 7) {
             // None of this is implemented.

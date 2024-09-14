@@ -3,7 +3,7 @@ package br.tiagohm.nestalgia.core
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
-data class Debugger(private val console: Console) : AutoCloseable {
+class Debugger(private val console: Console) : AutoCloseable {
 
     private val stepCount = AtomicInteger(-1)
     private val ppuStepCount = AtomicInteger(-1)

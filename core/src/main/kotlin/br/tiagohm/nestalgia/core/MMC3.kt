@@ -185,7 +185,7 @@ open class MMC3(console: Console) : Mapper(console) {
     }
 
     override fun initialize() {
-        mForceMmc3RevAIrqs = info.gameInfo?.chip?.startsWith("MMC3A") ?: false
+        mForceMmc3RevAIrqs = info.gameInfo?.chip?.startsWith("MMC3A") == true
 
         resetMMC3()
 

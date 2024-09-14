@@ -44,19 +44,6 @@ open class Pointer(
         data.fill(value, offset + startIndex, offset + startIndex + length)
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Pointer
-
-        println("NUNCA ENTRAR AQUI!!!")
-
-        return data.contentEquals(other.data)
-    }
-
-    override fun hashCode() = data.contentHashCode()
-
     companion object {
 
         internal val NULL = Pointer(IntArray(0), 0)

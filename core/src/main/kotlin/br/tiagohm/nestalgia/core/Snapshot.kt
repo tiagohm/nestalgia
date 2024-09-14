@@ -145,22 +145,9 @@ class Snapshot private constructor(private val data: MutableMap<String, Any>) : 
         return sink.toByteArray()
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Snapshot
-
-        return data == other.data
-    }
-
-    override fun hashCode() = data.hashCode()
-
-    override fun toString() = "Snapshot(data=$data)"
-
     companion object {
 
-        private val serialVersionUID = 1L
+        @JvmStatic private val serialVersionUID = 1L
 
         fun from(source: InputStream): Snapshot {
             val stream = ObjectInputStream(source)

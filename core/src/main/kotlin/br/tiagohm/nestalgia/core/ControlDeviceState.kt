@@ -6,7 +6,7 @@ data class ControlDeviceState(private val state: IntArray) : Snapshotable {
 
     constructor(size: Int = 32) : this(IntArray(size))
 
-    val size: Int
+    val size
         get() = state.size
 
     fun clear() {
@@ -29,15 +29,4 @@ data class ControlDeviceState(private val state: IntArray) : Snapshotable {
         val state = s.readIntArray("state") ?: return clear()
         state.copyInto(this.state, 0, 0, min(state.size, size))
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as ControlDeviceState
-
-        return state.contentEquals(other.state)
-    }
-
-    override fun hashCode() = state.contentHashCode()
 }

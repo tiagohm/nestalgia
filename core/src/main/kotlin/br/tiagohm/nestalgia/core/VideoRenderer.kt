@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-data class VideoRenderer(private val console: Console) : AutoCloseable {
+class VideoRenderer(private val console: Console) : AutoCloseable {
 
     private val stop = AtomicBoolean(false)
     @Volatile private var renderThread: Thread? = null
@@ -38,7 +38,7 @@ data class VideoRenderer(private val console: Console) : AutoCloseable {
             try {
                 // Wait until a frame is ready, or until 16ms have passed (to allow UI to run at a minimum of 60fps)
                 waitForRender.tryAcquire(16, TimeUnit.MILLISECONDS)
-            } catch (e: Throwable) {
+            } catch (_: Throwable) {
                 break
             } finally {
                 if (console.isRunning) {
