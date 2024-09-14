@@ -1,10 +1,11 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.ChrMemoryType.*
-import br.tiagohm.nestalgia.core.IRQSource.*
+import br.tiagohm.nestalgia.core.ChrMemoryType.NAMETABLE_RAM
+import br.tiagohm.nestalgia.core.IRQSource.EXTERNAL
 import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import br.tiagohm.nestalgia.core.MirroringType.*
-import br.tiagohm.nestalgia.core.PrgMemoryType.*
+import br.tiagohm.nestalgia.core.PrgMemoryType.SRAM
+import br.tiagohm.nestalgia.core.PrgMemoryType.WRAM
 import org.slf4j.LoggerFactory
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_019
@@ -281,6 +282,8 @@ class Namco163(console: Console) : Mapper(console) {
         highChrNtMode = s.readBoolean("highChrNtMode")
         irqCounter = s.readInt("irqCounter")
         variant = s.readEnum("variant", NamcoVariant.NAMCO_163)
+
+        updateSaveRamAccess()
     }
 
     companion object {

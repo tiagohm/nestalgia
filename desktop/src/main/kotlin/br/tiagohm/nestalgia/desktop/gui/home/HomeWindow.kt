@@ -1,22 +1,18 @@
 package br.tiagohm.nestalgia.desktop.gui.home
 
 import br.tiagohm.nestalgia.core.*
-import br.tiagohm.nestalgia.core.ControllerType.*
-import br.tiagohm.nestalgia.core.MouseButton.*
-import br.tiagohm.nestalgia.desktop.aboutWindow
+import br.tiagohm.nestalgia.core.ControllerType.FOUR_SCORE
+import br.tiagohm.nestalgia.core.ControllerType.NES_CONTROLLER
+import br.tiagohm.nestalgia.core.MouseButton.LEFT
+import br.tiagohm.nestalgia.core.MouseButton.RIGHT
+import br.tiagohm.nestalgia.desktop.*
 import br.tiagohm.nestalgia.desktop.audio.Speaker
-import br.tiagohm.nestalgia.desktop.cheatsWindow
-import br.tiagohm.nestalgia.desktop.console
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import br.tiagohm.nestalgia.desktop.helper.resource
 import br.tiagohm.nestalgia.desktop.input.GamepadInputAction
 import br.tiagohm.nestalgia.desktop.input.GamepadInputListener
 import br.tiagohm.nestalgia.desktop.input.GamepadInputProvider
 import br.tiagohm.nestalgia.desktop.input.MouseKeyboard
-import br.tiagohm.nestalgia.desktop.preferences
-import br.tiagohm.nestalgia.desktop.saveDir
-import br.tiagohm.nestalgia.desktop.screenshotDir
-import br.tiagohm.nestalgia.desktop.settingsWindow
 import br.tiagohm.nestalgia.desktop.video.Television
 import javafx.beans.InvalidationListener
 import javafx.event.ActionEvent
@@ -27,11 +23,11 @@ import javafx.scene.control.MenuItem
 import javafx.scene.control.ToggleGroup
 import javafx.scene.input.KeyCombination
 import javafx.scene.input.KeyEvent
-import javafx.scene.input.MouseButton.*
 import javafx.scene.input.MouseButton.MIDDLE
+import javafx.scene.input.MouseButton.SECONDARY
 import javafx.scene.input.MouseEvent
 import javafx.stage.FileChooser
-import javafx.stage.FileChooser.*
+import javafx.stage.FileChooser.ExtensionFilter
 import javafx.stage.Stage
 import org.slf4j.LoggerFactory
 import java.nio.file.NoSuchFileException
@@ -337,7 +333,8 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
             console.settings.markAsNeedControllerUpdate()
         }
         if (console.settings.port1.type != FOUR_SCORE &&
-            console.settings.port2.type == ControllerType.NONE) {
+            console.settings.port2.type == ControllerType.NONE
+        ) {
             console.settings.port2.type = NES_CONTROLLER
             console.settings.markAsNeedControllerUpdate()
         }

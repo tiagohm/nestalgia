@@ -1,7 +1,8 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.IRQSource.*
-import br.tiagohm.nestalgia.core.MemoryAccessType.*
+import br.tiagohm.nestalgia.core.IRQSource.EXTERNAL
+import br.tiagohm.nestalgia.core.MemoryAccessType.NO_ACCESS
+import br.tiagohm.nestalgia.core.MemoryAccessType.READ_WRITE
 import br.tiagohm.nestalgia.core.MirroringType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
@@ -105,5 +106,7 @@ class SunsoftFme7(console: Console) : Mapper(console) {
         irqEnabled = s.readBoolean("irqEnabled")
         irqCounterEnabled = s.readBoolean("irqCounterEnabled")
         irqCounter = s.readInt("irqCounter")
+
+        updateWorkRam()
     }
 }

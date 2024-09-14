@@ -1,4 +1,4 @@
-import br.tiagohm.nestalgia.core.EmulationFlag.*
+import br.tiagohm.nestalgia.core.EmulationFlag.MMC3_IRQ_ALT_BEHAVIOR
 
 class MapperTest : NesTesterSpec() {
 

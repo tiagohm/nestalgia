@@ -7,7 +7,8 @@ import javafx.collections.ListChangeListener
 import javafx.collections.ObservableList
 import javafx.scene.Parent
 import javafx.scene.Scene
-import jfxtras.styles.jmetro.Style.*
+import jfxtras.styles.jmetro.Style.DARK
+import jfxtras.styles.jmetro.Style.LIGHT
 
 class JMetro() {
 

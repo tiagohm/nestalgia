@@ -1,9 +1,10 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.IRQSource.*
-import br.tiagohm.nestalgia.core.MemoryAccessType.*
+import br.tiagohm.nestalgia.core.IRQSource.EXTERNAL
+import br.tiagohm.nestalgia.core.MemoryAccessType.READ
+import br.tiagohm.nestalgia.core.MemoryAccessType.READ_WRITE
 import br.tiagohm.nestalgia.core.MirroringType.*
-import br.tiagohm.nestalgia.core.PrgMemoryType.*
+import br.tiagohm.nestalgia.core.PrgMemoryType.ROM
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_090
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_209
@@ -286,7 +287,8 @@ class JyCompany(console: Console) : Mapper(console) {
     override fun notifyVRAMAddressChange(addr: Int) {
         if (irqSource === JyIrqSource.PPU_A12_RISE
             && addr and 0x1000 != 0
-            && lastPpuAddr and 0x1000 == 0) {
+            && lastPpuAddr and 0x1000 == 0
+        ) {
             tickIrqCounter()
         }
 

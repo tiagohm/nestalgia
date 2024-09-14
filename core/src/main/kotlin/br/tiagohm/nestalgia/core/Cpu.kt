@@ -1,9 +1,10 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.ConsoleType.*
+import br.tiagohm.nestalgia.core.ConsoleType.HVC_001
 import br.tiagohm.nestalgia.core.MemoryOperationType.*
 import br.tiagohm.nestalgia.core.PSFlag.*
-import br.tiagohm.nestalgia.core.Region.*
+import br.tiagohm.nestalgia.core.Region.DENDY
+import br.tiagohm.nestalgia.core.Region.PAL
 import kotlin.random.Random
 
 @Suppress("NOTHING_TO_INLINE")

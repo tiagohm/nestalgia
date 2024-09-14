@@ -1,12 +1,13 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.A12StateChange.*
-import br.tiagohm.nestalgia.core.ChrMemoryType.*
+import br.tiagohm.nestalgia.core.A12StateChange.RISE
+import br.tiagohm.nestalgia.core.ChrMemoryType.RAM
 import br.tiagohm.nestalgia.core.ChrMemoryType.ROM
-import br.tiagohm.nestalgia.core.IRQSource.*
+import br.tiagohm.nestalgia.core.IRQSource.EXTERNAL
 import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import br.tiagohm.nestalgia.core.MirroringType.*
-import br.tiagohm.nestalgia.core.PrgMemoryType.*
+import br.tiagohm.nestalgia.core.PrgMemoryType.SRAM
+import br.tiagohm.nestalgia.core.PrgMemoryType.WRAM
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_176
 
@@ -322,6 +323,8 @@ class Fk23C(console: Console) : Mapper(console) {
         s.write("mirroringReg", mirroringReg)
         s.write("cnromChrReg", cnromChrReg)
         s.write("irqDelay", irqDelay)
+
+        updateState()
     }
 
     override fun restoreState(s: Snapshot) {

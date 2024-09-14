@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryAccessType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.READ_WRITE
 
 class Mapper153(console: Console) : BandaiFgc(console) {
 

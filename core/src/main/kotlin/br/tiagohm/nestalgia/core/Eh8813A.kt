@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MirroringType.VERTICAL
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_519
 
 class Eh8813A(console: Console) : Mapper(console) {
@@ -15,7 +17,7 @@ class Eh8813A(console: Console) : Mapper(console) {
     @Volatile private var alterReadAddress = false
 
     override fun initialize() {
-        mirroringType = MirroringType.VERTICAL
+        mirroringType = VERTICAL
     }
 
     override fun reset(softReset: Boolean) {

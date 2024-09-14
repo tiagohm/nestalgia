@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MirroringType.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_001
 
 open class MMC1(console: Console) : Mapper(console) {
@@ -83,10 +85,10 @@ open class MMC1(console: Console) : Mapper(console) {
 
     protected open fun updateState() {
         mirroringType = when (state8000 and 0x03) {
-            0 -> MirroringType.SCREEN_A_ONLY
-            1 -> MirroringType.SCREEN_B_ONLY
-            2 -> MirroringType.VERTICAL
-            else -> MirroringType.HORIZONTAL
+            0 -> SCREEN_A_ONLY
+            1 -> SCREEN_B_ONLY
+            2 -> VERTICAL
+            else -> HORIZONTAL
         }
 
         val wramDisable = stateE000.bit4

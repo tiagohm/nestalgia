@@ -1,7 +1,8 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
 import br.tiagohm.nestalgia.core.*
-import br.tiagohm.nestalgia.core.ControllerType.*
+import br.tiagohm.nestalgia.core.ControllerType.POWER_PAD_SIDE_A
+import br.tiagohm.nestalgia.core.ControllerType.POWER_PAD_SIDE_B
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import br.tiagohm.nestalgia.desktop.gui.converters.KeyStringConverter
 import javafx.fxml.FXML

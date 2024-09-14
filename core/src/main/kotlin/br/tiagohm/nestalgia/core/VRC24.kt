@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryAccessType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.READ
+import br.tiagohm.nestalgia.core.MemoryAccessType.READ_WRITE
 import br.tiagohm.nestalgia.core.MirroringType.*
 import org.slf4j.LoggerFactory
 
@@ -132,7 +133,8 @@ class VRC24(console: Console) : Mapper(console) {
         if (newAddr in 0x8000..0x8006) {
             prgReg0 = value and 0x1F
         } else if (variant.ordinal <= VRCVariant.VRC_2C.ordinal && newAddr in 0x9000..0x9003 ||
-            variant.ordinal >= VRCVariant.VRC_4A.ordinal && newAddr in 0x9000..0x9001) {
+            variant.ordinal >= VRCVariant.VRC_4A.ordinal && newAddr in 0x9000..0x9001
+        ) {
             var mask = 0x03
 
             if (!useHeuristics && variant.ordinal <= VRCVariant.VRC_2C.ordinal) {

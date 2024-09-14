@@ -1,7 +1,7 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.ChrMemoryType.*
-import br.tiagohm.nestalgia.core.PrgMemoryType.*
+import br.tiagohm.nestalgia.core.ChrMemoryType.RAM
+import br.tiagohm.nestalgia.core.PrgMemoryType.WRAM
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_198
 

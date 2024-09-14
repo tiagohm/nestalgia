@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.PrgMemoryType.*
+import br.tiagohm.nestalgia.core.PrgMemoryType.ROM
 
 // https://www.nesdev.org/wiki/NES_2.0_Mapper_283
 

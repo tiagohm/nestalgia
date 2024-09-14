@@ -1,7 +1,7 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.GameSystem.*
-import br.tiagohm.nestalgia.core.MirroringType.*
+import br.tiagohm.nestalgia.core.GameSystem.FDS
+import br.tiagohm.nestalgia.core.MirroringType.VERTICAL
 import java.nio.IntBuffer
 
 // https://wiki.nesdev.com/w/index.php/FDS_file_format

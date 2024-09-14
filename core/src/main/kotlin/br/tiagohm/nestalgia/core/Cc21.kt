@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MirroringType.*
+import br.tiagohm.nestalgia.core.MirroringType.SCREEN_A_ONLY
+import br.tiagohm.nestalgia.core.MirroringType.SCREEN_B_ONLY
 
 class Cc21(console: Console) : Mapper(console) {
 

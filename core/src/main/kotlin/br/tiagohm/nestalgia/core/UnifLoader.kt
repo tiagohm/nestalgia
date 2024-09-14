@@ -1,5 +1,7 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MirroringType.*
+import org.slf4j.LoggerFactory
 import java.io.IOException
 
 object UnifLoader {
@@ -40,7 +42,7 @@ object UnifLoader {
         var mapperId = 0
         var system = GameSystem.UNKNOWN
         var hasBattety = false
-        var mirroring = MirroringType.HORIZONTAL
+        var mirroring = HORIZONTAL
         val prgChunks = Array(16) { IntArray(0) }
         val chrChunks = Array(16) { IntArray(0) }
 
@@ -63,12 +65,12 @@ object UnifLoader {
                     board = readString()
 
                     if (board.isNotEmpty()) {
-                        System.err.println("UNIF Board: $board")
+                        // println("UNIF Board: $board")
 
                         mapperId = mapperId(board)
 
                         if (mapperId == UnifBoard.UNKNOWN.id) {
-                            System.err.println("[UNIF] ERROR: Unknown board")
+                            LOG.error("[UNIF] ERROR: Unknown board: {}", board)
                         }
                     } else {
                         throw IOException("[UNIF]: Invalid UNIF board name")
@@ -104,11 +106,11 @@ object UnifLoader {
                 // Mirroring Type
                 fourCC == "MIRR" -> {
                     mirroring = when (readByte()) {
-                        1 -> MirroringType.VERTICAL
-                        2 -> MirroringType.SCREEN_A_ONLY
-                        3 -> MirroringType.SCREEN_B_ONLY
-                        4 -> MirroringType.FOUR_SCREENS
-                        else -> MirroringType.HORIZONTAL
+                        1 -> VERTICAL
+                        2 -> SCREEN_A_ONLY
+                        3 -> SCREEN_B_ONLY
+                        4 -> FOUR_SCREENS
+                        else -> HORIZONTAL
                     }
                 }
                 // Controller
@@ -364,4 +366,6 @@ object UnifLoader {
         "60311C" to 289,
         "CHINA_ER_SAN2" to 19 // Appears to be a mapper 19 hack specific for VirtuaNES (which adds chinese text on top of the PPU's output) to unknown if a board actually exists
     )
+
+    private val LOG = LoggerFactory.getLogger(UnifLoader::class.java)
 }

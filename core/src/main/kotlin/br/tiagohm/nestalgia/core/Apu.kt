@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryAccessType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.READ
+import br.tiagohm.nestalgia.core.MemoryAccessType.WRITE
 
 class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, Initializable, Clockable, Snapshotable, Runnable {
 

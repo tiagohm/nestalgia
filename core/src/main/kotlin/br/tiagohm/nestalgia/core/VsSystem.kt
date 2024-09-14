@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.GameSystem.*
+import br.tiagohm.nestalgia.core.GameSystem.VS_SYSTEM
 import br.tiagohm.nestalgia.core.VsSystemType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_099

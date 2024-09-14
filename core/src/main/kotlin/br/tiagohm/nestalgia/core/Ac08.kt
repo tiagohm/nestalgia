@@ -1,8 +1,9 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryAccessType.*
-import br.tiagohm.nestalgia.core.MirroringType.*
-import br.tiagohm.nestalgia.core.PrgMemoryType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.WRITE
+import br.tiagohm.nestalgia.core.MirroringType.HORIZONTAL
+import br.tiagohm.nestalgia.core.MirroringType.VERTICAL
+import br.tiagohm.nestalgia.core.PrgMemoryType.ROM
 
 class Ac08(console: Console) : Mapper(console) {
 

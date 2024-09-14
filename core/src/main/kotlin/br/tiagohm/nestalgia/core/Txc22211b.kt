@@ -1,6 +1,9 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryAccessType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.READ
+import br.tiagohm.nestalgia.core.MemoryAccessType.READ_WRITE
+import br.tiagohm.nestalgia.core.MirroringType.HORIZONTAL
+import br.tiagohm.nestalgia.core.MirroringType.VERTICAL
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_172
 
@@ -29,8 +32,7 @@ class Txc22211b(console: Console) : Mapper(console) {
     private fun updateState() {
         selectChrPage(0, txChip.output)
 
-        mirroringType = if (txChip.invert) MirroringType.VERTICAL
-        else MirroringType.HORIZONTAL
+        mirroringType = if (txChip.invert) VERTICAL else HORIZONTAL
     }
 
     override fun readRegister(addr: Int): Int {

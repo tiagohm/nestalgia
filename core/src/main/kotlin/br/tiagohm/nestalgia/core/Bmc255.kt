@@ -1,5 +1,8 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MirroringType.HORIZONTAL
+import br.tiagohm.nestalgia.core.MirroringType.VERTICAL
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_255
 
 class Bmc255(console: Console) : Mapper(console) {
@@ -20,7 +23,6 @@ class Bmc255(console: Console) : Mapper(console) {
         selectPrgPage(1, bank or prgBit)
         selectChrPage(0, (addr shr 8 and 0x40) or (addr and 0x3F))
 
-        mirroringType = if (addr and 0x2000 != 0) MirroringType.HORIZONTAL
-        else MirroringType.VERTICAL
+        mirroringType = if (addr and 0x2000 != 0) HORIZONTAL else VERTICAL
     }
 }

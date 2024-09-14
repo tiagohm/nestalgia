@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.ControllerType.*
+import br.tiagohm.nestalgia.core.ControllerType.BATTLE_BOX
 
 class BattleBox(console: Console) : ControlDevice(console, BATTLE_BOX, EXP_DEVICE_PORT), Battery {
 

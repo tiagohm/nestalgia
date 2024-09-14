@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.ControllerType.*
+import br.tiagohm.nestalgia.core.ControllerType.HORI_TRACK
 import kotlin.math.max
 import kotlin.math.min
 

@@ -1,7 +1,9 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryAccessType.*
-import br.tiagohm.nestalgia.core.MirroringType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.READ
+import br.tiagohm.nestalgia.core.MemoryAccessType.READ_WRITE
+import br.tiagohm.nestalgia.core.MirroringType.HORIZONTAL
+import br.tiagohm.nestalgia.core.MirroringType.VERTICAL
 
 // https://www.nesdev.org/wiki/NES_2.0_Mapper_260
 

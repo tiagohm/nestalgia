@@ -1,9 +1,10 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.IRQSource.*
+import br.tiagohm.nestalgia.core.IRQSource.EXTERNAL
 import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import br.tiagohm.nestalgia.core.MirroringType.*
-import br.tiagohm.nestalgia.core.PrgMemoryType.*
+import br.tiagohm.nestalgia.core.PrgMemoryType.SRAM
+import br.tiagohm.nestalgia.core.PrgMemoryType.WRAM
 
 // https://www.nesdev.org/wiki/Bandai_FCG
 

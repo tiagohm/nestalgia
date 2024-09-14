@@ -62,15 +62,18 @@ object INesLoader {
             prgSize = db.prgRomSize
             chrSize = db.chrRomSize
         } else {
-            LOG.info("the game $name ($romCrcHex) is not in database")
+            if (GameDatabase.size > 0) {
+                LOG.warn("the game $name ($romCrcHex) is not in database")
+            }
+
             prgSize = header.prgSize
             chrSize = header.chrSize
         }
 
         if (prgSize + chrSize > dataSize) {
-            LOG.warn("file length does not match header information. {} > {}", prgSize + chrSize, dataSize)
+            LOG.warn("{} file length does not match header information. {} > {}", name, prgSize + chrSize, dataSize)
         } else if (prgSize + chrSize < dataSize) {
-            LOG.warn("file is larger than excepted. {} < {}", prgSize + chrSize, dataSize)
+            LOG.warn("{} file is larger than excepted. {} < {}", name, prgSize + chrSize, dataSize)
         }
 
         val prgRom = IntArray(prgSize) { i -> if (offset + i < rom.size) rom[offset + i] else 0 }
