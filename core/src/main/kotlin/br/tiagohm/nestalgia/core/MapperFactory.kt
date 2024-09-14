@@ -273,6 +273,7 @@ object MapperFactory {
             513 -> Sachen9602(console)
             518 -> Dance2000(console)
             519 -> Eh8813A(console)
+            521 -> DreamTech01(console)
             522 -> Lh10(console)
             529 -> T230(console)
             530 -> Ax5705(console)
