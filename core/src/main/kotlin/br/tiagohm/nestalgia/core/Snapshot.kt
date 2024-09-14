@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 import java.io.*
 
-class Snapshot private constructor(private val data: MutableMap<String, Any>) : Serializable {
+data class Snapshot(private val data: MutableMap<String, Any>) : Serializable {
 
     constructor(capacity: Int = 32) : this(HashMap(capacity))
 
