@@ -34,17 +34,17 @@ open class MMC3(console: Console) : Mapper(console) {
     @Volatile private var mForceMmc3RevAIrqs = false
     private val a12Watcher = A12RisingEdgeWatcher(console)
 
-    @JvmField protected var irqReloadValue = 0
-    @JvmField protected var irqCounter = 0
-    @JvmField protected var irqReload = false
-    @JvmField protected var irqEnabled = false
-    @JvmField protected var prgMode = 0
-    @JvmField protected var chrMode = 0
+    @JvmField @Volatile protected var irqReloadValue = 0
+    @JvmField @Volatile protected var irqCounter = 0
+    @JvmField @Volatile protected var irqReload = false
+    @JvmField @Volatile protected var irqEnabled = false
+    @JvmField @Volatile protected var prgMode = 0
+    @JvmField @Volatile protected var chrMode = 0
     protected val registers = IntArray(8)
 
     protected val state = State()
 
-    @JvmField protected var currentRegister = 0
+    @JvmField @Volatile protected var currentRegister = 0
 
     protected open val forceMmc3RevAIrqs
         get() = mForceMmc3RevAIrqs

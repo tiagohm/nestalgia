@@ -8,7 +8,7 @@ abstract class ControlDevice(
     @JvmField val port: Int,
 ) : Memory, Resetable, Snapshotable {
 
-    @JvmField protected var strobe = false
+    @JvmField @Volatile protected var strobe = false
 
     val isExpansionDevice
         get() = port == EXP_DEVICE_PORT

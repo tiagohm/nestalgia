@@ -17,14 +17,14 @@ open class SquareChannel(
     var dutyPos = 0
         protected set
 
-    protected var sweepEnabled = false
-    protected var sweepPeriod = 0
-    protected var sweepNegate = false
-    protected var sweepShift = 0
-    protected var reloadSweep = false
-    protected var sweepDivider = 0
-    protected var sweepTargetPeriod = 0
-    protected var realPeriod = 0
+    @JvmField @Volatile protected var sweepEnabled = false
+    @JvmField @Volatile protected var sweepPeriod = 0
+    @JvmField @Volatile protected var sweepNegate = false
+    @JvmField @Volatile protected var sweepShift = 0
+    @JvmField @Volatile protected var reloadSweep = false
+    @JvmField @Volatile protected var sweepDivider = 0
+    @JvmField @Volatile protected var sweepTargetPeriod = 0
+    @JvmField @Volatile protected var realPeriod = 0
 
     override val frequency
         get() = region.clockRate / 16.0 / (realPeriod + 1)

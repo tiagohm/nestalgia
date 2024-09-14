@@ -6,12 +6,12 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 open class MMC2(console: Console) : Mapper(console) {
 
-    @JvmField protected var leftLatch = 1
-    @JvmField protected var rightLatch = 1
+    @JvmField @Volatile protected var leftLatch = 1
+    @JvmField @Volatile protected var rightLatch = 1
     @Volatile private var prgPage = 0
     @JvmField protected val leftChrPage = IntArray(2)
     @JvmField protected val rightChrPage = IntArray(2)
-    @JvmField protected var needChrUpdate = false
+    @JvmField @Volatile protected var needChrUpdate = false
 
     override val prgPageSize = 0x2000
 

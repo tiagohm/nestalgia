@@ -20,8 +20,8 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Initial
     @Volatile private var nmiScanline = 0
     @Volatile private var palSpriteEvalScanline = 0
 
-    @JvmField protected var masterClock = 0L
-    @JvmField protected var masterClockDivider = 4
+    @JvmField @Volatile protected var masterClock = 0L
+    @JvmField @Volatile protected var masterClockDivider = 4
     @Volatile private var memoryReadBuffer = 0
 
     private val outputBuffers = arrayOf(IntArray(PIXEL_COUNT), IntArray(PIXEL_COUNT))

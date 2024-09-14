@@ -28,7 +28,7 @@ open class StandardController(
     private val turboSpeed = 2 // 0..4
     private val turboFreq = 1 shl (4 - turboSpeed) and 0xFF
 
-    protected var stateBuffer = 0
+    @Volatile protected var stateBuffer = 0
         private set
 
     protected val value

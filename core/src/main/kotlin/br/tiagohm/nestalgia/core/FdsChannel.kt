@@ -2,11 +2,11 @@ package br.tiagohm.nestalgia.core
 
 open class FdsChannel : Memory, Snapshotable {
 
-    protected var speed = 0
-    protected var envelopeOff = false
-    protected var volumeIncrease = false
+    @JvmField @Volatile protected var speed = 0
+    @JvmField @Volatile protected var envelopeOff = false
+    @JvmField @Volatile protected var volumeIncrease = false
 
-    protected var timer = 0
+    @JvmField @Volatile protected var timer = 0
 
     var gain = 0
         protected set

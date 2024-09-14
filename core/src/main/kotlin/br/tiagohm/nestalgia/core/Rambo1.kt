@@ -16,7 +16,7 @@ open class Rambo1(console: Console) : Mapper(console) {
     @Volatile private var cpuClockCounter = 0
     private val a12Watcher = A12Watcher()
     private val registers = IntArray(16)
-    @JvmField protected var currentRegister = 0
+    @JvmField @Volatile protected var currentRegister = 0
     @Volatile private var needIrqDelay = 0
     @Volatile private var forceClock = false
 

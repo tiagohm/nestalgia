@@ -16,8 +16,8 @@ abstract class BandaiFgc(console: Console) : Mapper(console) {
     @Volatile private var prgBankSelect = 0
     private val chrRegs = IntArray(8)
 
-    @JvmField protected var standardEeprom: Eeprom24C0X? = null
-    @JvmField protected var extraEeprom: Eeprom24C0X? = null
+    @JvmField @Volatile protected var standardEeprom: Eeprom24C0X? = null
+    @JvmField @Volatile protected var extraEeprom: Eeprom24C0X? = null
 
     override val prgPageSize = 0x4000
 

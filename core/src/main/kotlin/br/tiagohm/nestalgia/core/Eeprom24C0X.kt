@@ -12,14 +12,14 @@ abstract class Eeprom24C0X(size: Int) : Battery, AutoCloseable, Snapshotable {
         CHIP_ADDRESS,
     }
 
-    @JvmField protected var mode = Mode.IDLE
-    @JvmField protected var nextMode = Mode.IDLE
-    @JvmField protected var address = 0
-    @JvmField protected var data = 0
-    @JvmField protected var counter = 0
-    @JvmField protected var output = 0
-    @JvmField protected var prevScl = 0
-    @JvmField protected var prevSda = 0
+    @JvmField @Volatile protected var mode = Mode.IDLE
+    @JvmField @Volatile protected var nextMode = Mode.IDLE
+    @JvmField @Volatile protected var address = 0
+    @JvmField @Volatile protected var data = 0
+    @JvmField @Volatile protected var counter = 0
+    @JvmField @Volatile protected var output = 0
+    @JvmField @Volatile protected var prevScl = 0
+    @JvmField @Volatile protected var prevSda = 0
     @JvmField protected val romData = IntArray(size)
 
     abstract fun write(scl: Int, sda: Int)

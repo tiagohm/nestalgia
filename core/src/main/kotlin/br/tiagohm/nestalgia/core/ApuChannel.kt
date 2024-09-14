@@ -7,7 +7,7 @@ abstract class ApuChannel(
 ) : MemoryHandler, Resetable, Snapshotable {
 
     @Volatile private var previousCycle = 0
-    @JvmField protected var lastOutput = 0
+    @JvmField @Volatile protected var lastOutput = 0
 
     var timer = 0
         protected set
