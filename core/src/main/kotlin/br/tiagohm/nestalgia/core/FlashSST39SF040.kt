@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-class FlashSST39SF040(private val data: IntArray) : Snapshotable, Resetable {
+class FlashSST39SF040(private val data: IntArray) : Snapshotable, Resetable, Writable, Readable {
 
     private enum class ChipMode {
         WAITING,
@@ -24,7 +24,7 @@ class FlashSST39SF040(private val data: IntArray) : Snapshotable, Resetable {
         softwareId = s.readBoolean("softwareId")
     }
 
-    fun read(addr: Int): Int {
+    override fun read(addr: Int): Int {
         return if (softwareId) when (addr and 0x1FF) {
             0x00 -> 0xBF
             0x01 -> 0xB7
@@ -32,7 +32,7 @@ class FlashSST39SF040(private val data: IntArray) : Snapshotable, Resetable {
         } else -1
     }
 
-    fun write(addr: Int, value: Int) {
+    override fun write(addr: Int, value: Int) {
         val cmd = addr and 0x7FFF
 
         if (mode == ChipMode.WAITING) {

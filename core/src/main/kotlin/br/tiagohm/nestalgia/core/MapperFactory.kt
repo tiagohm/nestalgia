@@ -252,6 +252,7 @@ object MapperFactory {
             263 -> MMC3Kof97(console)
             265 -> T262(console)
             283 -> Gs2004(console)
+            284 -> UnlDripGame(console)
             285 -> A65AS(console)
             286 -> Bs5(console)
             287 -> Bmc411120C(console)
