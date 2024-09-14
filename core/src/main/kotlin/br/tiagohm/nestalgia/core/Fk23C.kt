@@ -323,6 +323,8 @@ class Fk23C(console: Console) : Mapper(console) {
         s.write("mirroringReg", mirroringReg)
         s.write("cnromChrReg", cnromChrReg)
         s.write("irqDelay", irqDelay)
+
+        updateState()
     }
 
     override fun restoreState(s: Snapshot) {

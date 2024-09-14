@@ -72,5 +72,7 @@ class Mapper103(console: Console) : Mapper(console) {
 
         prgRamDisabled = s.readBoolean("prgRamDisabled")
         prgReg = s.readInt("prgReg")
+
+        updateState()
     }
 }

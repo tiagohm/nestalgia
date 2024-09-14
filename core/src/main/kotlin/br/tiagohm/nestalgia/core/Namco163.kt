@@ -282,6 +282,8 @@ class Namco163(console: Console) : Mapper(console) {
         highChrNtMode = s.readBoolean("highChrNtMode")
         irqCounter = s.readInt("irqCounter")
         variant = s.readEnum("variant", NamcoVariant.NAMCO_163)
+
+        updateSaveRamAccess()
     }
 
     companion object {

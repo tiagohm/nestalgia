@@ -196,5 +196,8 @@ open class VRC6(console: Console) : Mapper(console) {
         s.readIntArray("chrRegisters", chrRegisters)
         s.readSnapshotable("irq", vrcIrq)
         s.readSnapshotable("audio", audio)
+
+        updatePrgRamAccess()
+        updatePpuBanking()
     }
 }
