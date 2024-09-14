@@ -260,6 +260,7 @@ object MapperFactory {
             290 -> BmcNtd03(console)
             299 -> Bmc11160(console)
             300 -> Bmc190in1(console)
+            305 -> Kaiser7031(console)
             306 -> Kaiser7016(console)
             309 -> Lh51(console)
             313 -> ResetTxrom(console)
