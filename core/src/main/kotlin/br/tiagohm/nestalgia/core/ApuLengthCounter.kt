@@ -6,11 +6,11 @@ abstract class ApuLengthCounter(
     mixer: SoundMixer?,
 ) : ApuChannel(channel, console, mixer) {
 
-    protected var newHaltValue = false
-    protected var lengthCounterHalt = false
-    protected var lengthCounter = 0
-    protected var lengthCounterReloadValue = 0
-    protected var lengthCounterPreviousValue = 0
+    @JvmField @Volatile protected var newHaltValue = false
+    @JvmField @Volatile protected var lengthCounterHalt = false
+    @JvmField @Volatile protected var lengthCounter = 0
+    @JvmField @Volatile protected var lengthCounterReloadValue = 0
+    @JvmField @Volatile protected var lengthCounterPreviousValue = 0
 
     override var enabled = false
         internal set(value) {

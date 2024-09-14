@@ -15,8 +15,8 @@ class Mapper050(console: Console) : Mapper(console) {
 
     override val registerEndAddress = 0x5FFF
 
-    private var irqCounter = 0
-    private var irqEnabled = false
+    @Volatile private var irqCounter = 0
+    @Volatile private var irqEnabled = false
 
     override fun initialize() {
         addCpuMemoryMapping(0x6000, 0x7FFF, 0x0F, ROM)

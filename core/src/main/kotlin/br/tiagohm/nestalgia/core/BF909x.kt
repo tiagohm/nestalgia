@@ -6,7 +6,7 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 class BF909x(console: Console) : Mapper(console) {
 
-    private var bf9097Mode = false
+    @Volatile private var bf9097Mode = false
 
     override val prgPageSize = 0x4000
 

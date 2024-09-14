@@ -6,12 +6,12 @@ class MMC5Audio(console: Console) : Memory, ExpansionAudio(console) {
 
     private val square1 = MMC5SquareChannel(console)
     private val square2 = MMC5SquareChannel(console)
-    private var audioCounter = 0
-    private var lastOutput = 0
-    private var pcmReadMode = false
-    private var pcmIrqEnabled = false
-    private var pcmIrqTrip = false
-    private var pcmOutput = 0
+    @Volatile private var audioCounter = 0
+    @Volatile private var lastOutput = 0
+    @Volatile private var pcmReadMode = false
+    @Volatile private var pcmIrqEnabled = false
+    @Volatile private var pcmIrqTrip = false
+    @Volatile private var pcmOutput = 0
 
     override fun clockAudio() {
         audioCounter--

@@ -15,7 +15,7 @@ class Supervision(console: Console) : Mapper(console) {
 
     override val registerEndAddress = 0xFFFF
 
-    private var epromFirst = false
+    @Volatile private var epromFirst = false
     private val regs = IntArray(2)
 
     override fun initialize() {

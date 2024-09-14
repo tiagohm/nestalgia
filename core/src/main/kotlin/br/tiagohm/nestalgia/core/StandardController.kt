@@ -24,11 +24,11 @@ open class StandardController(
         TURBO_A(7),
     }
 
-    private var microphoneEnabled = port == 1 && type == FAMICOM_CONTROLLER_P2
+    @Volatile private var microphoneEnabled = port == 1 && type == FAMICOM_CONTROLLER_P2
     private val turboSpeed = 2 // 0..4
     private val turboFreq = 1 shl (4 - turboSpeed) and 0xFF
 
-    protected var stateBuffer = 0
+    @Volatile protected var stateBuffer = 0
         private set
 
     protected val value

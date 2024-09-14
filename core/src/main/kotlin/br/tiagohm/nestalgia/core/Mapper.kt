@@ -54,25 +54,25 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
     private val isReadRegisterAddr = BooleanArray(0x10000)
     private val isWriteRegisterAddr = BooleanArray(0x10000)
 
-    protected var mSaveRamSize = 0
+    @Volatile protected var mSaveRamSize = 0
         private set
 
-    protected var mWorkRamSize = 0
+    @Volatile protected var mWorkRamSize = 0
         private set
 
-    protected var mPrgSize = 0
+    @Volatile protected var mPrgSize = 0
         private set
 
-    protected var mChrRomSize = 0
+    @Volatile protected var mChrRomSize = 0
         private set
 
-    protected var mChrRamSize = 0
+    @Volatile protected var mChrRamSize = 0
         private set
 
-    protected var onlyChrRam = false
+    @Volatile protected var onlyChrRam = false
         private set
 
-    protected var vramOpenBusValue = -1
+    @JvmField @Volatile protected var vramOpenBusValue = -1
 
     // Make sure the page size is no bigger than the size of the ROM itself
     // Otherwise we will end up reading from unallocated memory
@@ -115,15 +115,15 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
     val hasChrRom
         get() = !onlyChrRam
 
-    @JvmField protected var prgRom = IntArray(0)
-    @JvmField protected var chrRom = IntArray(0)
-    @JvmField protected var chrRam = IntArray(0)
-    @JvmField protected var saveRam = IntArray(0)
-    @JvmField protected var workRam = IntArray(0)
-    @JvmField protected var nametableRam = IntArray(0)
+    @JvmField @Volatile protected var prgRom = IntArray(0)
+    @JvmField @Volatile protected var chrRom = IntArray(0)
+    @JvmField @Volatile protected var chrRam = IntArray(0)
+    @JvmField @Volatile protected var saveRam = IntArray(0)
+    @JvmField @Volatile protected var workRam = IntArray(0)
+    @JvmField @Volatile protected var nametableRam = IntArray(0)
 
-    private var hasChrBattery = false
-    private var mHasBusConflicts = false
+    @Volatile private var hasChrBattery = false
+    @Volatile private var mHasBusConflicts = false
 
     private val prgMemoryAccess = Array(0x100) { NO_ACCESS }
     private val prgPages = Array(0x100) { Pointer.NULL }
@@ -176,7 +176,7 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
         }
     }
 
-    private var mMirroringType = HORIZONTAL
+    @Volatile private var mMirroringType = HORIZONTAL
 
     var mirroringType: MirroringType
         get() = mMirroringType

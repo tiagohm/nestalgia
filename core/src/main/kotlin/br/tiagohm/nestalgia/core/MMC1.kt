@@ -4,11 +4,11 @@ package br.tiagohm.nestalgia.core
 
 open class MMC1(console: Console) : Mapper(console) {
 
-    private var writeBuffer = 0
-    private var shiftCount = 0
-    private var lastWriteCycle = 0L
-    private var forceWramOn = false
-    private var lastChrReg = 1
+    @Volatile private var writeBuffer = 0
+    @Volatile private var shiftCount = 0
+    @Volatile private var lastWriteCycle = 0L
+    @Volatile private var forceWramOn = false
+    @Volatile private var lastChrReg = 1
 
     protected val state = IntArray(4)
 

@@ -10,11 +10,11 @@ import br.tiagohm.nestalgia.core.PrgMemoryType.*
 class SunsoftFme7(console: Console) : Mapper(console) {
 
     private val audio = Sunsoft5bAudio(console)
-    private var command = 0
-    private var workRamValue = 0
-    private var irqEnabled = false
-    private var irqCounterEnabled = false
-    private var irqCounter = 0
+    @Volatile private var command = 0
+    @Volatile private var workRamValue = 0
+    @Volatile private var irqEnabled = false
+    @Volatile private var irqCounterEnabled = false
+    @Volatile private var irqCounter = 0
 
     override val prgPageSize = 0x2000
 

@@ -8,8 +8,8 @@ class Mapper014(console: Console) : MMC3(console) {
 
     private val vrcChrRegs = IntArray(8)
     private val vrcPrgRegs = IntArray(2)
-    private var vrcMirroring = 0
-    private var mode = 0
+    @Volatile private var vrcMirroring = 0
+    @Volatile private var mode = 0
 
     override fun updateChrMapping() {
         val slotSwap = if (state.reg8000.bit7) 4 else 0

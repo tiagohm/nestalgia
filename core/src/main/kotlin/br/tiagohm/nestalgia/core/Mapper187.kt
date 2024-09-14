@@ -68,13 +68,13 @@ class Mapper187(console: Console) : MMC3(console) {
             }
         } else if (addr == 0x8000) {
             exRegs[1] = 1
-            super.writeRegister(addr, value);
+            super.writeRegister(addr, value)
         } else if (addr == 0x8001) {
             if (exRegs[1] == 1) {
-                super.writeRegister(addr, value);
+                super.writeRegister(addr, value)
             }
         } else {
-            super.writeRegister(addr, value);
+            super.writeRegister(addr, value)
         }
     }
 

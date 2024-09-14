@@ -8,7 +8,7 @@ class Mapper040(console: Console) : Mapper(console) {
 
     override val chrPageSize = 0x2000
 
-    private var irqCounter = 0
+    @Volatile private var irqCounter = 0
 
     override fun initialize() {
         addCpuMemoryMapping(0x6000, 0x7FFF, 6, PrgMemoryType.ROM)

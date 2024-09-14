@@ -15,8 +15,8 @@ class Bmc51(console: Console) : Mapper(console) {
 
     override val registerEndAddress = 0xFFFF
 
-    private var bank = 0
-    private var mode = 1
+    @Volatile private var bank = 0
+    @Volatile private var mode = 1
 
     override fun initialize() {
         updateState()

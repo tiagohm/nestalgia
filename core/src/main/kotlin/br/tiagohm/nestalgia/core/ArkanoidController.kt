@@ -16,8 +16,8 @@ class ArkanoidController(
         override val keyIndex = 1
     }
 
-    private var currentValue = (0xF4 - 0x54) / 2
-    private var stateBuffer = 0
+    @Volatile private var currentValue = (0xF4 - 0x54) / 2
+    @Volatile private var stateBuffer = 0
     private val sensibility = SENSIBILITY_PX[console.settings.arkanoidSensibility[port]]
 
     override fun setStateFromInput() {

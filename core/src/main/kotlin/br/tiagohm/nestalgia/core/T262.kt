@@ -6,10 +6,10 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 class T262(console: Console) : Mapper(console) {
 
-    private var locked = false
-    private var base = 0
-    private var bank = 0
-    private var mode = false
+    @Volatile private var locked = false
+    @Volatile private var base = 0
+    @Volatile private var bank = 0
+    @Volatile private var mode = false
 
     override val prgPageSize = 0x4000
 
@@ -33,5 +33,23 @@ class T262(console: Console) : Mapper(console) {
 
         selectPrgPage(0, base or bank)
         selectPrgPage(1, base or if (mode) bank else 7)
+    }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("locked", locked)
+        s.write("base", base)
+        s.write("bank", bank)
+        s.write("mode", mode)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        locked = s.readBoolean("locked")
+        base = s.readInt("base")
+        bank = s.readInt("bank")
+        mode = s.readBoolean("mode")
     }
 }

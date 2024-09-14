@@ -16,7 +16,7 @@ class Mapper170(console: Console) : Mapper(console) {
 
     override val allowRegisterRead = true
 
-    private var reg = 0
+    @Volatile private var reg = 0
 
     override fun initialize() {
         removeRegisterRange(0x7000, 0x7000, READ)

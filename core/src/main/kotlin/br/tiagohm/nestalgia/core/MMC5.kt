@@ -23,53 +23,53 @@ class MMC5(console: Console) : Mapper(console) {
     private val fillNametable = Pointer(IntArray(NAMETABLE_SIZE))
     private val emptyNametable = Pointer(IntArray(NAMETABLE_SIZE))
 
-    private var prgRamProtect1 = 0
-    private var prgRamProtect2 = 0
+    @Volatile private var prgRamProtect1 = 0
+    @Volatile private var prgRamProtect2 = 0
 
-    private var fillModeTile = 0
-    private var fillModeColor = 0
+    @Volatile private var fillModeTile = 0
+    @Volatile private var fillModeColor = 0
 
-    private var verticalSplitEnabled = false
-    private var verticalSplitRightSide = false
-    private var verticalSplitDelimiterTile = 0
-    private var verticalSplitScroll = 0
-    private var verticalSplitBank = 0
+    @Volatile private var verticalSplitEnabled = false
+    @Volatile private var verticalSplitRightSide = false
+    @Volatile private var verticalSplitDelimiterTile = 0
+    @Volatile private var verticalSplitScroll = 0
+    @Volatile private var verticalSplitBank = 0
 
-    private var splitInSplitRegion = false
-    private var splitVerticalScroll = 0
-    private var splitTile = 0
-    private var splitTileNumber = -1
+    @Volatile private var splitInSplitRegion = false
+    @Volatile private var splitVerticalScroll = 0
+    @Volatile private var splitTile = 0
+    @Volatile private var splitTileNumber = -1
 
-    private var multiplierValue1 = 0
-    private var multiplierValue2 = 0
+    @Volatile private var multiplierValue1 = 0
+    @Volatile private var multiplierValue2 = 0
 
-    private var nametableMapping = 0
-    private var extendedRamMode = 0
+    @Volatile private var nametableMapping = 0
+    @Volatile private var extendedRamMode = 0
 
     // Extended attribute mode fields (used when _extendedRamMode == 1)
-    private var exAttributeLastNametableFetch = 0
-    private var exAttrLastFetchCounter = 0
-    private var exAttrSelectedChrBank = 0
+    @Volatile private var exAttributeLastNametableFetch = 0
+    @Volatile private var exAttrLastFetchCounter = 0
+    @Volatile private var exAttrSelectedChrBank = 0
 
-    private var prgMode = 0
+    @Volatile private var prgMode = 0
     private val prgBanks = IntArray(5)
 
-    private var chrMode = 0
-    private var chrUpperBits = 0
+    @Volatile private var chrMode = 0
+    @Volatile private var chrUpperBits = 0
     private val chrBanks = IntArray(12)
-    private var lastChrReg = 0
-    private var prevChrA = false
+    @Volatile private var lastChrReg = 0
+    @Volatile private var prevChrA = false
 
-    private var irqCounterTarget = 0
-    private var irqEnabled = false
-    private var scanlineCounter = 0
-    private var irqPending = false
+    @Volatile private var irqCounterTarget = 0
+    @Volatile private var irqEnabled = false
+    @Volatile private var scanlineCounter = 0
+    @Volatile private var irqPending = false
 
-    private var needInFrame = false
-    private var ppuInFrame = false
-    private var ppuIdleCounter = 0
-    private var lastPpuReadAddr = 0
-    private var ntReadCounter = 0
+    @Volatile private var needInFrame = false
+    @Volatile private var ppuInFrame = false
+    @Volatile private var ppuIdleCounter = 0
+    @Volatile private var lastPpuReadAddr = 0
+    @Volatile private var ntReadCounter = 0
 
     override val prgPageSize = 0x2000
 

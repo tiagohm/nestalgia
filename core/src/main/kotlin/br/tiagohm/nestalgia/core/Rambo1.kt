@@ -8,17 +8,17 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 open class Rambo1(console: Console) : Mapper(console) {
 
-    private var irqEnabled = false
-    private var irqCycleMode = false
-    private var needReload = false
-    private var irqCounter = 0
-    private var irqReloadValue = 0
-    private var cpuClockCounter = 0
+    @Volatile private var irqEnabled = false
+    @Volatile private var irqCycleMode = false
+    @Volatile private var needReload = false
+    @Volatile private var irqCounter = 0
+    @Volatile private var irqReloadValue = 0
+    @Volatile private var cpuClockCounter = 0
     private val a12Watcher = A12Watcher()
     private val registers = IntArray(16)
-    @JvmField protected var currentRegister = 0
-    private var needIrqDelay = 0
-    private var forceClock = false
+    @JvmField @Volatile protected var currentRegister = 0
+    @Volatile private var needIrqDelay = 0
+    @Volatile private var forceClock = false
 
     override val prgPageSize = 0x2000
 

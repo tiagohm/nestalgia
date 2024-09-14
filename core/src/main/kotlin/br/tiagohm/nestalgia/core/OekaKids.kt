@@ -4,9 +4,9 @@ package br.tiagohm.nestalgia.core
 
 class OekaKids(console: Console) : Mapper(console) {
 
-    private var outerChrBank = 0
-    private var innerChrBank = 0
-    private var lastAddress = 0
+    @Volatile private var outerChrBank = 0
+    @Volatile private var innerChrBank = 0
+    @Volatile private var lastAddress = 0
 
     override val prgPageSize = 0x8000
 
@@ -37,5 +37,21 @@ class OekaKids(console: Console) : Mapper(console) {
         selectPrgPage(0, value and 0x03)
         outerChrBank = value and 0x04
         updateChrBanks()
+    }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("outerChrBank", outerChrBank)
+        s.write("innerChrBank", innerChrBank)
+        s.write("lastAddress", lastAddress)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        outerChrBank = s.readInt("outerChrBank")
+        innerChrBank = s.readInt("innerChrBank")
+        lastAddress = s.readInt("lastAddress")
     }
 }

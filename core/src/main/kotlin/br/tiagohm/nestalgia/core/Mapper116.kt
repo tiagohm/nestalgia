@@ -9,24 +9,24 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 class Mapper116(console: Console) : Mapper(console) {
 
     private val a12Watcher = A12Watcher()
-    private var mode = 0
+    @Volatile private var mode = 0
 
     private val vrc2Chr = IntArray(8)
     private val vrc2Prg = IntArray(2)
-    private var vrc2Mirroring = 0
+    @Volatile private var vrc2Mirroring = 0
 
     private val mmc3Regs = IntArray(10)
-    private var mmc3Ctrl = 0
-    private var mmc3Mirroring = 0
+    @Volatile private var mmc3Ctrl = 0
+    @Volatile private var mmc3Mirroring = 0
 
     private val mmc1Regs = IntArray(4)
-    private var mmc1Buffer = 0
-    private var mmc1Shift = 0
+    @Volatile private var mmc1Buffer = 0
+    @Volatile private var mmc1Shift = 0
 
-    private var irqCounter = 0
-    private var irqReloadValue = 0
-    private var irqReload = false
-    private var irqEnabled = false
+    @Volatile private var irqCounter = 0
+    @Volatile private var irqReloadValue = 0
+    @Volatile private var irqReload = false
+    @Volatile private var irqEnabled = false
 
     override val prgPageSize = 0x2000
 

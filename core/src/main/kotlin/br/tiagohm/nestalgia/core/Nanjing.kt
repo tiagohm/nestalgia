@@ -5,8 +5,8 @@ package br.tiagohm.nestalgia.core
 class Nanjing(console: Console) : Mapper(console) {
 
     private val registers = IntArray(5)
-    private var toggle = true
-    private var autoSwitchCHR = false
+    @Volatile private var toggle = true
+    @Volatile private var autoSwitchCHR = false
 
     override val prgPageSize = 0x8000
 

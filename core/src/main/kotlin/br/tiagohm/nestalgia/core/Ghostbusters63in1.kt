@@ -8,7 +8,7 @@ class Ghostbusters63in1(console: Console) : Mapper(console) {
 
     override val chrPageSize = 0x2000
 
-    private var regs = IntArray(2)
+    @Volatile private var regs = IntArray(2)
 
     override fun initialize() = Unit
 

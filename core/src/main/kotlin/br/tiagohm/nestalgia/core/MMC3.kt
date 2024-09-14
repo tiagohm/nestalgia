@@ -29,22 +29,22 @@ open class MMC3(console: Console) : Mapper(console) {
         }
     }
 
-    private var wramEnabled = false
-    private var wramWriteProtected = false
-    private var mForceMmc3RevAIrqs = false
+    @Volatile private var wramEnabled = false
+    @Volatile private var wramWriteProtected = false
+    @Volatile private var mForceMmc3RevAIrqs = false
     private val a12Watcher = A12RisingEdgeWatcher(console)
 
-    @JvmField protected var irqReloadValue = 0
-    @JvmField protected var irqCounter = 0
-    @JvmField protected var irqReload = false
-    @JvmField protected var irqEnabled = false
-    @JvmField protected var prgMode = 0
-    @JvmField protected var chrMode = 0
+    @JvmField @Volatile protected var irqReloadValue = 0
+    @JvmField @Volatile protected var irqCounter = 0
+    @JvmField @Volatile protected var irqReload = false
+    @JvmField @Volatile protected var irqEnabled = false
+    @JvmField @Volatile protected var prgMode = 0
+    @JvmField @Volatile protected var chrMode = 0
     protected val registers = IntArray(8)
 
     protected val state = State()
 
-    @JvmField protected var currentRegister = 0
+    @JvmField @Volatile protected var currentRegister = 0
 
     protected open val forceMmc3RevAIrqs
         get() = mForceMmc3RevAIrqs
@@ -185,7 +185,7 @@ open class MMC3(console: Console) : Mapper(console) {
     }
 
     override fun initialize() {
-        mForceMmc3RevAIrqs = info.gameInfo?.chip?.startsWith("MMC3A") ?: false
+        mForceMmc3RevAIrqs = info.gameInfo?.chip?.startsWith("MMC3A") == true
 
         resetMMC3()
 

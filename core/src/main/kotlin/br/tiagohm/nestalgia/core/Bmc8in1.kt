@@ -4,7 +4,7 @@ package br.tiagohm.nestalgia.core
 
 class Bmc8in1(console: Console) : MMC3(console) {
 
-    private var reg = 0
+    @Volatile private var reg = 0
 
     override fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType) {
         super.selectChrPage(slot, reg and 0x0C shl 5 or (page and 0x7F), memoryType)

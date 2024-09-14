@@ -17,7 +17,7 @@ class Kaiser7022(console: Console) : Mapper(console) {
 
     override val allowRegisterRead = true
 
-    private var reg = 0
+    @Volatile private var reg = 0
 
     override fun initialize() {
         removeRegisterRange(0x8000, 0xFFFF, READ)

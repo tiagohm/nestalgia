@@ -8,8 +8,8 @@ class VideoDecoder(private val console: Console) : AutoCloseable, Resetable {
 
     private val stop = AtomicBoolean()
     private val decoder = DecoderVideoFilter(console)
-    private var outputBuffer = IntArray(Ppu.PIXEL_COUNT)
-    private var decodeThread: Thread? = null
+    @Volatile private var outputBuffer = IntArray(Ppu.PIXEL_COUNT)
+    @Volatile private var decodeThread: Thread? = null
     private val waitForFrame = Semaphore(1)
 
     var width = Ppu.SCREEN_WIDTH

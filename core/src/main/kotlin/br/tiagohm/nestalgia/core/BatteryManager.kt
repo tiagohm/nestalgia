@@ -2,8 +2,8 @@ package br.tiagohm.nestalgia.core
 
 class BatteryManager(private val console: Console) : Initializable {
 
-    private var saveEnabled = false
-    private var provider: BatteryProvider? = null
+    @Volatile private var saveEnabled = false
+    @Volatile private var provider: BatteryProvider? = null
 
     override fun initialize() {
         saveEnabled = true

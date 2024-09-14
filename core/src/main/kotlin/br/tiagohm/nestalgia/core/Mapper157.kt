@@ -6,7 +6,7 @@ import br.tiagohm.nestalgia.core.MemoryAccessType.*
 
 class Mapper157(console: Console) : BandaiFgc(console) {
 
-    private var barcodeReader: DatachBarcodeReader? = null
+    @Volatile private var barcodeReader: DatachBarcodeReader? = null
 
     override fun initialize() {
         super.initialize()

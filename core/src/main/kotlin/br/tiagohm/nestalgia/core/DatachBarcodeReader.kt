@@ -5,12 +5,12 @@ import java.nio.IntBuffer
 
 class DatachBarcodeReader(console: Console) : ControlDevice(console, DATACH_BARCODE_READER, MAPPER_INPUT_PORT), BarcodeReader {
 
-    private var insertCycle = 0L
-    private var newBarcode = 0L
-    private var newBarcodeDigitCount = 0
+    @Volatile private var insertCycle = 0L
+    @Volatile private var newBarcode = 0L
+    @Volatile private var newBarcodeDigitCount = 0
     private val data = IntArray(1024)
     private val buffer = IntBuffer.wrap(data)
-    private var barcodeText = ""
+    @Volatile private var barcodeText = ""
 
     val value: Int
         get() {

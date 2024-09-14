@@ -7,8 +7,8 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 class Action53(console: Console) : Mapper(console) {
 
-    private var selectedReg = 0
-    private var mirroringBit = 0
+    @Volatile private var selectedReg = 0
+    @Volatile private var mirroringBit = 0
     private val regs = IntArray(4)
 
     override val prgPageSize = 0x4000

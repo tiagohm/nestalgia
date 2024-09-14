@@ -4,8 +4,8 @@ import br.tiagohm.nestalgia.core.MemoryAccessType.*
 
 class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, Initializable, Clockable, Snapshotable, Runnable {
 
-    private var currentCycle = 0
-    private var previousCycle = 0
+    @Volatile private var currentCycle = 0
+    @Volatile private var previousCycle = 0
 
     @JvmField internal val squareChannel1 = SquareChannel(AudioChannel.SQUARE_1, console, console.soundMixer, true)
     @JvmField internal val squareChannel2 = SquareChannel(AudioChannel.SQUARE_2, console, console.soundMixer, false)

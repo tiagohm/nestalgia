@@ -6,12 +6,12 @@ import br.tiagohm.nestalgia.core.AudioChannel.*
 class Sunsoft5bAudio(console: Console) : ExpansionAudio(console), Memory {
 
     private val volumeLut = IntArray(0x10)
-    private var currentRegister = 0
+    @Volatile private var currentRegister = 0
     private val registers = IntArray(0x10)
-    private var lastOutput = 0
+    @Volatile private var lastOutput = 0
     private val timer = IntArray(3)
     private val toneStep = IntArray(3)
-    private var processTick = false
+    @Volatile private var processTick = false
 
     init {
         var output = 1.0

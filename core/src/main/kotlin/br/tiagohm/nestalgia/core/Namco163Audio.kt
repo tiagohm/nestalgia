@@ -8,12 +8,12 @@ class Namco163Audio(console: Console) : ExpansionAudio(console), Memory {
 
     @JvmField internal val internalRam = IntArray(RAM_SIZE)
     private val channelOutput = IntArray(8)
-    private var ramPosition = 0
-    private var autoIncrement = false
-    private var updateCounter = 0
-    private var currentChannel = 7
-    private var lastOutput = 0
-    private var disableSound = false
+    @Volatile private var ramPosition = 0
+    @Volatile private var autoIncrement = false
+    @Volatile private var updateCounter = 0
+    @Volatile private var currentChannel = 7
+    @Volatile private var lastOutput = 0
+    @Volatile private var disableSound = false
 
     init {
         console.initializeRam(internalRam)
@@ -22,43 +22,43 @@ class Namco163Audio(console: Console) : ExpansionAudio(console), Memory {
     @Suppress("NOTHING_TO_INLINE")
     private inline fun frequency(channel: Int): Int {
         val addr = 0x40 + channel * 0x08
-        return internalRam[addr + FrequencyHigh] and 0x03 shl 16 or
-            (internalRam[addr + FrequencyMid] shl 8) or
-            internalRam[addr + FrequencyLow]
+        return internalRam[addr + FREQUENCY_HIGH] and 0x03 shl 16 or
+            (internalRam[addr + FREQUENCY_MID] shl 8) or
+            internalRam[addr + FREQUENCY_LOW]
     }
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun phase(channel: Int): Int {
         val addr = 0x40 + channel * 0x08
-        return internalRam[addr + PhaseHigh] shl 16 or
-            (internalRam[addr + PhaseMid] shl 8) or
-            internalRam[addr + PhaseLow]
+        return internalRam[addr + PHASE_HIGH] shl 16 or
+            (internalRam[addr + PHASE_MID] shl 8) or
+            internalRam[addr + PHASE_LOW]
     }
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun phase(channel: Int, phase: Int) {
         val addr = 0x40 + channel * 0x08
-        internalRam[addr + PhaseHigh] = phase shr 16 and 0xFF
-        internalRam[addr + PhaseMid] = phase shr 8 and 0xFF
-        internalRam[addr + PhaseLow] = phase and 0xFF
+        internalRam[addr + PHASE_HIGH] = phase shr 16 and 0xFF
+        internalRam[addr + PHASE_MID] = phase shr 8 and 0xFF
+        internalRam[addr + PHASE_LOW] = phase and 0xFF
     }
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun waveAddress(channel: Int): Int {
         val addr = 0x40 + channel * 0x08
-        return internalRam[addr + WaveAddress]
+        return internalRam[addr + WAVE_ADDRESS]
     }
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun waveLength(channel: Int): Int {
         val addr = 0x40 + channel * 0x08
-        return 256 - (internalRam[addr + WaveLength] and 0xFC)
+        return 256 - (internalRam[addr + WAVE_LENGTH] and 0xFC)
     }
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun volume(channel: Int): Int {
         val addr = 0x40 + channel * 0x08
-        return internalRam[addr + Volume] and 0x0F
+        return internalRam[addr + VOLUME] and 0x0F
     }
 
     private inline val numberOfChannels
@@ -165,14 +165,14 @@ class Namco163Audio(console: Console) : ExpansionAudio(console), Memory {
 
         const val RAM_SIZE = 0x80
 
-        const val FrequencyLow = 0x00
-        const val PhaseLow = 0x01
-        const val FrequencyMid = 0x02
-        const val PhaseMid = 0x03
-        const val FrequencyHigh = 0x04
-        const val WaveLength = 0x04
-        const val PhaseHigh = 0x05
-        const val WaveAddress = 0x06
-        const val Volume = 0x07
+        const val FREQUENCY_LOW = 0x00
+        const val PHASE_LOW = 0x01
+        const val FREQUENCY_MID = 0x02
+        const val PHASE_MID = 0x03
+        const val FREQUENCY_HIGH = 0x04
+        const val WAVE_LENGTH = 0x04
+        const val PHASE_HIGH = 0x05
+        const val WAVE_ADDRESS = 0x06
+        const val VOLUME = 0x07
     }
 }

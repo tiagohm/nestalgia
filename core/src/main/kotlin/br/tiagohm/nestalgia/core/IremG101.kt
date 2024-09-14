@@ -11,7 +11,7 @@ class IremG101(console: Console) : Mapper(console) {
     override val chrPageSize = 0x0400
 
     private val prgRegs = IntArray(2)
-    private var prgMode = 0
+    @Volatile private var prgMode = 0
 
     override fun initialize() {
         selectPrgPage(2, -2)

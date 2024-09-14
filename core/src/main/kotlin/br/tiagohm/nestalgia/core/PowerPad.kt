@@ -29,8 +29,8 @@ open class PowerPad(
     private val isSideB = type == POWER_PAD_SIDE_B || type == FAMILY_TRAINER_MAT_SIDE_B
     private val keys = Array(12) { keyMapping.customKey(Button.entries[it]) }
 
-    private var stateBufferL = 0
-    private var stateBufferH = 0
+    @Volatile private var stateBufferL = 0
+    @Volatile private var stateBufferH = 0
 
     override fun setStateFromInput() {
         for (i in 0..2) {

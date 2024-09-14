@@ -13,14 +13,14 @@ import org.slf4j.LoggerFactory
 class Namco163(console: Console) : Mapper(console) {
 
     private val audio = Namco163Audio(console)
-    private var notNamco340 = false
-    private var autoDetectVariant = false
-    private var writeProtect = 0
-    private var lowChrNtMode = false
-    private var highChrNtMode = false
-    private var irqCounter = 0
+    @Volatile private var notNamco340 = false
+    @Volatile private var autoDetectVariant = false
+    @Volatile private var writeProtect = 0
+    @Volatile private var lowChrNtMode = false
+    @Volatile private var highChrNtMode = false
+    @Volatile private var irqCounter = 0
 
-    private var variant = NamcoVariant.NAMCO_163
+    @Volatile private var variant = NamcoVariant.NAMCO_163
 
     override val prgPageSize = 0x2000
 

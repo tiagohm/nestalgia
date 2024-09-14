@@ -9,15 +9,15 @@ import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
 abstract class BandaiFgc(console: Console) : Mapper(console) {
 
-    private var irqEnabled = false
-    private var irqCounter = 0
-    private var irqReload = 0
-    private var prgPage = 0
-    private var prgBankSelect = 0
+    @Volatile private var irqEnabled = false
+    @Volatile private var irqCounter = 0
+    @Volatile private var irqReload = 0
+    @Volatile private var prgPage = 0
+    @Volatile private var prgBankSelect = 0
     private val chrRegs = IntArray(8)
 
-    @JvmField protected var standardEeprom: Eeprom24C0X? = null
-    @JvmField protected var extraEeprom: Eeprom24C0X? = null
+    @JvmField @Volatile protected var standardEeprom: Eeprom24C0X? = null
+    @JvmField @Volatile protected var extraEeprom: Eeprom24C0X? = null
 
     override val prgPageSize = 0x4000
 

@@ -38,7 +38,7 @@ class FluentSliderSkin(slider: Slider) : SliderSkin(slider) {
         val thumbHeight = snapSizeY(thumb.prefHeight(-1.0))
 
         val trackRadius = if (track.background == null) 0.0
-        else if (track.background.fills.size > 0) track.background.fills[0].radii.topLeftHorizontalRadius
+        else if (track.background.fills.isNotEmpty()) track.background.fills[0].radii.topLeftHorizontalRadius
         else 0.0
 
         val numberAxis = control.lookup("NumberAxis") as? NumberAxis

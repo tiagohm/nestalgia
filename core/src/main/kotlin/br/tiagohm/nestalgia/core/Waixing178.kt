@@ -4,7 +4,7 @@ package br.tiagohm.nestalgia.core
 
 class Waixing178(console: Console) : Mapper(console) {
 
-    private var exReg = IntArray(4)
+    @Volatile private var exReg = IntArray(4)
 
     override val prgPageSize = 0x4000
 

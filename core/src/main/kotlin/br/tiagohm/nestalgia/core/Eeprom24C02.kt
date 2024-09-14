@@ -5,7 +5,7 @@ import br.tiagohm.nestalgia.core.Eeprom24C0X.Mode.*
 @Suppress("NOTHING_TO_INLINE")
 class Eeprom24C02(private val console: Console) : Eeprom24C0X(256) {
 
-    private var chipAddress = 0
+    @Volatile private var chipAddress = 0
 
     init {
         console.initializeRam(romData)

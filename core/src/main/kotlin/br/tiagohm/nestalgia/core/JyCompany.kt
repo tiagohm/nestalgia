@@ -23,37 +23,37 @@ class JyCompany(console: Console) : Mapper(console) {
     private val chrHighRegs = IntArray(8)
     private val chrLatch = IntArray(2)
 
-    private var prgMode = 0
-    private var enablePrgAt6000 = false
+    @Volatile private var prgMode = 0
+    @Volatile private var enablePrgAt6000 = false
 
-    private var chrMode = 0
-    private var chrBlockMode = false
-    private var chrBlock = 0
-    private var mirrorChr = false
+    @Volatile private var chrMode = 0
+    @Volatile private var chrBlockMode = false
+    @Volatile private var chrBlock = 0
+    @Volatile private var mirrorChr = false
 
-    private var mirroringReg = 0
-    private var advancedNtControl = false
-    private var disableNtRam = false
+    @Volatile private var mirroringReg = 0
+    @Volatile private var advancedNtControl = false
+    @Volatile private var disableNtRam = false
 
-    private var ntRamSelectBit = 0
+    @Volatile private var ntRamSelectBit = 0
     private val ntLowRegs = IntArray(4)
     private val ntHighRegs = IntArray(4)
 
-    private var irqEnabled = false
-    private var irqSource = JyIrqSource.CPU_CLOCK
-    private var irqCountDirection = 0
-    private var irqFunkyMode = false
-    private var irqFunkyModeReg = 0
-    private var irqSmallPrescaler = false
-    private var irqPrescaler = 0
-    private var irqCounter = 0
-    private var irqXorReg = 0
+    @Volatile private var irqEnabled = false
+    @Volatile private var irqSource = JyIrqSource.CPU_CLOCK
+    @Volatile private var irqCountDirection = 0
+    @Volatile private var irqFunkyMode = false
+    @Volatile private var irqFunkyModeReg = 0
+    @Volatile private var irqSmallPrescaler = false
+    @Volatile private var irqPrescaler = 0
+    @Volatile private var irqCounter = 0
+    @Volatile private var irqXorReg = 0
 
-    private var multiplyValue1 = 0
-    private var multiplyValue2 = 0
-    private var regRamValue = 0
+    @Volatile private var multiplyValue1 = 0
+    @Volatile private var multiplyValue2 = 0
+    @Volatile private var regRamValue = 0
 
-    private var lastPpuAddr = 0
+    @Volatile private var lastPpuAddr = 0
 
     override val prgPageSize = 0x2000
 

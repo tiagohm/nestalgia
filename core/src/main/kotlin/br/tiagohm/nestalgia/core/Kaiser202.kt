@@ -14,10 +14,10 @@ class Kaiser202(console: Console) : Mapper(console) {
 
     override val chrPageSize = 0x0400
 
-    private var irqReloadValue = 0
-    private var irqCounter = 0
-    private var irqEnabled = false
-    private var selectedReg = 0
+    @Volatile private var irqReloadValue = 0
+    @Volatile private var irqCounter = 0
+    @Volatile private var irqEnabled = false
+    @Volatile private var selectedReg = 0
     private val prgRegs = IntArray(4)
 
     override fun initialize() {

@@ -10,7 +10,7 @@ class Mapper202(console: Console) : Mapper(console) {
 
     override val chrPageSize = 0x2000
 
-    private var prgMode1 = false
+    @Volatile private var prgMode1 = false
 
     override fun initialize() {
         selectPrgPage(0, 0)

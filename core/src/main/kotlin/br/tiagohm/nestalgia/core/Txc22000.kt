@@ -17,7 +17,7 @@ class Txc22000(console: Console) : Mapper(console) {
     override val allowRegisterRead = true
 
     private val txChip = TxcChip(false)
-    private var chrBank = 0
+    @Volatile private var chrBank = 0
 
     override fun initialize() {
         addRegisterRange(0x4100, 0x5FFF, READ_WRITE)

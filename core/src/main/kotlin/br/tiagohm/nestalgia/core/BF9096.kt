@@ -4,8 +4,8 @@ package br.tiagohm.nestalgia.core
 
 class BF9096(console: Console) : Mapper(console) {
 
-    private var prgBlock = 0
-    private var prgPage = 0
+    @Volatile private var prgBlock = 0
+    @Volatile private var prgPage = 0
 
     override val prgPageSize = 0x4000
 

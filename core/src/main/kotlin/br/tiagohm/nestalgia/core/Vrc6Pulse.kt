@@ -2,14 +2,14 @@ package br.tiagohm.nestalgia.core
 
 class Vrc6Pulse : Memory, Clockable, Snapshotable {
 
-    private var mVolume = 0
-    private var dutyCycle = 0
-    private var ignoreDuty = false
-    private var frequency = 1
-    private var enabled = false
+    @Volatile private var mVolume = 0
+    @Volatile private var dutyCycle = 0
+    @Volatile private var ignoreDuty = false
+    @Volatile private var frequency = 1
+    @Volatile private var enabled = false
 
-    private var timer = 1
-    private var step = 0
+    @Volatile private var timer = 1
+    @Volatile private var step = 0
 
     @JvmField internal var frequencyShift = 0
 

@@ -6,9 +6,9 @@ import br.tiagohm.nestalgia.core.MemoryAccessType.*
 
 class Mapper115(console: Console) : MMC3(console) {
 
-    private var prgReg = 0
-    private var chrReg = 0
-    private var protectionReg = 0
+    @Volatile private var prgReg = 0
+    @Volatile private var chrReg = 0
+    @Volatile private var protectionReg = 0
 
     override val allowRegisterRead = true
 

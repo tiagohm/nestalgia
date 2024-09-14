@@ -6,7 +6,7 @@ import br.tiagohm.nestalgia.core.MemoryAccessType.*
 
 class Mapper224(console: Console) : MMC3(console) {
 
-    private var outerBank = 0
+    @Volatile private var outerBank = 0
 
     override fun initialize() {
         addRegisterRange(0x5000, 0x5003, WRITE)

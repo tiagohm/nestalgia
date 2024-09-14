@@ -12,11 +12,11 @@ class BandaiHyperShot(console: Console, keyMapping: KeyMapping) : StandardContro
         override val keyIndex = 2
     }
 
-    private var hyperShotStateBuffer = 0
+    @Volatile private var hyperShotStateBuffer = 0
     private val fireKey = keyMapping.key(FIRE)
     private val aimOffscreenKey = keyMapping.customKey(AIM_OFFSCREEN_CUSTOM_KEY)
-    private var x = 0
-    private var y = 0
+    @Volatile private var x = 0
+    @Volatile private var y = 0
 
     override fun refreshStateBuffer() {
         hyperShotStateBuffer = value

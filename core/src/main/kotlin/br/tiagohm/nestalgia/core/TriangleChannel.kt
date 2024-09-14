@@ -8,10 +8,10 @@ class TriangleChannel(
     mixer: SoundMixer,
 ) : ApuLengthCounter(channel, console, mixer) {
 
-    private var linearCounter = 0
-    private var linearCounterReload = 0
-    private var linearReloadFlag = false
-    private var linearControlFlag = false
+    @Volatile private var linearCounter = 0
+    @Volatile private var linearCounterReload = 0
+    @Volatile private var linearReloadFlag = false
+    @Volatile private var linearControlFlag = false
 
     var sequencePosition = 0
         private set

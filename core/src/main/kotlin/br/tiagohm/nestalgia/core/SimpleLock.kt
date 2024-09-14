@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class SimpleLock {
     private val lock = AtomicBoolean(false)
     private val lockCount = AtomicInteger(0)
-    private var holderId = Thread.currentThread().id
+    @Volatile private var holderId = Thread.currentThread().id
 
     @Suppress("ControlFlowWithEmptyBody")
     fun acquire() {

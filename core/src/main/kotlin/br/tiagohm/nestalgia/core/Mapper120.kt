@@ -6,7 +6,7 @@ import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
 class Mapper120(console: Console) : Mapper(console) {
 
-    private var prgReg = 0
+    @Volatile private var prgReg = 0
 
     override val prgPageSize = 0x2000
 

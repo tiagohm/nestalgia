@@ -7,62 +7,62 @@ class Fds(console: Console) : Mapper(console) {
 
     private lateinit var audio: FdsAudio
 
-    private var disableAutoInsertDisk = false
+    @Volatile private var disableAutoInsertDisk = false
 
     // Write registers
-    private var irqReloadValue = 0
-    private var irqCounter = 0
-    private var irqEnabled = false
-    private var irqRepeatEnabled = false
+    @Volatile private var irqReloadValue = 0
+    @Volatile private var irqCounter = 0
+    @Volatile private var irqEnabled = false
+    @Volatile private var irqRepeatEnabled = false
 
-    private var diskRegEnabled = true
-    private var soundRegEnabled = true
+    @Volatile private var diskRegEnabled = true
+    @Volatile private var soundRegEnabled = true
 
-    private var writeDataReg = 0
+    @Volatile private var writeDataReg = 0
 
-    private var motorOn = false
-    private var resetTransfer = false
-    private var readMode = false
-    private var crcControl = false
-    private var diskReady = false
-    private var diskIrqEnabled = false
+    @Volatile private var motorOn = false
+    @Volatile private var resetTransfer = false
+    @Volatile private var readMode = false
+    @Volatile private var crcControl = false
+    @Volatile private var diskReady = false
+    @Volatile private var diskIrqEnabled = false
 
-    private var autoDiskEjectCounter = -1
-    private var autoDiskSwitchCounter = -1
-    private var restartAutoInsertCounter = -1
-    private var previousFrame = 0
-    private var lastDiskCheckFrame = 0
-    private var successiveChecks = 0
-    private var previousDiskNumber = NO_DISK_INSERTED
+    @Volatile private var autoDiskEjectCounter = -1
+    @Volatile private var autoDiskSwitchCounter = -1
+    @Volatile private var restartAutoInsertCounter = -1
+    @Volatile private var previousFrame = 0
+    @Volatile private var lastDiskCheckFrame = 0
+    @Volatile private var successiveChecks = 0
+    @Volatile private var previousDiskNumber = NO_DISK_INSERTED
 
-    private var extConWriteReg = 0
+    @Volatile private var extConWriteReg = 0
 
-    private var badCrc = false
-    private var endOfHead = false
-    private var readWriteEnabled = false
+    @Volatile private var badCrc = false
+    @Volatile private var endOfHead = false
+    @Volatile private var readWriteEnabled = false
 
-    private var readDataReg = 0
+    @Volatile private var readDataReg = 0
 
-    private var diskWriteProtected = false
+    @Volatile private var diskWriteProtected = false
 
-    private var diskNumber = NO_DISK_INSERTED
-    private var diskPosition = 0
-    private var delay = 0L
-    private var crcAccumulator = 0
-    private var previousCrcControlFlag = false
-    private var gapEnded = true
-    private var scanningDisk = false
-    private var transferComplete = false
+    @Volatile private var diskNumber = NO_DISK_INSERTED
+    @Volatile private var diskPosition = 0
+    @Volatile private var delay = 0L
+    @Volatile private var crcAccumulator = 0
+    @Volatile private var previousCrcControlFlag = false
+    @Volatile private var gapEnded = true
+    @Volatile private var scanningDisk = false
+    @Volatile private var transferComplete = false
 
     private val diskSides = ArrayList<IntArray>()
     private val diskHeaders = ArrayList<IntArray>()
-    private var rawData = IntArray(0)
+    @Volatile private var rawData = IntArray(0)
 
     private val orgDiskSides = ArrayList<IntArray>()
     private val orgDiskHeaders = ArrayList<IntArray>()
 
-    private var isNeedSave = false
-    private var gameStarted = false
+    @Volatile private var isNeedSave = false
+    @Volatile private var gameStarted = false
 
     override val prgPageSize = 0x2000
 

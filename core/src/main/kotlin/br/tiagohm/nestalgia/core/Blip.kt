@@ -6,12 +6,12 @@ import kotlin.math.min
 
 class Blip(private val size: Int) {
 
-    private var factor = TIME_UNIT / BLIP_MAX_RATIO
-    private var offset = 0L
-    private var integrator = 0
+    @Volatile private var factor = TIME_UNIT / BLIP_MAX_RATIO
+    @Volatile private var offset = 0L
+    @Volatile private var integrator = 0
     private val buffer = IntArray(size + BUF_EXTRA)
 
-    var avail = 0
+    @Volatile var avail = 0
         private set
 
     init {

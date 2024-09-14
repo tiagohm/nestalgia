@@ -4,9 +4,9 @@ package br.tiagohm.nestalgia.core
 
 class Bmc60311C(console: Console) : Mapper(console) {
 
-    private var innerPrg = 0
-    private var outerPrg = 0
-    private var mode = 0
+    @Volatile private var innerPrg = 0
+    @Volatile private var outerPrg = 0
+    @Volatile private var mode = 0
 
     override val prgPageSize = 0x4000
 
@@ -60,5 +60,21 @@ class Bmc60311C(console: Console) : Mapper(console) {
                 }
             }
         }
+    }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("innerPrg", innerPrg)
+        s.write("outerPrg", outerPrg)
+        s.write("mode", mode)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        innerPrg = s.readInt("innerPrg")
+        outerPrg = s.readInt("outerPrg")
+        mode = s.readInt("mode")
     }
 }

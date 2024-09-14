@@ -5,7 +5,7 @@ package br.tiagohm.nestalgia.core
 
 class GoldenFive(console: Console) : Mapper(console) {
 
-    private var prgReg = 0
+    @Volatile private var prgReg = 0
 
     override val prgPageSize = 0x4000
 

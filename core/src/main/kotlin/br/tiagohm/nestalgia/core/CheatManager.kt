@@ -4,7 +4,7 @@ class CheatManager(private val console: Console) {
 
     private val relativeCheatCodes = Array<MutableList<CodeInfo>?>(65536) { null }
     private val absoluteCheatCodes = ArrayList<CodeInfo>()
-    private var hasCodes = false
+    @Volatile private var hasCodes = false
 
     private fun decode(code: Int, bitIndexes: IntArray): Int {
         var result = 0

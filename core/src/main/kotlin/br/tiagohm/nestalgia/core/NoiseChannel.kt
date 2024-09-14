@@ -8,7 +8,7 @@ class NoiseChannel(
     mixer: SoundMixer,
 ) : ApuEnvelope(channel, console, mixer) {
 
-    private var modeFlag = false
+    @Volatile private var modeFlag = false
 
     // On power-up, the shift register is loaded with the value 1.
     var shiftRegister = 1

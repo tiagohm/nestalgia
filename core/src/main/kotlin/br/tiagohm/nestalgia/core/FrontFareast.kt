@@ -5,9 +5,9 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 abstract class FrontFareast(console: Console) : Mapper(console) {
 
-    protected var irqCounter = 0 // unsigned 16 bits
-    protected var irqEnabled = false
-    protected var ffeAltMode = true
+    @JvmField @Volatile protected var irqCounter = 0 // unsigned 16 bits
+    @JvmField @Volatile protected var irqEnabled = false
+    @JvmField @Volatile protected var ffeAltMode = true
 
     final override val prgPageSize = 0x2000
 

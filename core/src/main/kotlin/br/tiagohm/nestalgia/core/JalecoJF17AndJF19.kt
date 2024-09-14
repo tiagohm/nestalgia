@@ -5,8 +5,8 @@ package br.tiagohm.nestalgia.core
 
 class JalecoJF17AndJF19(console: Console, private val jf19Mode: Boolean) : Mapper(console) {
 
-    private var prgFlag = false
-    private var chrFlag = false
+    @Volatile private var prgFlag = false
+    @Volatile private var chrFlag = false
 
     override val prgPageSize = 0x4000
 
@@ -36,5 +36,19 @@ class JalecoJF17AndJF19(console: Console, private val jf19Mode: Boolean) : Mappe
 
         prgFlag = value.bit7
         chrFlag = value.bit6
+    }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("prgFlag", prgFlag)
+        s.write("chrFlag", chrFlag)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        prgFlag = s.readBoolean("prgFlag")
+        chrFlag = s.readBoolean("chrFlag")
     }
 }

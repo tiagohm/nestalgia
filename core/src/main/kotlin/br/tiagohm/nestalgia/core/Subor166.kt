@@ -10,7 +10,7 @@ class Subor166(console: Console) : Mapper(console) {
     override val chrPageSize = 0x2000
 
     private val regs = IntArray(4)
-    private var altMode = false
+    @Volatile private var altMode = false
 
     override fun initialize() {
         writeRegister(0x8000, 0)

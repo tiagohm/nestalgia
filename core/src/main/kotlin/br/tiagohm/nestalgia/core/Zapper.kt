@@ -15,8 +15,8 @@ class Zapper(
         override val keyIndex = 0
     }
 
-    private var x = 0
-    private var y = 0
+    @Volatile private var x = 0
+    @Volatile private var y = 0
 
     private val fireKey = keyMapping.key(FIRE)
     private val aimOffscreenKey = keyMapping.customKey(AIM_OFFSCREEN_CUSTOM_KEY)

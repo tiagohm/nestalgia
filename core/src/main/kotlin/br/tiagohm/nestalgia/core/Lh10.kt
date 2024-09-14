@@ -7,7 +7,7 @@ import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
 class Lh10(console: Console) : Mapper(console) {
 
-    private var currentRegister = 0
+    @Volatile private var currentRegister = 0
     private val regs = IntArray(8)
 
     override val prgPageSize = 0x2000

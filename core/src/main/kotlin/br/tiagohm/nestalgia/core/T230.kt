@@ -8,11 +8,11 @@ class T230(console: Console) : Mapper(console) {
 
     private val vrcIrq = VrcIrq(console)
 
-    private var prgReg0 = 0
-    private var prgReg1 = 0
-    private var prgMode = 0
+    @Volatile private var prgReg0 = 0
+    @Volatile private var prgReg1 = 0
+    @Volatile private var prgMode = 0
 
-    private var outerBank = 0
+    @Volatile private var outerBank = 0
 
     private val hiCHRRegs = IntArray(8)
     private val loCHRRegs = IntArray(8)

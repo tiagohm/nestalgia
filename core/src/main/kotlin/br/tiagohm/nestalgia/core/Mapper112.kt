@@ -15,8 +15,8 @@ class Mapper112(console: Console) : Mapper(console) {
 
     override val registerEndAddress = 0xFFFF
 
-    private var currentReg = 0
-    private var outerChrBank = 0
+    @Volatile private var currentReg = 0
+    @Volatile private var outerChrBank = 0
     private val registers = IntArray(8)
 
     override fun initialize() {
@@ -50,5 +50,21 @@ class Mapper112(console: Console) : Mapper(console) {
         }
 
         updateState()
+    }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("currentReg", currentReg)
+        s.write("outerChrBank", outerChrBank)
+        s.write("registers", registers)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        currentReg = s.readInt("currentReg")
+        outerChrBank = s.readInt("outerChrBank")
+        s.readIntArray("registers", registers)
     }
 }

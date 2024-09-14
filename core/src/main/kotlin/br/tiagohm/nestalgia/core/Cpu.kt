@@ -9,37 +9,37 @@ import kotlin.random.Random
 @Suppress("NOTHING_TO_INLINE")
 class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snapshotable {
 
-    private var startClockCount = 0
-    private var endClockCount = 0
+    @Volatile private var startClockCount = 0
+    @Volatile private var endClockCount = 0
 
     @JvmField @PublishedApi internal val state = CpuState()
 
     private val memoryManager = console.memoryManager
 
     @JvmField internal var isCpuWrite = false
-    private var needHalt = false
+    @Volatile private var needHalt = false
 
-    private var needDummyRead = false
+    @Volatile private var needDummyRead = false
 
-    private var spriteDmaTransfer = false
-    private var dmcDmaRunning = false
-    private var spriteDmaOffset = 0
+    @Volatile private var spriteDmaTransfer = false
+    @Volatile private var dmcDmaRunning = false
+    @Volatile private var spriteDmaOffset = 0
 
     @JvmField @PublishedApi internal var cycleCount = -1L
     @JvmField @PublishedApi internal var masterClock = 0L
 
-    private var ppuOffset = 0
+    @Volatile private var ppuOffset = 0
 
-    private var prevRunIrq = false
-    private var runIrq = false
+    @Volatile private var prevRunIrq = false
+    @Volatile private var runIrq = false
 
-    private var prevNmiFlag = false
-    private var prevNeedNmi = false
-    private var needNmi = false
-    private var irqMask = 0
+    @Volatile private var prevNmiFlag = false
+    @Volatile private var prevNeedNmi = false
+    @Volatile private var needNmi = false
+    @Volatile private var irqMask = 0
 
-    private var addressMode = AddressMode.NONE
-    private var operand = 0
+    @Volatile private var addressMode = AddressMode.NONE
+    @Volatile private var operand = 0
 
     private val cpuInstruction = CpuInstruction(this)
 

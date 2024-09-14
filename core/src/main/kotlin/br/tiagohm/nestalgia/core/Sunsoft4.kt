@@ -14,11 +14,11 @@ class Sunsoft4(console: Console) : Mapper(console) {
     override val chrPageSize = 0x800
 
     private val ntRegs = IntArray(2)
-    private var useChrForNametables = false
-    private var prgRamEnabled = false
-    private var licensingTimer = 0
-    private var usingExternalRom = false
-    private var externalPage = 0
+    @Volatile private var useChrForNametables = false
+    @Volatile private var prgRamEnabled = false
+    @Volatile private var licensingTimer = 0
+    @Volatile private var usingExternalRom = false
+    @Volatile private var externalPage = 0
 
     override fun initialize() {
         // Bank 0's initial state is undefined, but some roms expect it to be the first page;

@@ -11,9 +11,9 @@ class IremH3001(console: Console) : Mapper(console) {
 
     override val chrPageSize = 0x400
 
-    private var irqEnabled = false
-    private var irqCounter = 0
-    private var irqReloadValue = 0
+    @Volatile private var irqEnabled = false
+    @Volatile private var irqCounter = 0
+    @Volatile private var irqReloadValue = 0
 
     override fun initialize() {
         selectPrgPage(0, 0)

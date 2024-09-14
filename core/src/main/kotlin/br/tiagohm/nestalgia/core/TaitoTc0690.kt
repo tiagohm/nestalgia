@@ -7,8 +7,8 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 
 class TaitoTc0690(console: Console) : MMC3(console) {
 
-    private var irqDelay = 0
-    private var isFlintstones = false
+    @Volatile private var irqDelay = 0
+    @Volatile private var isFlintstones = false
 
     override fun initialize() {
         super.initialize()

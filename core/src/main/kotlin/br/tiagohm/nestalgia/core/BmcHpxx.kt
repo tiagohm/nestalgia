@@ -8,7 +8,7 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 class BmcHpxx(console: Console) : MMC3(console) {
 
     private val exRegs = IntArray(5)
-    private var locked = false
+    @Volatile private var locked = false
 
     override val dipSwitchCount = 4
 

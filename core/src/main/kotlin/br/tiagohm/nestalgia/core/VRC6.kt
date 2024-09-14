@@ -11,7 +11,7 @@ open class VRC6(console: Console) : Mapper(console) {
     private val vrcIrq = VrcIrq(console)
     private val audio = VRC6Audio(console)
 
-    private var bankingMode = 0
+    @Volatile private var bankingMode = 0
     private val chrRegisters = IntArray(8)
 
     override val prgPageSize = 0x2000
@@ -178,5 +178,21 @@ open class VRC6(console: Console) : Mapper(console) {
             0xF001 -> vrcIrq.controlValue(value)
             0xF002 -> vrcIrq.acknowledgeIrq()
         }
+    }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("chrRegisters", chrRegisters)
+        s.write("irq", vrcIrq)
+        s.write("audio", audio)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        s.readIntArray("chrRegisters", chrRegisters)
+        s.readSnapshotable("irq", vrcIrq)
+        s.readSnapshotable("audio", audio)
     }
 }

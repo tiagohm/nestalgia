@@ -18,12 +18,12 @@ class Mapper083(console: Console) : Mapper(console) {
 
     private val regs = IntArray(11)
     private val exRegs = IntArray(4)
-    private var is2kBank = false
-    private var isNot2kBank = false
-    private var mode = 0
-    private var bank = 0
-    private var irqCounter = 0
-    private var irqEnabled = false
+    @Volatile private var is2kBank = false
+    @Volatile private var isNot2kBank = false
+    @Volatile private var mode = 0
+    @Volatile private var bank = 0
+    @Volatile private var irqCounter = 0
+    @Volatile private var irqEnabled = false
 
     override fun initialize() {
         addRegisterRange(0x5000, 0x5000, READ)

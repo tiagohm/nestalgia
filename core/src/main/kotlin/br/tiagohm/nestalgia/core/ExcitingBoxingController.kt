@@ -21,7 +21,7 @@ class ExcitingBoxingController(
         override val keyIndex = 10 + ordinal
     }
 
-    private var selectedSensors = false
+    @Volatile private var selectedSensors = false
     private val keys = Array(8) { keyMapping.customKey(Button.entries[it]) }
 
     override fun setStateFromInput() {

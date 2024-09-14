@@ -134,38 +134,6 @@ data class KeyMapping(
         s.readArray("customKeys", customKeys)
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as KeyMapping
-
-        if (a != other.a) return false
-        if (b != other.b) return false
-        if (up != other.up) return false
-        if (down != other.down) return false
-        if (left != other.left) return false
-        if (right != other.right) return false
-        if (start != other.start) return false
-        if (select != other.select) return false
-        if (microphone != other.microphone) return false
-        return customKeys.contentEquals(other.customKeys)
-    }
-
-    override fun hashCode(): Int {
-        var result = a.hashCode()
-        result = 31 * result + b.hashCode()
-        result = 31 * result + up.hashCode()
-        result = 31 * result + down.hashCode()
-        result = 31 * result + left.hashCode()
-        result = 31 * result + right.hashCode()
-        result = 31 * result + start.hashCode()
-        result = 31 * result + select.hashCode()
-        result = 31 * result + microphone.hashCode()
-        result = 31 * result + customKeys.contentHashCode()
-        return result
-    }
-
     companion object {
 
         fun wasd() = KeyMapping(

@@ -22,7 +22,7 @@ class TaitoX1017(console: Console) : Mapper(console) {
 
     private val chrRegs = IntArray(6)
     private val ramPermission = IntArray(3)
-    private var chrMode = 0
+    @Volatile private var chrMode = 0
 
     override fun initialize() {
         selectPrgPage(3, -1)

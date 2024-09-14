@@ -15,8 +15,8 @@ class Caltron41(console: Console) : Mapper(console) {
 
     override val registerEndAddress = 0xFFFF
 
-    private var prgBank = 0
-    private var chrBank = 0
+    @Volatile private var prgBank = 0
+    @Volatile private var chrBank = 0
 
     override fun initialize() {
         addRegisterRange(0x6000, 0x67FF, WRITE)

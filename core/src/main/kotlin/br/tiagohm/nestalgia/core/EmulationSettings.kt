@@ -44,18 +44,18 @@ class EmulationSettings : Snapshotable, Resetable {
     @JvmField val subPort1 = Array(4) { ControllerSettings() }
     @JvmField val expansionSubPort = Array(4) { ControllerSettings() }
     @JvmField val mapperPort = ControllerSettings()
-    private var needControllerUpdate = false
+    @Volatile private var needControllerUpdate = false
 
     @JvmField var isKeyboardMode = true
     @JvmField var consoleType = ConsoleType.NES_001
 
     // CPU
-    private var emulationSpeed = 100
-    private var turboSpeed = 300
-    private var rewindSpeed = 100
+    @Volatile private var emulationSpeed = 100
+    @Volatile private var turboSpeed = 300
+    @Volatile private var rewindSpeed = 100
 
     // APU
-    private var needAudioSettingsUpdate = false
+    @Volatile private var needAudioSettingsUpdate = false
 
     var sampleRate = 48000
         set(value) {

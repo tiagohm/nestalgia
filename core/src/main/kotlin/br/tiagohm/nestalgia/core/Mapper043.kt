@@ -15,10 +15,10 @@ class Mapper043(console: Console) : Mapper(console) {
 
     override val registerEndAddress = 0xFFFF
 
-    private var reg = 0
-    private var swap = false
-    private var irqCounter = 0
-    private var irqEnabled = false
+    @Volatile private var reg = 0
+    @Volatile private var swap = false
+    @Volatile private var irqCounter = 0
+    @Volatile private var irqEnabled = false
 
     override fun initialize() {
         updateState()

@@ -9,22 +9,22 @@ class DeltaModulationChannel(
     mixer: SoundMixer? = null,
 ) : ApuChannel(channel, console, mixer) {
 
-    private var sampleLength = 0
-    private var outputLevel = 0
-    private var irqEnabled = false
-    private var loop = false
+    @Volatile private var sampleLength = 0
+    @Volatile private var outputLevel = 0
+    @Volatile private var irqEnabled = false
+    @Volatile private var loop = false
 
-    private var bytesRemaining = 0
-    private var readBuffer = 0
-    private var bufferEmpty = true
+    @Volatile private var bytesRemaining = 0
+    @Volatile private var readBuffer = 0
+    @Volatile private var bufferEmpty = true
 
-    private var shiftRegister = 0
-    private var bitsRemaining = 0
-    private var silence = true
-    private var needToRun = false
-    private var needInit = 0
+    @Volatile private var shiftRegister = 0
+    @Volatile private var bitsRemaining = 0
+    @Volatile private var silence = true
+    @Volatile private var needToRun = false
+    @Volatile private var needInit = 0
 
-    private var lastValue4011 = 0
+    @Volatile private var lastValue4011 = 0
 
     var sampleAddr = 0
         private set

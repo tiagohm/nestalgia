@@ -4,16 +4,16 @@ import java.util.*
 
 class SoundMixer(private val console: Console) : Resetable, AutoCloseable, Snapshotable {
 
-    private var clockRate = 0
+    @Volatile private var clockRate = 0
     private val outputBuffer = ShortArray(MAX_SAMPLES_PER_FRAME)
     private val blip = Blip(MAX_SAMPLES_PER_FRAME)
-    private var sampleRate = console.settings.sampleRate
+    @Volatile private var sampleRate = console.settings.sampleRate
     private val devices = ArrayList<AudioDevice>(1)
-    private var previousOutputLeft = 0
-    private var previousOutputRight = 0
+    @Volatile private var previousOutputLeft = 0
+    @Volatile private var previousOutputRight = 0
     private val channelOutput = Array(MAX_CHANNEL_COUNT) { ShortArray(10000) }
     private val currentOutput = ShortArray(MAX_CHANNEL_COUNT)
-    private var previousTargetRate = 0.0
+    @Volatile private var previousTargetRate = 0.0
     private val timestamps = TreeSet<Int>()
 
     fun registerAudioDevice(device: AudioDevice) {

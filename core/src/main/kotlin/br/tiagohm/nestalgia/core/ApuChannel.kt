@@ -6,8 +6,8 @@ abstract class ApuChannel(
     private val mixer: SoundMixer? = null,
 ) : MemoryHandler, Resetable, Snapshotable {
 
-    private var previousCycle = 0
-    @JvmField protected var lastOutput = 0
+    @Volatile private var previousCycle = 0
+    @JvmField @Volatile protected var lastOutput = 0
 
     var timer = 0
         protected set

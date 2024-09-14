@@ -18,7 +18,7 @@ import javafx.scene.layout.Region
 import javafx.scene.layout.StackPane
 import java.util.*
 
-open class TextFieldWithButtonSkin(protected var textField: TextField) : TextFieldSkin(textField) {
+open class TextFieldWithButtonSkin(@JvmField protected var textField: TextField) : TextFieldSkin(textField) {
 
     private val textChanged = InvalidationListener { onTextChanged() }
     private val focusChanged = InvalidationListener { onFocusChanged() }

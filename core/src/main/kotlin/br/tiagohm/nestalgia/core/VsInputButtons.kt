@@ -6,7 +6,7 @@ import br.tiagohm.nestalgia.core.VsButton.*
 class VsInputButtons(console: Console) : ControlDevice(console, NONE, MAPPER_INPUT_PORT) {
 
     private val needInsertCoin = IntArray(2)
-    private var needServiceButton = false
+    @Volatile private var needServiceButton = false
 
     private fun processInsertCoin(port: Int) {
         if (needInsertCoin[port] > 0) {
