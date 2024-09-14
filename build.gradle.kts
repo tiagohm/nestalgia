@@ -1,6 +1,7 @@
 import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
@@ -63,12 +64,14 @@ subprojects {
     }
 
     tasks.withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
-        kotlinOptions.freeCompilerArgs = listOf(
-            "-Xjvm-default=all", "-Xjsr305=strict",
-            "-Xno-param-assertions", "-Xno-call-assertions", "-Xno-receiver-assertions",
-            "-opt-in=kotlin.io.path.ExperimentalPathApi",
-        )
+        compilerOptions {
+            jvmTarget.set(JVM_17)
+            freeCompilerArgs.addAll(
+                "-Xjvm-default=all", "-Xjsr305=strict",
+                "-Xno-param-assertions", "-Xno-call-assertions", "-Xno-receiver-assertions",
+                "-opt-in=kotlin.io.path.ExperimentalPathApi"
+            )
+        }
     }
 
     tasks.withType<Test> {
