@@ -74,6 +74,7 @@ object MapperFactory {
             56 -> Kaiser202(console)
             57 -> Mapper057(console)
             58 -> Mapper058(console)
+            59 -> UnlD1038(console)
             60 -> Mapper060(console)
             61 -> Mapper061(console)
             62 -> Mapper062(console)
