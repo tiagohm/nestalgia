@@ -1,10 +1,11 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.EmulationFlag.*
-import br.tiagohm.nestalgia.core.IRQSource.*
+import br.tiagohm.nestalgia.core.EmulationFlag.MMC3_IRQ_ALT_BEHAVIOR
+import br.tiagohm.nestalgia.core.IRQSource.EXTERNAL
 import br.tiagohm.nestalgia.core.MemoryAccessType.*
 import br.tiagohm.nestalgia.core.MirroringType.*
-import br.tiagohm.nestalgia.core.PrgMemoryType.*
+import br.tiagohm.nestalgia.core.PrgMemoryType.SRAM
+import br.tiagohm.nestalgia.core.PrgMemoryType.WRAM
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_004
 
@@ -172,7 +173,8 @@ open class MMC3(console: Console) : Mapper(console) {
                 else NO_ACCESS
 
                 if (hasBattery && mSaveRamSize > 0 ||
-                    !hasBattery && mWorkRamSize > 0) {
+                    !hasBattery && mWorkRamSize > 0
+                ) {
                     addCpuMemoryMapping(0x6000, 0x7FFF, 0, if (hasBattery) SRAM else WRAM, access)
                 } else {
                     removeCpuMemoryMapping(0x6000, 0x7FFF)

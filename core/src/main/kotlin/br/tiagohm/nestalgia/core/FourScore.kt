@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.ControllerType.*
+import br.tiagohm.nestalgia.core.ControllerType.FOUR_PLAYER_ADAPTER
+import br.tiagohm.nestalgia.core.ControllerType.FOUR_SCORE
 
 // https://wiki.nesdev.com/w/index.php/Four_Score
 

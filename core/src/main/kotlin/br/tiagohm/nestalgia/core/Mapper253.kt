@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.IRQSource.*
+import br.tiagohm.nestalgia.core.IRQSource.EXTERNAL
+import br.tiagohm.nestalgia.core.MirroringType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_253
 
@@ -69,10 +70,10 @@ class Mapper253(console: Console) : Mapper(console) {
                 0x8010 -> selectPrgPage(0, value)
                 0xA010 -> selectPrgPage(1, value)
                 0x9400 -> mirroringType = when (value and 0x03) {
-                    1 -> MirroringType.HORIZONTAL
-                    2 -> MirroringType.SCREEN_A_ONLY
-                    3 -> MirroringType.SCREEN_B_ONLY
-                    else -> MirroringType.VERTICAL
+                    1 -> HORIZONTAL
+                    2 -> SCREEN_A_ONLY
+                    3 -> SCREEN_B_ONLY
+                    else -> VERTICAL
                 }
                 0xF000 -> {
                     irqReloadValue = (irqReloadValue and 0xF0) or (value and 0x0F)

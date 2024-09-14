@@ -1,5 +1,8 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MirroringType.HORIZONTAL
+import br.tiagohm.nestalgia.core.MirroringType.VERTICAL
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_349
 
 class BmcG146(console: Console) : Mapper(console) {
@@ -30,6 +33,6 @@ class BmcG146(console: Console) : Mapper(console) {
             }
         }
 
-        mirroringType = if (addr.bit7) MirroringType.HORIZONTAL else MirroringType.VERTICAL
+        mirroringType = if (addr.bit7) HORIZONTAL else VERTICAL
     }
 }

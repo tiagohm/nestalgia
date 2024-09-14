@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryAccessType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.WRITE
 
 // https://www.nesdev.org/wiki/NES_2.0_Mapper_259
 

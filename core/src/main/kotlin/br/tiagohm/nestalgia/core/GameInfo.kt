@@ -1,5 +1,6 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MirroringType.*
 import java.io.IOException
 import kotlin.math.log
 
@@ -78,7 +79,7 @@ data class GameInfo(
 
         if (hasBattery) byte6 = byte6 or 0x02
 
-        if (mirroring == MirroringType.VERTICAL) byte6 = byte6 or 0x01
+        if (mirroring == VERTICAL) byte6 = byte6 or 0x01
 
         if (system == GameSystem.PLAY_CHOICE) {
             byte7 = byte7 or 0x02
@@ -136,11 +137,11 @@ data class GameInfo(
             val saveRamSize = parts[10].toInt() * 1024
             val battery = parts[11] == "1"
             val mirroring = when (parts[12]) {
-                "h" -> MirroringType.HORIZONTAL
-                "v" -> MirroringType.VERTICAL
-                "4" -> MirroringType.FOUR_SCREENS
-                "0" -> MirroringType.SCREEN_A_ONLY
-                "1" -> MirroringType.SCREEN_B_ONLY
+                "h" -> HORIZONTAL
+                "v" -> VERTICAL
+                "4" -> FOUR_SCREENS
+                "0" -> SCREEN_A_ONLY
+                "1" -> SCREEN_B_ONLY
                 "" -> null
                 else -> throw IOException("Invalid mirroring type: ${parts[12]}")
             }

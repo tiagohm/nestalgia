@@ -11,7 +11,7 @@ import java.awt.image.DataBufferInt
 import java.io.File
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeUnit.*
+import java.util.concurrent.TimeUnit.SECONDS
 import javax.imageio.ImageIO
 
 abstract class NesTesterSpec : StringSpec() {

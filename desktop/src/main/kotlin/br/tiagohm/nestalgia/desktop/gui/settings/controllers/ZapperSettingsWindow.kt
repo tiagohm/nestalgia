@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
 import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
-import br.tiagohm.nestalgia.core.Zapper.Button.*
+import br.tiagohm.nestalgia.core.Zapper.Button.FIRE
 import br.tiagohm.nestalgia.core.Zapper.Companion.AIM_OFFSCREEN_CUSTOM_KEY
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import br.tiagohm.nestalgia.desktop.gui.converters.KeyStringConverter

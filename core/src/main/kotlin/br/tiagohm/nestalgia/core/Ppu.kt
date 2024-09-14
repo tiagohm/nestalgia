@@ -1,11 +1,13 @@
 package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.EmulationFlag.*
-import br.tiagohm.nestalgia.core.MemoryAccessType.*
-import br.tiagohm.nestalgia.core.MemoryOperationType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.READ_WRITE
+import br.tiagohm.nestalgia.core.MemoryAccessType.WRITE
+import br.tiagohm.nestalgia.core.MemoryOperationType.MEMORY_READ
+import br.tiagohm.nestalgia.core.MemoryOperationType.PPU_RENDERING_READ
 import br.tiagohm.nestalgia.core.PpuModel.*
 import br.tiagohm.nestalgia.core.PpuRegister.*
-import br.tiagohm.nestalgia.core.RamPowerOnState.*
+import br.tiagohm.nestalgia.core.RamPowerOnState.RANDOM
 import br.tiagohm.nestalgia.core.Region.*
 import kotlin.math.min
 import kotlin.random.Random

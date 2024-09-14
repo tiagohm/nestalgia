@@ -1,9 +1,10 @@
 package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.ChrMemoryType.*
-import br.tiagohm.nestalgia.core.EmulationFlag.*
+import br.tiagohm.nestalgia.core.EmulationFlag.AUTO_CONFIGURE_INPUT
+import br.tiagohm.nestalgia.core.EmulationFlag.RANDOMIZE_MAPPER_POWER_ON_STATE
 import br.tiagohm.nestalgia.core.MemoryAccessType.*
-import br.tiagohm.nestalgia.core.MemoryOperationType.*
+import br.tiagohm.nestalgia.core.MemoryOperationType.PPU_RENDERING_READ
 import br.tiagohm.nestalgia.core.MirroringType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.ROM

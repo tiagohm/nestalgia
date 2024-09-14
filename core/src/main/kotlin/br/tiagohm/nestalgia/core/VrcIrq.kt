@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.IRQSource.*
+import br.tiagohm.nestalgia.core.IRQSource.EXTERNAL
 
 class VrcIrq(private val console: Console) : Resetable, Clockable, Snapshotable {
 

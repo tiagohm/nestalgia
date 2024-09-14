@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryOperationType.*
+import br.tiagohm.nestalgia.core.MemoryOperationType.MEMORY_READ
+import br.tiagohm.nestalgia.core.MemoryOperationType.MEMORY_WRITE
 
 sealed interface Memory {
 

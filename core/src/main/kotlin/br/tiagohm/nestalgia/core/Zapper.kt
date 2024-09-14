@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.Zapper.Button.*
+import br.tiagohm.nestalgia.core.Zapper.Button.FIRE
 
 // https://wiki.nesdev.com/w/index.php/Zapper
 

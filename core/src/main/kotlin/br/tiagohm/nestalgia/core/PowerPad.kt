@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.ControllerType.*
+import br.tiagohm.nestalgia.core.ControllerType.FAMILY_TRAINER_MAT_SIDE_B
+import br.tiagohm.nestalgia.core.ControllerType.POWER_PAD_SIDE_B
 
 // https://www.nesdev.org/wiki/Power_Pad
 

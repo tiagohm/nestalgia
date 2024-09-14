@@ -1,5 +1,8 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MirroringType.HORIZONTAL
+import br.tiagohm.nestalgia.core.MirroringType.VERTICAL
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_518
 
 class Dance2000(console: Console) : Mapper(console) {
@@ -46,7 +49,7 @@ class Dance2000(console: Console) : Mapper(console) {
             selectPrgPage(1, 0)
         }
 
-        mirroringType = if (mode.bit0) MirroringType.HORIZONTAL else MirroringType.VERTICAL
+        mirroringType = if (mode.bit0) HORIZONTAL else VERTICAL
     }
 
     override fun readRegister(addr: Int): Int {

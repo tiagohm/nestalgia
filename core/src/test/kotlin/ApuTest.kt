@@ -1,4 +1,4 @@
-import br.tiagohm.nestalgia.core.Region.*
+import br.tiagohm.nestalgia.core.Region.PAL
 import kotlinx.coroutines.delay
 
 class ApuTest : NesTesterSpec() {

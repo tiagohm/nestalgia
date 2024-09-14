@@ -2,13 +2,9 @@ package br.tiagohm.nestalgia.desktop.app
 
 import br.tiagohm.nestalgia.core.CheatDatabase
 import br.tiagohm.nestalgia.core.GameDatabase
-import br.tiagohm.nestalgia.desktop.aboutWindow
-import br.tiagohm.nestalgia.desktop.application
-import br.tiagohm.nestalgia.desktop.cheatsWindow
+import br.tiagohm.nestalgia.desktop.*
 import br.tiagohm.nestalgia.desktop.gui.home.HomeWindow
 import br.tiagohm.nestalgia.desktop.helper.resource
-import br.tiagohm.nestalgia.desktop.homeWindow
-import br.tiagohm.nestalgia.desktop.settingsWindow
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.stage.Stage

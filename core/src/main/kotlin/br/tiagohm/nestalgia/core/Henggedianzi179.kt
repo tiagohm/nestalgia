@@ -1,6 +1,8 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryAccessType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.WRITE
+import br.tiagohm.nestalgia.core.MirroringType.HORIZONTAL
+import br.tiagohm.nestalgia.core.MirroringType.VERTICAL
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_179
 
@@ -22,8 +24,7 @@ class Henggedianzi179(console: Console) : Mapper(console) {
 
     override fun writeRegister(addr: Int, value: Int) {
         if (addr >= 0x8000) {
-            mirroringType = if (value.bit0) MirroringType.HORIZONTAL
-            else MirroringType.VERTICAL
+            mirroringType = if (value.bit0) HORIZONTAL else VERTICAL
         } else {
             selectPrgPage(0, value shr 1)
         }
