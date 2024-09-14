@@ -264,6 +264,7 @@ object MapperFactory {
             313 -> ResetTxrom(console)
             325 -> MaliSB(console)
             328 -> Rt01(console)
+            329 -> Edu2000(console)
             331 -> Bmc12in1(console)
             332 -> Super40in1Ws(console)
             333 -> Bmc8in1(console)
