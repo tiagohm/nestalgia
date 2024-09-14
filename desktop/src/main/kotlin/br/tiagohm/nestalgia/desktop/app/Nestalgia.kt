@@ -16,15 +16,11 @@ class Nestalgia : Application() {
         application = this
 
         thread(isDaemon = true) {
-            resource(GameDatabase.FILENAME)?.use {
-                GameDatabase.load(it.bufferedReader().lines())
-            }
+            resource(GameDatabase.FILENAME)?.use(GameDatabase::load)
         }
 
         thread(isDaemon = true) {
-            resource(CheatDatabase.FILENAME)?.use {
-                CheatDatabase.load(it.bufferedReader().lines())
-            }
+            resource(CheatDatabase.FILENAME)?.use(CheatDatabase::load)
         }
 
         Platform.runLater(settingsWindow::setUp)

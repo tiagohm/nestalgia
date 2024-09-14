@@ -1,7 +1,10 @@
 package br.tiagohm.nestalgia.core
 
 import org.slf4j.LoggerFactory
+import java.io.InputStream
+import java.nio.file.Path
 import java.util.stream.Stream
+import kotlin.io.path.inputStream
 
 object CheatDatabase {
 
@@ -21,5 +24,13 @@ object CheatDatabase {
         }
 
         LOG.info("{} cheats loaded in the database", ENTRIES.size)
+    }
+
+    fun load(stream: InputStream) {
+        load(stream.bufferedReader().lines())
+    }
+
+    fun load(path: Path) {
+        path.inputStream().use(::load)
     }
 }

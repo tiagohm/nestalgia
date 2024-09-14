@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.MirroringType.*
+import org.slf4j.LoggerFactory
 import java.io.IOException
 
 object UnifLoader {
@@ -64,12 +65,12 @@ object UnifLoader {
                     board = readString()
 
                     if (board.isNotEmpty()) {
-                        System.err.println("UNIF Board: $board")
+                        // println("UNIF Board: $board")
 
                         mapperId = mapperId(board)
 
                         if (mapperId == UnifBoard.UNKNOWN.id) {
-                            System.err.println("[UNIF] ERROR: Unknown board")
+                            LOG.error("[UNIF] ERROR: Unknown board: {}", board)
                         }
                     } else {
                         throw IOException("[UNIF]: Invalid UNIF board name")
@@ -365,4 +366,6 @@ object UnifLoader {
         "60311C" to 289,
         "CHINA_ER_SAN2" to 19 // Appears to be a mapper 19 hack specific for VirtuaNES (which adds chinese text on top of the PPU's output) to unknown if a board actually exists
     )
+
+    private val LOG = LoggerFactory.getLogger(UnifLoader::class.java)
 }
