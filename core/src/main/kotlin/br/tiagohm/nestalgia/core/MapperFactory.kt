@@ -271,6 +271,7 @@ object MapperFactory {
             346 -> Kaiser7012(console)
             348 -> Bmc830118C(console)
             513 -> Sachen9602(console)
+            518 -> Dance2000(console)
             522 -> Lh10(console)
             529 -> T230(console)
             530 -> Ax5705(console)
