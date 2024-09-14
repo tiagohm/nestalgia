@@ -34,4 +34,22 @@ class T262(console: Console) : Mapper(console) {
         selectPrgPage(0, base or bank)
         selectPrgPage(1, base or if (mode) bank else 7)
     }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("locked", locked)
+        s.write("base", base)
+        s.write("bank", bank)
+        s.write("mode", mode)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        locked = s.readBoolean("locked")
+        base = s.readInt("base")
+        bank = s.readInt("bank")
+        mode = s.readBoolean("mode")
+    }
 }

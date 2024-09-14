@@ -37,4 +37,18 @@ class JalecoJF17AndJF19(console: Console, private val jf19Mode: Boolean) : Mappe
         prgFlag = value.bit7
         chrFlag = value.bit6
     }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("prgFlag", prgFlag)
+        s.write("chrFlag", chrFlag)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        prgFlag = s.readBoolean("prgFlag")
+        chrFlag = s.readBoolean("chrFlag")
+    }
 }

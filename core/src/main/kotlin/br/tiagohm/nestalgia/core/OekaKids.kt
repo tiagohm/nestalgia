@@ -38,4 +38,20 @@ class OekaKids(console: Console) : Mapper(console) {
         outerChrBank = value and 0x04
         updateChrBanks()
     }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("outerChrBank", outerChrBank)
+        s.write("innerChrBank", innerChrBank)
+        s.write("lastAddress", lastAddress)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        outerChrBank = s.readInt("outerChrBank")
+        innerChrBank = s.readInt("innerChrBank")
+        lastAddress = s.readInt("lastAddress")
+    }
 }

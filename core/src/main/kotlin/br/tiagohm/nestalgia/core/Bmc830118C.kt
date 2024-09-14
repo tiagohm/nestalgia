@@ -37,4 +37,16 @@ class Bmc830118C(console: Console) : MMC3(console) {
             super.writeRegister(addr, value)
         }
     }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("reg", reg)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        reg = s.readInt("reg")
+    }
 }

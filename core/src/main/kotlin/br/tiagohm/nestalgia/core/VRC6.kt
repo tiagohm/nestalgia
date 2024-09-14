@@ -179,4 +179,20 @@ open class VRC6(console: Console) : Mapper(console) {
             0xF002 -> vrcIrq.acknowledgeIrq()
         }
     }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("chrRegisters", chrRegisters)
+        s.write("irq", vrcIrq)
+        s.write("audio", audio)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        s.readIntArray("chrRegisters", chrRegisters)
+        s.readSnapshotable("irq", vrcIrq)
+        s.readSnapshotable("audio", audio)
+    }
 }

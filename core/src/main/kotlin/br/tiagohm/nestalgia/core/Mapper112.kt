@@ -51,4 +51,20 @@ class Mapper112(console: Console) : Mapper(console) {
 
         updateState()
     }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("currentReg", currentReg)
+        s.write("outerChrBank", outerChrBank)
+        s.write("registers", registers)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        currentReg = s.readInt("currentReg")
+        outerChrBank = s.readInt("outerChrBank")
+        s.readIntArray("registers", registers)
+    }
 }

@@ -61,4 +61,20 @@ class Bmc60311C(console: Console) : Mapper(console) {
             }
         }
     }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("innerPrg", innerPrg)
+        s.write("outerPrg", outerPrg)
+        s.write("mode", mode)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        innerPrg = s.readInt("innerPrg")
+        outerPrg = s.readInt("outerPrg")
+        mode = s.readInt("mode")
+    }
 }

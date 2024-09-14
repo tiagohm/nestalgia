@@ -48,4 +48,16 @@ class Mapper230(console: Console) : Mapper(console) {
             mirroringType = if (value.bit6) VERTICAL else HORIZONTAL
         }
     }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("contraMode", contraMode)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        contraMode = s.readBoolean("contraMode")
+    }
 }
