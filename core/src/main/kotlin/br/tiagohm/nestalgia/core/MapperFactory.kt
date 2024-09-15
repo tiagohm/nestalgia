@@ -270,6 +270,7 @@ object MapperFactory {
             303 -> Kaiser7017(console)
             305 -> Kaiser7031(console)
             306 -> Kaiser7016(console)
+            307 -> Kaiser7037(console)
             309 -> Lh51(console)
             313 -> ResetTxrom(console)
             325 -> MaliSB(console)
