@@ -251,6 +251,7 @@ object MapperFactory {
             261 -> Bmc810544CA1(console)
             262 -> StreetHeroes(console)
             263 -> MMC3Kof97(console)
+            264 -> Yoko(console)
             265 -> T262(console)
             283 -> Gs2004(console)
             284 -> UnlDripGame(console)
