@@ -267,6 +267,7 @@ object MapperFactory {
             299 -> Bmc11160(console)
             300 -> Bmc190in1(console)
             301 -> Bmc8157(console)
+            302 -> Kaiser7057(console)
             303 -> Kaiser7017(console)
             305 -> Kaiser7031(console)
             306 -> Kaiser7016(console)

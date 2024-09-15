@@ -4,6 +4,7 @@ import br.tiagohm.nestalgia.core.MirroringType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.*
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_220
+// https://wiki.nesdev.com/w/index.php/INES_Mapper_302
 
 class Kaiser7057(console: Console) : Mapper(console) {
 
