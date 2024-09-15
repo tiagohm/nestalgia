@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryAccessType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.WRITE
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_224
 
@@ -17,15 +17,15 @@ class Mapper224(console: Console) : MMC3(console) {
     override fun updatePrgMapping() {
         val outerBank = outerBank shl 6
 
-        if (prgMode == 0) {
-            selectPrgPage(0, registers[6] and 0x3F or outerBank)
-            selectPrgPage(1, registers[7] and 0x3F or outerBank)
-            selectPrgPage(2, 0x3E or outerBank)
-            selectPrgPage(3, 0x3F or outerBank)
-        } else if (prgMode == 1) {
+        if (prgMode) {
             selectPrgPage(0, 0x3E or outerBank)
             selectPrgPage(1, registers[6] and 0x3F or outerBank)
             selectPrgPage(2, registers[7] and 0x3F or outerBank)
+            selectPrgPage(3, 0x3F or outerBank)
+        } else {
+            selectPrgPage(0, registers[6] and 0x3F or outerBank)
+            selectPrgPage(1, registers[7] and 0x3F or outerBank)
+            selectPrgPage(2, 0x3E or outerBank)
             selectPrgPage(3, 0x3F or outerBank)
         }
     }

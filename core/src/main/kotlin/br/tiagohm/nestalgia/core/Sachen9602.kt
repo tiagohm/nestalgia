@@ -12,7 +12,7 @@ class Sachen9602(console: Console) : MMC3(console) {
 
     override fun selectPrgPage(slot: Int, page: Int, memoryType: PrgMemoryType) {
         super.selectPrgPage(slot, (page and 0x3F) or (regs[1] shl 6), memoryType)
-        super.selectPrgPage(if (prgMode != 0) 0 else 2, 0x3E, memoryType)
+        super.selectPrgPage(if (prgMode) 0 else 2, 0x3E, memoryType)
         super.selectPrgPage(3, 0x3F, memoryType)
     }
 

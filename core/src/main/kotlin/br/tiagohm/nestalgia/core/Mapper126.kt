@@ -23,7 +23,7 @@ class Mapper126(console: Console) : MMC3(console) {
 
         if (exRegs[3] and 0x03 == 0) {
             super.selectPrgPage(slot, newPage, memoryType)
-        } else if (prgMode shl 1 == slot) {
+        } else if (prgMode.toInt() shl 1 == slot) {
             if (exRegs[3] and 0x03 != 0) {
                 super.selectPrgPage(0, newPage, memoryType)
                 super.selectPrgPage(1, newPage + 1, memoryType)

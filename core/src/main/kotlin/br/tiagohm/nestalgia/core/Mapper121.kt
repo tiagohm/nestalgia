@@ -88,7 +88,7 @@ class Mapper121(console: Console) : MMC3(console) {
         if (mPrgSize == mChrRomSize) {
             // Hack for Super 3-in-1
             super.selectChrPage(slot, page or (exReg[3] and 0x80 shl 1), memoryType)
-        } else if ((slot < 4 && chrMode == 0) || (slot >= 4 && chrMode == 1)) {
+        } else if ((slot < 4 && !chrMode) || (slot >= 4 && chrMode)) {
             super.selectChrPage(slot, page or 0x100, memoryType)
         } else {
             super.selectChrPage(slot, page, memoryType)

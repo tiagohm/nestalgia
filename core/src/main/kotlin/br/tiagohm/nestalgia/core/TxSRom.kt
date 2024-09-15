@@ -12,7 +12,14 @@ class TxSRom(console: Console) : MMC3(console) {
         if (addr and 0xE001 == 0x8001) {
             val nametable = value shr 7
 
-            if (chrMode == 0) {
+            if (chrMode) {
+                when (currentRegister) {
+                    2 -> nametable(0, nametable)
+                    3 -> nametable(1, nametable)
+                    4 -> nametable(2, nametable)
+                    5 -> nametable(3, nametable)
+                }
+            } else {
                 when (currentRegister) {
                     0 -> {
                         nametable(0, nametable)
@@ -22,13 +29,6 @@ class TxSRom(console: Console) : MMC3(console) {
                         nametable(2, nametable)
                         nametable(3, nametable)
                     }
-                }
-            } else {
-                when (currentRegister) {
-                    2 -> nametable(0, nametable)
-                    3 -> nametable(1, nametable)
-                    4 -> nametable(2, nametable)
-                    5 -> nametable(3, nametable)
                 }
             }
         }
