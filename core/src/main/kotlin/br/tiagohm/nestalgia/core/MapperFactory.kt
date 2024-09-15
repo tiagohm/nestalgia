@@ -255,6 +255,7 @@ object MapperFactory {
             265 -> T262(console)
             266 -> CityFighter(console)
             268 -> MMC3Coolboy(console)
+            274 -> Bmc80013B(console)
             283 -> Gs2004(console)
             284 -> UnlDripGame(console)
             285 -> A65AS(console)
