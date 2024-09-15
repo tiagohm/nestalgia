@@ -16,9 +16,11 @@
 |           Mississippi Satsujin Jiken (Japan)           |   34   |  YES  |  NO   |    YES    |  NO   |
 |       Takahashi Meijin no Bugutte Honey (Japan)        |   34   |  YES  |  NO   |    YES    |  NO   |
 |                        Racemate                        |  168   |  YES  |  NO   |    YES    |  NO   |
+|          City Fighter IV꞉ The World Warrior ²          |  266   |   ?   |   ?   |    YES    |  NO   |
 
 * X - Crash
 * ¹ - Minor sprite glitch
+* ² - Green screen
 
 > Some bugs seem to be related to incorrect region or mirroring from NesDB!
 

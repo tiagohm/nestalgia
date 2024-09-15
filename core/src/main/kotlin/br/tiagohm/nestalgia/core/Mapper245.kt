@@ -8,7 +8,7 @@ class Mapper245(console: Console) : MMC3(console) {
         super.updateState()
 
         if (hasChrRam) {
-            if (chrMode != 0) {
+            if (chrMode) {
                 selectChrPage4x(0, 4)
                 selectChrPage4x(1, 0)
             } else {
@@ -25,15 +25,15 @@ class Mapper245(console: Console) : MMC3(console) {
 
         val lastPageInBlock = if (prgPageCount >= 0x40) 0x3F or orValue else -1
 
-        if (prgMode == 0) {
-            selectPrgPage(0, registers[6])
-            selectPrgPage(1, registers[7])
-            selectPrgPage(2, lastPageInBlock - 1)
-            selectPrgPage(3, lastPageInBlock)
-        } else if (prgMode == 1) {
+        if (prgMode) {
             selectPrgPage(0, lastPageInBlock - 1)
             selectPrgPage(1, registers[7])
             selectPrgPage(2, registers[6])
+            selectPrgPage(3, lastPageInBlock)
+        } else {
+            selectPrgPage(0, registers[6])
+            selectPrgPage(1, registers[7])
+            selectPrgPage(2, lastPageInBlock - 1)
             selectPrgPage(3, lastPageInBlock)
         }
     }

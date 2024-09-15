@@ -19,7 +19,7 @@ class Mapper187(console: Console) : MMC3(console) {
     }
 
     override fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType) {
-        if (chrMode != 0 && slot >= 4 || chrMode == 0 && slot < 4) {
+        if (chrMode && slot >= 4 || !chrMode && slot < 4) {
             super.selectChrPage(slot, page or 0x100, memoryType)
         } else {
             super.selectChrPage(slot, page, memoryType)

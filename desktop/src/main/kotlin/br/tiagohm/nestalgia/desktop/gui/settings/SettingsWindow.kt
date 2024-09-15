@@ -339,6 +339,7 @@ class SettingsWindow : AbstractWindow() {
             else -> return
         }
 
+        window.setUp()
         window.showAndWait(this@SettingsWindow)
     }
 

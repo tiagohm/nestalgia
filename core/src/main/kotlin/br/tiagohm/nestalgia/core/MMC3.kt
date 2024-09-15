@@ -39,8 +39,8 @@ open class MMC3(console: Console) : Mapper(console) {
     @JvmField @Volatile protected var irqCounter = 0
     @JvmField @Volatile protected var irqReload = false
     @JvmField @Volatile protected var irqEnabled = false
-    @JvmField @Volatile protected var prgMode = 0
-    @JvmField @Volatile protected var chrMode = 0
+    @JvmField @Volatile protected var prgMode = false
+    @JvmField @Volatile protected var chrMode = false
     protected val registers = IntArray(8)
 
     protected val state = State()
@@ -63,8 +63,8 @@ open class MMC3(console: Console) : Mapper(console) {
     protected fun resetMMC3() {
         resetState()
 
-        chrMode = powerOnByte() and 0x01
-        prgMode = powerOnByte() and 0x01
+        chrMode = powerOnByte().bit0
+        prgMode = powerOnByte().bit0
 
         currentRegister = powerOnByte()
 
@@ -103,17 +103,7 @@ open class MMC3(console: Console) : Mapper(console) {
     }
 
     protected open fun updateChrMapping() {
-        if (chrMode == 0) {
-            selectChrPage(0, registers[0] and 0xFE)
-            selectChrPage(1, registers[0] or 0x01)
-            selectChrPage(2, registers[1] and 0xFE)
-            selectChrPage(3, registers[1] or 0x01)
-
-            selectChrPage(4, registers[2])
-            selectChrPage(5, registers[3])
-            selectChrPage(6, registers[4])
-            selectChrPage(7, registers[5])
-        } else if (chrMode == 1) {
+        if (chrMode) {
             selectChrPage(0, registers[2])
             selectChrPage(1, registers[3])
             selectChrPage(2, registers[4])
@@ -123,19 +113,29 @@ open class MMC3(console: Console) : Mapper(console) {
             selectChrPage(5, registers[0] or 0x01)
             selectChrPage(6, registers[1] and 0xFE)
             selectChrPage(7, registers[1] or 0x01)
+        } else {
+            selectChrPage(0, registers[0] and 0xFE)
+            selectChrPage(1, registers[0] or 0x01)
+            selectChrPage(2, registers[1] and 0xFE)
+            selectChrPage(3, registers[1] or 0x01)
+
+            selectChrPage(4, registers[2])
+            selectChrPage(5, registers[3])
+            selectChrPage(6, registers[4])
+            selectChrPage(7, registers[5])
         }
     }
 
     protected open fun updatePrgMapping() {
-        if (prgMode == 0) {
-            selectPrgPage(0, registers[6])
-            selectPrgPage(1, registers[7])
-            selectPrgPage(2, 0xFFFE)
-            selectPrgPage(3, 0xFFFF)
-        } else if (prgMode == 1) {
+        if (prgMode) {
             selectPrgPage(0, 0xFFFE)
             selectPrgPage(1, registers[7])
             selectPrgPage(2, registers[6])
+            selectPrgPage(3, 0xFFFF)
+        } else {
+            selectPrgPage(0, registers[6])
+            selectPrgPage(1, registers[7])
+            selectPrgPage(2, 0xFFFE)
             selectPrgPage(3, 0xFFFF)
         }
     }
@@ -145,8 +145,8 @@ open class MMC3(console: Console) : Mapper(console) {
 
     protected open fun updateState() {
         currentRegister = state.reg8000 and 0x07
-        chrMode = state.reg8000 and 0x80 shr 7
-        prgMode = state.reg8000 and 0x40 shr 6
+        chrMode = state.reg8000.bit7
+        prgMode = state.reg8000.bit6
 
         if (info.mapperId == 4 && info.subMapperId == 1) {
             // MMC6
@@ -285,8 +285,8 @@ open class MMC3(console: Console) : Mapper(console) {
         s.readSnapshotable("a12Watcher", a12Watcher, a12Watcher::reset)
         s.readSnapshotable("state", state, ::resetState)
         currentRegister = s.readInt("currentRegister")
-        chrMode = s.readInt("chrMode")
-        prgMode = s.readInt("prgMode")
+        chrMode = s.readBoolean("chrMode")
+        prgMode = s.readBoolean("prgMode")
         irqReloadValue = s.readInt("irqReloadValue")
         irqCounter = s.readInt("irqCounter")
         irqReload = s.readBoolean("irqReload")
