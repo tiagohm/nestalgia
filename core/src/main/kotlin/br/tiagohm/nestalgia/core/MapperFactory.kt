@@ -270,6 +270,7 @@ object MapperFactory {
             301 -> Bmc8157(console)
             302 -> Kaiser7057(console)
             303 -> Kaiser7017(console)
+            304 -> Smb2j(console)
             305 -> Kaiser7031(console)
             306 -> Kaiser7016(console)
             307 -> Kaiser7037(console)
