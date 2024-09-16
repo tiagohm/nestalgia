@@ -22,12 +22,13 @@ class BmcG146(console: Console) : Mapper(console) {
 
     override fun writeRegister(addr: Int, value: Int) {
         if (addr and 0x800 != 0) {
-            selectPrgPage(0, (addr and 0x1F) or (addr and ((addr and 0x40) shr 6)))
+            selectPrgPage(0, (addr and 0x1F) or (addr and (addr and 0x40 shr 6)))
             selectPrgPage(1, (addr and 0x18) or 0x07)
         } else {
             if (addr.bit6) {
-                selectPrgPage(0, addr and 0x1F)
-                selectPrgPage(1, addr and 0x1F)
+                val page = addr and 0x1F
+                selectPrgPage(0, page)
+                selectPrgPage(1, page)
             } else {
                 selectPrgPage2x(0, addr and 0x1E)
             }
