@@ -1,8 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_215
-
-class Mapper215(console: Console) : MMC3(console) {
+class Unl8237A(console: Console) : MMC3(console) {
 
     private val exRegs = intArrayOf(0, 3, 0)
 
@@ -12,9 +10,9 @@ class Mapper215(console: Console) : MMC3(console) {
 
     override fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType) {
         if (exRegs[0].bit6) {
-            super.selectChrPage(slot, (exRegs[1] and 0x0C shl 6) or (page and 0x7F) or (exRegs[1] and 0x20 shl 2), memoryType)
+            super.selectChrPage(slot, (exRegs[1] and 0x0E shl 7) or (page and 0x7F) or (exRegs[1] and 0x20 shl 2), memoryType)
         } else {
-            super.selectChrPage(slot, (exRegs[1] and 0x0C shl 6) or page, memoryType)
+            super.selectChrPage(slot, (exRegs[1] and 0x0E shl 7) or page, memoryType)
         }
     }
 
@@ -26,13 +24,13 @@ class Mapper215(console: Console) : MMC3(console) {
             sbank = exRegs[1] and 0x10
 
             if (exRegs[0].bit7) {
-                bank = (exRegs[1] and 0x03 shl 4) or (exRegs[0] and 0x07) or (sbank shr 1)
+                bank = (exRegs[1] and 0x03 shl 4) or (exRegs[1] and 0x08 shl 3) or (exRegs[0] and 0x07) or (sbank shr 1)
             }
 
             0x0F
         } else {
             if (exRegs[0].bit7) {
-                bank = (exRegs[1] and 0x03 shl 4) or (exRegs[0] and 0x0F)
+                bank = (exRegs[1] and 0x03 shl 4) or (exRegs[1] and 0x08 shl 3) or (exRegs[0] and 0x0F)
             }
 
             0x1F
@@ -42,6 +40,7 @@ class Mapper215(console: Console) : MMC3(console) {
             bank = bank shl 1
 
             if (exRegs[0].bit5) {
+                bank = bank and 0xFC
                 super.selectPrgPage(0, bank, memoryType)
                 super.selectPrgPage(1, bank + 1, memoryType)
                 super.selectPrgPage(2, bank + 2, memoryType)
@@ -53,7 +52,7 @@ class Mapper215(console: Console) : MMC3(console) {
                 super.selectPrgPage(3, bank + 1, memoryType)
             }
         } else {
-            super.selectPrgPage(slot, (exRegs[1] and 0x03 shl 5) or (page and mask) or sbank, memoryType)
+            super.selectPrgPage(slot, (exRegs[1] and 0x03 shl 5) or (exRegs[1] and 0x08 shl 4) or (page and mask) or sbank, memoryType)
         }
     }
 
