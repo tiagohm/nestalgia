@@ -2,9 +2,9 @@ package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
 import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
+import br.tiagohm.nestalgia.core.MouseButton
 import br.tiagohm.nestalgia.core.Zapper
 import br.tiagohm.nestalgia.core.Zapper.Companion.AIM_OFFSCREEN_CUSTOM_KEY
-import br.tiagohm.nestalgia.desktop.gui.converters.KeyStringConverter
 import javafx.fxml.FXML
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Slider
@@ -24,6 +24,8 @@ class ZapperSettingsWindow(
     override lateinit var buttonComboBoxes: Array<ComboBox<Key>?>
     override val buttonEntries = Zapper.Button.entries
 
+    override fun buttonKeys(button: Zapper.Button) = MouseButton.entries
+
     override fun onCreate() {
         title = "Zapper"
 
@@ -31,7 +33,7 @@ class ZapperSettingsWindow(
 
         super.onCreate()
 
-        aimOffscreenComboBox.initialize()
+        aimOffscreenComboBox.initialize(MouseButton.entries)
     }
 
     override fun onStart() {

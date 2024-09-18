@@ -13,16 +13,18 @@ abstract class AbstractControllerWindow<T> : AbstractWindow() where T : Enum<*>,
 
     protected abstract val keyMapping: KeyMapping
     protected abstract val buttonComboBoxes: Array<ComboBox<Key>?>
-    protected abstract val buttonEntries: Iterable<T>
+    protected abstract val buttonEntries: List<T>
 
     protected open val presetComboBox: ComboBox<String>? = null
+
+    protected open fun buttonKeys(button: T): Collection<Key> = KeyboardKeys.SORTED_KEYS
 
     override fun onCreate() {
         super.onCreate()
 
         resizable = false
 
-        buttonComboBoxes.forEach { it?.initialize() }
+        buttonComboBoxes.forEachIndexed { i, cb -> cb?.initialize(buttonKeys(buttonEntries[i])) }
     }
 
     override fun onStart() {
@@ -54,9 +56,9 @@ abstract class AbstractControllerWindow<T> : AbstractWindow() where T : Enum<*>,
         }
     }
 
-    protected fun ComboBox<Key>.initialize() {
+    protected fun ComboBox<Key>.initialize(keys: Collection<Key> = KeyboardKeys.SORTED_KEYS) {
         converter = KeyStringConverter
-        items.setAll(KeyboardKeys.SORTED_KEYS)
+        items.setAll(keys)
     }
 
     companion object {
