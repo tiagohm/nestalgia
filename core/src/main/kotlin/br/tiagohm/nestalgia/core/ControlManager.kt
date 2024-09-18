@@ -136,6 +136,7 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             KONAMI_HYPER_SHOT -> KonamiHyperShot(console, keyMapping)
             HORI_TRACK -> HoriTrack(console, keyMapping)
             PACHINKO -> Pachinko(console, keyMapping)
+            PARTY_TAP -> PartyTap(console, keyMapping)
             else -> return null
         }
 

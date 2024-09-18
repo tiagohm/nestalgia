@@ -91,6 +91,7 @@
                                     <ControllerType fx:value="FAMICOM_CONTROLLER"/>
                                     <ControllerType fx:value="NES_ZAPPER"/>
                                     <ControllerType fx:value="NES_ARKANOID_CONTROLLER"/>
+                                    <ControllerType fx:value="PARTY_TAP"/>
                                     <ControllerType fx:value="POWER_PAD_SIDE_A"/>
                                     <ControllerType fx:value="POWER_PAD_SIDE_B"/>
                                     <ControllerType fx:value="SUBOR_MOUSE"/>

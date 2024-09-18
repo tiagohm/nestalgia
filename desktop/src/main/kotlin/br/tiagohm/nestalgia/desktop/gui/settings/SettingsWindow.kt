@@ -337,6 +337,7 @@ class SettingsWindow : AbstractWindow() {
             BANDAI_MICROPHONE -> BandaiMicrophoneSettingsWindow(keyMapping)
             KONAMI_HYPER_SHOT -> KonamiHyperShotSettingsWindow(keyMapping)
             PACHINKO -> PachinkoSettingsWindow(keyMapping)
+            PARTY_TAP -> PartyTapSettingsWindow(keyMapping)
             else -> return
         }
 
