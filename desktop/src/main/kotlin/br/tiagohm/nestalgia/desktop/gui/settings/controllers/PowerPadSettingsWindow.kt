@@ -1,17 +1,18 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
-import br.tiagohm.nestalgia.core.*
+import br.tiagohm.nestalgia.core.ControllerType
 import br.tiagohm.nestalgia.core.ControllerType.POWER_PAD_SIDE_A
 import br.tiagohm.nestalgia.core.ControllerType.POWER_PAD_SIDE_B
-import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
-import br.tiagohm.nestalgia.desktop.gui.converters.KeyStringConverter
+import br.tiagohm.nestalgia.core.Key
+import br.tiagohm.nestalgia.core.KeyMapping
+import br.tiagohm.nestalgia.core.PowerPad
 import javafx.fxml.FXML
 import javafx.scene.control.ComboBox
 
 class PowerPadSettingsWindow(
-    private val keyMapping: KeyMapping,
+    override val keyMapping: KeyMapping,
     private val type: ControllerType,
-) : AbstractWindow() {
+) : AbstractControllerWindow<PowerPad.Button>() {
 
     override val resourceName = "PowerPadSettings"
 
@@ -28,11 +29,11 @@ class PowerPadSettingsWindow(
     @FXML private lateinit var button11ComboBox: ComboBox<Key>
     @FXML private lateinit var button12ComboBox: ComboBox<Key>
 
-    private lateinit var buttonComboBoxes: Array<ComboBox<Key>>
+    override lateinit var buttonComboBoxes: Array<ComboBox<Key>?>
+    override val buttonEntries = PowerPad.Button.entries
 
     override fun onCreate() {
         title = if (type == POWER_PAD_SIDE_A || type == POWER_PAD_SIDE_B) "Power Pad" else "Family Trainer Mat"
-        resizable = false
 
         buttonComboBoxes = arrayOf(
             button01ComboBox, button02ComboBox, button03ComboBox, button04ComboBox,
@@ -40,24 +41,6 @@ class PowerPadSettingsWindow(
             button09ComboBox, button10ComboBox, button11ComboBox, button12ComboBox,
         )
 
-        buttonComboBoxes.forEach { it.converter = KeyStringConverter }
-        buttonComboBoxes.forEach { it.items.setAll(KeyboardKeys.SORTED_KEYS) }
-    }
-
-    override fun onStart() {
-        for (button in PowerPad.Button.entries) {
-            buttonComboBoxes[button.ordinal].value = keyMapping.customKey(button)
-        }
-    }
-
-    override fun onStop() {
-        for (button in PowerPad.Button.entries) {
-            keyMapping.customKey(button, buttonComboBoxes[button.ordinal].value)
-        }
-    }
-
-    @FXML
-    private fun clearKeyBindings() {
-        buttonComboBoxes.forEach { it.value = Key.UNDEFINED }
+        super.onCreate()
     }
 }

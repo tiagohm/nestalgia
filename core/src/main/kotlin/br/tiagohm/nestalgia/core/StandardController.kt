@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.ControllerType.*
+import br.tiagohm.nestalgia.core.ControllerType.FAMICOM_CONTROLLER_P2
 import br.tiagohm.nestalgia.core.StandardController.Button.*
 
 // https://wiki.nesdev.com/w/index.php/Standard_controller
@@ -28,8 +28,7 @@ open class StandardController(
     private val turboSpeed = 2 // 0..4
     private val turboFreq = 1 shl (4 - turboSpeed) and 0xFF
 
-    @Volatile protected var stateBuffer = 0
-        private set
+    @JvmField @Volatile protected var stateBuffer = 0
 
     protected val value
         get() = (if (isPressed(A)) 0x01 else 0x00) or

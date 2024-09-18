@@ -7,11 +7,13 @@ package br.tiagohm.nestalgia.core
 // Bandai Microphone: 7-9
 // Exciting Boxing Punching Bag: 10-17
 // Power Pad: 18-29
+// Pachinko: 30-31
 // System Action: 93-94
 // FDS: 95-96
 // VS System: 97-99
+// Zapper Aim Offscreen: 255
 
-interface HasCustomKey {
+sealed interface HasCustomKey {
 
     val keyIndex: Int
 }

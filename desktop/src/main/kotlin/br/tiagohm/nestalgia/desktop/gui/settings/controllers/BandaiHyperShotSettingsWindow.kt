@@ -19,8 +19,8 @@ class BandaiHyperShotSettingsWindow(keyMapping: KeyMapping) : StandardController
     override fun onCreate() {
         super.onCreate()
 
-        fireComboBox.converter = KeyStringConverter
-        aimOffscreenComboBox.converter = KeyStringConverter
+        fireComboBox.initialize()
+        aimOffscreenComboBox.initialize()
     }
 
     override fun onStart() {

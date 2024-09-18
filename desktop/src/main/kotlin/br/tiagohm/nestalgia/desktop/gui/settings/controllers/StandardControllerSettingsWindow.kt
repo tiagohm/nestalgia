@@ -1,17 +1,17 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
-import br.tiagohm.nestalgia.core.*
-import br.tiagohm.nestalgia.core.ControllerType.BANDAI_HYPER_SHOT
-import br.tiagohm.nestalgia.core.ControllerType.HORI_TRACK
-import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
-import br.tiagohm.nestalgia.desktop.gui.converters.KeyStringConverter
+import br.tiagohm.nestalgia.core.ControllerType
+import br.tiagohm.nestalgia.core.ControllerType.*
+import br.tiagohm.nestalgia.core.Key
+import br.tiagohm.nestalgia.core.KeyMapping
+import br.tiagohm.nestalgia.core.StandardController
 import javafx.fxml.FXML
 import javafx.scene.control.ComboBox
 
 open class StandardControllerSettingsWindow(
-    protected val keyMapping: KeyMapping,
+    override val keyMapping: KeyMapping,
     private val type: ControllerType,
-) : AbstractWindow() {
+) : AbstractControllerWindow<StandardController.Button>() {
 
     override val resourceName = "StandardControllerSettings"
 
@@ -23,21 +23,21 @@ open class StandardControllerSettingsWindow(
     @FXML protected lateinit var selectComboBox: ComboBox<Key>
     @FXML protected lateinit var bComboBox: ComboBox<Key>
     @FXML protected lateinit var aComboBox: ComboBox<Key>
-    @FXML protected lateinit var microphoneComboBox: ComboBox<Key>
-    @FXML protected lateinit var turboBComboBox: ComboBox<Key>
-    @FXML protected lateinit var turboAComboBox: ComboBox<Key>
-    @FXML protected lateinit var presetComboBox: ComboBox<String>
+    @FXML protected var microphoneComboBox: ComboBox<Key>? = null
+    @FXML protected var turboBComboBox: ComboBox<Key>? = null
+    @FXML protected var turboAComboBox: ComboBox<Key>? = null
+    @FXML override lateinit var presetComboBox: ComboBox<String>
 
-    protected lateinit var buttonComboBoxes: Array<ComboBox<Key>>
+    override lateinit var buttonComboBoxes: Array<ComboBox<Key>?>
+    override val buttonEntries = StandardController.Button.entries
 
     override fun onCreate() {
         title = when (type) {
             HORI_TRACK -> "Hori Track"
             BANDAI_HYPER_SHOT -> "Bandai Hyper Shot"
+            PACHINKO -> "Pachinko"
             else -> "NES/Famicom Controller"
         }
-
-        resizable = false
 
         buttonComboBoxes = arrayOf(
             upComboBox, downComboBox, leftComboBox, rightComboBox,
@@ -45,41 +45,6 @@ open class StandardControllerSettingsWindow(
             microphoneComboBox, turboBComboBox, turboAComboBox,
         )
 
-        buttonComboBoxes.forEach { it.converter = KeyStringConverter }
-        buttonComboBoxes.forEach { it.items.setAll(KeyboardKeys.SORTED_KEYS) }
-    }
-
-    override fun onStart() {
-        apply(keyMapping)
-    }
-
-    override fun onStop() {
-        for (button in StandardController.Button.entries) {
-            keyMapping.key(button, buttonComboBoxes[button.ordinal].value)
-        }
-    }
-
-    @FXML
-    private fun apply() {
-        apply(PRESETS[presetComboBox.value]!!)
-    }
-
-    @FXML
-    private fun clearKeyBindings() {
-        buttonComboBoxes.forEach { it.value = Key.UNDEFINED }
-    }
-
-    private fun apply(keyMapping: KeyMapping) {
-        for (button in StandardController.Button.entries) {
-            buttonComboBoxes[button.ordinal].value = keyMapping.key(button)
-        }
-    }
-
-    companion object {
-
-        private val PRESETS = mapOf(
-            "WASD" to KeyMapping.wasd(),
-            "ARROW" to KeyMapping.arrowKeys(),
-        )
+        super.onCreate()
     }
 }

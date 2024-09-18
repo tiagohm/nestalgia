@@ -2,6 +2,7 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.ControllerType.FAMILY_TRAINER_MAT_SIDE_B
 import br.tiagohm.nestalgia.core.ControllerType.POWER_PAD_SIDE_B
+import br.tiagohm.nestalgia.core.KonamiHyperShot.Button
 
 // https://www.nesdev.org/wiki/Power_Pad
 
@@ -28,7 +29,7 @@ open class PowerPad(
     }
 
     private val isSideB = type == POWER_PAD_SIDE_B || type == FAMILY_TRAINER_MAT_SIDE_B
-    private val keys = Array(12) { keyMapping.customKey(Button.entries[it]) }
+    private val keys = Button.entries.map(keyMapping::customKey).toTypedArray()
 
     @Volatile private var stateBufferL = 0
     @Volatile private var stateBufferH = 0

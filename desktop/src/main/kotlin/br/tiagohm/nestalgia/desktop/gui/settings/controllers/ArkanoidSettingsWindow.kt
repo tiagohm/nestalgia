@@ -1,36 +1,41 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
-import br.tiagohm.nestalgia.core.ArkanoidController.Button.FIRE
+import br.tiagohm.nestalgia.core.ArkanoidController
 import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
-import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import javafx.fxml.FXML
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Slider
 
 class ArkanoidSettingsWindow(
     private val arkanoidSensibility: IntArray,
-    private val keyMapping: KeyMapping,
+    override val keyMapping: KeyMapping,
     private val port: Int,
-) : AbstractWindow() {
+) : AbstractControllerWindow<ArkanoidController.Button>() {
 
     override val resourceName = "ArkanoidSettings"
 
     @FXML private lateinit var fireComboBox: ComboBox<Key>
     @FXML private lateinit var sensibilitySlider: Slider
 
+    override lateinit var buttonComboBoxes: Array<ComboBox<Key>?>
+    override val buttonEntries = ArkanoidController.Button.entries
+
     override fun onCreate() {
         title = "Arkanoid"
-        resizable = false
+
+        buttonComboBoxes = arrayOf(fireComboBox)
+
+        super.onCreate()
     }
 
     override fun onStart() {
-        fireComboBox.value = keyMapping.customKey(FIRE)
+        super.onStart()
         sensibilitySlider.value = arkanoidSensibility[port].toDouble()
     }
 
     override fun onStop() {
-        keyMapping.customKey(FIRE, fireComboBox.value)
+        super.onStop()
         arkanoidSensibility[port] = sensibilitySlider.value.toInt()
     }
 }

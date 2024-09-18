@@ -2,6 +2,7 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.ControllerType.*
 import br.tiagohm.nestalgia.core.ExcitingBoxingController.Button.*
+import br.tiagohm.nestalgia.core.KonamiHyperShot.Button
 
 class ExcitingBoxingController(
     console: Console,
@@ -22,7 +23,7 @@ class ExcitingBoxingController(
     }
 
     @Volatile private var selectedSensors = false
-    private val keys = Array(8) { keyMapping.customKey(Button.entries[it]) }
+    private val keys = Button.entries.map(keyMapping::customKey).toTypedArray()
 
     override fun setStateFromInput() {
         Button.entries.forEach { setPressedState(it, keys[it.ordinal]) }

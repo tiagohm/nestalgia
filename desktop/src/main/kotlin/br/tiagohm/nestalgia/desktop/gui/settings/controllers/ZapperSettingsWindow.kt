@@ -2,9 +2,8 @@ package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
 import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
-import br.tiagohm.nestalgia.core.Zapper.Button.FIRE
+import br.tiagohm.nestalgia.core.Zapper
 import br.tiagohm.nestalgia.core.Zapper.Companion.AIM_OFFSCREEN_CUSTOM_KEY
-import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
 import br.tiagohm.nestalgia.desktop.gui.converters.KeyStringConverter
 import javafx.fxml.FXML
 import javafx.scene.control.ComboBox
@@ -12,9 +11,9 @@ import javafx.scene.control.Slider
 
 class ZapperSettingsWindow(
     private val zapperDetectionRadius: IntArray,
-    private val keyMapping: KeyMapping,
+    override val keyMapping: KeyMapping,
     private val port: Int,
-) : AbstractWindow() {
+) : AbstractControllerWindow<Zapper.Button>() {
 
     override val resourceName = "ZapperSettings"
 
@@ -22,22 +21,27 @@ class ZapperSettingsWindow(
     @FXML private lateinit var aimOffscreenComboBox: ComboBox<Key>
     @FXML private lateinit var lightDetectionRadiusSlider: Slider
 
+    override lateinit var buttonComboBoxes: Array<ComboBox<Key>?>
+    override val buttonEntries = Zapper.Button.entries
+
     override fun onCreate() {
         title = "Zapper"
-        resizable = false
 
-        fireComboBox.converter = KeyStringConverter
-        aimOffscreenComboBox.converter = KeyStringConverter
+        buttonComboBoxes = arrayOf(fireComboBox)
+
+        super.onCreate()
+
+        aimOffscreenComboBox.initialize()
     }
 
     override fun onStart() {
-        fireComboBox.value = keyMapping.customKey(FIRE)
+        super.onStart()
         aimOffscreenComboBox.value = keyMapping.customKey(AIM_OFFSCREEN_CUSTOM_KEY)
         lightDetectionRadiusSlider.value = zapperDetectionRadius[port].toDouble()
     }
 
     override fun onStop() {
-        keyMapping.customKey(FIRE, fireComboBox.value)
+        super.onStop()
         keyMapping.customKey(AIM_OFFSCREEN_CUSTOM_KEY, aimOffscreenComboBox.value)
         zapperDetectionRadius[port] = lightDetectionRadiusSlider.value.toInt()
     }

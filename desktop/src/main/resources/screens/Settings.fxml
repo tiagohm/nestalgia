@@ -70,6 +70,7 @@
                                     <ControllerType fx:value="SUBOR_MOUSE"/>
                                     <ControllerType fx:value="SNES_MOUSE"/>
                                     <ControllerType fx:value="VIRTUAL_BOY_CONTROLLER"/>
+                                    <ControllerType fx:value="PACHINKO"/>
                                 </FXCollections>
                             </items>
                         </ChoiceBox>

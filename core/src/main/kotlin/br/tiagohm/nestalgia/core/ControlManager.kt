@@ -3,7 +3,8 @@ package br.tiagohm.nestalgia.core
 import br.tiagohm.nestalgia.core.ConsoleType.*
 import br.tiagohm.nestalgia.core.ControlDevice.Companion.EXP_DEVICE_PORT
 import br.tiagohm.nestalgia.core.ControllerType.*
-import br.tiagohm.nestalgia.core.MemoryAccessType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.READ
+import br.tiagohm.nestalgia.core.MemoryAccessType.WRITE
 import org.slf4j.LoggerFactory
 
 open class ControlManager(protected val console: Console) : MemoryHandler, Resetable, Initializable, Snapshotable, AutoCloseable {
@@ -134,6 +135,7 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             FAMILY_TRAINER_MAT_SIDE_B -> FamilyTrainerMat(console, type, keyMapping)
             KONAMI_HYPER_SHOT -> KonamiHyperShot(console, keyMapping)
             HORI_TRACK -> HoriTrack(console, keyMapping)
+            PACHINKO -> Pachinko(console, keyMapping)
             else -> return null
         }
 
