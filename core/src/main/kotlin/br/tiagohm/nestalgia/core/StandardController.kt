@@ -1,5 +1,6 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.ControllerType.BANDAI_HYPER_SHOT
 import br.tiagohm.nestalgia.core.ControllerType.FAMICOM_CONTROLLER_P2
 import br.tiagohm.nestalgia.core.StandardController.Button.*
 
@@ -25,7 +26,8 @@ open class StandardController(
     }
 
     @Volatile private var microphoneEnabled = port == 1 && type == FAMICOM_CONTROLLER_P2
-    private val turboSpeed = 2 // 0..4
+    private val turboSpeed = if (type == BANDAI_HYPER_SHOT) console.settings.bandaiHyperShotTurboSpeed.get()
+    else console.settings.standardControllerTurboSpeed.get() // 0..4
     private val turboFreq = 1 shl (4 - turboSpeed) and 0xFF
 
     @JvmField @Volatile protected var stateBuffer = 0

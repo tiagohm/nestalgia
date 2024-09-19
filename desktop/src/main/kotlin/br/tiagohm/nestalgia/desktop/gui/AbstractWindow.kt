@@ -42,7 +42,11 @@ abstract class AbstractWindow : AutoCloseable {
             }
         }
 
-        window.setOnShown { onStart() }
+        window.setOnShown {
+            onStart()
+            window.sizeToScene()
+            window.centerOnScreen()
+        }
 
         window.setOnHiding {
             onStop()

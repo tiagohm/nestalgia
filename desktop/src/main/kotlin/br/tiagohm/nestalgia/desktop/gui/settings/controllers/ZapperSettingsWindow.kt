@@ -1,50 +1,33 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
-import br.tiagohm.nestalgia.core.Key
-import br.tiagohm.nestalgia.core.KeyMapping
-import br.tiagohm.nestalgia.core.MouseButton
-import br.tiagohm.nestalgia.core.Zapper
+import br.tiagohm.nestalgia.core.*
 import br.tiagohm.nestalgia.core.Zapper.Companion.AIM_OFFSCREEN_CUSTOM_KEY
-import javafx.fxml.FXML
-import javafx.scene.control.ComboBox
-import javafx.scene.control.Slider
 
 class ZapperSettingsWindow(
     private val zapperDetectionRadius: IntArray,
     override val keyMapping: KeyMapping,
     private val port: Int,
-) : AbstractControllerWindow<Zapper.Button>() {
+) : AbstractControllerWindow() {
 
-    override val resourceName = "ZapperSettings"
+    override val buttons = Zapper.Button.entries
 
-    @FXML private lateinit var fireComboBox: ComboBox<Key>
-    @FXML private lateinit var aimOffscreenComboBox: ComboBox<Key>
-    @FXML private lateinit var lightDetectionRadiusSlider: Slider
+    override fun buttonKeys(button: ControllerButton) = MouseButton.entries + Key.UNDEFINED
 
-    override lateinit var buttonComboBoxes: Array<ComboBox<Key>?>
-    override val buttonEntries = Zapper.Button.entries
-
-    override fun buttonKeys(button: Zapper.Button) = MouseButton.entries
+    override fun defaultKey(button: ControllerButton) = MouseButton.LEFT
 
     override fun onCreate() {
         title = "Zapper"
 
-        buttonComboBoxes = arrayOf(fireComboBox)
-
         super.onCreate()
-
-        aimOffscreenComboBox.initialize(MouseButton.entries)
     }
 
     override fun onStart() {
         super.onStart()
-        aimOffscreenComboBox.value = keyMapping.customKey(AIM_OFFSCREEN_CUSTOM_KEY)
-        lightDetectionRadiusSlider.value = zapperDetectionRadius[port].toDouble()
-    }
 
-    override fun onStop() {
-        super.onStop()
-        keyMapping.customKey(AIM_OFFSCREEN_CUSTOM_KEY, aimOffscreenComboBox.value)
-        zapperDetectionRadius[port] = lightDetectionRadiusSlider.value.toInt()
+        addKey("Aim offscreen", keyMapping.customKey(AIM_OFFSCREEN_CUSTOM_KEY), AIM_OFFSCREEN_CUSTOM_KEY, MouseButton.entries + Key.UNDEFINED)
+
+        addSlider("Light detection radius (px)", 1.0, 16.0, zapperDetectionRadius[port].toDouble()) {
+            zapperDetectionRadius[port] = it.toInt()
+        }
     }
 }

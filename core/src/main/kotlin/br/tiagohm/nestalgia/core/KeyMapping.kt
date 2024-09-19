@@ -27,6 +27,8 @@ data class KeyMapping(
         B -> b
         A -> a
         MICROPHONE -> microphone
+        TURBO_A -> turboA
+        TURBO_B -> turboB
         else -> customKey(button)
     }
 
@@ -137,10 +139,11 @@ data class KeyMapping(
     companion object {
 
         fun wasd() = KeyMapping(
-            KeyboardKeys.E, KeyboardKeys.Q,
+            KeyboardKeys.H, KeyboardKeys.G,
             KeyboardKeys.W, KeyboardKeys.S,
             KeyboardKeys.A, KeyboardKeys.D,
-            KeyboardKeys.X, KeyboardKeys.Z,
+            KeyboardKeys.B, KeyboardKeys.V,
+            turboA = KeyboardKeys.Y, turboB = KeyboardKeys.T,
         )
 
         fun arrowKeys() = KeyMapping(
@@ -148,6 +151,7 @@ data class KeyMapping(
             KeyboardKeys.UP, KeyboardKeys.DOWN,
             KeyboardKeys.LEFT, KeyboardKeys.RIGHT,
             KeyboardKeys.ENTER, KeyboardKeys.SPACE,
+            turboA = KeyboardKeys.O, turboB = KeyboardKeys.I,
         )
     }
 }

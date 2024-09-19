@@ -1,45 +1,33 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
-import br.tiagohm.nestalgia.core.ControllerType
+import br.tiagohm.nestalgia.core.*
 import br.tiagohm.nestalgia.core.ControllerType.POWER_PAD_SIDE_A
 import br.tiagohm.nestalgia.core.ControllerType.POWER_PAD_SIDE_B
-import br.tiagohm.nestalgia.core.Key
-import br.tiagohm.nestalgia.core.KeyMapping
-import br.tiagohm.nestalgia.core.PowerPad
-import javafx.fxml.FXML
-import javafx.scene.control.ComboBox
 
 class PowerPadSettingsWindow(
     override val keyMapping: KeyMapping,
     private val type: ControllerType,
-) : AbstractControllerWindow<PowerPad.Button>() {
+) : AbstractControllerWindow() {
 
-    override val resourceName = "PowerPadSettings"
+    override val buttons = PowerPad.Button.entries
 
-    @FXML private lateinit var button01ComboBox: ComboBox<Key>
-    @FXML private lateinit var button02ComboBox: ComboBox<Key>
-    @FXML private lateinit var button03ComboBox: ComboBox<Key>
-    @FXML private lateinit var button04ComboBox: ComboBox<Key>
-    @FXML private lateinit var button05ComboBox: ComboBox<Key>
-    @FXML private lateinit var button06ComboBox: ComboBox<Key>
-    @FXML private lateinit var button07ComboBox: ComboBox<Key>
-    @FXML private lateinit var button08ComboBox: ComboBox<Key>
-    @FXML private lateinit var button09ComboBox: ComboBox<Key>
-    @FXML private lateinit var button10ComboBox: ComboBox<Key>
-    @FXML private lateinit var button11ComboBox: ComboBox<Key>
-    @FXML private lateinit var button12ComboBox: ComboBox<Key>
-
-    override lateinit var buttonComboBoxes: Array<ComboBox<Key>?>
-    override val buttonEntries = PowerPad.Button.entries
+    override fun defaultKey(button: ControllerButton) = when (button as PowerPad.Button) {
+        PowerPad.Button.B01 -> KeyboardKeys.R
+        PowerPad.Button.B02 -> KeyboardKeys.T
+        PowerPad.Button.B03 -> KeyboardKeys.Y
+        PowerPad.Button.B04 -> KeyboardKeys.U
+        PowerPad.Button.B05 -> KeyboardKeys.F
+        PowerPad.Button.B06 -> KeyboardKeys.G
+        PowerPad.Button.B07 -> KeyboardKeys.H
+        PowerPad.Button.B08 -> KeyboardKeys.J
+        PowerPad.Button.B09 -> KeyboardKeys.V
+        PowerPad.Button.B10 -> KeyboardKeys.B
+        PowerPad.Button.B11 -> KeyboardKeys.N
+        PowerPad.Button.B12 -> KeyboardKeys.M
+    }
 
     override fun onCreate() {
         title = if (type == POWER_PAD_SIDE_A || type == POWER_PAD_SIDE_B) "Power Pad" else "Family Trainer Mat"
-
-        buttonComboBoxes = arrayOf(
-            button01ComboBox, button02ComboBox, button03ComboBox, button04ComboBox,
-            button05ComboBox, button06ComboBox, button07ComboBox, button08ComboBox,
-            button09ComboBox, button10ComboBox, button11ComboBox, button12ComboBox,
-        )
 
         super.onCreate()
     }

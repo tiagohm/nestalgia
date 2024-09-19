@@ -323,7 +323,7 @@ class SettingsWindow : AbstractWindow() {
         val window = when (value) {
             NES_CONTROLLER,
             FAMICOM_CONTROLLER,
-            HORI_TRACK -> StandardControllerSettingsWindow(keyMapping, value)
+            HORI_TRACK -> StandardControllerSettingsWindow(keyMapping, settings.standardControllerTurboSpeed, value)
             NES_ZAPPER,
             FAMICOM_ZAPPER -> ZapperSettingsWindow(settings.zapperDetectionRadius, keyMapping, port)
             NES_ARKANOID_CONTROLLER,
@@ -333,7 +333,7 @@ class SettingsWindow : AbstractWindow() {
             FAMILY_TRAINER_MAT_SIDE_A,
             FAMILY_TRAINER_MAT_SIDE_B -> PowerPadSettingsWindow(keyMapping, value)
             EXCITING_BOXING -> ExcitingBoxingSettingsWindow(keyMapping)
-            BANDAI_HYPER_SHOT -> BandaiHyperShotSettingsWindow(keyMapping)
+            BANDAI_HYPER_SHOT -> BandaiHyperShotSettingsWindow(keyMapping, settings.bandaiHyperShotTurboSpeed)
             BANDAI_MICROPHONE -> BandaiMicrophoneSettingsWindow(keyMapping)
             KONAMI_HYPER_SHOT -> KonamiHyperShotSettingsWindow(keyMapping)
             PACHINKO -> PachinkoSettingsWindow(keyMapping)

@@ -18,12 +18,19 @@ import br.tiagohm.nestalgia.core.GameInputType.PARTY_TAP
 import br.tiagohm.nestalgia.core.GameInputType.POWER_PAD_SIDE_A
 import br.tiagohm.nestalgia.core.GameInputType.POWER_PAD_SIDE_B
 import org.slf4j.LoggerFactory
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.min
 
 @Suppress("DuplicatedCode")
 class EmulationSettings : Snapshotable, Resetable {
 
     @PublishedApi @JvmField internal val flags = BooleanArray(128)
+
+    // Standard Controller.
+    @JvmField val standardControllerTurboSpeed = AtomicInteger(2)
+
+    // Bandai Hyper Shot.
+    @JvmField val bandaiHyperShotTurboSpeed = AtomicInteger(2)
 
     // Zapper.
     @JvmField val zapperDetectionRadius = IntArray(PORT_COUNT) { 1 }
@@ -111,6 +118,8 @@ class EmulationSettings : Snapshotable, Resetable {
 
     override fun saveState(s: Snapshot) {
         s.write("flags", flags.clone())
+        s.write("standardControllerTurboSpeed", standardControllerTurboSpeed.get())
+        s.write("bandaiHyperShotTurboSpeed", bandaiHyperShotTurboSpeed.get())
         s.write("zapperDetectionRadius", zapperDetectionRadius)
         s.write("region", region)
         s.write("ramPowerOnState", ramPowerOnState)
@@ -141,6 +150,8 @@ class EmulationSettings : Snapshotable, Resetable {
         needControllerUpdate = s.readBoolean("needControllerUpdate")
         needAudioSettingsUpdate = s.readBoolean("needAudioSettingsUpdate")
         s.readBooleanArray("flags", flags) ?: resetFlags()
+        standardControllerTurboSpeed.set(s.readInt("standardControllerTurboSpeed", 2))
+        bandaiHyperShotTurboSpeed.set(s.readInt("bandaiHyperShotTurboSpeed", 2))
         s.readIntArrayOrFill("zapperDetectionRadius", zapperDetectionRadius, 1)
         region = s.readEnum("region", Region.AUTO)
         ramPowerOnState = s.readEnum("ramPowerOnState", RamPowerOnState.ALL_ZEROS)

@@ -9,7 +9,7 @@
             maxWidth="-Infinity"
             minHeight="-Infinity"
             minWidth="-Infinity"
-            xmlns="http://javafx.com/javafx/20"
+            xmlns="http://javafx.com/javafx/22"
             xmlns:fx="http://javafx.com/fxml/1">
     <VBox alignment="CENTER"
           spacing="4.0"

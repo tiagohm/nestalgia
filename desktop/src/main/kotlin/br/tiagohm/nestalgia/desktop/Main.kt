@@ -44,7 +44,7 @@ private fun initAppDirectory() {
             val documentsDir = FileSystemView.getFileSystemView().defaultDirectory.path
             Path.of(documentsDir, "Nestalgia")
         }
-        else -> return exitProcess(1)
+        else -> exitProcess(1)
     }
 
     appDir.createDirectories()

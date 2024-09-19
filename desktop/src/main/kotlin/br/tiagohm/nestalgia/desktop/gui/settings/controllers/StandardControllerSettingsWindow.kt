@@ -1,35 +1,22 @@
 package br.tiagohm.nestalgia.desktop.gui.settings.controllers
 
+import br.tiagohm.nestalgia.core.ControllerButton
 import br.tiagohm.nestalgia.core.ControllerType
 import br.tiagohm.nestalgia.core.ControllerType.*
-import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyMapping
 import br.tiagohm.nestalgia.core.StandardController
-import javafx.fxml.FXML
-import javafx.scene.control.ComboBox
+import java.util.concurrent.atomic.AtomicInteger
 
 open class StandardControllerSettingsWindow(
     override val keyMapping: KeyMapping,
-    private val type: ControllerType,
-) : AbstractControllerWindow<StandardController.Button>() {
+    private val turboSpeed: AtomicInteger? = null,
+    private val type: ControllerType = NES_CONTROLLER,
+) : AbstractControllerWindow() {
 
-    override val resourceName = "StandardControllerSettings"
+    override val buttons: Iterable<ControllerButton> = StandardController.Button.entries
+    override val presets = mapOf("WASD" to KeyMapping.wasd(), "ARROW" to KeyMapping.arrowKeys())
 
-    @FXML protected lateinit var upComboBox: ComboBox<Key>
-    @FXML protected lateinit var downComboBox: ComboBox<Key>
-    @FXML protected lateinit var leftComboBox: ComboBox<Key>
-    @FXML protected lateinit var rightComboBox: ComboBox<Key>
-    @FXML protected lateinit var startComboBox: ComboBox<Key>
-    @FXML protected lateinit var selectComboBox: ComboBox<Key>
-    @FXML protected lateinit var bComboBox: ComboBox<Key>
-    @FXML protected lateinit var aComboBox: ComboBox<Key>
-    @FXML protected var microphoneComboBox: ComboBox<Key>? = null
-    @FXML protected var turboBComboBox: ComboBox<Key>? = null
-    @FXML protected var turboAComboBox: ComboBox<Key>? = null
-    @FXML override lateinit var presetComboBox: ComboBox<String>
-
-    override lateinit var buttonComboBoxes: Array<ComboBox<Key>?>
-    override val buttonEntries = StandardController.Button.entries
+    override fun defaultKey(button: ControllerButton) = presets["ARROW"]?.key(button)
 
     override fun onCreate() {
         title = when (type) {
@@ -39,12 +26,16 @@ open class StandardControllerSettingsWindow(
             else -> "NES/Famicom Controller"
         }
 
-        buttonComboBoxes = arrayOf(
-            upComboBox, downComboBox, leftComboBox, rightComboBox,
-            startComboBox, selectComboBox, bComboBox, aComboBox,
-            microphoneComboBox, turboBComboBox, turboAComboBox,
-        )
-
         super.onCreate()
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        if (turboSpeed != null) {
+            addSlider("Turbo speed", 0.0, 4.0, turboSpeed.get().toDouble()) {
+                turboSpeed.set(it.toInt())
+            }
+        }
     }
 }
