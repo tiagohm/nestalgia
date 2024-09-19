@@ -2,7 +2,6 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.ControllerType.FAMILY_TRAINER_MAT_SIDE_B
 import br.tiagohm.nestalgia.core.ControllerType.POWER_PAD_SIDE_B
-import br.tiagohm.nestalgia.core.KonamiHyperShot.Button
 
 // https://www.nesdev.org/wiki/Power_Pad
 
@@ -11,19 +10,21 @@ open class PowerPad(
     private val keyMapping: KeyMapping,
 ) : ControlDevice(console, type, port) {
 
-    enum class Button(override val bit: Int) : ControllerButton, HasCustomKey {
-        B01(0),
-        B02(1),
-        B03(2),
-        B04(3),
-        B05(4),
-        B06(5),
-        B07(6),
-        B08(7),
-        B09(8),
-        B10(9),
-        B11(10),
-        B12(11);
+    enum class Button : ControllerButton, HasCustomKey {
+        B01,
+        B02,
+        B03,
+        B04,
+        B05,
+        B06,
+        B07,
+        B08,
+        B09,
+        B10,
+        B11,
+        B12;
+
+        override val bit = ordinal
 
         override val keyIndex = 18 + ordinal
     }

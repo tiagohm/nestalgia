@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-interface ControllerButton {
+sealed interface ControllerButton {
 
     val bit: Int
 }

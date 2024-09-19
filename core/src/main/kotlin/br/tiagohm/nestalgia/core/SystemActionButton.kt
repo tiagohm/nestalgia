@@ -1,8 +1,10 @@
 package br.tiagohm.nestalgia.core
 
-enum class SystemActionButton(override val bit: Int) : ControllerButton, HasCustomKey {
-    RESET(0),
-    POWER(1);
+enum class SystemActionButton : ControllerButton, HasCustomKey {
+    RESET,
+    POWER;
+
+    override val bit = ordinal
 
     override val keyIndex = 93 + ordinal
 }

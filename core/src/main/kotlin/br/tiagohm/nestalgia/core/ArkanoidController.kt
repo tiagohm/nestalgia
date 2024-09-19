@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.ArkanoidController.Button.*
+import br.tiagohm.nestalgia.core.ArkanoidController.Button.FIRE
 
 // https://www.nesdev.org/wiki/Arkanoid_controller
 
@@ -10,8 +10,10 @@ class ArkanoidController(
 ) : ControlDevice(console, type, port) {
 
 
-    enum class Button(override val bit: Int) : ControllerButton, HasCustomKey {
-        FIRE(0);
+    enum class Button : ControllerButton, HasCustomKey {
+        FIRE;
+
+        override val bit = ordinal
 
         override val keyIndex = 1
     }

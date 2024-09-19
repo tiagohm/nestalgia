@@ -6,20 +6,21 @@ import br.tiagohm.nestalgia.core.ControllerType.PARTY_TAP
 
 class PartyTap(console: Console, private val keyMapping: KeyMapping) : ControlDevice(console, PARTY_TAP, EXP_DEVICE_PORT) {
 
-    enum class Button(override val bit: Int) : ControllerButton, HasCustomKey {
-        B1(0),
-        B2(1),
-        B3(2),
-        B4(3),
-        B5(4),
-        B6(5);
+    enum class Button : ControllerButton, HasCustomKey {
+        B1,
+        B2,
+        B3,
+        B4,
+        B5,
+        B6;
+
+        override val bit = ordinal
 
         override val keyIndex = 32 + ordinal
     }
 
     @Volatile private var stateBuffer = 0
     @Volatile private var readCount = 0
-    @Volatile private var enabled = false
 
     private val keys = Button.entries.map(keyMapping::customKey).toTypedArray()
 
@@ -64,7 +65,6 @@ class PartyTap(console: Console, private val keyMapping: KeyMapping) : ControlDe
 
         s.write("stateBuffer", stateBuffer)
         s.write("readCount", readCount)
-        s.write("enabled", enabled)
     }
 
     override fun restoreState(s: Snapshot) {
@@ -72,6 +72,5 @@ class PartyTap(console: Console, private val keyMapping: KeyMapping) : ControlDe
 
         stateBuffer = s.readInt("stateBuffer")
         readCount = s.readInt("readCount")
-        enabled = s.readBoolean("enabled")
     }
 }

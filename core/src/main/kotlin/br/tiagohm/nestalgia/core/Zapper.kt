@@ -6,11 +6,13 @@ import br.tiagohm.nestalgia.core.Zapper.Button.FIRE
 
 class Zapper(
     console: Console, type: ControllerType, port: Int,
-    private val keyMapping: KeyMapping,
+    keyMapping: KeyMapping,
 ) : ControlDevice(console, type, port) {
 
-    enum class Button(override val bit: Int) : ControllerButton, HasCustomKey {
-        FIRE(0);
+    enum class Button : ControllerButton, HasCustomKey {
+        FIRE;
+
+        override val bit = ordinal
 
         override val keyIndex = 0
     }
