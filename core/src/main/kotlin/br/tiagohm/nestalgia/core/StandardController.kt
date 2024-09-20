@@ -48,6 +48,8 @@ open class StandardController(
     private val isMicrophoneEnabled
         get() = microphoneEnabled && console.frameCount % 3 == 0
 
+    private val keys = Button.entries.map(keyMapping::key).toTypedArray()
+
     override fun setStateFromInput() {
         pressedStateFromKeys(A)
         pressedStateFromKeys(B)
@@ -81,8 +83,8 @@ open class StandardController(
     }
 
     @Suppress("NOTHING_TO_INLINE")
-    private inline fun pressedStateFromKeys(button: ControllerButton) {
-        setPressedState(button, keyMapping.key(button))
+    private inline fun pressedStateFromKeys(button: Button) {
+        setPressedState(button, keys[button.ordinal])
     }
 
     override fun refreshStateBuffer() {
