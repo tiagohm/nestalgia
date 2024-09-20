@@ -9,7 +9,7 @@ plugins {
     id("maven-publish")
     id("com.github.gmazzo.buildconfig")
     id("org.openjfx.javafxplugin")
-    id("com.gradleup.shadow") version "8.3.1"
+    id("com.gradleup.shadow") version "8.3.2"
 }
 
 dependencies {
