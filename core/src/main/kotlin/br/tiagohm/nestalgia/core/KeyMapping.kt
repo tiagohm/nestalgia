@@ -80,7 +80,7 @@ data class KeyMapping(
         microphone.code == 0 &&
         customKeys.all { it.code == 0 }
 
-    fun copyTo(keyMapping: KeyMapping) {
+    fun copyInto(keyMapping: KeyMapping) {
         keyMapping.a = a
         keyMapping.b = b
         keyMapping.up = up
@@ -90,7 +90,34 @@ data class KeyMapping(
         keyMapping.select = select
         keyMapping.start = start
         keyMapping.microphone = microphone
+        keyMapping.turboA = turboA
+        keyMapping.turboB = turboB
         customKeys.copyInto(keyMapping.customKeys)
+    }
+
+    fun copyIntoIfUndefined(keyMapping: KeyMapping): Boolean {
+        var modified = false
+
+        if (keyMapping.a == Key.UNDEFINED) keyMapping.a = a.also { modified = true }
+        if (keyMapping.b == Key.UNDEFINED) keyMapping.b = b.also { modified = true }
+        if (keyMapping.up == Key.UNDEFINED) keyMapping.up = up.also { modified = true }
+        if (keyMapping.down == Key.UNDEFINED) keyMapping.down = down.also { modified = true }
+        if (keyMapping.left == Key.UNDEFINED) keyMapping.left = left.also { modified = true }
+        if (keyMapping.right == Key.UNDEFINED) keyMapping.right = right.also { modified = true }
+        if (keyMapping.select == Key.UNDEFINED) keyMapping.select = select.also { modified = true }
+        if (keyMapping.start == Key.UNDEFINED) keyMapping.start = start.also { modified = true }
+        if (keyMapping.microphone == Key.UNDEFINED) keyMapping.microphone = microphone.also { modified = true }
+        if (keyMapping.turboA == Key.UNDEFINED) keyMapping.turboA = turboA.also { modified = true }
+        if (keyMapping.turboB == Key.UNDEFINED) keyMapping.turboB = turboB.also { modified = true }
+
+        for (i in customKeys.indices) {
+            if (keyMapping.customKeys[i] == Key.UNDEFINED) {
+                keyMapping.customKeys[i] = customKeys[i]
+                modified = true
+            }
+        }
+
+        return modified
     }
 
     override fun reset(softReset: Boolean) {
@@ -134,24 +161,5 @@ data class KeyMapping(
         turboA = Key.of(s.readInt("turboA"))
         turboB = Key.of(s.readInt("turboB"))
         s.readArray("customKeys", customKeys)
-    }
-
-    companion object {
-
-        fun wasd() = KeyMapping(
-            KeyboardKeys.H, KeyboardKeys.G,
-            KeyboardKeys.W, KeyboardKeys.S,
-            KeyboardKeys.A, KeyboardKeys.D,
-            KeyboardKeys.B, KeyboardKeys.V,
-            turboA = KeyboardKeys.Y, turboB = KeyboardKeys.T,
-        )
-
-        fun arrowKeys() = KeyMapping(
-            KeyboardKeys.L, KeyboardKeys.K,
-            KeyboardKeys.UP, KeyboardKeys.DOWN,
-            KeyboardKeys.LEFT, KeyboardKeys.RIGHT,
-            KeyboardKeys.ENTER, KeyboardKeys.SPACE,
-            turboA = KeyboardKeys.O, turboB = KeyboardKeys.I,
-        )
     }
 }

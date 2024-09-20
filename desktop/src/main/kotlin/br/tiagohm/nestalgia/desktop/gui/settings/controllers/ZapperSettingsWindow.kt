@@ -10,10 +10,9 @@ class ZapperSettingsWindow(
 ) : AbstractControllerWindow() {
 
     override val buttons = Zapper.Button.entries
+    override val defaultKeyMapping = Zapper.defaultKeyMapping()
 
     override fun buttonKeys(button: ControllerButton) = MouseButton.entries + Key.UNDEFINED
-
-    override fun defaultKey(button: ControllerButton) = MouseButton.LEFT
 
     override fun onCreate() {
         title = "Zapper"

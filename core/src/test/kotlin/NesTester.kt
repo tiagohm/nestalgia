@@ -56,7 +56,7 @@ class NesTester(private val path: Path) {
 
     fun ControllerSettings.configureStandardControllerForThisPort() {
         type = NES_CONTROLLER
-        CONTROLLER_KEYS[port].copyTo(keyMapping)
+        CONTROLLER_KEYS[port].copyInto(keyMapping)
     }
 
     fun ControllerSettings.configureFourScoreForThisPort() {
@@ -64,7 +64,7 @@ class NesTester(private val path: Path) {
             type = FOUR_SCORE
 
             repeat(4) { console.settings.subPort1[it].type = NES_CONTROLLER }
-            repeat(4) { CONTROLLER_KEYS[it].copyTo(console.settings.subPort1[it].keyMapping) }
+            repeat(4) { CONTROLLER_KEYS[it].copyInto(console.settings.subPort1[it].keyMapping) }
         }
     }
 
@@ -78,7 +78,7 @@ class NesTester(private val path: Path) {
 
     fun ControllerSettings.configurePowerPadForThisPort() {
         type = POWER_PAD_SIDE_A
-        CONTROLLER_KEYS[port].copyTo(keyMapping)
+        CONTROLLER_KEYS[port].copyInto(keyMapping)
     }
 
     private object Speaker : AudioDevice {

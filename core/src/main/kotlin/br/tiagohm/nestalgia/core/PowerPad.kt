@@ -88,4 +88,22 @@ open class PowerPad(
     override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         strobeOnWrite(value)
     }
+
+    companion object : HasDefaultKeyMapping {
+
+        override fun populateWithDefault(keyMapping: KeyMapping) {
+            keyMapping.customKey(Button.B01, KeyboardKeys.R)
+            keyMapping.customKey(Button.B02, KeyboardKeys.T)
+            keyMapping.customKey(Button.B03, KeyboardKeys.Y)
+            keyMapping.customKey(Button.B04, KeyboardKeys.U)
+            keyMapping.customKey(Button.B05, KeyboardKeys.F)
+            keyMapping.customKey(Button.B06, KeyboardKeys.G)
+            keyMapping.customKey(Button.B07, KeyboardKeys.H)
+            keyMapping.customKey(Button.B08, KeyboardKeys.J)
+            keyMapping.customKey(Button.B09, KeyboardKeys.V)
+            keyMapping.customKey(Button.B10, KeyboardKeys.B)
+            keyMapping.customKey(Button.B11, KeyboardKeys.N)
+            keyMapping.customKey(Button.B12, KeyboardKeys.M)
+        }
+    }
 }

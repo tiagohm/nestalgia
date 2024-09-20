@@ -128,4 +128,25 @@ open class StandardController(
         stateBuffer = s.readInt("stateBuffer")
         microphoneEnabled = s.readBoolean("microphoneEnabled")
     }
+
+    companion object {
+
+        fun defaultKeyMapping() = arrow()
+
+        fun wasd() = KeyMapping(
+            KeyboardKeys.H, KeyboardKeys.G,
+            KeyboardKeys.W, KeyboardKeys.S,
+            KeyboardKeys.A, KeyboardKeys.D,
+            KeyboardKeys.B, KeyboardKeys.V,
+            turboA = KeyboardKeys.Y, turboB = KeyboardKeys.T,
+        )
+
+        fun arrow() = KeyMapping(
+            KeyboardKeys.L, KeyboardKeys.K,
+            KeyboardKeys.UP, KeyboardKeys.DOWN,
+            KeyboardKeys.LEFT, KeyboardKeys.RIGHT,
+            KeyboardKeys.ENTER, KeyboardKeys.SPACE,
+            turboA = KeyboardKeys.O, turboB = KeyboardKeys.I,
+        )
+    }
 }

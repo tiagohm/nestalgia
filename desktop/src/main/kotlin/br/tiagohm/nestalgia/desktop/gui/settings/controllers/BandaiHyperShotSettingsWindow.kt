@@ -8,14 +8,9 @@ import java.util.concurrent.atomic.AtomicInteger
 class BandaiHyperShotSettingsWindow(keyMapping: KeyMapping, turboSpeed: AtomicInteger) : StandardControllerSettingsWindow(keyMapping, turboSpeed, BANDAI_HYPER_SHOT) {
 
     override val buttons: Iterable<ControllerButton> = super.buttons.filter { (it as Enum<*>).ordinal < 8 } + BandaiHyperShot.Button.entries
+    override val defaultKeyMapping = BandaiHyperShot.defaultKeyMapping()
 
     override fun buttonKeys(button: ControllerButton) = if (button is BandaiHyperShot.Button) MouseButton.entries + Key.UNDEFINED else super.buttonKeys(button)
-
-    override fun defaultKey(button: ControllerButton) = when (button) {
-        is StandardController.Button -> super.defaultKey(button)
-        BandaiHyperShot.Button.FIRE -> MouseButton.LEFT
-        else -> null
-    }
 
     override fun onStart() {
         super.onStart()

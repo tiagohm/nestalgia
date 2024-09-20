@@ -1,7 +1,7 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.BandaiHyperShot.Button.*
-import br.tiagohm.nestalgia.core.ControllerType.*
+import br.tiagohm.nestalgia.core.BandaiHyperShot.Button.FIRE
+import br.tiagohm.nestalgia.core.ControllerType.BANDAI_HYPER_SHOT
 import br.tiagohm.nestalgia.core.Zapper.Companion.isLight
 
 class BandaiHyperShot(console: Console, keyMapping: KeyMapping) : StandardController(console, BANDAI_HYPER_SHOT, EXP_DEVICE_PORT, keyMapping) {
@@ -65,8 +65,14 @@ class BandaiHyperShot(console: Console, keyMapping: KeyMapping) : StandardContro
         hyperShotStateBuffer = s.readInt("hyperShotStateBuffer")
     }
 
-    companion object {
+    companion object : HasDefaultKeyMapping {
 
         const val AIM_OFFSCREEN_CUSTOM_KEY = 254
+
+        override fun defaultKeyMapping() = StandardController.defaultKeyMapping().also(::populateWithDefault)
+
+        override fun populateWithDefault(keyMapping: KeyMapping) {
+            keyMapping.customKey(FIRE, MouseButton.LEFT)
+        }
     }
 }

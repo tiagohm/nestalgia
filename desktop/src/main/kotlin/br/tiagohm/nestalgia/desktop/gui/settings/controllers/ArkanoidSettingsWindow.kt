@@ -9,12 +9,9 @@ class ArkanoidSettingsWindow(
 ) : AbstractControllerWindow() {
 
     override val buttons = ArkanoidController.Button.entries
+    override val defaultKeyMapping = ArkanoidController.defaultKeyMapping()
 
     override fun buttonKeys(button: ControllerButton) = MouseButton.entries + Key.UNDEFINED
-
-    override fun defaultKey(button: ControllerButton) = when (button as ArkanoidController.Button) {
-        ArkanoidController.Button.FIRE -> MouseButton.LEFT
-    }
 
     override fun onCreate() {
         title = "Arkanoid"

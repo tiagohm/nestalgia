@@ -34,22 +34,21 @@ abstract class AbstractControllerWindow : AbstractWindow() {
         private set
 
     private val comboBoxes = ArrayList<ComboBox<Key>>(32)
-    private lateinit var initialKeyMapping: KeyMapping
+    private val initialKeyMapping = KeyMapping()
 
     protected abstract val keyMapping: KeyMapping
+    protected abstract val defaultKeyMapping: KeyMapping
     protected abstract val buttons: Iterable<ControllerButton>
     protected open val presets: Map<String, KeyMapping> = emptyMap()
 
     protected open fun buttonKeys(button: ControllerButton): Collection<Key> = KeyboardKeys.SORTED_KEYS
 
-    protected open fun defaultKey(button: ControllerButton): Key? = null
-
     override fun onCreate() {
         super.onCreate()
 
-        resizable = false
+        window.minWidth = 380.0
 
-        initialKeyMapping = keyMapping.copy(customKeys = keyMapping.customKeys.clone())
+        keyMapping.copyInto(initialKeyMapping)
     }
 
     override fun onStart() {
@@ -59,9 +58,8 @@ abstract class AbstractControllerWindow : AbstractWindow() {
 
         if (presets.isNotEmpty()) {
             presetComboBox.items = FXCollections.observableArrayList(presets.keys)
+            presetComboBox.value = presetComboBox.items.first()
         }
-
-        resetToDefaultIfUndefined()
     }
 
     private fun applyKeyMapping(keyMapping: KeyMapping) {
@@ -100,25 +98,7 @@ abstract class AbstractControllerWindow : AbstractWindow() {
 
     @FXML
     protected fun resetToDefault() {
-        for (box in comboBoxes) {
-            val data = box.userData
-
-            if (data is ControllerButton) {
-                box.value = defaultKey(data) ?: continue
-            }
-        }
-    }
-
-    protected fun resetToDefaultIfUndefined() {
-        for (box in comboBoxes) {
-            val data = box.userData
-
-            if (data is ControllerButton) {
-                if (box.value == null || box.value === Key.UNDEFINED) {
-                    box.value = defaultKey(data) ?: continue
-                }
-            }
-        }
+        applyKeyMapping(defaultKeyMapping)
     }
 
     protected fun addKey(button: ControllerButton, keys: Collection<Key> = buttonKeys(button)) {

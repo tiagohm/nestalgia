@@ -38,5 +38,12 @@ object ControllerButtonStringConverter : StringConverter<ControllerButton>() {
         KonamiHyperShot.Button.JUMP_P2 to "Jump (player 2)",
         Pachinko.Button.PRESS to "Press",
         Pachinko.Button.RELEASE to "Release",
+        JissenMahjong.Button.SELECT to "Select",
+        JissenMahjong.Button.START to "Start",
+        JissenMahjong.Button.KAN to "Kan",
+        JissenMahjong.Button.PON to "Pon",
+        JissenMahjong.Button.CHII to "Chii",
+        JissenMahjong.Button.RIICHI to "Riichi",
+        JissenMahjong.Button.RON to "Ron",
     )
 }

@@ -14,9 +14,8 @@ open class StandardControllerSettingsWindow(
 ) : AbstractControllerWindow() {
 
     override val buttons: Iterable<ControllerButton> = StandardController.Button.entries
-    override val presets = mapOf("WASD" to KeyMapping.wasd(), "ARROW" to KeyMapping.arrowKeys())
-
-    override fun defaultKey(button: ControllerButton) = presets["ARROW"]?.key(button)
+    final override val presets = mapOf("WASD" to StandardController.wasd(), "ARROW" to StandardController.arrow())
+    override val defaultKeyMapping = presets["ARROW"]!!
 
     override fun onCreate() {
         title = when (type) {

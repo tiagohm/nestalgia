@@ -53,9 +53,9 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
     @FXML private lateinit var insertCoin2MenuItem: MenuItem
     @FXML private lateinit var television: Television
 
-    private lateinit var speaker: Speaker
+    private val speaker = Speaker(console)
+    private val mouseKeyboard = MouseKeyboard()
     private lateinit var emulator: Emulator
-    private lateinit var mouseKeyboard: MouseKeyboard
 
     override fun onCreate() {
         title = "Nestalgia"
@@ -71,9 +71,7 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
         console.batteryManager.registerProvider(this)
 
         val gamepadInputProvider = GamepadInputProvider(console, this)
-        speaker = Speaker(console)
         val inputProviders = listOf(gamepadInputProvider)
-        mouseKeyboard = MouseKeyboard(console, television)
         emulator = Emulator(console, speaker, television, mouseKeyboard, inputProviders)
 
         regionToggleGroup.selectToggle(regionToggleGroup.toggles[preferences.settings.region.ordinal])
@@ -328,23 +326,22 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
         // Copy global settings to console settings.
         preferences.settings.copyTo(console.settings)
 
+        var markAsNeedControllerUpdate = false
+
         if (console.settings.port1.type == ControllerType.NONE) {
             console.settings.port1.type = NES_CONTROLLER
-            console.settings.markAsNeedControllerUpdate()
+            markAsNeedControllerUpdate = true
         }
         if (console.settings.port1.type != FOUR_SCORE &&
             console.settings.port2.type == ControllerType.NONE
         ) {
             console.settings.port2.type = NES_CONTROLLER
-            console.settings.markAsNeedControllerUpdate()
+            markAsNeedControllerUpdate = true
         }
 
-        if (console.settings.port1.keyMapping.isEmpty()) {
-            KeyMapping.arrowKeys().copyTo(console.settings.port1.keyMapping)
-            console.settings.markAsNeedControllerUpdate()
-        }
-        if (console.settings.port2.keyMapping.isEmpty()) {
-            KeyMapping.wasd().copyTo(console.settings.port2.keyMapping)
+        markAsNeedControllerUpdate = console.settings.populateWithDefault() || markAsNeedControllerUpdate
+
+        if (markAsNeedControllerUpdate) {
             console.settings.markAsNeedControllerUpdate()
         }
     }

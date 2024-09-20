@@ -9,7 +9,7 @@
             minHeight="-Infinity"
             minWidth="-Infinity"
             prefWidth="512.0"
-            xmlns="http://javafx.com/javafx/20"
+            xmlns="http://javafx.com/javafx/22"
             xmlns:fx="http://javafx.com/fxml/1">
     <VBox spacing="2.0"
           alignment="TOP_CENTER"
@@ -70,6 +70,7 @@
                                     <ControllerType fx:value="SUBOR_MOUSE"/>
                                     <ControllerType fx:value="SNES_MOUSE"/>
                                     <ControllerType fx:value="VIRTUAL_BOY_CONTROLLER"/>
+                                    <ControllerType fx:value="HORI_TRACK"/>
                                     <ControllerType fx:value="PACHINKO"/>
                                 </FXCollections>
                             </items>
@@ -97,6 +98,7 @@
                                     <ControllerType fx:value="SUBOR_MOUSE"/>
                                     <ControllerType fx:value="SNES_MOUSE"/>
                                     <ControllerType fx:value="VIRTUAL_BOY_CONTROLLER"/>
+                                    <ControllerType fx:value="JISSEN_MAHJONG"/>
                                 </FXCollections>
                             </items>
                         </ChoiceBox>

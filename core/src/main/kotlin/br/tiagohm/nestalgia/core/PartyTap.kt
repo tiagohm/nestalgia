@@ -73,4 +73,16 @@ class PartyTap(console: Console, private val keyMapping: KeyMapping) : ControlDe
         stateBuffer = s.readInt("stateBuffer")
         readCount = s.readInt("readCount")
     }
+
+    companion object : HasDefaultKeyMapping {
+
+        override fun populateWithDefault(keyMapping: KeyMapping) {
+            keyMapping.customKey(Button.B1, KeyboardKeys.NUMBER_1)
+            keyMapping.customKey(Button.B2, KeyboardKeys.NUMBER_2)
+            keyMapping.customKey(Button.B3, KeyboardKeys.NUMBER_3)
+            keyMapping.customKey(Button.B4, KeyboardKeys.NUMBER_4)
+            keyMapping.customKey(Button.B5, KeyboardKeys.NUMBER_5)
+            keyMapping.customKey(Button.B6, KeyboardKeys.NUMBER_6)
+        }
+    }
 }

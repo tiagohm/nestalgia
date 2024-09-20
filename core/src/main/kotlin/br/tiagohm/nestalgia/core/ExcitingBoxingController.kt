@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.ControllerType.*
+import br.tiagohm.nestalgia.core.ControllerType.EXCITING_BOXING
 import br.tiagohm.nestalgia.core.ExcitingBoxingController.Button.*
 import br.tiagohm.nestalgia.core.KonamiHyperShot.Button
 
@@ -49,5 +49,19 @@ class ExcitingBoxingController(
 
     override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         selectedSensors = value.bit1
+    }
+
+    companion object : HasDefaultKeyMapping {
+
+        override fun populateWithDefault(keyMapping: KeyMapping) {
+            keyMapping.customKey(HIT_BODY, KeyboardKeys.NUMBER_5)
+            keyMapping.customKey(HOOK_LEFT, KeyboardKeys.NUMBER_7)
+            keyMapping.customKey(HOOK_RIGHT, KeyboardKeys.NUMBER_9)
+            keyMapping.customKey(JAB_LEFT, KeyboardKeys.NUMBER_1)
+            keyMapping.customKey(JAB_RIGHT, KeyboardKeys.NUMBER_3)
+            keyMapping.customKey(MOVE_LEFT, KeyboardKeys.NUMBER_4)
+            keyMapping.customKey(MOVE_RIGHT, KeyboardKeys.NUMBER_6)
+            keyMapping.customKey(STRAIGHT, KeyboardKeys.NUMBER_8)
+        }
     }
 }

@@ -407,6 +407,19 @@ class EmulationSettings : Snapshotable, Resetable {
         }
     }
 
+    fun populateWithDefault(): Boolean {
+        var modified = false
+        modified = port1.populateKeyMappingWithDefault() || modified
+        modified = port2.populateKeyMappingWithDefault() || modified
+        modified = expansionPort.populateKeyMappingWithDefault() || modified
+
+        if (modified) {
+            needControllerUpdate()
+        }
+
+        return modified
+    }
+
     companion object {
 
         private val LOG = LoggerFactory.getLogger(EmulationSettings::class.java)

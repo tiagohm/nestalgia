@@ -1,11 +1,10 @@
 package br.tiagohm.nestalgia.desktop.input
 
-import br.tiagohm.nestalgia.core.*
+import br.tiagohm.nestalgia.core.Key
+import br.tiagohm.nestalgia.core.KeyManager
+import br.tiagohm.nestalgia.core.MouseButton
 
-data class MouseKeyboard(
-    private val console: Console,
-    private val renderer: RenderingDevice,
-) : KeyManager {
+class MouseKeyboard : KeyManager {
 
     private val keyPressed = BooleanArray(65536)
     private val mouseButtons = BooleanArray(4)

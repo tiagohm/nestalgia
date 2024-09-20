@@ -68,4 +68,14 @@ class KonamiHyperShot(
         enableP1 = s.readBoolean("enableP1")
         enableP2 = s.readBoolean("enableP2")
     }
+
+    companion object : HasDefaultKeyMapping {
+
+        override fun populateWithDefault(keyMapping: KeyMapping) {
+            keyMapping.customKey(RUN_P1, KeyboardKeys.A)
+            keyMapping.customKey(JUMP_P1, KeyboardKeys.S)
+            keyMapping.customKey(RUN_P2, KeyboardKeys.K)
+            keyMapping.customKey(JUMP_P2, KeyboardKeys.L)
+        }
+    }
 }

@@ -80,8 +80,12 @@ class ArkanoidController(
         strobeOnWrite(value)
     }
 
-    companion object {
+    companion object : HasDefaultKeyMapping {
 
         private val SENSIBILITY_PX = intArrayOf(0, 16, 32, 64)
+
+        override fun populateWithDefault(keyMapping: KeyMapping) {
+            keyMapping.customKey(FIRE, MouseButton.LEFT)
+        }
     }
 }

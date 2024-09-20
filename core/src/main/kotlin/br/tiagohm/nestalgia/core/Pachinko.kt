@@ -64,4 +64,14 @@ class Pachinko(console: Console, keyMapping: KeyMapping) : StandardController(co
 
         analogData = s.readInt("analogData")
     }
+
+    companion object : HasDefaultKeyMapping {
+
+        override fun defaultKeyMapping() = StandardController.defaultKeyMapping().also(::populateWithDefault)
+
+        override fun populateWithDefault(keyMapping: KeyMapping) {
+            keyMapping.customKey(Button.PRESS, KeyboardKeys.F)
+            keyMapping.customKey(Button.RELEASE, KeyboardKeys.R)
+        }
+    }
 }

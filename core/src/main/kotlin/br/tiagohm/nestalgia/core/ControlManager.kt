@@ -81,10 +81,10 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
 
         clearDevices()
 
-        createControllerDevice(settings.port1.type, 0)?.also(::registerControlDevice)
-        createControllerDevice(settings.port2.type, 1)?.also(::registerControlDevice)
+        createControllerDevice(settings.port1, 0)?.also(::registerControlDevice)
+        createControllerDevice(settings.port2, 1)?.also(::registerControlDevice)
 
-        val expansionDevice = createControllerDevice(settings.expansionPort.type, EXP_DEVICE_PORT)
+        val expansionDevice = createControllerDevice(settings.expansionPort, EXP_DEVICE_PORT)
 
         if (expansionDevice != null) {
             registerControlDevice(expansionDevice)
@@ -104,15 +104,11 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
         }
     }
 
-    private fun createControllerDevice(type: ControllerType, port: Int): ControlDevice? {
-        val settings = console.settings
+    private fun createControllerDevice(settings: ControllerSettings, port: Int): ControlDevice? {
+        val type = settings.type
+        val keyMapping = settings.keyMapping
 
-        val keyMapping = when (port) {
-            0 -> settings.port1.keyMapping
-            1 -> settings.port2.keyMapping
-            EXP_DEVICE_PORT -> settings.expansionPort.keyMapping
-            else -> KeyMapping()
-        }
+        settings.populateKeyMappingWithDefault()
 
         val device = when (type) {
             NES_CONTROLLER,
@@ -122,9 +118,9 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             FAMICOM_ZAPPER -> Zapper(console, type, port, keyMapping)
             ASCII_TURBO_FILE -> AsciiTurboFile(console)
             BATTLE_BOX -> BattleBox(console)
-            FOUR_SCORE -> FourScore(console, type, 0, *settings.subPort1)
-            TWO_PLAYER_ADAPTER -> TwoPlayerAdapter(console, type, *settings.expansionSubPort)
-            FOUR_PLAYER_ADAPTER -> FourScore(console, type, EXP_DEVICE_PORT, *settings.expansionSubPort)
+            FOUR_SCORE -> FourScore(console, type, 0, *console.settings.subPort1)
+            TWO_PLAYER_ADAPTER -> TwoPlayerAdapter(console, type, *console.settings.expansionSubPort)
+            FOUR_PLAYER_ADAPTER -> FourScore(console, type, EXP_DEVICE_PORT, *console.settings.expansionSubPort)
             NES_ARKANOID_CONTROLLER -> ArkanoidController(console, type, port, keyMapping)
             FAMICOM_ARKANOID_CONTROLLER -> ArkanoidController(console, type, EXP_DEVICE_PORT, keyMapping)
             POWER_PAD_SIDE_A,
@@ -137,6 +133,7 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             HORI_TRACK -> HoriTrack(console, keyMapping)
             PACHINKO -> Pachinko(console, keyMapping)
             PARTY_TAP -> PartyTap(console, keyMapping)
+            JISSEN_MAHJONG -> JissenMahjong(console, keyMapping)
             else -> return null
         }
 
