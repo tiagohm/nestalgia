@@ -12,17 +12,17 @@ data class Console(@JvmField val settings: EmulationSettings = EmulationSettings
 
     private val pauseCounter = AtomicInteger(0)
 
-    @PublishedApi @JvmField internal var memoryManager = MemoryManager(this)
+    @PublishedApi internal lateinit var memoryManager: MemoryManager
 
     @JvmField val batteryManager = BatteryManager(this)
     @JvmField val notificationManager = NotificationManager()
 
     @JvmField internal val debugger = Debugger(this)
 
-    @PublishedApi @JvmField internal var controlManager = ControlManager(this)
-    @PublishedApi @JvmField internal var cpu = Cpu(this)
-    @PublishedApi @JvmField internal var apu = Apu(this)
-    @PublishedApi @JvmField internal var ppu = Ppu(this)
+    @PublishedApi internal lateinit var controlManager: ControlManager
+    @PublishedApi internal lateinit var cpu: Cpu
+    @PublishedApi internal lateinit var apu: Apu
+    @PublishedApi internal lateinit var ppu: Ppu
     @PublishedApi @JvmField internal var systemActionManager = SystemActionManager(this)
 
     @JvmField internal val videoDecoder = VideoDecoder(this)
