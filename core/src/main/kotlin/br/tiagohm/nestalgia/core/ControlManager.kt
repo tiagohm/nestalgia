@@ -115,7 +115,7 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             FAMICOM_CONTROLLER,
             FAMICOM_CONTROLLER_P2 -> StandardController(console, type, port, keyMapping)
             NES_ZAPPER -> Zapper(console, type, port, keyMapping)
-            FAMICOM_ZAPPER -> Zapper(console, type, port, keyMapping)
+            FAMICOM_ZAPPER -> Zapper(console, type, EXP_DEVICE_PORT, keyMapping)
             ASCII_TURBO_FILE -> AsciiTurboFile(console)
             BATTLE_BOX -> BattleBox(console)
             FOUR_SCORE -> FourScore(console, type, 0, *console.settings.subPort1)
