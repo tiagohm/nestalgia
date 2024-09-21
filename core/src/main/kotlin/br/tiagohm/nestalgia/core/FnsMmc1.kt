@@ -7,8 +7,6 @@ import br.tiagohm.nestalgia.core.MirroringType.HORIZONTAL
 import br.tiagohm.nestalgia.core.MirroringType.VERTICAL
 import br.tiagohm.nestalgia.core.PrgMemoryType.WRAM
 import org.slf4j.LoggerFactory
-import kotlin.io.path.Path
-import kotlin.io.path.readBytes
 
 // https://www.nesdev.org/wiki/Famicom_Network_System
 
@@ -31,14 +29,13 @@ class FnsMmc1(console: Console) : MMC1(console) {
         addRegisterRange(0x40AE, 0x40C0, READ_WRITE)
         addRegisterRange(0x5000, 0x5FFF, READ)
 
-        val firmwareDir = System.getProperty(FIRMWARE_DIR)
-
-        if (!firmwareDir.isNullOrBlank()) {
-            try {
-                kanjiRomData = Path(firmwareDir, FIRMWARE_NAME).readBytes()
-            } catch (e: Throwable) {
-                LOG.error("failed to read firmware", e)
-            }
+        try {
+            Thread.currentThread().contextClassLoader
+                .getResourceAsStream("[BIOS] LH5323M1 Kanji Graphic ROM (Japan).bin")
+                ?.use { it.readAllBytes() }
+                ?.also { kanjiRomData = it }
+        } catch (e: Throwable) {
+            LOG.error("failed to read firmware", e)
         }
     }
 
@@ -93,9 +90,6 @@ class FnsMmc1(console: Console) : MMC1(console) {
     }
 
     companion object {
-
-        const val FIRMWARE_DIR = "FIRMWARE_DIR"
-        private const val FIRMWARE_NAME = "lh5323m1.bin"
 
         private val LOG = LoggerFactory.getLogger(FnsMmc1::class.java)
     }
