@@ -60,6 +60,8 @@ data class Console(@JvmField val settings: EmulationSettings = EmulationSettings
         private set
 
     override fun close() {
+        running.set(false)
+
         debugger.close()
 
         stop()
@@ -372,7 +374,7 @@ data class Console(@JvmField val settings: EmulationSettings = EmulationSettings
         updateRegion(true)
 
         try {
-            while (true) {
+            while (running.get()) {
                 runFrame()
 
                 soundMixer.processEndOfFrame()

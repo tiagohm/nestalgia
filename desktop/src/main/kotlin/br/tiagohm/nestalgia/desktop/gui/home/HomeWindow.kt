@@ -40,6 +40,7 @@ import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.Executors
 import javax.imageio.ImageIO
 import kotlin.io.path.*
 
@@ -60,6 +61,7 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
 
     private val speaker = Speaker(console)
     private val mouseKeyboard = MouseKeyboard()
+    private val gamepadInputProvider = GamepadInputProvider(console, this)
     private lateinit var emulator: Emulator
 
     override fun onCreate() {
@@ -78,9 +80,8 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
         console.notificationManager.registerNotificationListener(this)
         console.batteryManager.registerProvider(this)
 
-        val gamepadInputProvider = GamepadInputProvider(console, this)
         val inputProviders = listOf(gamepadInputProvider)
-        emulator = Emulator(console, speaker, television, mouseKeyboard, inputProviders)
+        emulator = Emulator(console, speaker, television, mouseKeyboard, inputProviders, DEFAULT_THREAD_EXECUTOR)
 
         regionToggleGroup.selectToggle(regionToggleGroup.toggles[preferences.settings.region.ordinal])
         speedToggleGroup.selectToggle(speedToggleGroup.toggles[SPEEDS.indexOf(preferences.settings.emulationSpeed())])
@@ -108,6 +109,9 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
     override fun onClose() {
         GlobalScreen.removeNativeMouseListener(this)
         GlobalScreen.removeNativeMouseMotionListener(this)
+        GlobalScreen.unregisterNativeHook()
+        DEFAULT_THREAD_EXECUTOR.shutdownNow()
+        gamepadInputProvider.close()
         emulator.close()
     }
 
@@ -463,6 +467,7 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
         private val LOG = LoggerFactory.getLogger(HomeWindow::class.java)
         private val SPEEDS = intArrayOf(100, 200, 300, 50, 25)
         private val DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        private val DEFAULT_THREAD_EXECUTOR = Executors.newSingleThreadExecutor(EmulatorThreadFactory)
 
         private val MouseEvent.mouseButton
             get() = when (button) {

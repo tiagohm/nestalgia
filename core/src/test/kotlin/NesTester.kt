@@ -122,6 +122,12 @@ class NesTester(private val path: Path) {
 
         override var mouseY = 0
             private set
+
+        override var mouseDx = 0
+            private set
+
+        override var mouseDy = 0
+            private set
     }
 
     companion object {
