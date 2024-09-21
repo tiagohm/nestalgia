@@ -3,7 +3,6 @@ package br.tiagohm.nestalgia.core
 import br.tiagohm.nestalgia.core.IRQSource.EXTERNAL
 import br.tiagohm.nestalgia.core.MemoryAccessType.NO_ACCESS
 import br.tiagohm.nestalgia.core.MemoryAccessType.READ_WRITE
-import br.tiagohm.nestalgia.core.MirroringType.*
 import br.tiagohm.nestalgia.core.PrgMemoryType.SRAM
 import br.tiagohm.nestalgia.core.PrgMemoryType.WRAM
 
@@ -20,10 +19,8 @@ class Mapper105(console: Console) : MMC1(console) {
     override fun initialize() {
         super.initialize()
 
-        initState = 0
-        irqCounter = 0L
-        irqEnabled = false
-        stateA000 = stateA000 or 0x10 // Set I bit to 1
+        chrReg0 = chrReg0 or 0x10
+        updateState()
     }
 
     override fun clock() {
@@ -40,13 +37,13 @@ class Mapper105(console: Console) : MMC1(console) {
     }
 
     override fun updateState() {
-        if (initState == 0 && !stateA000.bit4) {
+        if (initState == 0 && !chrReg0.bit4) {
             initState = 1
-        } else if (initState == 1 && stateA000.bit4) {
+        } else if (initState == 1 && chrReg0.bit4) {
             initState = 2
         }
 
-        if (stateA000.bit4) {
+        if (chrReg0.bit4) {
             irqEnabled = false
             irqCounter = 0
             console.cpu.clearIRQSource(EXTERNAL)
@@ -54,23 +51,16 @@ class Mapper105(console: Console) : MMC1(console) {
             irqEnabled = true
         }
 
-        mirroringType = when (state8000 and 3) {
-            0 -> SCREEN_A_ONLY
-            1 -> SCREEN_B_ONLY
-            2 -> VERTICAL
-            else -> HORIZONTAL
-        }
-
-        val access = if (stateE000.bit4) NO_ACCESS else READ_WRITE
+        val access = if (wramDisable) NO_ACCESS else READ_WRITE
         addCpuMemoryMapping(0x6000, 0x7FFF, 0, if (hasBattery) SRAM else WRAM, access)
 
         if (initState == 2) {
-            if (stateA000.bit3) {
+            if (chrReg0.bit3) {
                 // MMC1 mode
-                val prgReg = (stateE000 and 0x07) or 0x08
+                val prgReg = (prgReg and 0x07) or 0x08
 
-                if (state8000.bit3) {
-                    if (state8000.bit2) {
+                if (prgMode) {
+                    if (slotSelect) {
                         selectPrgPage(0, prgReg)
                         selectPrgPage(1, 0x0F)
                     } else {
@@ -81,7 +71,7 @@ class Mapper105(console: Console) : MMC1(console) {
                     selectPrgPage2x(0, prgReg and 0xFE)
                 }
             } else {
-                selectPrgPage2x(0, stateA000 and 0x06)
+                selectPrgPage2x(0, chrReg0 and 0x06)
             }
         } else {
             selectPrgPage2x(0, 0)

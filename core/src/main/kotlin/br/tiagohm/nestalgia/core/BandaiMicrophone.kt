@@ -1,14 +1,16 @@
 package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.BandaiMicrophone.Button.*
-import br.tiagohm.nestalgia.core.ControllerType.*
+import br.tiagohm.nestalgia.core.ControllerType.BANDAI_MICROPHONE
 
 class BandaiMicrophone(console: Console) : ControlDevice(console, BANDAI_MICROPHONE, MAPPER_INPUT_PORT) {
 
-    enum class Button(override val bit: Int) : ControllerButton, HasCustomKey {
-        A(0),
-        B(1),
-        MICROPHONE(2);
+    enum class Button : ControllerButton, HasCustomKey {
+        A,
+        B,
+        MICROPHONE;
+
+        override val bit = ordinal
 
         override val keyIndex = 7 + ordinal
     }

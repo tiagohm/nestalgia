@@ -6,11 +6,13 @@ import br.tiagohm.nestalgia.core.Zapper.Button.FIRE
 
 class Zapper(
     console: Console, type: ControllerType, port: Int,
-    private val keyMapping: KeyMapping,
+    keyMapping: KeyMapping,
 ) : ControlDevice(console, type, port) {
 
-    enum class Button(override val bit: Int) : ControllerButton, HasCustomKey {
-        FIRE(0);
+    enum class Button : ControllerButton, HasCustomKey {
+        FIRE;
+
+        override val bit = ordinal
 
         override val keyIndex = 0
     }
@@ -48,9 +50,13 @@ class Zapper(
 
     override fun write(addr: Int, value: Int, type: MemoryOperationType) = Unit
 
-    companion object {
+    companion object : HasDefaultKeyMapping {
 
         const val AIM_OFFSCREEN_CUSTOM_KEY = 255
+
+        override fun populateWithDefault(keyMapping: KeyMapping) {
+            keyMapping.customKey(FIRE, MouseButton.LEFT)
+        }
 
         internal fun Ppu.isLight(mx: Int, my: Int, radius: Int): Boolean {
             val scanline = scanline

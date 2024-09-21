@@ -5,6 +5,7 @@ import java.io.IOException
 
 object MapperFactory {
 
+    const val FAMICOM_NETWORK_SYSTEM = 65532
     const val FDS_MAPPER_ID = 65535
 
     private val LOG = LoggerFactory.getLogger(MapperFactory::class.java)
@@ -90,8 +91,8 @@ object MapperFactory {
             72 -> JalecoJF17AndJF19(console, false)
             73 -> VRC3(console)
             74 -> Mapper074(console)
-            76 -> Mapper076(console)
             75 -> VRC1(console)
+            76 -> Mapper076(console)
             77 -> IremLrog017(console)
             78 -> JalecoJF16(console)
             79 -> Nina0306(console, false)
@@ -280,6 +281,9 @@ object MapperFactory {
             313 -> ResetTxrom(console)
             314 -> Bmc64in1NoRepeat(console)
             319 -> Hp898f(console)
+            320 -> Bmc830425C4391T(console)
+            323 -> FaridSlrom(console)
+            324 -> FaridUnrom(console)
             325 -> MaliSB(console)
             328 -> Rt01(console)
             329 -> Edu2000(console)
@@ -290,6 +294,7 @@ object MapperFactory {
             346 -> Kaiser7012(console)
             348 -> Bmc830118C(console)
             349 -> BmcG146(console)
+            366 -> BmcGn45(console)
             513 -> Sachen9602(console)
             518 -> Dance2000(console)
             519 -> Eh8813A(console)
@@ -298,6 +303,7 @@ object MapperFactory {
             529 -> T230(console)
             530 -> Ax5705(console)
             FDS_MAPPER_ID -> Fds(console)
+            FAMICOM_NETWORK_SYSTEM -> FnsMmc1(console)
             UnifBoard.MALEE.id -> Malee(console)
             UnifBoard.GS_2013.id -> Gs2013(console)
             UnifBoard.GHOST_BUSTERS_63_IN_1.id -> Ghostbusters63in1(console)

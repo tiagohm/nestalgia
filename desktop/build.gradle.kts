@@ -9,7 +9,7 @@ plugins {
     id("maven-publish")
     id("com.github.gmazzo.buildconfig")
     id("org.openjfx.javafxplugin")
-    id("com.gradleup.shadow") version "8.3.1"
+    id("com.gradleup.shadow") version "8.3.2"
 }
 
 dependencies {
@@ -25,6 +25,7 @@ dependencies {
     implementation("com.badlogicgames.gdx:gdx:1.12.1") // 1.9.9
     implementation("com.badlogicgames.gdx:gdx-controllers:1.9.13") // 1.9.9
     implementation("com.badlogicgames.gdx:gdx-jnigen:2.5.2") // 1.9.10
+    implementation("com.github.kwhat:jnativehook:2.2.2")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")

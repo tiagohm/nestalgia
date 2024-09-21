@@ -15,8 +15,6 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
 
     @JvmField @PublishedApi internal val state = CpuState()
 
-    private val memoryManager = console.memoryManager
-
     @JvmField internal var isCpuWrite = false
     @Volatile private var needHalt = false
 
@@ -749,7 +747,7 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
 
         // Use _memoryManager->Read() directly to prevent clocking the PPU/APU
         // when setting PC at reset.
-        state.pc = memoryManager.readWord(RESET_VECTOR)
+        state.pc = console.memoryManager.readWord(RESET_VECTOR)
 
         if (softReset) {
             INTERRUPT.set()
@@ -830,7 +828,7 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     override fun read(addr: Int, type: MemoryOperationType): Int {
         processPendingDma(addr)
         startCpuCycle(true)
-        val value = memoryManager.read(addr, type)
+        val value = console.memoryManager.read(addr, type)
         endCpuCycle(true)
         return value
     }
@@ -838,7 +836,7 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     override fun write(addr: Int, value: Int, type: MemoryOperationType) {
         isCpuWrite = true
         startCpuCycle(false)
-        memoryManager.write(addr, value, type)
+        console.memoryManager.write(addr, value, type)
         endCpuCycle(false)
         isCpuWrite = false
     }
@@ -902,7 +900,7 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
         startCpuCycle(true)
 
         if (isNtscInputBehavior && !skipFirstInputClock) {
-            memoryManager.read(addr, DUMMY_READ)
+            console.memoryManager.read(addr, DUMMY_READ)
         }
 
         endCpuCycle(true)
@@ -955,7 +953,7 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
                     //Sprite DMA write cycle (only do this if a sprite dma read
                     // was performed last cycle).
                     processCycle()
-                    memoryManager.write(0x2004, readValue, DMA_WRITE)
+                    console.memoryManager.write(0x2004, readValue, DMA_WRITE)
                     endCpuCycle(true)
                     spriteDmaCounter++
 
@@ -993,9 +991,9 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
         if (!enableInternalRegReads) {
             value = if (addr in 0x4000..0x401F) {
                 // Nothing will respond on $4000-$401F on the external bus - return open bus value
-                memoryManager.openBus()
+                console.memoryManager.openBus()
             } else {
-                memoryManager.read(addr, DMA_READ)
+                console.memoryManager.read(addr, DMA_READ)
             }
 
             prevReadAddress[0] = addr
@@ -1009,11 +1007,11 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
 
             when (internalAddr) {
                 0x4015 -> {
-                    value = memoryManager.read(internalAddr, DMA_READ)
+                    value = console.memoryManager.read(internalAddr, DMA_READ)
 
                     if (!isSameAddress) {
                         // Also trigger a read from the actual address the CPU was supposed to read from (external bus)
-                        memoryManager.read(addr, DMA_READ)
+                        console.memoryManager.read(addr, DMA_READ)
                     }
                 }
                 0x4016,
@@ -1023,15 +1021,15 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
                         // triggering a bit loss from the read, since the controller won't react to this read
                         // Return the same value as the last read, instead
                         // On PAL, the behavior is unknown - for now, don't cause any bit deletions
-                        memoryManager.openBus()
+                        console.memoryManager.openBus()
                     } else {
-                        memoryManager.read(internalAddr, DMA_READ)
+                        console.memoryManager.read(internalAddr, DMA_READ)
                     }
 
                     if (!isSameAddress) {
                         // The DMA unit is reading from a different address, read from it too (external bus)
                         val obMask = console.controlManager.openBusMask(internalAddr - 0x4016)
-                        val externalValue = memoryManager.read(addr, DMA_READ)
+                        val externalValue = console.memoryManager.read(addr, DMA_READ)
 
                         // Merge values, keep the external value for all open bus pins on the 4016/4017 port
                         // AND all other bits together (bus conflict)
@@ -1039,7 +1037,7 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
                     }
                 }
                 else -> {
-                    value = memoryManager.read(addr, DMA_READ)
+                    value = console.memoryManager.read(addr, DMA_READ)
                 }
             }
 

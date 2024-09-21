@@ -19,7 +19,8 @@ abstract class ControlDevice(
 
     override fun reset(softReset: Boolean) = Unit
 
-    protected fun isCurrentPort(addr: Int): Boolean {
+    @Suppress("NOTHING_TO_INLINE")
+    protected inline fun isCurrentPort(addr: Int): Boolean {
         return port == (addr - 0x4016)
     }
 

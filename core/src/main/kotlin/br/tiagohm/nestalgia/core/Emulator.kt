@@ -5,7 +5,6 @@ import java.awt.image.DataBufferInt
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicReference
 
@@ -15,7 +14,7 @@ data class Emulator(
     @JvmField val video: RenderingDevice,
     @JvmField val keyManager: KeyManager,
     @JvmField val inputProviders: Iterable<InputProvider>,
-    @JvmField val threadExecutor: ExecutorService = DEFAULT_THREAD_EXECUTOR,
+    @JvmField val threadExecutor: ExecutorService,
 ) : NotificationListener, Resetable, AutoCloseable {
 
     private val emuThread = AtomicReference<Future<*>>()
@@ -245,10 +244,5 @@ data class Emulator(
         if (running) {
             console.debugger.step(count)
         }
-    }
-
-    companion object {
-
-        private val DEFAULT_THREAD_EXECUTOR = Executors.newSingleThreadExecutor(EmulatorThreadFactory)
     }
 }

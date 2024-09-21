@@ -12,17 +12,17 @@ import kotlin.concurrent.thread
 @Suppress("NOTHING_TO_INLINE", "SameParameterValue")
 data class Speaker(private val console: Console) : AudioDevice {
 
-    private var sampleRate = 0
-    private var emulationSpeed = console.settings.emulationSpeed()
-    private var stereo = false
+    @Volatile private var sampleRate = 0
+    @Volatile private var emulationSpeed = console.settings.emulationSpeed()
+    @Volatile private var stereo = false
 
-    private var sourceDataLine: SourceDataLine? = null
-    private var bufferSize = 0
-    private var buffer: ByteArray? = null
-    private var writePosition = 0
-    private var readPosition = 0
+    @Volatile private var sourceDataLine: SourceDataLine? = null
+    @Volatile private var bufferSize = 0
+    @Volatile private var buffer: ByteArray? = null
+    @Volatile private var writePosition = 0
+    @Volatile private var readPosition = 0
 
-    private var thread: Thread? = null
+    @Volatile private var thread: Thread? = null
     private val pause = AtomicBoolean(false)
     private val stop = AtomicBoolean(false)
 

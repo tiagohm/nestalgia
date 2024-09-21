@@ -10,6 +10,10 @@ interface KeyManager {
 
     val mouseY: Int
 
+    val mouseDx: Int
+
+    val mouseDy: Int
+
     companion object : KeyManager {
 
         override fun isKeyPressed(key: Key) = false
@@ -19,5 +23,9 @@ interface KeyManager {
         override val mouseX = 0
 
         override val mouseY = 0
+
+        override val mouseDx = 0
+
+        override val mouseDy = 0
     }
 }

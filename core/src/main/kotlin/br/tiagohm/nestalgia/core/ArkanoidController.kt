@@ -1,17 +1,18 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.ArkanoidController.Button.*
+import br.tiagohm.nestalgia.core.ArkanoidController.Button.FIRE
 
 // https://www.nesdev.org/wiki/Arkanoid_controller
 
 class ArkanoidController(
     console: Console, type: ControllerType, port: Int,
-    private val keyMapping: KeyMapping,
+    keyMapping: KeyMapping,
 ) : ControlDevice(console, type, port) {
 
+    enum class Button : ControllerButton, HasCustomKey {
+        FIRE;
 
-    enum class Button(override val bit: Int) : ControllerButton, HasCustomKey {
-        FIRE(0);
+        override val bit = ordinal
 
         override val keyIndex = 1
     }
@@ -19,14 +20,10 @@ class ArkanoidController(
     @Volatile private var currentValue = (0xF4 - 0x54) / 2
     @Volatile private var stateBuffer = 0
     private val sensibility = SENSIBILITY_PX[console.settings.arkanoidSensibility[port]]
+    private val key = keyMapping.key(FIRE)
 
     override fun setStateFromInput() {
-        pressedStateFromKeys()
-    }
-
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun pressedStateFromKeys() {
-        setPressedState(FIRE, keyMapping.key(FIRE))
+        setPressedState(FIRE, key)
     }
 
     override fun refreshStateBuffer() {
@@ -78,8 +75,12 @@ class ArkanoidController(
         strobeOnWrite(value)
     }
 
-    companion object {
+    companion object : HasDefaultKeyMapping {
 
         private val SENSIBILITY_PX = intArrayOf(0, 16, 32, 64)
+
+        override fun populateWithDefault(keyMapping: KeyMapping) {
+            keyMapping.customKey(FIRE, MouseButton.LEFT)
+        }
     }
 }

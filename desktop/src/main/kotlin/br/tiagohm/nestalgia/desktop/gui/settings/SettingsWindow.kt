@@ -310,20 +310,25 @@ class SettingsWindow : AbstractWindow() {
     }
 
     private fun ChoiceBox<ControllerType>.openPortSettings(port: Int, subPort: Int = 0) {
-        val keyMapping = when (port) {
-            0 -> settings.port1.keyMapping
-            1 -> settings.port2.keyMapping
-            EXP_DEVICE_PORT -> settings.expansionPort.keyMapping
-            MAPPER_INPUT_PORT -> settings.mapperPort.keyMapping
-            -1 -> settings.subPort1[subPort].keyMapping
-            -EXP_DEVICE_PORT -> settings.expansionSubPort[subPort].keyMapping
+        val controllerSettings = when (port) {
+            0 -> settings.port1
+            1 -> settings.port2
+            EXP_DEVICE_PORT -> settings.expansionPort
+            MAPPER_INPUT_PORT -> settings.mapperPort
+            -1 -> settings.subPort1[subPort]
+            -EXP_DEVICE_PORT -> settings.expansionSubPort[subPort]
             else -> return
         }
+
+        controllerSettings.type = value
+        settings.populateWithDefault()
+
+        val keyMapping = controllerSettings.keyMapping
 
         val window = when (value) {
             NES_CONTROLLER,
             FAMICOM_CONTROLLER,
-            HORI_TRACK -> StandardControllerSettingsWindow(keyMapping, value)
+            HORI_TRACK -> StandardControllerSettingsWindow(keyMapping, settings.standardControllerTurboSpeed, value)
             NES_ZAPPER,
             FAMICOM_ZAPPER -> ZapperSettingsWindow(settings.zapperDetectionRadius, keyMapping, port)
             NES_ARKANOID_CONTROLLER,
@@ -333,9 +338,14 @@ class SettingsWindow : AbstractWindow() {
             FAMILY_TRAINER_MAT_SIDE_A,
             FAMILY_TRAINER_MAT_SIDE_B -> PowerPadSettingsWindow(keyMapping, value)
             EXCITING_BOXING -> ExcitingBoxingSettingsWindow(keyMapping)
-            BANDAI_HYPER_SHOT -> BandaiHyperShotSettingsWindow(keyMapping)
+            BANDAI_HYPER_SHOT -> BandaiHyperShotSettingsWindow(keyMapping, settings.bandaiHyperShotTurboSpeed)
             BANDAI_MICROPHONE -> BandaiMicrophoneSettingsWindow(keyMapping)
             KONAMI_HYPER_SHOT -> KonamiHyperShotSettingsWindow(keyMapping)
+            PACHINKO -> PachinkoSettingsWindow(keyMapping)
+            PARTY_TAP -> PartyTapSettingsWindow(keyMapping)
+            JISSEN_MAHJONG -> JissenMahjongSettingsWindow(keyMapping)
+            SUBOR_MOUSE -> SuborMouseSettingsWindow(keyMapping)
+            SUBOR_KEYBOARD -> SuborKeyboardSettingsWindow(keyMapping)
             else -> return
         }
 
@@ -398,7 +408,7 @@ class SettingsWindow : AbstractWindow() {
     companion object {
 
         private val TWO_PLAYER_ADAPTER_CONTROLLER_TYPES = listOf(
-            PACHINKO, SNES_MOUSE, SUBOR_MOUSE, VIRTUAL_BOY_CONTROLLER,
+            NONE, PACHINKO, SNES_MOUSE, SUBOR_MOUSE, VIRTUAL_BOY_CONTROLLER,
         )
     }
 }

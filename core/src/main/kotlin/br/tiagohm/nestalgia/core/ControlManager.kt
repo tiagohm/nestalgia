@@ -3,15 +3,17 @@ package br.tiagohm.nestalgia.core
 import br.tiagohm.nestalgia.core.ConsoleType.*
 import br.tiagohm.nestalgia.core.ControlDevice.Companion.EXP_DEVICE_PORT
 import br.tiagohm.nestalgia.core.ControllerType.*
-import br.tiagohm.nestalgia.core.MemoryAccessType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.READ
+import br.tiagohm.nestalgia.core.MemoryAccessType.WRITE
 import org.slf4j.LoggerFactory
 
 open class ControlManager(protected val console: Console) : MemoryHandler, Resetable, Initializable, Snapshotable, AutoCloseable {
 
-    private val inputProviders = HashSet<InputProvider>()
-    private val inputRecorders = HashSet<InputRecorder>()
-    private val systemDevices = HashSet<ControlDevice>()
-    private val controlDevices = HashSet<ControlDevice>()
+    private val inputProviders = HashSet<InputProvider>(1)
+    private val inputRecorders = HashSet<InputRecorder>(1)
+    private val systemDevices = HashSet<ControlDevice>(1)
+    private val controlDevices = HashSet<ControlDevice>(2)
+    private val controlManagerListeners = HashSet<ControlManagerListener>(1)
 
     @JvmField internal var pollCounter = 0
     @JvmField internal var lagCounter = 0
@@ -35,6 +37,14 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
 
     fun unregisterInputRecorder(inputRecorder: InputRecorder) {
         inputRecorders.remove(inputRecorder)
+    }
+
+    fun registerControlManagerListener(listener: ControlManagerListener) {
+        controlManagerListeners.add(listener)
+    }
+
+    fun unregisterControlManagerListener(listener: ControlManagerListener) {
+        controlManagerListeners.remove(listener)
     }
 
     fun addSystemControlDevice(device: ControlDevice) {
@@ -80,10 +90,10 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
 
         clearDevices()
 
-        createControllerDevice(settings.port1.type, 0)?.also(::registerControlDevice)
-        createControllerDevice(settings.port2.type, 1)?.also(::registerControlDevice)
+        createControllerDevice(settings.port1, 0)?.also(::registerControlDevice)
+        createControllerDevice(settings.port2, 1)?.also(::registerControlDevice)
 
-        val expansionDevice = createControllerDevice(settings.expansionPort.type, EXP_DEVICE_PORT)
+        val expansionDevice = createControllerDevice(settings.expansionPort, EXP_DEVICE_PORT)
 
         if (expansionDevice != null) {
             registerControlDevice(expansionDevice)
@@ -103,27 +113,23 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
         }
     }
 
-    private fun createControllerDevice(type: ControllerType, port: Int): ControlDevice? {
-        val settings = console.settings
+    private fun createControllerDevice(settings: ControllerSettings, port: Int): ControlDevice? {
+        val type = settings.type
+        val keyMapping = settings.keyMapping
 
-        val keyMapping = when (port) {
-            0 -> settings.port1.keyMapping
-            1 -> settings.port2.keyMapping
-            EXP_DEVICE_PORT -> settings.expansionPort.keyMapping
-            else -> KeyMapping()
-        }
+        settings.populateKeyMappingWithDefault()
 
         val device = when (type) {
             NES_CONTROLLER,
             FAMICOM_CONTROLLER,
             FAMICOM_CONTROLLER_P2 -> StandardController(console, type, port, keyMapping)
             NES_ZAPPER -> Zapper(console, type, port, keyMapping)
-            FAMICOM_ZAPPER -> Zapper(console, type, port, keyMapping)
+            FAMICOM_ZAPPER -> Zapper(console, type, EXP_DEVICE_PORT, keyMapping)
             ASCII_TURBO_FILE -> AsciiTurboFile(console)
             BATTLE_BOX -> BattleBox(console)
-            FOUR_SCORE -> FourScore(console, type, 0, *settings.subPort1)
-            TWO_PLAYER_ADAPTER -> TwoPlayerAdapter(console, type, *settings.expansionSubPort)
-            FOUR_PLAYER_ADAPTER -> FourScore(console, type, EXP_DEVICE_PORT, *settings.expansionSubPort)
+            FOUR_SCORE -> FourScore(console, type, 0, *console.settings.subPort1)
+            TWO_PLAYER_ADAPTER -> TwoPlayerAdapter(console, type, *console.settings.expansionSubPort)
+            FOUR_PLAYER_ADAPTER -> FourScore(console, type, EXP_DEVICE_PORT, *console.settings.expansionSubPort)
             NES_ARKANOID_CONTROLLER -> ArkanoidController(console, type, port, keyMapping)
             FAMICOM_ARKANOID_CONTROLLER -> ArkanoidController(console, type, EXP_DEVICE_PORT, keyMapping)
             POWER_PAD_SIDE_A,
@@ -134,8 +140,15 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             FAMILY_TRAINER_MAT_SIDE_B -> FamilyTrainerMat(console, type, keyMapping)
             KONAMI_HYPER_SHOT -> KonamiHyperShot(console, keyMapping)
             HORI_TRACK -> HoriTrack(console, keyMapping)
+            PACHINKO -> Pachinko(console, keyMapping)
+            PARTY_TAP -> PartyTap(console, keyMapping)
+            JISSEN_MAHJONG -> JissenMahjong(console, keyMapping)
+            SUBOR_MOUSE -> SuborMouse(console, port, keyMapping)
+            SUBOR_KEYBOARD -> SuborKeyboard(console, keyMapping)
             else -> return null
         }
+
+        controlManagerListeners.forEach { it.onControlDeviceChange(console, device, port) }
 
         LOG.info("{} connected. type={}, port={}", device::class.simpleName, device.type, device.port)
 

@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 class OpenBusHandler : MemoryHandler {
 
-    @JvmField var openBus = 0
+    @JvmField @Volatile var openBus = 0
 
     override fun memoryRanges(ranges: MemoryRanges) = Unit
 

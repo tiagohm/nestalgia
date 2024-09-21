@@ -5,7 +5,7 @@ package br.tiagohm.nestalgia.desktop.helper
 import java.io.InputStream
 import java.net.URL
 
-val classLoader = Thread.currentThread().contextClassLoader!!
+@JvmField val classLoader = Thread.currentThread().contextClassLoader!!
 
 inline fun resourceUrl(name: String): URL? {
     return classLoader.getResource(name)

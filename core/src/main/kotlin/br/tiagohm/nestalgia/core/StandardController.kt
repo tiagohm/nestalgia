@@ -1,6 +1,7 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.ControllerType.*
+import br.tiagohm.nestalgia.core.ControllerType.BANDAI_HYPER_SHOT
+import br.tiagohm.nestalgia.core.ControllerType.FAMICOM_CONTROLLER_P2
 import br.tiagohm.nestalgia.core.StandardController.Button.*
 
 // https://wiki.nesdev.com/w/index.php/Standard_controller
@@ -25,11 +26,11 @@ open class StandardController(
     }
 
     @Volatile private var microphoneEnabled = port == 1 && type == FAMICOM_CONTROLLER_P2
-    private val turboSpeed = 2 // 0..4
+    private val turboSpeed = if (type == BANDAI_HYPER_SHOT) console.settings.bandaiHyperShotTurboSpeed.get()
+    else console.settings.standardControllerTurboSpeed.get() // 0..4
     private val turboFreq = 1 shl (4 - turboSpeed) and 0xFF
 
-    @Volatile protected var stateBuffer = 0
-        private set
+    @JvmField @Volatile protected var stateBuffer = 0
 
     protected val value
         get() = (if (isPressed(A)) 0x01 else 0x00) or
@@ -46,6 +47,8 @@ open class StandardController(
 
     private val isMicrophoneEnabled
         get() = microphoneEnabled && console.frameCount % 3 == 0
+
+    private val keys = Button.entries.map(keyMapping::key).toTypedArray()
 
     override fun setStateFromInput() {
         pressedStateFromKeys(A)
@@ -80,8 +83,8 @@ open class StandardController(
     }
 
     @Suppress("NOTHING_TO_INLINE")
-    private inline fun pressedStateFromKeys(button: ControllerButton) {
-        setPressedState(button, keyMapping.key(button))
+    private inline fun pressedStateFromKeys(button: Button) {
+        setPressedState(button, keys[button.ordinal])
     }
 
     override fun refreshStateBuffer() {
@@ -126,5 +129,26 @@ open class StandardController(
 
         stateBuffer = s.readInt("stateBuffer")
         microphoneEnabled = s.readBoolean("microphoneEnabled")
+    }
+
+    companion object {
+
+        fun defaultKeyMapping() = arrow()
+
+        fun wasd() = KeyMapping(
+            KeyboardKeys.H, KeyboardKeys.G,
+            KeyboardKeys.W, KeyboardKeys.S,
+            KeyboardKeys.A, KeyboardKeys.D,
+            KeyboardKeys.B, KeyboardKeys.V,
+            turboA = KeyboardKeys.Y, turboB = KeyboardKeys.T,
+        )
+
+        fun arrow() = KeyMapping(
+            KeyboardKeys.L, KeyboardKeys.K,
+            KeyboardKeys.UP, KeyboardKeys.DOWN,
+            KeyboardKeys.LEFT, KeyboardKeys.RIGHT,
+            KeyboardKeys.ENTER, KeyboardKeys.SPACE,
+            turboA = KeyboardKeys.O, turboB = KeyboardKeys.I,
+        )
     }
 }

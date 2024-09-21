@@ -14,5 +14,5 @@ enum class UnifBoard(@JvmField internal val id: Int) {
     UNL_255_IN_1(32778),
     UNL_VRC7(32779),
     UNL_8237A(32780),
-    SSS_NROM_256(32781)
+    SSS_NROM_256(32781),
 }

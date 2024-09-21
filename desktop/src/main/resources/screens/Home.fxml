@@ -11,7 +11,7 @@
             minWidth="-Infinity"
             prefHeight="528.0"
             prefWidth="512.0"
-            xmlns="http://javafx.com/javafx/20"
+            xmlns="http://javafx.com/javafx/22"
             xmlns:fx="http://javafx.com/fxml/1">
     <VBox AnchorPane.bottomAnchor="0.0"
           AnchorPane.leftAnchor="0.0"

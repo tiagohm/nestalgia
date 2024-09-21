@@ -12,17 +12,19 @@ data class Console(@JvmField val settings: EmulationSettings = EmulationSettings
 
     private val pauseCounter = AtomicInteger(0)
 
-    @PublishedApi @JvmField internal var memoryManager = MemoryManager(this)
+    @PublishedApi internal lateinit var memoryManager: MemoryManager
 
     @JvmField val batteryManager = BatteryManager(this)
     @JvmField val notificationManager = NotificationManager()
 
+    @Volatile var controlManager = ControlManager(this)
+        private set
+
     @JvmField internal val debugger = Debugger(this)
 
-    @PublishedApi @JvmField internal var controlManager = ControlManager(this)
-    @PublishedApi @JvmField internal var cpu = Cpu(this)
-    @PublishedApi @JvmField internal var apu = Apu(this)
-    @PublishedApi @JvmField internal var ppu = Ppu(this)
+    @PublishedApi internal lateinit var cpu: Cpu
+    @PublishedApi internal lateinit var apu: Apu
+    @PublishedApi internal lateinit var ppu: Ppu
     @PublishedApi @JvmField internal var systemActionManager = SystemActionManager(this)
 
     @JvmField internal val videoDecoder = VideoDecoder(this)
@@ -58,6 +60,8 @@ data class Console(@JvmField val settings: EmulationSettings = EmulationSettings
         private set
 
     override fun close() {
+        running.set(false)
+
         debugger.close()
 
         stop()
@@ -183,8 +187,12 @@ data class Console(@JvmField val settings: EmulationSettings = EmulationSettings
             pollCounter = controlManager.pollCounter
         }
 
-        controlManager = if (newMapper.info.system == GameSystem.VS_SYSTEM) VsControlManager(this)
-        else ControlManager(this)
+        if (newMapper.info.system == GameSystem.VS_SYSTEM && controlManager !is VsControlManager) {
+            controlManager = VsControlManager(this)
+        } else if (newMapper.info.system != GameSystem.VS_SYSTEM && controlManager is VsControlManager) {
+            controlManager = ControlManager(this)
+        }
+
         controlManager.initialize()
 
         batteryManager.enable()
@@ -280,6 +288,8 @@ data class Console(@JvmField val settings: EmulationSettings = EmulationSettings
         controlManager.reset(softReset)
         soundMixer.reset(softReset)
 
+        (keyManager as? Resetable)?.reset(softReset)
+
         resetRunTimers = true
 
         notificationManager.sendNotification(if (softReset) GAME_RESET else GAME_LOADED)
@@ -364,7 +374,7 @@ data class Console(@JvmField val settings: EmulationSettings = EmulationSettings
         updateRegion(true)
 
         try {
-            while (true) {
+            while (running.get()) {
                 runFrame()
 
                 soundMixer.processEndOfFrame()

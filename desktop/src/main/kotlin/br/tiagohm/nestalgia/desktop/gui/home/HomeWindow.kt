@@ -14,9 +14,13 @@ import br.tiagohm.nestalgia.desktop.input.GamepadInputListener
 import br.tiagohm.nestalgia.desktop.input.GamepadInputProvider
 import br.tiagohm.nestalgia.desktop.input.MouseKeyboard
 import br.tiagohm.nestalgia.desktop.video.Television
+import com.github.kwhat.jnativehook.GlobalScreen
+import com.github.kwhat.jnativehook.mouse.NativeMouseEvent
+import com.github.kwhat.jnativehook.mouse.NativeMouseInputListener
 import javafx.beans.InvalidationListener
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
+import javafx.scene.Cursor
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuBar
 import javafx.scene.control.MenuItem
@@ -36,10 +40,12 @@ import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.Executors
 import javax.imageio.ImageIO
 import kotlin.io.path.*
 
-data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInputListener, NotificationListener, BatteryProvider {
+data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInputListener, NotificationListener, BatteryProvider, ControlManagerListener,
+    NativeMouseInputListener {
 
     override val resourceName = "Home"
 
@@ -53,9 +59,10 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
     @FXML private lateinit var insertCoin2MenuItem: MenuItem
     @FXML private lateinit var television: Television
 
-    private lateinit var speaker: Speaker
+    private val speaker = Speaker(console)
+    private val mouseKeyboard = MouseKeyboard()
+    private val gamepadInputProvider = GamepadInputProvider(console, this)
     private lateinit var emulator: Emulator
-    private lateinit var mouseKeyboard: MouseKeyboard
 
     override fun onCreate() {
         title = "Nestalgia"
@@ -65,16 +72,16 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
 
         television.setOnMousePressed(::onMousePressed)
         television.setOnMouseReleased(::onMouseReleased)
-        television.setOnMouseMoved(::onMouseMoved)
+
+        if (!GlobalScreen.isNativeHookRegistered()) {
+            television.setOnMouseMoved(::onMouseMoved)
+        }
 
         console.notificationManager.registerNotificationListener(this)
         console.batteryManager.registerProvider(this)
 
-        val gamepadInputProvider = GamepadInputProvider(console, this)
-        speaker = Speaker(console)
         val inputProviders = listOf(gamepadInputProvider)
-        mouseKeyboard = MouseKeyboard(console, television)
-        emulator = Emulator(console, speaker, television, mouseKeyboard, inputProviders)
+        emulator = Emulator(console, speaker, television, mouseKeyboard, inputProviders, DEFAULT_THREAD_EXECUTOR)
 
         regionToggleGroup.selectToggle(regionToggleGroup.toggles[preferences.settings.region.ordinal])
         speedToggleGroup.selectToggle(speedToggleGroup.toggles[SPEEDS.indexOf(preferences.settings.emulationSpeed())])
@@ -88,6 +95,11 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
                 menuBar.opacity = 1.0
             }
         })
+
+        if (GlobalScreen.isNativeHookRegistered()) {
+            GlobalScreen.addNativeMouseListener(this)
+            GlobalScreen.addNativeMouseMotionListener(this)
+        }
     }
 
     override fun onStart() {
@@ -95,6 +107,11 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
     }
 
     override fun onClose() {
+        GlobalScreen.removeNativeMouseListener(this)
+        GlobalScreen.removeNativeMouseMotionListener(this)
+        GlobalScreen.unregisterNativeHook()
+        DEFAULT_THREAD_EXECUTOR.shutdownNow()
+        gamepadInputProvider.close()
         emulator.close()
     }
 
@@ -103,6 +120,14 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
         console.pause()
         settingsWindow.showAndWait(this)
         console.resume()
+    }
+
+    private fun showOrHideCursor() {
+        television.cursor = if (console.hasControllerType(ControllerType.SUBOR_MOUSE)) {
+            Cursor.NONE
+        } else {
+            Cursor.DEFAULT
+        }
     }
 
     @FXML
@@ -149,6 +174,10 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
         }
     }
 
+    override fun onControlDeviceChange(console: Console, device: ControlDevice, port: Int) {
+        showOrHideCursor()
+    }
+
     @FXML
     private fun openROM() {
         val chooser = FileChooser()
@@ -175,6 +204,8 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
         loadConsolePreferences()
 
         if (emulator.load(path.readBytes().toIntArray(), name, FDS_BIOS)) {
+            console.controlManager.registerControlManagerListener(this)
+            showOrHideCursor()
             preferences.loadRomDir = "${path.parent}"
             preferences.save()
             loadSavedStates()
@@ -324,27 +355,31 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
         mouseKeyboard.onMouseMoved(x, y)
     }
 
+    override fun nativeMouseMoved(nativeEvent: NativeMouseEvent) {
+        val point = television.screenToLocal(nativeEvent.x.toDouble(), nativeEvent.y.toDouble())
+        mouseKeyboard.onMouseMoved(point.x.toInt(), point.y.toInt())
+    }
+
     private fun loadConsolePreferences() {
         // Copy global settings to console settings.
         preferences.settings.copyTo(console.settings)
 
+        var markAsNeedControllerUpdate = false
+
         if (console.settings.port1.type == ControllerType.NONE) {
             console.settings.port1.type = NES_CONTROLLER
-            console.settings.markAsNeedControllerUpdate()
+            markAsNeedControllerUpdate = true
         }
         if (console.settings.port1.type != FOUR_SCORE &&
             console.settings.port2.type == ControllerType.NONE
         ) {
             console.settings.port2.type = NES_CONTROLLER
-            console.settings.markAsNeedControllerUpdate()
+            markAsNeedControllerUpdate = true
         }
 
-        if (console.settings.port1.keyMapping.isEmpty()) {
-            KeyMapping.arrowKeys().copyTo(console.settings.port1.keyMapping)
-            console.settings.markAsNeedControllerUpdate()
-        }
-        if (console.settings.port2.keyMapping.isEmpty()) {
-            KeyMapping.wasd().copyTo(console.settings.port2.keyMapping)
+        markAsNeedControllerUpdate = console.settings.populateWithDefault() || markAsNeedControllerUpdate
+
+        if (markAsNeedControllerUpdate) {
             console.settings.markAsNeedControllerUpdate()
         }
     }
@@ -432,6 +467,7 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
         private val LOG = LoggerFactory.getLogger(HomeWindow::class.java)
         private val SPEEDS = intArrayOf(100, 200, 300, 50, 25)
         private val DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        private val DEFAULT_THREAD_EXECUTOR = Executors.newSingleThreadExecutor(EmulatorThreadFactory)
 
         private val MouseEvent.mouseButton
             get() = when (button) {

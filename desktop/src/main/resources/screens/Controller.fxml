@@ -1,0 +1,52 @@
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane maxHeight="-Infinity"
+            maxWidth="-Infinity"
+            minHeight="-Infinity"
+            minWidth="-Infinity"
+            xmlns="http://javafx.com/javafx/22"
+            xmlns:fx="http://javafx.com/fxml/1">
+    <VBox spacing="4.0"
+          alignment="CENTER"
+          AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0">
+        <padding>
+            <Insets topRightBottomLeft="16.0"/>
+        </padding>
+        <ScrollPane
+            fitToHeight="true"
+            fitToWidth="true"
+            VBox.vgrow="SOMETIMES">
+            <VBox fx:id="container"
+                  spacing="4.0"
+                  alignment="CENTER"
+                  AnchorPane.bottomAnchor="0.0"
+                  AnchorPane.leftAnchor="0.0"
+                  AnchorPane.rightAnchor="0.0"
+                  AnchorPane.topAnchor="0.0">
+            </VBox>
+        </ScrollPane>
+        <HBox fx:id="presetBox"
+              alignment="CENTER"
+              spacing="2.0">
+            <ComboBox fx:id="presetComboBox"
+                      maxWidth="Infinity"
+                      HBox.hgrow="ALWAYS"/>
+            <Button text="Apply"
+                    onAction="#applyPreset"/>
+        </HBox>
+        <HBox fx:id="buttonsBox"
+              alignment="CENTER"
+              spacing="2.0">
+            <Button text="Clear"
+                    onAction="#clear"/>
+            <Button text="Reset"
+                    onAction="#reset"/>
+            <Button text="Default"
+                    onAction="#resetToDefault"/>
+        </HBox>
+    </VBox>
+</AnchorPane>
