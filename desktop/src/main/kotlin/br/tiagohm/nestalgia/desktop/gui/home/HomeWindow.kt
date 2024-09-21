@@ -14,6 +14,9 @@ import br.tiagohm.nestalgia.desktop.input.GamepadInputListener
 import br.tiagohm.nestalgia.desktop.input.GamepadInputProvider
 import br.tiagohm.nestalgia.desktop.input.MouseKeyboard
 import br.tiagohm.nestalgia.desktop.video.Television
+import com.github.kwhat.jnativehook.GlobalScreen
+import com.github.kwhat.jnativehook.mouse.NativeMouseEvent
+import com.github.kwhat.jnativehook.mouse.NativeMouseInputListener
 import javafx.beans.InvalidationListener
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
@@ -40,7 +43,8 @@ import java.time.format.DateTimeFormatter
 import javax.imageio.ImageIO
 import kotlin.io.path.*
 
-data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInputListener, NotificationListener, BatteryProvider, ControlManagerListener {
+data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInputListener, NotificationListener, BatteryProvider, ControlManagerListener,
+    NativeMouseInputListener {
 
     override val resourceName = "Home"
 
@@ -66,7 +70,10 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
 
         television.setOnMousePressed(::onMousePressed)
         television.setOnMouseReleased(::onMouseReleased)
-        television.setOnMouseMoved(::onMouseMoved)
+
+        if (!GlobalScreen.isNativeHookRegistered()) {
+            television.setOnMouseMoved(::onMouseMoved)
+        }
 
         console.notificationManager.registerNotificationListener(this)
         console.batteryManager.registerProvider(this)
@@ -87,6 +94,11 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
                 menuBar.opacity = 1.0
             }
         })
+
+        if (GlobalScreen.isNativeHookRegistered()) {
+            GlobalScreen.addNativeMouseListener(this)
+            GlobalScreen.addNativeMouseMotionListener(this)
+        }
     }
 
     override fun onStart() {
@@ -94,6 +106,8 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
     }
 
     override fun onClose() {
+        GlobalScreen.removeNativeMouseListener(this)
+        GlobalScreen.removeNativeMouseMotionListener(this)
         emulator.close()
     }
 
@@ -335,6 +349,11 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
         val x = (event.x / television.width * Ppu.SCREEN_WIDTH).toInt()
         val y = (event.y / television.height * Ppu.SCREEN_HEIGHT).toInt()
         mouseKeyboard.onMouseMoved(x, y)
+    }
+
+    override fun nativeMouseMoved(nativeEvent: NativeMouseEvent) {
+        val point = television.screenToLocal(nativeEvent.x.toDouble(), nativeEvent.y.toDouble())
+        mouseKeyboard.onMouseMoved(point.x.toInt(), point.y.toInt())
     }
 
     private fun loadConsolePreferences() {

@@ -8,6 +8,7 @@ import br.tiagohm.nestalgia.desktop.gui.about.AboutWindow
 import br.tiagohm.nestalgia.desktop.gui.cheats.CheatsWindow
 import br.tiagohm.nestalgia.desktop.gui.home.HomeWindow
 import br.tiagohm.nestalgia.desktop.gui.settings.SettingsWindow
+import com.github.kwhat.jnativehook.GlobalScreen
 import javafx.application.Application
 import oshi.PlatformEnum.LINUX
 import oshi.PlatformEnum.WINDOWS
@@ -67,6 +68,12 @@ fun main(args: Array<String>) {
 
     // Sets default locale to en_US.
     Locale.setDefault(Locale.ENGLISH)
+
+    try {
+        GlobalScreen.registerNativeHook()
+    } catch (e: Throwable) {
+        System.err.println("failed to register native hook: $e")
+    }
 
     // Run the JavaFX application.
     Application.launch(Nestalgia::class.java, *args)
