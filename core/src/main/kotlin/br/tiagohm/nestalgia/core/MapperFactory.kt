@@ -5,6 +5,7 @@ import java.io.IOException
 
 object MapperFactory {
 
+    const val FAMICOM_NETWORK_SYSTEM = 65532
     const val FDS_MAPPER_ID = 65535
 
     private val LOG = LoggerFactory.getLogger(MapperFactory::class.java)
@@ -302,6 +303,7 @@ object MapperFactory {
             529 -> T230(console)
             530 -> Ax5705(console)
             FDS_MAPPER_ID -> Fds(console)
+            FAMICOM_NETWORK_SYSTEM -> FnsMmc1(console)
             UnifBoard.MALEE.id -> Malee(console)
             UnifBoard.GS_2013.id -> Gs2013(console)
             UnifBoard.GHOST_BUSTERS_63_IN_1.id -> Ghostbusters63in1(console)
