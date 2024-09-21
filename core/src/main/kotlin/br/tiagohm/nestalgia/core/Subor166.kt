@@ -10,13 +10,10 @@ class Subor166(console: Console) : Mapper(console) {
     override val chrPageSize = 0x2000
 
     private val regs = IntArray(4)
-    @Volatile private var altMode = false
 
     override fun initialize() {
         writeRegister(0x8000, 0)
         selectChrPage(0, 0)
-
-        altMode = info.mapperId == 167
     }
 
     override fun writeRegister(addr: Int, value: Int) {
@@ -29,6 +26,8 @@ class Subor166(console: Console) : Mapper(console) {
 
         val outerBank = regs[0] xor regs[1] and 0x10 shl 1
         val innerBank = regs[2] xor regs[3]
+
+        val altMode = info.mapperId == 167
 
         if (regs[1].bit3) {
             // 32 KiB NROM
