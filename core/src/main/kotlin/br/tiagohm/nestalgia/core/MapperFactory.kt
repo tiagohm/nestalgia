@@ -282,6 +282,7 @@ object MapperFactory {
             319 -> Hp898f(console)
             320 -> Bmc830425C4391T(console)
             323 -> FaridSlrom(console)
+            324 -> FaridUnrom(console)
             325 -> MaliSB(console)
             328 -> Rt01(console)
             329 -> Edu2000(console)
