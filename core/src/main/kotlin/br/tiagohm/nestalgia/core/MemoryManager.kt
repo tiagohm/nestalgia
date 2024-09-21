@@ -52,9 +52,7 @@ class MemoryManager(private val console: Console) : Memory, Peekable, Resetable,
     }
 
     override fun peek(addr: Int): Int {
-        val value = if (addr <= 0x1FFF) ramReadHandlers[addr].read(addr)
-        else ramReadHandlers[addr].peek(addr)
-
+        val value = ramReadHandlers[addr].peek(addr)
         return console.cheatManager.applyCode(addr, value)
     }
 
