@@ -3,17 +3,28 @@ package br.tiagohm.nestalgia.desktop.input
 import br.tiagohm.nestalgia.core.Key
 import br.tiagohm.nestalgia.core.KeyManager
 import br.tiagohm.nestalgia.core.MouseButton
+import br.tiagohm.nestalgia.core.Resetable
 
-class MouseKeyboard : KeyManager {
+class MouseKeyboard : KeyManager, Resetable {
 
     private val keyPressed = BooleanArray(65536)
     private val mouseButtons = BooleanArray(4)
 
-    override var mouseX = -1
+    @Volatile override var mouseX = -1
         private set
 
-    override var mouseY = -1
+    @Volatile override var mouseY = -1
         private set
+
+    @Volatile override var mouseDx = 0
+        get() = field.also { field = 0 }
+        private set
+
+    @Volatile override var mouseDy = 0
+        get() = field.also { field = 0 }
+        private set
+
+    @Volatile private var initialMouseMove = false
 
     override fun isKeyPressed(key: Key): Boolean {
         return if (key is MouseButton) mouseButtons[key.code]
@@ -41,7 +52,20 @@ class MouseKeyboard : KeyManager {
     }
 
     internal fun onMouseMoved(x: Int, y: Int) {
+        if (!initialMouseMove) {
+            initialMouseMove = true
+            mouseDx = 0
+            mouseDy = 0
+        } else {
+            mouseDx += x - mouseX
+            mouseDy += y - mouseY
+        }
+
         mouseX = x
         mouseY = y
+    }
+
+    override fun reset(softReset: Boolean) {
+        initialMouseMove = false
     }
 }

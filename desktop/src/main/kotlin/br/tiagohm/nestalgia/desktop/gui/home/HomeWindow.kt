@@ -17,6 +17,7 @@ import br.tiagohm.nestalgia.desktop.video.Television
 import javafx.beans.InvalidationListener
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
+import javafx.scene.Cursor
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuBar
 import javafx.scene.control.MenuItem
@@ -39,7 +40,7 @@ import java.time.format.DateTimeFormatter
 import javax.imageio.ImageIO
 import kotlin.io.path.*
 
-data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInputListener, NotificationListener, BatteryProvider {
+data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInputListener, NotificationListener, BatteryProvider, ControlManagerListener {
 
     override val resourceName = "Home"
 
@@ -103,6 +104,14 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
         console.resume()
     }
 
+    private fun showOrHideCursor() {
+        television.cursor = if (console.hasControllerType(ControllerType.SUBOR_MOUSE)) {
+            Cursor.NONE
+        } else {
+            Cursor.DEFAULT
+        }
+    }
+
     @FXML
     private fun openCheats() {
         cheatsWindow.showAndWait(this)
@@ -147,6 +156,10 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
         }
     }
 
+    override fun onControlDeviceChange(console: Console, device: ControlDevice, port: Int) {
+        showOrHideCursor()
+    }
+
     @FXML
     private fun openROM() {
         val chooser = FileChooser()
@@ -173,6 +186,8 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
         loadConsolePreferences()
 
         if (emulator.load(path.readBytes().toIntArray(), name, FDS_BIOS)) {
+            console.controlManager.registerControlManagerListener(this)
+            showOrHideCursor()
             preferences.loadRomDir = "${path.parent}"
             preferences.save()
             loadSavedStates()

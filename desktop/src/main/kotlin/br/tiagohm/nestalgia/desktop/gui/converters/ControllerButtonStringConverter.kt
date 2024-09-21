@@ -5,9 +5,16 @@ import javafx.util.StringConverter
 
 object ControllerButtonStringConverter : StringConverter<ControllerButton>() {
 
-    override fun toString(key: ControllerButton?) = if (key == null) "-" else LABELS[key] ?: "$key"
+    override fun toString(key: ControllerButton?) = when (key) {
+        null -> "-"
+        is SuborKeyboard.Button -> SUBOR_KEYBOARD_KEYS[key]!!
+        else -> LABELS[key] ?: "$key"
+    }
 
     override fun fromString(text: String?) = null
+
+    private val SUBOR_KEYBOARD_KEYS = SuborKeyboard.Button.entries
+        .associateWith { runCatching { KeyboardKeys.valueOf(it.name).description }.getOrNull() ?: it.name }
 
     private val LABELS = mapOf<ControllerButton, String>(
         StandardController.Button.A to "A",
@@ -45,5 +52,7 @@ object ControllerButtonStringConverter : StringConverter<ControllerButton>() {
         JissenMahjong.Button.CHII to "Chii",
         JissenMahjong.Button.RIICHI to "Riichi",
         JissenMahjong.Button.RON to "Ron",
+        SuborMouse.Button.LEFT to "Left",
+        SuborMouse.Button.RIGHT to "Right",
     )
 }

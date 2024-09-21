@@ -96,6 +96,7 @@
                                     <ControllerType fx:value="POWER_PAD_SIDE_A"/>
                                     <ControllerType fx:value="POWER_PAD_SIDE_B"/>
                                     <ControllerType fx:value="SUBOR_MOUSE"/>
+                                    <ControllerType fx:value="SUBOR_KEYBOARD"/>
                                     <ControllerType fx:value="SNES_MOUSE"/>
                                     <ControllerType fx:value="VIRTUAL_BOY_CONTROLLER"/>
                                     <ControllerType fx:value="JISSEN_MAHJONG"/>

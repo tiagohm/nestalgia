@@ -27,14 +27,14 @@ data class ControllerSettings(
             EXCITING_BOXING -> ExcitingBoxingController.defaultKeyMapping()
             JISSEN_MAHJONG -> JissenMahjong.defaultKeyMapping()
             BANDAI_HYPER_SHOT -> BandaiHyperShot.defaultKeyMapping()
-            SUBOR_MOUSE,
+            SUBOR_MOUSE -> SuborMouse.defaultKeyMapping()
+            SUBOR_KEYBOARD -> SuborKeyboard.defaultKeyMapping()
             VIRTUAL_BOY_CONTROLLER,
             FOUR_SCORE,
             TWO_PLAYER_ADAPTER,
             FOUR_PLAYER_ADAPTER,
             OEKA_KIDS_TABLET,
             FAMILY_BASIC_KEYBOARD,
-            SUBOR_KEYBOARD,
             SNES_MOUSE,
             BARCODE_BATTLER,
             ASCII_TURBO_FILE,

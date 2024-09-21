@@ -9,10 +9,11 @@ import org.slf4j.LoggerFactory
 
 open class ControlManager(protected val console: Console) : MemoryHandler, Resetable, Initializable, Snapshotable, AutoCloseable {
 
-    private val inputProviders = HashSet<InputProvider>()
-    private val inputRecorders = HashSet<InputRecorder>()
-    private val systemDevices = HashSet<ControlDevice>()
-    private val controlDevices = HashSet<ControlDevice>()
+    private val inputProviders = HashSet<InputProvider>(1)
+    private val inputRecorders = HashSet<InputRecorder>(1)
+    private val systemDevices = HashSet<ControlDevice>(1)
+    private val controlDevices = HashSet<ControlDevice>(2)
+    private val controlManagerListeners = HashSet<ControlManagerListener>(1)
 
     @JvmField internal var pollCounter = 0
     @JvmField internal var lagCounter = 0
@@ -36,6 +37,14 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
 
     fun unregisterInputRecorder(inputRecorder: InputRecorder) {
         inputRecorders.remove(inputRecorder)
+    }
+
+    fun registerControlManagerListener(listener: ControlManagerListener) {
+        controlManagerListeners.add(listener)
+    }
+
+    fun unregisterControlManagerListener(listener: ControlManagerListener) {
+        controlManagerListeners.remove(listener)
     }
 
     fun addSystemControlDevice(device: ControlDevice) {
@@ -134,8 +143,12 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             PACHINKO -> Pachinko(console, keyMapping)
             PARTY_TAP -> PartyTap(console, keyMapping)
             JISSEN_MAHJONG -> JissenMahjong(console, keyMapping)
+            SUBOR_MOUSE -> SuborMouse(console, port, keyMapping)
+            SUBOR_KEYBOARD -> SuborKeyboard(console, keyMapping)
             else -> return null
         }
+
+        controlManagerListeners.forEach { it.onControlDeviceChange(console, device, port) }
 
         LOG.info("{} connected. type={}, port={}", device::class.simpleName, device.type, device.port)
 

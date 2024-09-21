@@ -344,6 +344,8 @@ class SettingsWindow : AbstractWindow() {
             PACHINKO -> PachinkoSettingsWindow(keyMapping)
             PARTY_TAP -> PartyTapSettingsWindow(keyMapping)
             JISSEN_MAHJONG -> JissenMahjongSettingsWindow(keyMapping)
+            SUBOR_MOUSE -> SuborMouseSettingsWindow(keyMapping)
+            SUBOR_KEYBOARD -> SuborKeyboardSettingsWindow(keyMapping)
             else -> return
         }
 

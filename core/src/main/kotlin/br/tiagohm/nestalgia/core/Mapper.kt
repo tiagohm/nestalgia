@@ -550,7 +550,6 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
 
         for (i in a..b) {
             prgPages[i] = source
-
             prgMemoryAccess[i] = if (accessType != UNSPECIFIED) accessType else READ
 
             if (source !== Pointer.NULL) {

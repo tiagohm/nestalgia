@@ -17,9 +17,11 @@ data class Console(@JvmField val settings: EmulationSettings = EmulationSettings
     @JvmField val batteryManager = BatteryManager(this)
     @JvmField val notificationManager = NotificationManager()
 
+    @Volatile var controlManager = ControlManager(this)
+        private set
+
     @JvmField internal val debugger = Debugger(this)
 
-    @PublishedApi internal lateinit var controlManager: ControlManager
     @PublishedApi internal lateinit var cpu: Cpu
     @PublishedApi internal lateinit var apu: Apu
     @PublishedApi internal lateinit var ppu: Ppu
@@ -183,8 +185,12 @@ data class Console(@JvmField val settings: EmulationSettings = EmulationSettings
             pollCounter = controlManager.pollCounter
         }
 
-        controlManager = if (newMapper.info.system == GameSystem.VS_SYSTEM) VsControlManager(this)
-        else ControlManager(this)
+        if (newMapper.info.system == GameSystem.VS_SYSTEM && controlManager !is VsControlManager) {
+            controlManager = VsControlManager(this)
+        } else if (newMapper.info.system != GameSystem.VS_SYSTEM && controlManager is VsControlManager) {
+            controlManager = ControlManager(this)
+        }
+
         controlManager.initialize()
 
         batteryManager.enable()
@@ -279,6 +285,8 @@ data class Console(@JvmField val settings: EmulationSettings = EmulationSettings
         cpu.reset(softReset)
         controlManager.reset(softReset)
         soundMixer.reset(softReset)
+
+        (keyManager as? Resetable)?.reset(softReset)
 
         resetRunTimers = true
 
