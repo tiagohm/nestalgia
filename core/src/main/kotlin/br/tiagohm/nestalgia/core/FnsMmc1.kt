@@ -81,12 +81,35 @@ class FnsMmc1(console: Console) : MMC1(console) {
 
     override fun updateState() {
         super.updateState()
+
         mirroringType = mirroringSelect
         addPpuMemoryMapping(0x0000, 0x1FFF, RAM, if (chrRamBank != 0) 0x2000 else 0, READ_WRITE)
 
         if (workRamEnable1 && workRamEnable2) {
             addCpuMemoryMapping(0x6000, 0x7FFF, WRAM, 0, READ_WRITE)
         }
+    }
+
+    override fun saveState(s: Snapshot) {
+        super.saveState(s)
+
+        s.write("mirroringSelect", mirroringSelect)
+        s.write("kanjiRomPos", kanjiRomPos)
+        s.write("kanjiRomBank", kanjiRomBank)
+        s.write("chrRamBank", chrRamBank)
+        s.write("workRamEnable1", workRamEnable1)
+        s.write("workRamEnable2", workRamEnable2)
+    }
+
+    override fun restoreState(s: Snapshot) {
+        super.restoreState(s)
+
+        mirroringSelect = s.readEnum("mirroringSelect", mirroringSelect)
+        kanjiRomPos = s.readInt("kanjiRomPos")
+        kanjiRomBank = s.readBoolean("kanjiRomBank")
+        chrRamBank = s.readInt("chrRamBank")
+        workRamEnable1 = s.readBoolean("workRamEnable1")
+        workRamEnable2 = s.readBoolean("workRamEnable2")
     }
 
     companion object {
