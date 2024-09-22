@@ -364,7 +364,11 @@ object UnifLoader {
         "HP2018A" to 260,
         "DRIPGAME" to 284,
         "60311C" to 289,
-        "CHINA_ER_SAN2" to 19 // Appears to be a mapper 19 hack specific for VirtuaNES (which adds chinese text on top of the PPU's output) to unknown if a board actually exists
+        "CHINA_ER_SAN2" to 19, // Appears to be a mapper 19 hack specific for VirtuaNES (which adds chinese text on top of the PPU's output) to unknown if a board actually exists
+        "STREETFIGTER-GAME4IN1" to 49,
+        "HP2018-A" to 260,
+        "JC-016-2" to 205,
+        "NEWSTAR-GRM070-8IN1" to 33,
     )
 
     private val LOG = LoggerFactory.getLogger(UnifLoader::class.java)
