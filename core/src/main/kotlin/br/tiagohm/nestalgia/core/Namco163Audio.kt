@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.AudioChannel.*
+import br.tiagohm.nestalgia.core.AudioChannel.NAMCO_163
 
 // https://www.nesdev.org/wiki/Namco_163_audio
 
@@ -14,10 +14,6 @@ class Namco163Audio(console: Console) : ExpansionAudio(console), Memory {
     @Volatile private var currentChannel = 7
     @Volatile private var lastOutput = 0
     @Volatile private var disableSound = false
-
-    init {
-        console.initializeRam(internalRam)
-    }
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun frequency(channel: Int): Int {
@@ -92,6 +88,12 @@ class Namco163Audio(console: Console) : ExpansionAudio(console), Memory {
         summedOutput /= numberOfChannels + 1
         console.apu.addExpansionAudioDelta(NAMCO_163, summedOutput - lastOutput)
         lastOutput = summedOutput
+    }
+
+    internal fun initializeInternalRam(hasBattery: Boolean) {
+        if (!hasBattery) {
+            console.initializeRam(internalRam)
+        }
     }
 
     override fun clockAudio() {

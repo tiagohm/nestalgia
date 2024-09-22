@@ -5,7 +5,7 @@ import br.tiagohm.nestalgia.core.MemoryAccessType.READ_WRITE
 import br.tiagohm.nestalgia.core.MemoryOperationType.PPU_RENDERING_READ
 import br.tiagohm.nestalgia.core.MirroringType.*
 
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_284
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_284
 
 class UnlDripGame(console: Console) : Mapper(console) {
 

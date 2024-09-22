@@ -7,12 +7,12 @@ class Bmc8in1(console: Console) : MMC3(console) {
     @Volatile private var reg = 0
 
     override fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType) {
-        super.selectChrPage(slot, reg and 0x0C shl 5 or (page and 0x7F), memoryType)
+        super.selectChrPage(slot, (reg and 0x0C shl 5) or (page and 0x7F), memoryType)
     }
 
     override fun selectPrgPage(slot: Int, page: Int, memoryType: PrgMemoryType) {
         if (reg.bit4) {
-            super.selectPrgPage(slot, reg and 0x0C shl 2 or (page and 0x0F), memoryType)
+            super.selectPrgPage(slot, (reg and 0x0C shl 2) or (page and 0x0F), memoryType)
         } else {
             selectPrgPage4x(0, reg and 0x0F shl 2, memoryType)
         }

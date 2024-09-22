@@ -4,10 +4,10 @@ import br.tiagohm.nestalgia.core.MemoryAccessType.READ_WRITE
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_045
 
-class Mapper045(console: Console) : MMC3(console) {
+open class Mapper045(console: Console) : MMC3(console) {
 
     @Volatile private var regIndex = 0
-    private val reg = IntArray(4)
+    @JvmField protected val reg = IntArray(4)
 
     override val registerStartAddress = 0x8000
 

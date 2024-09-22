@@ -16,9 +16,9 @@ class Action53(console: Console) : Mapper(console) {
     override val chrPageSize = 0x2000
 
     override fun initialize() {
+        regs.fill(-1)
         addRegisterRange(0x5000, 0x5FFF, WRITE)
-
-        selectPrgPage(1, -1)
+        updateState()
     }
 
     private fun updateState() {

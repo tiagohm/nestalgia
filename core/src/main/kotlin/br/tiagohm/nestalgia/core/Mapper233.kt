@@ -1,24 +1,44 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.MirroringType.*
+
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_233
 
-class Mapper233(console: Console) : Mapper226(console) {
+class Mapper233(console: Console) : Mapper(console) {
+
+    override val prgPageSize = 0x4000
+
+    override val chrPageSize = 0x2000
 
     @Volatile private var reset = 0
 
-    override fun reset(softReset: Boolean) {
-        super.reset(softReset)
+    override fun initialize() = Unit
 
+    override fun reset(softReset: Boolean) {
         if (softReset) {
-            reset = reset xor 0x01
-            updatePrg()
-        } else {
-            reset = 0
+            reset = reset xor 0x20
         }
+
+        writeRegister(0, 0)
     }
 
-    override fun prgPage(): Int {
-        return registers[0] and 0x1F or (reset shl 5) or (registers[1] and 0x01 shl 6)
+    override fun writeRegister(addr: Int, value: Int) {
+        if (value.bit5) {
+            selectPrgPage(0, reset or (value and 0x1F))
+            selectPrgPage(1, reset or (value and 0x1F))
+        } else {
+            selectPrgPage(0, reset or (value and 0x1E))
+            selectPrgPage(1, reset or (value and 0x1E) + 1)
+        }
+
+        selectChrPage(0, 0)
+
+        mirroringType = when (value shr 6 and 0x03) {
+            0 -> SCREEN_A_ONLY
+            1 -> VERTICAL
+            2 -> HORIZONTAL
+            else -> SCREEN_B_ONLY
+        }
     }
 
     override fun saveState(s: Snapshot) {

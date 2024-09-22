@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_292
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_292
 
 class DragonFighter(console: Console) : MMC3(console) {
 

@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_268
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_268
 
 class MMC3Coolboy(console: Console) : MMC3(console) {
 

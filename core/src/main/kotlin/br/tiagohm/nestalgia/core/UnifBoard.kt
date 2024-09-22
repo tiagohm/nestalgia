@@ -4,7 +4,6 @@ enum class UnifBoard(@JvmField internal val id: Int) {
     UNKNOWN(32768),
     MALEE(32769),
     GS_2013(32770),
-    GHOST_BUSTERS_63_IN_1(32771),
     SUPER24_IN1_SC03(32772),
     CC21(32773),
     AC08(32774),

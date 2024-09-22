@@ -9,6 +9,15 @@ import br.tiagohm.nestalgia.core.PrgMemoryType.ROM
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_090
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_209
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_211
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_281
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_282
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_295
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_358
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_386
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_387
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_388
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_397
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_421
 
 class JyCompany(console: Console) : Mapper(console) {
 
@@ -26,6 +35,7 @@ class JyCompany(console: Console) : Mapper(console) {
 
     @Volatile private var prgMode = 0
     @Volatile private var enablePrgAt6000 = false
+    @Volatile private var prgBlock = 0
 
     @Volatile private var chrMode = 0
     @Volatile private var chrBlockMode = false
@@ -80,7 +90,7 @@ class JyCompany(console: Console) : Mapper(console) {
 
     private fun invertPrgBits(prgReg: Int, needInvert: Boolean): Int {
         return if (needInvert) {
-            prgReg and 0x01 shl 6 or (prgReg and 0x02 shl 4) or (prgReg and 0x04 shl 2) or (prgReg and 0x10 shr 2) or (prgReg and 0x20 shr 4) or (prgReg and 0x40 shr 6)
+            (prgReg and 0x01 shl 6) or (prgReg and 0x02 shl 4) or (prgReg and 0x04 shl 2) or (prgReg and 0x08) or (prgReg and 0x10 shr 2) or (prgReg and 0x20 shr 4) or (prgReg and 0x40 shr 6)
         } else {
             prgReg
         }
@@ -111,10 +121,10 @@ class JyCompany(console: Console) : Mapper(console) {
                 }
             }
             2, 3 -> {
-                selectPrgPage(0, prgRegs[0])
-                selectPrgPage(1, prgRegs[1])
-                selectPrgPage(2, prgRegs[2])
-                selectPrgPage(3, if (prgMode.bit2) prgRegs[3] else 0x3F)
+                selectPrgPage(0, prgRegs[0] or (prgBlock shl 5))
+                selectPrgPage(1, prgRegs[1] or (prgBlock shl 5))
+                selectPrgPage(2, prgRegs[2] or (prgBlock shl 5))
+                selectPrgPage(3, if (prgMode.bit2) prgRegs[3] or (prgBlock shl 5) else 0x3F)
 
                 if (enablePrgAt6000) {
                     addCpuMemoryMapping(0x6000, 0x7FFF, prgRegs[3], ROM)
@@ -244,6 +254,10 @@ class JyCompany(console: Console) : Mapper(console) {
                     mirrorChr = value.bit7
                     chrBlockMode = !value.bit5
                     chrBlock = (value and 0x18 shr 2) or (value and 0x01)
+
+                    if (data.info.mapperId == 35 || data.info.mapperId == 90 || data.info.mapperId == 209 || data.info.mapperId == 211) {
+                        prgBlock = value and 0x06
+                    }
                 }
             }
         }
@@ -354,6 +368,7 @@ class JyCompany(console: Console) : Mapper(console) {
         s.write("chrLatch", chrLatch)
         s.write("prgMode", prgMode)
         s.write("enablePrgAt6000", enablePrgAt6000)
+        s.write("prgBlock", prgBlock)
         s.write("chrMode", chrMode)
         s.write("chrBlockMode", chrBlockMode)
         s.write("chrBlock", chrBlock)
@@ -389,6 +404,7 @@ class JyCompany(console: Console) : Mapper(console) {
         s.readIntArray("chrLatch", chrLatch)
         prgMode = s.readInt("prgMode")
         enablePrgAt6000 = s.readBoolean("enablePrgAt6000")
+        prgBlock = s.readInt("prgBlock")
         chrMode = s.readInt("chrMode")
         chrBlockMode = s.readBoolean("chrBlockMode")
         chrBlock = s.readInt("chrBlock")
