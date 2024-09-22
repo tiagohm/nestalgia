@@ -10,6 +10,9 @@ class Mapper052(console: Console) : MMC3(console) {
 
     override val registerEndAddress = 0xFFFF
 
+    override val chrRamPageSize
+        get() = if (data.info.subMapperId == 13) 0x400 else 0
+
     override fun reset(softReset: Boolean) {
         super.reset(softReset)
 
@@ -23,7 +26,11 @@ class Mapper052(console: Console) : MMC3(console) {
         else
             (page and 0xFF) or (((extraReg and 0x20 shr 3) or (extraReg and 0x10 shr 4)) shl 7)
 
-        super.selectChrPage(slot, p, memoryType)
+        if (data.info.subMapperId == 13 && (extraReg and 3 == 3)) {
+            super.selectChrPage(slot, p, ChrMemoryType.RAM)
+        } else {
+            super.selectChrPage(slot, p, memoryType)
+        }
     }
 
     override fun selectPrgPage(slot: Int, page: Int, memoryType: PrgMemoryType) {
