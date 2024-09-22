@@ -5,9 +5,9 @@ import br.tiagohm.nestalgia.core.MemoryAccessType.WRITE
 
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_126
 
-class Mapper126(console: Console) : MMC3(console) {
+open class Mapper126(console: Console) : MMC3(console) {
 
-    private val exRegs = IntArray(4)
+    @JvmField protected val exRegs = IntArray(4)
 
     override fun initialize() {
         super.initialize()
@@ -44,7 +44,7 @@ class Mapper126(console: Console) : MMC3(console) {
         }
     }
 
-    private val chrOuterBank: Int
+    protected open val chrOuterBank: Int
         get() {
             val reg = exRegs[0]
 

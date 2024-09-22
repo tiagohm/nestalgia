@@ -198,6 +198,10 @@ open class MMC3(console: Console) : Mapper(console) {
     }
 
     override fun writeRegister(addr: Int, value: Int) {
+        mmc3WriteRegister(addr, value)
+    }
+
+    protected fun mmc3WriteRegister(addr: Int, value: Int) {
         when (addr and 0xE001) {
             0x8000 -> {
                 state.reg8000 = value
