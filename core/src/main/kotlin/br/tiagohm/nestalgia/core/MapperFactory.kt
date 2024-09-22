@@ -319,6 +319,7 @@ object MapperFactory {
             522 -> Lh10(console)
             529 -> T230(console)
             530 -> Ax5705(console)
+            533 -> Mapper533(console)
             535 -> Mapper535(console)
             FDS_MAPPER_ID -> Fds(console)
             FAMICOM_NETWORK_SYSTEM -> FnsMmc1(console)
