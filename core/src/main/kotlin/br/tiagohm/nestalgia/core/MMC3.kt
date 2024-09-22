@@ -250,7 +250,7 @@ open class MMC3(console: Console) : Mapper(console) {
 
             if (forceMmc3RevAIrqs || console.settings.flag(MMC3_IRQ_ALT_BEHAVIOR)) {
                 // MMC3 Revision A behavior.
-                if ((count > 0 || irqReload) && irqCounter == 0 && irqEnabled) {
+                if (((count > 0 && irqReloadValue > 0) || irqReload) && irqCounter == 0 && irqEnabled) {
                     triggerIrq()
                 }
             } else if (irqCounter == 0 && irqEnabled) {
