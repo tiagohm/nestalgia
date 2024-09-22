@@ -846,10 +846,11 @@
                         <span class="badge badge-not-implemented">558</span>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-12" style="font-size: small;">
+                <div class="legend col-lg-4 col-md-12" style="font-size: small;">
                     <h5>Legend</h5>
-                    <div><span class="badge badge-success">305</span> Supported</div>
-                    <div><span class="badge badge-not-implemented">260</span> Unknown or not implemented (yet) </div>
+                    <div><span class="supported badge badge-success">305</span> Supported</div>
+                    <div><span class="unsupported badge badge-not-implemented">260</span> Unknown or not implemented
+                        (yet) </div>
                     <br>
                 </div>
                 <div class="col-lg-12 col-md-12 mb-4 text-center">
@@ -1517,6 +1518,13 @@
         </div>
 
         <script>
+            function updateLegendCount() {
+                const supported = document.querySelectorAll('.ines .badge-success').length + 6
+                const unsupported = document.querySelectorAll('.ines .badge-not-implemented').length
+                document.querySelector('.legend .supported').innerText = `${supported}`
+                document.querySelector('.legend .unsupported').innerText = `${unsupported}`
+            }
+
             function navigateToNesDevWiki(mapper) {
                 const a = document.createElement('a')
                 a.target = '_blank'
@@ -1545,6 +1553,8 @@
                     })
                 }
             })
+
+            updateLegendCount()
         </script>
     </body>
 
