@@ -232,6 +232,7 @@ object MapperFactory {
             234 -> Mapper234(console)
             235 -> Bmc235(console)
             236 -> Bmc70in1(console)
+            237 -> Mapper237(console)
             238 -> Mapper238(console)
             240 -> Mapper240(console)
             241 -> Mapper241(console)

@@ -16,7 +16,7 @@ It implements only the emulator (no debugging tools).
 ## Features
 
 * High Accuracy
-* High Compatibility: Over 290 mappers supported
+* High Compatibility: Over 300 mappers supported
 * NES, Famicom, Famicom Disk System, Dendy, Vs. System, NSF and NSFe emulation are supported
 * Save States, Battery, Overclocking and Cheat Codes
 * Configurable Region and Speed
