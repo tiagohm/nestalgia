@@ -97,6 +97,7 @@ object MapperFactory {
             78 -> JalecoJF16(console)
             79 -> Nina0306(console, false)
             80 -> TaitoX1005(console, false)
+            81 -> Mapper081(console)
             82 -> TaitoX1017(console)
             83 -> Mapper083(console)
             86 -> JalecoJF13(console)
