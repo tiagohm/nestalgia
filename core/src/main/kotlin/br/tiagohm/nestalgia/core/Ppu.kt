@@ -200,22 +200,28 @@ open class Ppu(private val console: Console) : MemoryHandler, Resetable, Initial
         when (region) {
             AUTO -> Unit
             NTSC -> {
-                nmiScanline = 241
-                vBlankEnd = 260
+                // picture height + postrender blanking lines
+                nmiScanline = 240 + 1
+                // picture height + (postrender blanking lines - 1) + vblank length
+                vBlankEnd = 240 + 20
                 standardNmiScanline = 241
                 standardVBlankEnd = 260
                 masterClockDivider = 4
             }
             PAL -> {
-                nmiScanline = 241
-                vBlankEnd = 310
+                // (picture height + border line) + postrender blanking lines
+                nmiScanline = 240 + 1
+                // (picture height + border line) + (postrender blanking lines - 1) + vblank length + 50
+                vBlankEnd = 240 + 20 + 50
                 standardNmiScanline = 241
                 standardVBlankEnd = 310
                 masterClockDivider = 5
             }
             DENDY -> {
-                nmiScanline = 291
-                vBlankEnd = 310
+                // (picture height + border line) + postrender blanking lines + 50
+                nmiScanline = 240 + 1 + 50
+                // (picture height + border line) + (postrender blanking lines - 1) + 50 + vblank length
+                vBlankEnd = 240 + 50 + 20
                 standardNmiScanline = 291
                 standardVBlankEnd = 310
                 masterClockDivider = 5
