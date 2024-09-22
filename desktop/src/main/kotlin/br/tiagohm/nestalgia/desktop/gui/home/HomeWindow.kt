@@ -188,10 +188,11 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
             ?.takeIf { it.exists() && it.isDirectory() }
 
         if (loadRomDir != null) chooser.initialDirectory = loadRomDir.toFile()
-        chooser.extensionFilters.add(ExtensionFilter("All ROM files", "*.nes", "*.fds", "*.unf"))
+        chooser.extensionFilters.add(ExtensionFilter("All ROM files", "*.nes", "*.fds", "*.unf", "*.7z"))
         chooser.extensionFilters.add(ExtensionFilter("NES ROM files", "*.nes"))
         chooser.extensionFilters.add(ExtensionFilter("Famicom ROM files", "*.fds"))
         chooser.extensionFilters.add(ExtensionFilter("UNIF ROM files", "*.unf"))
+        chooser.extensionFilters.add(ExtensionFilter("Compressed ROM files", "*.7z"))
 
         openROM(chooser.showOpenDialog(window)?.toPath() ?: return)
     }
@@ -203,7 +204,7 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
 
         loadConsolePreferences()
 
-        if (emulator.load(path.readBytes().toIntArray(), name, FDS_BIOS)) {
+        if (emulator.load(path.readBytes(), name, FDS_BIOS)) {
             console.controlManager.registerControlManagerListener(this)
             showOrHideCursor()
             preferences.loadRomDir = "${path.parent}"
@@ -478,8 +479,8 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
 
         internal val FDS_BIOS by lazy {
             resource(FdsBios.NINTENDO_FDS_FILENAME)
-                ?.use { it.readBytes().toIntArray() }
-                ?: IntArray(0)
+                ?.use { it.readBytes() }
+                ?: ByteArray(0)
         }
     }
 }

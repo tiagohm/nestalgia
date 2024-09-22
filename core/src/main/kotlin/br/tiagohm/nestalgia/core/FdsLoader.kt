@@ -9,7 +9,7 @@ import java.nio.IntBuffer
 
 object FdsLoader {
 
-    fun load(rom: IntArray, name: String, bios: IntArray): RomData {
+    fun load(rom: ByteArray, name: String, bios: ByteArray): RomData {
         require(bios.isNotEmpty()) { "BIOS is empty" }
 
         val info = RomInfo(
@@ -23,7 +23,7 @@ object FdsLoader {
 
         return RomData(
             info,
-            prgRom = bios,
+            prgRom = bios.toIntArray(),
             rawData = rom,
             biosMissing = bios.size != 0x2000,
             fdsBios = bios,

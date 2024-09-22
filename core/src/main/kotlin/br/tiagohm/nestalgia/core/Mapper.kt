@@ -943,11 +943,11 @@ abstract class Mapper(@JvmField protected val console: Console) : Resetable, Bat
 
         fun initialize(
             console: Console,
-            rom: IntArray,
+            rom: ByteArray,
             name: String,
-            fdsBios: IntArray = IntArray(0),
+            fdsBios: ByteArray = ByteArray(0),
         ): Mapper {
-            val data = RomLoader.load(rom, name, fdsBios)
+            val data = CompressedRomLoader.load(rom, name, fdsBios)
 
             if ((data.info.isInDatabase || data.info.isNes20Header) && data.info.inputType != GameInputType.UNSPECIFIED) {
                 if (console.settings.flag(AUTO_CONFIGURE_INPUT)) {

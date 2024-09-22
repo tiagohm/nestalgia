@@ -6,32 +6,32 @@ import java.io.IOException
 
 object UnifLoader {
 
-    fun load(rom: IntArray, name: String) = read(rom, name)
+    fun load(rom: ByteArray, name: String) = read(rom, name)
 
-    private fun read(rom: IntArray, name: String): RomData {
+    private fun read(rom: ByteArray, name: String): RomData {
         // Skip header, version & null bytes, start reading at first chunk
         var offset = 32
 
         fun readFourCC() = String(rom, offset, 4).also { offset += 4 }
 
-        fun readByte() = rom[offset++]
+        fun readByte() = rom[offset++].toUnsignedInt()
 
-        fun readInt() = (rom[offset++] and 0xFF) or
-            (rom[offset++] and 0xFF shl 8) or
-            (rom[offset++] and 0xFF shl 16) or
-            (rom[offset++] and 0xFF shl 24)
+        fun readInt() = (rom[offset++].toUnsignedInt()) or
+            (rom[offset++].toUnsignedInt() shl 8) or
+            (rom[offset++].toUnsignedInt() shl 16) or
+            (rom[offset++].toUnsignedInt() shl 24)
 
         fun readString(): String {
             val res = StringBuilder()
 
             while (offset < rom.size) {
                 // End of string
-                if (rom[offset] == 0) {
+                if (rom[offset] == 0.toByte()) {
                     offset++
                     break
                 } else {
                     // Ignore spaces
-                    res.append(rom[offset++].toChar())
+                    res.append(rom[offset++].toUnsignedInt().toChar())
                 }
             }
 
@@ -43,8 +43,8 @@ object UnifLoader {
         var system = GameSystem.UNKNOWN
         var hasBattety = false
         var mirroring = HORIZONTAL
-        val prgChunks = Array(16) { IntArray(0) }
-        val chrChunks = Array(16) { IntArray(0) }
+        val prgChunks = Array(16) { ByteArray(0) }
+        val chrChunks = Array(16) { ByteArray(0) }
 
         while (offset < rom.size) {
             // FourCC + Length
@@ -83,14 +83,14 @@ object UnifLoader {
                 // PRG
                 fourCC.startsWith("PRG") -> {
                     val chunkNumber = fourCC[3].toString().toInt(16)
-                    prgChunks[chunkNumber] = IntArray(length)
+                    prgChunks[chunkNumber] = ByteArray(length)
                     rom.copyInto(prgChunks[chunkNumber], 0, offset, offset + length)
                     offset += length
                 }
                 // CHR
                 fourCC.startsWith("CHR") -> {
                     val chunkNumber = fourCC[3].toString().toInt(16)
-                    chrChunks[chunkNumber] = IntArray(length)
+                    chrChunks[chunkNumber] = ByteArray(length)
                     rom.copyInto(chrChunks[chunkNumber], 0, offset, offset + length)
                     offset += length
                 }
@@ -139,8 +139,8 @@ object UnifLoader {
         var chrRomOffset = 0
 
         for (i in prgChunks.indices) {
-            prgChunks[i].forEach { prgRom[prgRomOffset++] = it }
-            chrChunks[i].forEach { chrRom[chrRomOffset++] = it }
+            prgChunks[i].forEach { prgRom[prgRomOffset++] = it.toUnsignedInt() }
+            chrChunks[i].forEach { chrRom[chrRomOffset++] = it.toUnsignedInt() }
         }
 
         if (prgRom.isEmpty()) {

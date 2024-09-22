@@ -18,7 +18,7 @@ class NesTester(private val path: Path) {
     val emulator = Emulator(console, Speaker, Video(), controller, emptyList(), threadExecutor)
 
     fun start() {
-        emulator.load(path.readBytes().toIntArray(), path.nameWithoutExtension)
+        emulator.load(path.readBytes(), path.nameWithoutExtension)
     }
 
     fun softReset() {

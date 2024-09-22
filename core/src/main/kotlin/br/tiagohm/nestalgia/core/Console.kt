@@ -105,10 +105,10 @@ data class Console(@JvmField val settings: EmulationSettings = EmulationSettings
     }
 
     fun initialize(
-        rom: IntArray,
+        rom: ByteArray,
         name: String,
         forPowerCycle: Boolean = false,
-        fdsBios: IntArray = IntArray(0),
+        fdsBios: ByteArray = ByteArray(0),
     ): Boolean {
         val previousMapper = mapper
 

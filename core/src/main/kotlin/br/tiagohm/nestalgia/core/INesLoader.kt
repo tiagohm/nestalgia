@@ -7,7 +7,7 @@ object INesLoader {
 
     private val LOG = LoggerFactory.getLogger(INesLoader::class.java)
 
-    fun load(rom: IntArray, name: String, preloadedHeader: NesHeader? = null): RomData {
+    fun load(rom: ByteArray, name: String, preloadedHeader: NesHeader? = null): RomData {
         var dataSize = rom.size
         var offset = 0
 
@@ -19,24 +19,24 @@ object INesLoader {
 
             NesHeader(
                 String(rom, 0, 4),
-                rom[4],
-                rom[5],
-                rom[6],
-                rom[7],
-                rom[8],
-                rom[9],
-                rom[10],
-                rom[11],
-                rom[12],
-                rom[13],
-                rom[14],
-                rom[15],
+                rom[4].toUnsignedInt(),
+                rom[5].toUnsignedInt(),
+                rom[6].toUnsignedInt(),
+                rom[7].toUnsignedInt(),
+                rom[8].toUnsignedInt(),
+                rom[9].toUnsignedInt(),
+                rom[10].toUnsignedInt(),
+                rom[11].toUnsignedInt(),
+                rom[12].toUnsignedInt(),
+                rom[13].toUnsignedInt(),
+                rom[14].toUnsignedInt(),
+                rom[15].toUnsignedInt(),
             )
         }
 
         val treinerData = if (header.hasTrainer) {
             if (dataSize >= 512) {
-                val bytes = IntArray(512) { i -> rom[offset + i] }
+                val bytes = IntArray(512) { i -> rom[offset + i].toUnsignedInt() }
                 offset += 512
                 dataSize -= 512
                 bytes
@@ -76,7 +76,7 @@ object INesLoader {
             LOG.warn("{} file is larger than excepted. {} < {}", name, prgSize + chrSize, dataSize)
         }
 
-        val prgRom = IntArray(prgSize) { i -> if (offset + i < rom.size) rom[offset + i] else 0 }
+        val prgRom = IntArray(prgSize) { i -> if (offset + i < rom.size) rom[offset + i].toUnsignedInt() else 0 }
         val prgCrc32 = rom.crc32(offset until offset + prgSize)
         val prgMd5 = rom.md5(offset until offset + prgSize)
         val prgSha1 = rom.sha1(offset until offset + prgSize)
@@ -84,7 +84,7 @@ object INesLoader {
 
         offset += prgSize
 
-        val chrRom = IntArray(chrSize) { i -> if (offset + i < rom.size) rom[offset + i] else 0 }
+        val chrRom = IntArray(chrSize) { i -> if (offset + i < rom.size) rom[offset + i].toUnsignedInt() else 0 }
         val chrCrc32 = rom.crc32(offset until offset + chrSize)
         val chrMd5 = rom.md5(offset until offset + chrSize)
         val chrSha1 = rom.sha1(offset until offset + chrSize)
