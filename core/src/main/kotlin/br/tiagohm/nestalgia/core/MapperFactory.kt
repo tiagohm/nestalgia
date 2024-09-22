@@ -298,6 +298,7 @@ object MapperFactory {
             336 -> BmcK3046(console)
             343 -> BmcResetNromX1n1(console)
             346 -> Kaiser7012(console)
+            347 -> Kaiser7030(console)
             348 -> Bmc830118C(console)
             349 -> BmcG146(console)
             358 -> JyCompany(console)
