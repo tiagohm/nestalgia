@@ -304,6 +304,7 @@ object MapperFactory {
             347 -> Kaiser7030(console)
             348 -> Bmc830118C(console)
             349 -> BmcG146(console)
+            356 -> Mapper356(console)
             358 -> JyCompany(console)
             366 -> BmcGn45(console)
             386 -> JyCompany(console)

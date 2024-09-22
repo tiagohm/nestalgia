@@ -7,7 +7,7 @@ class Mapper534(console: Console) : Mapper126(console) {
     override val chrOuterBank
         get() = exRegs[0] shl 4 and 0x380
 
-    override fun writeRegister(addr: Int, value: Int) {
+    override fun writeMMC3(addr: Int, value: Int) {
         if (addr in 0xC000..0xDFFF) {
             mmc3WriteRegister(addr, value xor 0xFF)
         } else {

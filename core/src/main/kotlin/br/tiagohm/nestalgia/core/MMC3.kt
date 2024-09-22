@@ -1,5 +1,6 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.ChrMemoryType.DEFAULT
 import br.tiagohm.nestalgia.core.EmulationFlag.MMC3_IRQ_ALT_BEHAVIOR
 import br.tiagohm.nestalgia.core.IRQSource.EXTERNAL
 import br.tiagohm.nestalgia.core.MemoryAccessType.*
@@ -97,9 +98,17 @@ open class MMC3(console: Console) : Mapper(console) {
     }
 
     protected open fun updateMirroring() {
+        mmc3UpdateMirroring()
+    }
+
+    protected fun mmc3UpdateMirroring() {
         if (mirroringType != FOUR_SCREENS) {
             mirroringType = if (state.regA000.bit0) HORIZONTAL else VERTICAL
         }
+    }
+
+    protected fun mmc3SelectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType = DEFAULT) {
+        super.selectChrPage(slot, page, memoryType)
     }
 
     protected open fun updateChrMapping() {
