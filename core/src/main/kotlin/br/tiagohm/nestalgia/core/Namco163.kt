@@ -32,6 +32,8 @@ class Namco163(console: Console) : Mapper(console) {
     override val allowRegisterRead = true
 
     override fun initialize() {
+        audio.initializeInternalRam(hasBattery)
+
         when (info.mapperId) {
             19 -> {
                 variant = NamcoVariant.NAMCO_163
