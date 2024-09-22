@@ -1,1148 +1,1551 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Nestalgia</title>
+        <title>Nestalgia</title>
 
-    <link rel="preconnect" href="https://fonts.gstatic.com"/>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous"/>
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+            rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            crossorigin="anonymous" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"
+            crossorigin="anonymous" />
 
-    <link rel="icon" type="image/png" href="mario-256.png"/>
+        <link rel="icon" type="image/png" href="mario-256.png" />
 
-    <style>
-        * {
-            font-family: 'Roboto', sans-serif;
-        }
+        <style>
+            * {
+                font-family: 'Roboto', sans-serif;
+            }
 
-        body {
-            background: #212529;
-            color: #EEE;
-        }
+            body {
+                background: #212529;
+                color: #EEE;
+            }
 
-        .grid span.badge {
-            min-width: 29px;
-            text-align: center;
-        }
+            .grid {
+                display: grid;
+                gap: 2px;
+            }
 
-        .grid span {
-            display: inline-block;
-            margin: 0px;
-        }
+            @media (max-width: 500px) {
+                .grid.ines {
+                    grid-template-columns: repeat(8, 1fr);
+                }
 
-        .badge-success {
-            background-color: #5cb85c;
-        }
+                .grid.unif {
+                    grid-template-columns: repeat(4, 1fr);
+                }
+            }
 
-        .badge-default {
-            background-color: #636c72;
-        }
+            @media (min-width: 500px) {
+                .grid.ines {
+                    grid-template-columns: repeat(16, 1fr);
+                }
 
-        .badge-warning {
-            background-color: #f0ad4e;
-        }
+                .grid.unif {
+                    grid-template-columns: repeat(8, 1fr);
+                }
+            }
 
-        .badge-danger {
-            background-color: #d9534f;
-        }
+            .badge-success {
+                background-color: #5cb85c;
+            }
 
-        .yet {
-            opacity: 0.20;
-        }
+            .badge-not-implemented {
+                background-color: #636c72;
+            }
 
-        .unknown {
-            opacity: 0.80;
-        }
+            .badge {
+                grid-column: span 1;
+                min-width: 29px;
+                text-align: center;
+                padding: .25em .4em;
+                font-size: 75%;
+                font-weight: 700;
+                line-height: 1;
+                color: #fff;
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: baseline;
+                border-radius: .25rem;
+                cursor: pointer;
+            }
 
-        .unused {
-            opacity: 0.03;
-        }
+            .badge a {
+                color: inherit;
+                text-decoration: none;
+            }
 
-        .badge {
-            display: inline-block;
-            padding: .25em .4em;
-            font-size: 75%;
-            font-weight: 700;
-            line-height: 1;
-            color: #fff;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: baseline;
-            border-radius: .25rem;
-            cursor: pointer;
-        }
+            .unif .badge {
+                text-align: center;
+                margin-right: 1px;
+                font-size: 70%;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
 
-        .badge a {
-            color: inherit;
-            text-decoration: none;
-        }
+            .bold {
+                font-weight: bold;
+            }
 
-        .unif span.badge {
-            width: 95px;
-            text-align: center;
-            margin-right: 1px;
-            font-size: 70%;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-        }
+            .italic {
+                font-style: italic;
+            }
 
-        .bold {
-            font-weight: bold;
-        }
+            .light {
+                font-weight: 300;
+            }
 
-        .italic {
-            font-style: italic;
-        }
+            table {
+                width: 100%;
+            }
 
-        .light {
-            font-weight: 300;
-        }
+            table td {
+                border-top: 1px solid #eceeef;
+            }
 
-        table {
-            width: 100%;
-        }
+            table td:first-child {
+                font-size: 0.9em;
+            }
 
-        table td {
-            border-top: 1px solid #eceeef;
-        }
+            table td:last-child {
+                text-align: right;
+            }
 
-        table td:first-child {
-            font-size: 0.9em;
-        }
+            a.download {
+                background: #323232;
+                padding: 12px 8px 12px 8px !important;
+                border-radius: 4px;
+                text-decoration: none;
+                color: #CCC;
+                font-size: small;
+                cursor: pointer;
+                text-align: center;
+            }
+        </style>
+    </head>
 
-        table td:last-child {
-            text-align: right;
-        }
-
-        a.download {
-            background: #323232;
-            padding: 12px 8px 12px 8px !important;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #CCC;
-            font-size: small;
-            cursor: pointer;
-            text-align: center;
-        }
-    </style>
-</head>
-
-<body>
-    <div id="header" class="container-fluid">
-        <div class="row mt-4">
-            <div class="col-sm-12 text-center bold" style="font-size: 34px;">
-                NESTALGIA
-            </div>
-            <div class="col-sm-12 text-center text-small">
-                NES and Famicom Emulator
-            </div>
-            <div class="col-sm-12 text-center text-small">
-                v0.27.0
-            </div>
-            <div class="col-sm-12 text-center mt-4">
-                <img src="mario-256.png" style="width: 64px;" alt="logo"/>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <div class="col-sm-12 text-center">
-            <img alt="Screenshot" src="1.png" style="width: 400px; height: 400px"/>
-        </div>
-    </div>
-
-    <div id="about" class="container">
-        <div class="row mt-4">
-            <div class="col-sm-12 bold">
-                <p>About</p>
-            </div>
-            <div class="col-sm-12 text-justify light">
-                Nestalgia is a WIP cross-platform and high-accuracy NES/Famicom emulator built in Kotlin.
-                It's being ported from discontinued <a target="_blank" href="https://github.com/SourMesen/Mesen">Mesen</a>
-                NES/Famicom emulator built in C++ and C#.
+    <body>
+        <div id="header" class="container-fluid">
+            <div class="row mt-4">
+                <div class="col-sm-12 text-center bold" style="font-size: 34px;">
+                    NESTALGIA
+                </div>
+                <div class="col-sm-12 text-center text-small">
+                    NES and Famicom Emulator
+                </div>
+                <div class="col-sm-12 text-center text-small">
+                    v0.27.0
+                </div>
+                <div class="col-sm-12 text-center mt-4">
+                    <img src="mario-256.png" style="width: 64px;" alt="logo" />
+                </div>
             </div>
         </div>
 
         <div class="row mt-4">
-            <div class="col-sm-12 bold">
-                <p>Features</p>
-            </div>
-            <div class="col-sm-12 light">
-                <ul>
-                    <li>High Accuracy</li>
-                    <li>High Compatibility: Over 300 mappers supported</li>
-                    <li>NES, Famicom, Famicom Disk System, Dendy, Vs. System, NSF and NSFe emulation are supported</li>
-                    <li>Save States, Battery, Overclocking and Cheat Codes</li>
-                    <li>Audio, Video, Controller and Emulation config support</li>
-                    <li>Over 20 controllers supported</li>
-                    <li>Fullscreen and Screenshot support</li>
-                    <li>Gamepad Support</li>
-                </ul>
+            <div class="col-sm-12 text-center">
+                <img alt="Screenshot" src="1.png" style="width: 400px; height: 400px" />
             </div>
         </div>
 
-        <div class="row mt-4">
-            <div class="col-sm-12 bold">
-                <p>Supported Controllers</p>
+        <div id="about" class="container">
+            <div class="row mt-4">
+                <div class="col-sm-12 bold">
+                    <p>About</p>
+                </div>
+                <div class="col-sm-12 text-justify light">
+                    Nestalgia is a WIP cross-platform and high-accuracy NES/Famicom emulator built in Kotlin.
+                    It's being ported from discontinued <a target="_blank"
+                        href="https://github.com/SourMesen/Mesen">Mesen</a>
+                    NES/Famicom emulator built in C++ and C#.
+                </div>
             </div>
-            <div class="col-lg-6 col-md-6 col-sm-12 light">
-                <ul>
-                    <li><label><input type="checkbox" onclick="return false" checked/> NES Controller</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Zapper</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Arkanoid Controller</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Power Pad</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Subor Mouse</label></li>
-                    <li><label><input type="checkbox" onclick="return false"/> Virtual Boy Controller</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Four Score</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> 2-Player Adapter</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> 4-Player Adapter</label></li>
-                    <li><label><input type="checkbox" onclick="return false"/> Oeka Kids Tablet</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Family Trainer Mat</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Konami Hyper Shot</label></li>
-                    <li><label><input type="checkbox" onclick="return false"/> Family Basic Keyboard</label></li>
-                </ul>
+
+            <div class="row mt-4">
+                <div class="col-sm-12 bold">
+                    <p>Features</p>
+                </div>
+                <div class="col-sm-12 light">
+                    <ul>
+                        <li>High Accuracy</li>
+                        <li>High Compatibility: Over 300 mappers supported</li>
+                        <li>NES, Famicom, Famicom Disk System, Dendy, Vs. System, NSF and NSFe emulation are supported
+                        </li>
+                        <li>Save States, Battery, Overclocking and Cheat Codes</li>
+                        <li>Audio, Video, Controller and Emulation config support</li>
+                        <li>Over 20 controllers supported</li>
+                        <li>Fullscreen and Screenshot support</li>
+                        <li>Gamepad Support</li>
+                    </ul>
+                </div>
             </div>
-            <div class="col-lg-6 col-md-6 col-sm-12 light">
-                <ul>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Party Tap</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Pachinko</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Exciting Boxing Punching Bag</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Jissen Mahjong Controller</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Subor Keyboard</label></li>
-                    <li><label><input type="checkbox" onclick="return false"/> SNES Mouse</label></li>
-                    <li><label><input type="checkbox" onclick="return false"/> Barcode Battler</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Hori Track</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Bandai Hyper Shot</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> ASCII Turbo File</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Battle Box</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Bandai Microphone</label></li>
-                    <li><label><input type="checkbox" onclick="return false" checked/> Datach Barcode Reader</label></li>
-                </ul>
+
+            <div class="row mt-4">
+                <div class="col-sm-12 bold">
+                    <p>Supported Controllers</p>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12 light">
+                    <ul>
+                        <li><label><input type="checkbox" onclick="return false" checked /> NES Controller</label></li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Zapper</label></li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Arkanoid Controller</label>
+                        </li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Power Pad</label></li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Subor Mouse</label></li>
+                        <li><label><input type="checkbox" onclick="return false" /> Virtual Boy Controller</label></li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Four Score</label></li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> 2-Player Adapter</label>
+                        </li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> 4-Player Adapter</label>
+                        </li>
+                        <li><label><input type="checkbox" onclick="return false" /> Oeka Kids Tablet</label></li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Family Trainer Mat</label>
+                        </li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Konami Hyper Shot</label>
+                        </li>
+                        <li><label><input type="checkbox" onclick="return false" /> Family Basic Keyboard</label></li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12 light">
+                    <ul>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Party Tap</label></li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Pachinko</label></li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Exciting Boxing Punching
+                                Bag</label></li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Jissen Mahjong
+                                Controller</label></li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Subor Keyboard</label></li>
+                        <li><label><input type="checkbox" onclick="return false" /> SNES Mouse</label></li>
+                        <li><label><input type="checkbox" onclick="return false" /> Barcode Battler</label></li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Hori Track</label></li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Bandai Hyper Shot</label>
+                        </li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> ASCII Turbo File</label>
+                        </li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Battle Box</label></li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Bandai Microphone</label>
+                        </li>
+                        <li><label><input type="checkbox" onclick="return false" checked /> Datach Barcode
+                                Reader</label></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-sm-12 bold">
+                    <p>Download</p>
+                </div>
+
+                <div class="col-sm-12 light">
+                    <a target="_blank" class="download mx-1"
+                        href="https://github.com/tiagohm/nestalgia/releases/download/0.27.0/nestalgia-0.27.0-windows.jar">
+                        <i class="fab fa-windows"></i> Windows
+                    </a>
+                    <a target="_blank" class="download mx-1"
+                        href="https://github.com/tiagohm/nestalgia/releases/download/0.27.0/nestalgia-0.27.0-linux.jar">
+                        <i class="fab fa-linux"></i> Linux
+                    </a>
+                    <a target="_blank" class="download mx-1" href="#">
+                        <i class="fab fa-apple"></i> Mac
+                    </a>
+                </div>
+                <div class="col-sm-12 light mt-4">
+                    <p>
+                        Before running, check if you have <a target="_blank"
+                            href="https://www.azul.com/downloads/?package=jdk#zulu">Java 17</a> or newer installed.
+                    </p>
+                </div>
+
+                <div class="col-sm-12 light mt-4">
+                    <a target="_blank" class="download mx-1" href="#">
+                        <i class="fab fa-android"></i> Android
+                    </a>
+                </div>
+                <div class="col-sm-12 light mt-4">
+                    <p>
+                        Coming soon...or not :(
+                    </p>
+                </div>
             </div>
         </div>
 
-        <div class="row mt-4">
-            <div class="col-sm-12 bold">
-                <p>Download</p>
-            </div>
-
-            <div class="col-sm-12 light">
-                <a target="_blank" class="download mx-1" href="https://github.com/tiagohm/nestalgia/releases/download/0.27.0/nestalgia-0.27.0-windows.jar">
-                    <i class="fab fa-windows"></i> Windows
-                </a>
-                <a target="_blank" class="download mx-1" href="https://github.com/tiagohm/nestalgia/releases/download/0.27.0/nestalgia-0.27.0-linux.jar">
-                    <i class="fab fa-linux"></i> Linux
-                </a>
-                <a target="_blank" class="download mx-1" href="#">
-                    <i class="fab fa-apple"></i> Mac
-                </a>
-            </div>
-            <div class="col-sm-12 light mt-4">
-                <p>
-                    Before running, check if you have <a target="_blank" href="https://www.azul.com/downloads/?package=jdk#zulu">Java 17</a> or newer installed.
-                </p>
-            </div>
-
-            <div class="col-sm-12 light mt-4">
-                <a target="_blank" class="download mx-1" href="#">
-                    <i class="fab fa-android"></i> Android
-                </a>
-            </div>
-            <div class="col-sm-12 light mt-4">
-                <p>
-                    Coming soon...or not :(
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <div id="mappers" class="container">
-        <div class="row mt-4">
-            <div class="col-sm-12 bold">
-                <p>Supported Mappers</p>
-            </div>
-            <div class="col-lg-8 col-md-12 mb-4 text-center">
-                <div class="ines grid">
-                    <h5>iNES</h5>
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <span class="badge badge-success">000</span>
-                            <span class="badge badge-success">001</span>
-                            <span class="badge badge-success">002</span>
-                            <span class="badge badge-success">003</span>
-                            <span class="badge badge-success">004</span>
-                            <span class="badge badge-success">005</span>
-                            <span class="badge badge-success">006</span>
-                            <span class="badge badge-success">007</span>
-                            <span class="badge badge-success">008</span>
-                            <span class="badge badge-success">009</span>
-                            <span class="badge badge-success">010</span>
-                            <span class="badge badge-success">011</span>
-                            <span class="badge badge-success">012</span>
-                            <span class="badge badge-success">013</span>
-                            <span class="badge badge-success">014</span>
-                            <span class="badge badge-success">015</span>
-                        </div>
-                        <div class="col-lg-12">
-                            <span class="badge badge-success">016</span>
-                            <span class="badge badge-success">017</span>
-                            <span class="badge badge-success">018</span>
-                            <span class="badge badge-success">019</span>
-                            <span class="unused badge badge-default">020</span>
-                            <span class="badge badge-success">021</span>
-                            <span class="badge badge-success">022</span>
-                            <span class="badge badge-success">023</span>
-                            <span class="badge badge-success">024</span>
-                            <span class="badge badge-success">025</span>
-                            <span class="badge badge-success">026</span>
-                            <span class="badge badge-success">027</span>
-                            <span class="badge badge-success">028</span>
-                            <span class="badge badge-success">029</span>
-                            <span class="badge badge-success">030</span>
-                            <span class="badge badge-success">031</span>
-                        </div>
-                        <div class="col-lg-12">
-                            <span class="badge badge-success">032</span>
-                            <span class="badge badge-success">033</span>
-                            <span class="badge badge-success">034</span>
-                            <span class="badge badge-success">035</span>
-                            <span class="badge badge-success">036</span>
-                            <span class="badge badge-success">037</span>
-                            <span class="badge badge-success">038</span>
-                            <span class="badge badge-success">039</span>
-                            <span class="badge badge-success">040</span>
-                            <span class="badge badge-success">041</span>
-                            <span class="badge badge-success">042</span>
-                            <span class="badge badge-success">043</span>
-                            <span class="badge badge-success">044</span>
-                            <span class="badge badge-success">045</span>
-                            <span class="badge badge-success">046</span>
-                            <span class="badge badge-success">047</span>
-                        </div>
-                        <div class="col-lg-12">
-                            <span class="badge badge-success">048</span>
-                            <span class="badge badge-success">049</span>
-                            <span class="badge badge-success">050</span>
-                            <span class="badge badge-success">051</span>
-                            <span class="badge badge-success">052</span>
-                            <span class="badge badge-success">053</span>
-                            <span class="badge badge-success">054</span>
-                            <span class="unknown badge badge-default">055</span>
-                            <span class="badge badge-success">056</span>
-                            <span class="badge badge-success">057</span>
-                            <span class="badge badge-success">058</span>
-                            <span class="badge badge-success">059</span>
-                            <span class="badge badge-success">060</span>
-                            <span class="badge badge-success">061</span>
-                            <span class="badge badge-success">062</span>
-                            <span class="badge badge-success">063</span>
-                        </div>
-                        <div class="col-lg-12">
-                            <span class="badge badge-success">064</span>
-                            <span class="badge badge-success">065</span>
-                            <span class="badge badge-success">066</span>
-                            <span class="badge badge-success">067</span>
-                            <span class="badge badge-success">068</span>
-                            <span class="badge badge-success">069</span>
-                            <span class="badge badge-success">070</span>
-                            <span class="badge badge-success">071</span>
-                            <span class="badge badge-success">072</span>
-                            <span class="badge badge-success">073</span>
-                            <span class="badge badge-success">074</span>
-                            <span class="badge badge-success">075</span>
-                            <span class="badge badge-success">076</span>
-                            <span class="badge badge-success">077</span>
-                            <span class="badge badge-success">078</span>
-                            <span class="badge badge-success">079</span>
-                        </div>
-                        <div class="col-lg-12">
-                            <span class="badge badge-success">080</span>
-                            <span class="badge badge-success">081</span>
-                            <span class="badge badge-success">082</span>
-                            <span class="badge badge-success">083</span>
-                            <span class="unused badge badge-default">084</span>
-                            <span class="badge badge-success yet">085</span>
-                            <span class="badge badge-success">086</span>
-                            <span class="badge badge-success">087</span>
-                            <span class="badge badge-success">088</span>
-                            <span class="badge badge-success">089</span>
-                            <span class="badge badge-success">090</span>
-                            <span class="badge badge-success">091</span>
-                            <span class="badge badge-success">092</span>
-                            <span class="badge badge-success">093</span>
-                            <span class="badge badge-success">094</span>
-                            <span class="badge badge-success">095</span>
-                        </div>
-                        <div class="col-lg-12">
-                            <span class="badge badge-success">096</span>
-                            <span class="badge badge-success">097</span>
-                            <span class="unused badge badge-default">098</span>
-                            <span class="badge badge-success">099</span>
-                            <span class="unused badge badge-default">100</span>
-                            <span class="badge badge-success">101</span>
-                            <span class="unused badge badge-default">102</span>
-                            <span class="badge badge-success">103</span>
-                            <span class="badge badge-success">104</span>
-                            <span class="badge badge-success">105</span>
-                            <span class="badge badge-success">106</span>
-                            <span class="badge badge-success">107</span>
-                            <span class="badge badge-success">108</span>
-                            <span class="unused badge badge-default">109</span>
-                            <span class="unused badge badge-default">110</span>
-                            <span class="badge badge-success">111</span>
-                        </div>
-                        <div class="col-lg-12">
-                            <span class="badge badge-success">112</span>
-                            <span class="badge badge-success">113</span>
-                            <span class="badge badge-success">114</span>
-                            <span class="badge badge-success">115</span>
-                            <span class="badge badge-success">116</span>
-                            <span class="badge badge-success">117</span>
-                            <span class="badge badge-success">118</span>
-                            <span class="badge badge-success">119</span>
-                            <span class="badge badge-success">120</span>
-                            <span class="badge badge-success">121</span>
-                            <span class="unused badge badge-default">122</span>
-                            <span class="badge badge-success">123</span>
-                            <span class="badge badge-warning">124</span>
-                            <span class="badge badge-success">125</span>
-                            <span class="badge badge-success">126</span>
-                            <span class="unused badge badge-default">127</span>
-                        </div>
-                        <div class="col-lg-12">
-                            <span class="unused badge badge-default">128</span>
-                            <span class="unused badge badge-default">129</span>
-                            <span class="unused badge badge-default">130</span>
-                            <span class="unused badge badge-default">131</span>
-                            <span class="badge badge-success">132</span>
-                            <span class="badge badge-success">133</span>
-                            <span class="badge badge-success">134</span>
-                            <span class="unused badge badge-default">135</span>
-                            <span class="badge badge-success">136</span>
-                            <span class="badge badge-success">137</span>
-                            <span class="badge badge-success">138</span>
-                            <span class="badge badge-success">139</span>
-                            <span class="badge badge-success">140</span>
-                            <span class="badge badge-success">141</span>
-                            <span class="badge badge-success">142</span>
-                            <span class="badge badge-success">143</span>
-                        </div>
-                        <div class="col-lg-12">
-                            <span class="badge badge-success">144</span>
-                            <span class="badge badge-success">145</span>
-                            <span class="badge badge-success">146</span>
-                            <span class="badge badge-success">147</span>
-                            <span class="badge badge-success">148</span>
-                            <span class="badge badge-success">149</span>
-                            <span class="badge badge-success">150</span>
-                            <span class="badge badge-success">151</span>
-                            <span class="badge badge-success">152</span>
-                            <span class="badge badge-success">153</span>
-                            <span class="badge badge-success">154</span>
-                            <span class="badge badge-success">155</span>
-                            <span class="badge badge-success">156</span>
-                            <span class="badge badge-success">157</span>
-                            <span class="badge badge-success">158</span>
-                            <span class="badge badge-success">159</span>
-                        </div>
-                        <div class="col-lg-12">
-                            <span class="unknown badge badge-default">160</span>
-                            <span class="unused badge badge-default">161</span>
-                            <span class="badge badge-success">162</span>
-                            <span class="badge badge-success">163</span>
-                            <span class="badge badge-success">164</span>
-                            <span class="badge badge-success">165</span>
-                            <span class="badge badge-success">166</span>
-                            <span class="badge badge-success">167</span>
-                            <span class="badge badge-success">168</span>
-                            <span class="unknown badge badge-default">169</span>
-                            <span class="badge badge-success">170</span>
-                            <span class="badge badge-success">171</span>
-                            <span class="badge badge-success">172</span>
-                            <span class="badge badge-success">173</span>
-                            <span class="badge badge-success">174</span>
-                            <span class="badge badge-success">175</span>
-                        </div>
-                        <div class="col-lg-12">
-                            <span class="badge badge-success">176</span>
-                            <span class="badge badge-success">177</span>
-                            <span class="badge badge-success">178</span>
-                            <span class="badge badge-success">179</span>
-                            <span class="badge badge-success">180</span>
-                            <span class="unused badge badge-default">181</span>
-                            <span class="badge badge-success">182</span>
-                            <span class="badge badge-success">183</span>
-                            <span class="badge badge-success">184</span>
-                            <span class="badge badge-success">185</span>
-                            <span class="badge badge-success">186</span>
-                            <span class="badge badge-success">187</span>
-                            <span class="badge badge-success">188</span>
-                            <span class="badge badge-success">189</span>
-                            <span class="badge badge-success">190</span>
-                            <span class="badge badge-success">191</span>
-                        </div>
-                        <div class="col-lg-12">
-                            <span class="badge badge-success">192</span>
-                            <span class="badge badge-success">193</span>
-                            <span class="badge badge-success">194</span>
-                            <span class="badge badge-success">195</span>
-                            <span class="badge badge-success">196</span>
-                            <span class="badge badge-success">197</span>
-                            <span class="badge badge-success">198</span>
-                            <span class="badge badge-success">199</span>
-                            <span class="badge badge-success">200</span>
-                            <span class="badge badge-success">201</span>
-                            <span class="badge badge-success">202</span>
-                            <span class="badge badge-success">203</span>
-                            <span class="badge badge-success">204</span>
-                            <span class="badge badge-success">205</span>
-                            <span class="badge badge-success">206</span>
-                            <span class="badge badge-success">207</span>
-                        </div>
-                        <div class="col-lg-12">
-                            <span class="badge badge-success">208</span>
-                            <span class="badge badge-success">209</span>
-                            <span class="badge badge-success">210</span>
-                            <span class="badge badge-success">211</span>
-                            <span class="badge badge-success">212</span>
-                            <span class="badge badge-success">213</span>
-                            <span class="badge badge-success">214</span>
-                            <span class="badge badge-success">215</span>
-                            <span class="badge badge-success">216</span>
-                            <span class="badge badge-success">217</span>
-                            <span class="badge badge-success">218</span>
-                            <span class="badge badge-success">219</span>
-                            <span class="badge badge-success">220</span>
-                            <span class="badge badge-success">221</span>
-                            <span class="badge badge-success">222</span>
-                            <span class="unknown badge badge-default">223</span>
-                        </div>
-                        <div class="col-lg-12">
-                            <span class="badge badge-success">224</span>
-                            <span class="badge badge-success">225</span>
-                            <span class="badge badge-success">226</span>
-                            <span class="badge badge-success">227</span>
-                            <span class="badge badge-success">228</span>
-                            <span class="badge badge-success">229</span>
-                            <span class="badge badge-success">230</span>
-                            <span class="badge badge-success">231</span>
-                            <span class="badge badge-success">232</span>
-                            <span class="badge badge-success">233</span>
-                            <span class="badge badge-success">234</span>
-                            <span class="badge badge-success">235</span>
-                            <span class="badge badge-success">236</span>
-                            <span class="badge badge-success">237</span>
-                            <span class="badge badge-success">238</span>
-                            <span class="unused badge badge-default">239</span>
-                        </div>
-                        <div class="col-lg-12">
-                            <span class="badge badge-success">240</span>
-                            <span class="badge badge-success">241</span>
-                            <span class="badge badge-success">242</span>
-                            <span class="badge badge-success">243</span>
-                            <span class="badge badge-success">244</span>
-                            <span class="badge badge-success">245</span>
-                            <span class="badge badge-success">246</span>
-                            <span class="unused badge badge-default">247</span>
-                            <span class="unused badge badge-default">248</span>
-                            <span class="badge badge-success">249</span>
-                            <span class="badge badge-success">250</span>
-                            <span class="unknown badge badge-default">251</span>
-                            <span class="badge badge-success">252</span>
-                            <span class="badge badge-success">253</span>
-                            <span class="badge badge-success">254</span>
-                            <span class="badge badge-success">255</span>
-                        </div>
+        <div id="mappers" class="container">
+            <div class="row mt-4">
+                <div class="col-sm-12 bold">
+                    <p>Supported Mappers</p>
+                </div>
+                <div class="col-lg-8 col-md-12 mb-4 text-center">
+                    <h5>iNES/NES 2.0</h5>
+                    <div class="ines grid">
+                        <span class="badge badge-success">000</span>
+                        <span class="badge badge-success">001</span>
+                        <span class="badge badge-success">002</span>
+                        <span class="badge badge-success">003</span>
+                        <span class="badge badge-success">004</span>
+                        <span class="badge badge-success">005</span>
+                        <span class="badge badge-success">006</span>
+                        <span class="badge badge-success">007</span>
+                        <span class="badge badge-success">008</span>
+                        <span class="badge badge-success">009</span>
+                        <span class="badge badge-success">010</span>
+                        <span class="badge badge-success">011</span>
+                        <span class="badge badge-success">012</span>
+                        <span class="badge badge-success">013</span>
+                        <span class="badge badge-success">014</span>
+                        <span class="badge badge-success">015</span>
+                        <span class="badge badge-success">016</span>
+                        <span class="badge badge-success">017</span>
+                        <span class="badge badge-success">018</span>
+                        <span class="badge badge-success">019</span>
+                        <span class="badge badge-not-implemented">020</span>
+                        <span class="badge badge-success">021</span>
+                        <span class="badge badge-success">022</span>
+                        <span class="badge badge-success">023</span>
+                        <span class="badge badge-success">024</span>
+                        <span class="badge badge-success">025</span>
+                        <span class="badge badge-success">026</span>
+                        <span class="badge badge-success">027</span>
+                        <span class="badge badge-success">028</span>
+                        <span class="badge badge-success">029</span>
+                        <span class="badge badge-success">030</span>
+                        <span class="badge badge-success">031</span>
+                        <span class="badge badge-success">032</span>
+                        <span class="badge badge-success">033</span>
+                        <span class="badge badge-success">034</span>
+                        <span class="badge badge-success">035</span>
+                        <span class="badge badge-success">036</span>
+                        <span class="badge badge-success">037</span>
+                        <span class="badge badge-success">038</span>
+                        <span class="badge badge-success">039</span>
+                        <span class="badge badge-success">040</span>
+                        <span class="badge badge-success">041</span>
+                        <span class="badge badge-success">042</span>
+                        <span class="badge badge-success">043</span>
+                        <span class="badge badge-success">044</span>
+                        <span class="badge badge-success">045</span>
+                        <span class="badge badge-success">046</span>
+                        <span class="badge badge-success">047</span>
+                        <span class="badge badge-success">048</span>
+                        <span class="badge badge-success">049</span>
+                        <span class="badge badge-success">050</span>
+                        <span class="badge badge-success">051</span>
+                        <span class="badge badge-success">052</span>
+                        <span class="badge badge-success">053</span>
+                        <span class="badge badge-success">054</span>
+                        <span class="badge badge-not-implemented">055</span>
+                        <span class="badge badge-success">056</span>
+                        <span class="badge badge-success">057</span>
+                        <span class="badge badge-success">058</span>
+                        <span class="badge badge-success">059</span>
+                        <span class="badge badge-success">060</span>
+                        <span class="badge badge-success">061</span>
+                        <span class="badge badge-success">062</span>
+                        <span class="badge badge-success">063</span>
+                        <span class="badge badge-success">064</span>
+                        <span class="badge badge-success">065</span>
+                        <span class="badge badge-success">066</span>
+                        <span class="badge badge-success">067</span>
+                        <span class="badge badge-success">068</span>
+                        <span class="badge badge-success">069</span>
+                        <span class="badge badge-success">070</span>
+                        <span class="badge badge-success">071</span>
+                        <span class="badge badge-success">072</span>
+                        <span class="badge badge-success">073</span>
+                        <span class="badge badge-success">074</span>
+                        <span class="badge badge-success">075</span>
+                        <span class="badge badge-success">076</span>
+                        <span class="badge badge-success">077</span>
+                        <span class="badge badge-success">078</span>
+                        <span class="badge badge-success">079</span>
+                        <span class="badge badge-success">080</span>
+                        <span class="badge badge-success">081</span>
+                        <span class="badge badge-success">082</span>
+                        <span class="badge badge-success">083</span>
+                        <span class="badge badge-not-implemented">084</span>
+                        <span class="badge badge-not-implemented">085</span>
+                        <span class="badge badge-success">086</span>
+                        <span class="badge badge-success">087</span>
+                        <span class="badge badge-success">088</span>
+                        <span class="badge badge-success">089</span>
+                        <span class="badge badge-success">090</span>
+                        <span class="badge badge-success">091</span>
+                        <span class="badge badge-success">092</span>
+                        <span class="badge badge-success">093</span>
+                        <span class="badge badge-success">094</span>
+                        <span class="badge badge-success">095</span>
+                        <span class="badge badge-success">096</span>
+                        <span class="badge badge-success">097</span>
+                        <span class="badge badge-not-implemented">098</span>
+                        <span class="badge badge-success">099</span>
+                        <span class="badge badge-not-implemented">100</span>
+                        <span class="badge badge-success">101</span>
+                        <span class="badge badge-not-implemented">102</span>
+                        <span class="badge badge-success">103</span>
+                        <span class="badge badge-success">104</span>
+                        <span class="badge badge-success">105</span>
+                        <span class="badge badge-success">106</span>
+                        <span class="badge badge-success">107</span>
+                        <span class="badge badge-success">108</span>
+                        <span class="badge badge-not-implemented">109</span>
+                        <span class="badge badge-not-implemented">110</span>
+                        <span class="badge badge-success">111</span>
+                        <span class="badge badge-success">112</span>
+                        <span class="badge badge-success">113</span>
+                        <span class="badge badge-success">114</span>
+                        <span class="badge badge-success">115</span>
+                        <span class="badge badge-success">116</span>
+                        <span class="badge badge-success">117</span>
+                        <span class="badge badge-success">118</span>
+                        <span class="badge badge-success">119</span>
+                        <span class="badge badge-success">120</span>
+                        <span class="badge badge-success">121</span>
+                        <span class="badge badge-not-implemented">122</span>
+                        <span class="badge badge-success">123</span>
+                        <span class="badge badge-not-implemented">124</span>
+                        <span class="badge badge-success">125</span>
+                        <span class="badge badge-success">126</span>
+                        <span class="badge badge-not-implemented">127</span>
+                        <span class="badge badge-not-implemented">128</span>
+                        <span class="badge badge-not-implemented">129</span>
+                        <span class="badge badge-not-implemented">130</span>
+                        <span class="badge badge-not-implemented">131</span>
+                        <span class="badge badge-success">132</span>
+                        <span class="badge badge-success">133</span>
+                        <span class="badge badge-success">134</span>
+                        <span class="badge badge-not-implemented">135</span>
+                        <span class="badge badge-success">136</span>
+                        <span class="badge badge-success">137</span>
+                        <span class="badge badge-success">138</span>
+                        <span class="badge badge-success">139</span>
+                        <span class="badge badge-success">140</span>
+                        <span class="badge badge-success">141</span>
+                        <span class="badge badge-success">142</span>
+                        <span class="badge badge-success">143</span>
+                        <span class="badge badge-success">144</span>
+                        <span class="badge badge-success">145</span>
+                        <span class="badge badge-success">146</span>
+                        <span class="badge badge-success">147</span>
+                        <span class="badge badge-success">148</span>
+                        <span class="badge badge-success">149</span>
+                        <span class="badge badge-success">150</span>
+                        <span class="badge badge-success">151</span>
+                        <span class="badge badge-success">152</span>
+                        <span class="badge badge-success">153</span>
+                        <span class="badge badge-success">154</span>
+                        <span class="badge badge-success">155</span>
+                        <span class="badge badge-success">156</span>
+                        <span class="badge badge-success">157</span>
+                        <span class="badge badge-success">158</span>
+                        <span class="badge badge-success">159</span>
+                        <span class="badge badge-not-implemented">160</span>
+                        <span class="badge badge-not-implemented">161</span>
+                        <span class="badge badge-success">162</span>
+                        <span class="badge badge-success">163</span>
+                        <span class="badge badge-success">164</span>
+                        <span class="badge badge-success">165</span>
+                        <span class="badge badge-success">166</span>
+                        <span class="badge badge-success">167</span>
+                        <span class="badge badge-success">168</span>
+                        <span class="badge badge-not-implemented">169</span>
+                        <span class="badge badge-success">170</span>
+                        <span class="badge badge-success">171</span>
+                        <span class="badge badge-success">172</span>
+                        <span class="badge badge-success">173</span>
+                        <span class="badge badge-success">174</span>
+                        <span class="badge badge-success">175</span>
+                        <span class="badge badge-success">176</span>
+                        <span class="badge badge-success">177</span>
+                        <span class="badge badge-success">178</span>
+                        <span class="badge badge-success">179</span>
+                        <span class="badge badge-success">180</span>
+                        <span class="badge badge-not-implemented">181</span>
+                        <span class="badge badge-success">182</span>
+                        <span class="badge badge-success">183</span>
+                        <span class="badge badge-success">184</span>
+                        <span class="badge badge-success">185</span>
+                        <span class="badge badge-success">186</span>
+                        <span class="badge badge-success">187</span>
+                        <span class="badge badge-success">188</span>
+                        <span class="badge badge-success">189</span>
+                        <span class="badge badge-success">190</span>
+                        <span class="badge badge-success">191</span>
+                        <span class="badge badge-success">192</span>
+                        <span class="badge badge-success">193</span>
+                        <span class="badge badge-success">194</span>
+                        <span class="badge badge-success">195</span>
+                        <span class="badge badge-success">196</span>
+                        <span class="badge badge-success">197</span>
+                        <span class="badge badge-success">198</span>
+                        <span class="badge badge-success">199</span>
+                        <span class="badge badge-success">200</span>
+                        <span class="badge badge-success">201</span>
+                        <span class="badge badge-success">202</span>
+                        <span class="badge badge-success">203</span>
+                        <span class="badge badge-success">204</span>
+                        <span class="badge badge-success">205</span>
+                        <span class="badge badge-success">206</span>
+                        <span class="badge badge-success">207</span>
+                        <span class="badge badge-success">208</span>
+                        <span class="badge badge-success">209</span>
+                        <span class="badge badge-success">210</span>
+                        <span class="badge badge-success">211</span>
+                        <span class="badge badge-success">212</span>
+                        <span class="badge badge-success">213</span>
+                        <span class="badge badge-success">214</span>
+                        <span class="badge badge-success">215</span>
+                        <span class="badge badge-success">216</span>
+                        <span class="badge badge-success">217</span>
+                        <span class="badge badge-success">218</span>
+                        <span class="badge badge-success">219</span>
+                        <span class="badge badge-success">220</span>
+                        <span class="badge badge-success">221</span>
+                        <span class="badge badge-success">222</span>
+                        <span class="badge badge-not-implemented">223</span>
+                        <span class="badge badge-success">224</span>
+                        <span class="badge badge-success">225</span>
+                        <span class="badge badge-success">226</span>
+                        <span class="badge badge-success">227</span>
+                        <span class="badge badge-success">228</span>
+                        <span class="badge badge-success">229</span>
+                        <span class="badge badge-success">230</span>
+                        <span class="badge badge-success">231</span>
+                        <span class="badge badge-success">232</span>
+                        <span class="badge badge-success">233</span>
+                        <span class="badge badge-success">234</span>
+                        <span class="badge badge-success">235</span>
+                        <span class="badge badge-success">236</span>
+                        <span class="badge badge-success">237</span>
+                        <span class="badge badge-success">238</span>
+                        <span class="badge badge-not-implemented">239</span>
+                        <span class="badge badge-success">240</span>
+                        <span class="badge badge-success">241</span>
+                        <span class="badge badge-success">242</span>
+                        <span class="badge badge-success">243</span>
+                        <span class="badge badge-success">244</span>
+                        <span class="badge badge-success">245</span>
+                        <span class="badge badge-success">246</span>
+                        <span class="badge badge-not-implemented">247</span>
+                        <span class="badge badge-not-implemented">248</span>
+                        <span class="badge badge-success">249</span>
+                        <span class="badge badge-success">250</span>
+                        <span class="badge badge-not-implemented">251</span>
+                        <span class="badge badge-success">252</span>
+                        <span class="badge badge-success">253</span>
+                        <span class="badge badge-success">254</span>
+                        <span class="badge badge-success">255</span>
+                        <span class="badge badge-not-implemented">256</span>
+                        <span class="badge badge-not-implemented">257</span>
+                        <span class="badge badge-success">258</span>
+                        <span class="badge badge-success">259</span>
+                        <span class="badge badge-success">260</span>
+                        <span class="badge badge-success">261</span>
+                        <span class="badge badge-success">262</span>
+                        <span class="badge badge-success">263</span>
+                        <span class="badge badge-success">264</span>
+                        <span class="badge badge-success">265</span>
+                        <span class="badge badge-success">266</span>
+                        <span class="badge badge-not-implemented">267</span>
+                        <span class="badge badge-success">268</span>
+                        <span class="badge badge-not-implemented">269</span>
+                        <span class="badge badge-not-implemented">270</span>
+                        <span class="badge badge-not-implemented">271</span>
+                        <span class="badge badge-not-implemented">272</span>
+                        <span class="badge badge-not-implemented">273</span>
+                        <span class="badge badge-success">274</span>
+                        <span class="badge badge-not-implemented">275</span>
+                        <span class="badge badge-not-implemented">276</span>
+                        <span class="badge badge-success">277</span>
+                        <span class="badge badge-not-implemented">278</span>
+                        <span class="badge badge-not-implemented">279</span>
+                        <span class="badge badge-not-implemented">280</span>
+                        <span class="badge badge-success">281</span>
+                        <span class="badge badge-success">282</span>
+                        <span class="badge badge-success">283</span>
+                        <span class="badge badge-success">284</span>
+                        <span class="badge badge-success">285</span>
+                        <span class="badge badge-success">286</span>
+                        <span class="badge badge-success">287</span>
+                        <span class="badge badge-success">288</span>
+                        <span class="badge badge-success">289</span>
+                        <span class="badge badge-success">290</span>
+                        <span class="badge badge-not-implemented">291</span>
+                        <span class="badge badge-success">292</span>
+                        <span class="badge badge-not-implemented">293</span>
+                        <span class="badge badge-not-implemented">294</span>
+                        <span class="badge badge-success">295</span>
+                        <span class="badge badge-not-implemented">296</span>
+                        <span class="badge badge-not-implemented">297</span>
+                        <span class="badge badge-success">298</span>
+                        <span class="badge badge-success">299</span>
+                        <span class="badge badge-success">300</span>
+                        <span class="badge badge-success">301</span>
+                        <span class="badge badge-success">302</span>
+                        <span class="badge badge-success">303</span>
+                        <span class="badge badge-success">304</span>
+                        <span class="badge badge-success">305</span>
+                        <span class="badge badge-success">306</span>
+                        <span class="badge badge-success">307</span>
+                        <span class="badge badge-not-implemented">308</span>
+                        <span class="badge badge-success">309</span>
+                        <span class="badge badge-not-implemented">310</span>
+                        <span class="badge badge-not-implemented">311</span>
+                        <span class="badge badge-success">312</span>
+                        <span class="badge badge-success">313</span>
+                        <span class="badge badge-success">314</span>
+                        <span class="badge badge-not-implemented">315</span>
+                        <span class="badge badge-not-implemented">316</span>
+                        <span class="badge badge-not-implemented">317</span>
+                        <span class="badge badge-not-implemented">318</span>
+                        <span class="badge badge-success">319</span>
+                        <span class="badge badge-success">320</span>
+                        <span class="badge badge-not-implemented">321</span>
+                        <span class="badge badge-not-implemented">322</span>
+                        <span class="badge badge-success">323</span>
+                        <span class="badge badge-success">324</span>
+                        <span class="badge badge-success">325</span>
+                        <span class="badge badge-not-implemented">326</span>
+                        <span class="badge badge-not-implemented">327</span>
+                        <span class="badge badge-success">328</span>
+                        <span class="badge badge-success">329</span>
+                        <span class="badge badge-not-implemented">330</span>
+                        <span class="badge badge-success">331</span>
+                        <span class="badge badge-success">332</span>
+                        <span class="badge badge-success">333</span>
+                        <span class="badge badge-not-implemented">334</span>
+                        <span class="badge badge-not-implemented">335</span>
+                        <span class="badge badge-success">336</span>
+                        <span class="badge badge-not-implemented">337</span>
+                        <span class="badge badge-not-implemented">338</span>
+                        <span class="badge badge-not-implemented">339</span>
+                        <span class="badge badge-not-implemented">340</span>
+                        <span class="badge badge-not-implemented">341</span>
+                        <span class="badge badge-not-implemented">342</span>
+                        <span class="badge badge-success">343</span>
+                        <span class="badge badge-not-implemented">344</span>
+                        <span class="badge badge-not-implemented">345</span>
+                        <span class="badge badge-success">346</span>
+                        <span class="badge badge-success">347</span>
+                        <span class="badge badge-success">348</span>
+                        <span class="badge badge-success">349</span>
+                        <span class="badge badge-not-implemented">350</span>
+                        <span class="badge badge-not-implemented">351</span>
+                        <span class="badge badge-not-implemented">352</span>
+                        <span class="badge badge-not-implemented">353</span>
+                        <span class="badge badge-not-implemented">354</span>
+                        <span class="badge badge-not-implemented">355</span>
+                        <span class="badge badge-not-implemented">356</span>
+                        <span class="badge badge-not-implemented">357</span>
+                        <span class="badge badge-success">358</span>
+                        <span class="badge badge-not-implemented">359</span>
+                        <span class="badge badge-not-implemented">360</span>
+                        <span class="badge badge-not-implemented">361</span>
+                        <span class="badge badge-not-implemented">362</span>
+                        <span class="badge badge-not-implemented">363</span>
+                        <span class="badge badge-not-implemented">364</span>
+                        <span class="badge badge-not-implemented">365</span>
+                        <span class="badge badge-success">366</span>
+                        <span class="badge badge-not-implemented">367</span>
+                        <span class="badge badge-not-implemented">368</span>
+                        <span class="badge badge-not-implemented">369</span>
+                        <span class="badge badge-not-implemented">370</span>
+                        <span class="badge badge-not-implemented">371</span>
+                        <span class="badge badge-not-implemented">372</span>
+                        <span class="badge badge-not-implemented">373</span>
+                        <span class="badge badge-not-implemented">374</span>
+                        <span class="badge badge-not-implemented">375</span>
+                        <span class="badge badge-not-implemented">376</span>
+                        <span class="badge badge-not-implemented">377</span>
+                        <span class="badge badge-not-implemented">378</span>
+                        <span class="badge badge-not-implemented">379</span>
+                        <span class="badge badge-not-implemented">380</span>
+                        <span class="badge badge-not-implemented">381</span>
+                        <span class="badge badge-not-implemented">382</span>
+                        <span class="badge badge-not-implemented">383</span>
+                        <span class="badge badge-not-implemented">384</span>
+                        <span class="badge badge-not-implemented">385</span>
+                        <span class="badge badge-success">386</span>
+                        <span class="badge badge-success">387</span>
+                        <span class="badge badge-success">388</span>
+                        <span class="badge badge-not-implemented">389</span>
+                        <span class="badge badge-not-implemented">390</span>
+                        <span class="badge badge-not-implemented">391</span>
+                        <span class="badge badge-not-implemented">392</span>
+                        <span class="badge badge-not-implemented">393</span>
+                        <span class="badge badge-not-implemented">394</span>
+                        <span class="badge badge-not-implemented">395</span>
+                        <span class="badge badge-not-implemented">396</span>
+                        <span class="badge badge-success">397</span>
+                        <span class="badge badge-not-implemented">398</span>
+                        <span class="badge badge-not-implemented">399</span>
+                        <span class="badge badge-not-implemented">400</span>
+                        <span class="badge badge-not-implemented">401</span>
+                        <span class="badge badge-not-implemented">402</span>
+                        <span class="badge badge-not-implemented">403</span>
+                        <span class="badge badge-not-implemented">404</span>
+                        <span class="badge badge-not-implemented">405</span>
+                        <span class="badge badge-not-implemented">406</span>
+                        <span class="badge badge-not-implemented">407</span>
+                        <span class="badge badge-not-implemented">408</span>
+                        <span class="badge badge-not-implemented">409</span>
+                        <span class="badge badge-not-implemented">410</span>
+                        <span class="badge badge-not-implemented">411</span>
+                        <span class="badge badge-not-implemented">412</span>
+                        <span class="badge badge-not-implemented">413</span>
+                        <span class="badge badge-not-implemented">414</span>
+                        <span class="badge badge-not-implemented">415</span>
+                        <span class="badge badge-not-implemented">416</span>
+                        <span class="badge badge-not-implemented">417</span>
+                        <span class="badge badge-not-implemented">418</span>
+                        <span class="badge badge-not-implemented">419</span>
+                        <span class="badge badge-not-implemented">420</span>
+                        <span class="badge badge-success">421</span>
+                        <span class="badge badge-not-implemented">422</span>
+                        <span class="badge badge-not-implemented">423</span>
+                        <span class="badge badge-not-implemented">424</span>
+                        <span class="badge badge-not-implemented">425</span>
+                        <span class="badge badge-not-implemented">426</span>
+                        <span class="badge badge-not-implemented">427</span>
+                        <span class="badge badge-not-implemented">428</span>
+                        <span class="badge badge-not-implemented">429</span>
+                        <span class="badge badge-not-implemented">430</span>
+                        <span class="badge badge-not-implemented">431</span>
+                        <span class="badge badge-not-implemented">432</span>
+                        <span class="badge badge-not-implemented">433</span>
+                        <span class="badge badge-success">434</span>
+                        <span class="badge badge-not-implemented">435</span>
+                        <span class="badge badge-not-implemented">436</span>
+                        <span class="badge badge-not-implemented">437</span>
+                        <span class="badge badge-not-implemented">438</span>
+                        <span class="badge badge-not-implemented">439</span>
+                        <span class="badge badge-not-implemented">440</span>
+                        <span class="badge badge-not-implemented">441</span>
+                        <span class="badge badge-not-implemented">442</span>
+                        <span class="badge badge-not-implemented">443</span>
+                        <span class="badge badge-not-implemented">444</span>
+                        <span class="badge badge-not-implemented">445</span>
+                        <span class="badge badge-not-implemented">446</span>
+                        <span class="badge badge-not-implemented">447</span>
+                        <span class="badge badge-not-implemented">448</span>
+                        <span class="badge badge-not-implemented">449</span>
+                        <span class="badge badge-not-implemented">450</span>
+                        <span class="badge badge-not-implemented">451</span>
+                        <span class="badge badge-not-implemented">452</span>
+                        <span class="badge badge-not-implemented">453</span>
+                        <span class="badge badge-not-implemented">454</span>
+                        <span class="badge badge-not-implemented">455</span>
+                        <span class="badge badge-not-implemented">456</span>
+                        <span class="badge badge-not-implemented">457</span>
+                        <span class="badge badge-not-implemented">458</span>
+                        <span class="badge badge-not-implemented">459</span>
+                        <span class="badge badge-not-implemented">460</span>
+                        <span class="badge badge-not-implemented">461</span>
+                        <span class="badge badge-not-implemented">462</span>
+                        <span class="badge badge-not-implemented">463</span>
+                        <span class="badge badge-not-implemented">464</span>
+                        <span class="badge badge-not-implemented">465</span>
+                        <span class="badge badge-not-implemented">466</span>
+                        <span class="badge badge-not-implemented">467</span>
+                        <span class="badge badge-not-implemented">468</span>
+                        <span class="badge badge-not-implemented">469</span>
+                        <span class="badge badge-not-implemented">470</span>
+                        <span class="badge badge-not-implemented">471</span>
+                        <span class="badge badge-not-implemented">472</span>
+                        <span class="badge badge-not-implemented">473</span>
+                        <span class="badge badge-not-implemented">474</span>
+                        <span class="badge badge-not-implemented">475</span>
+                        <span class="badge badge-not-implemented">476</span>
+                        <span class="badge badge-not-implemented">477</span>
+                        <span class="badge badge-not-implemented">478</span>
+                        <span class="badge badge-not-implemented">479</span>
+                        <span class="badge badge-not-implemented">480</span>
+                        <span class="badge badge-not-implemented">481</span>
+                        <span class="badge badge-not-implemented">482</span>
+                        <span class="badge badge-not-implemented">483</span>
+                        <span class="badge badge-not-implemented">484</span>
+                        <span class="badge badge-not-implemented">485</span>
+                        <span class="badge badge-not-implemented">486</span>
+                        <span class="badge badge-not-implemented">487</span>
+                        <span class="badge badge-not-implemented">488</span>
+                        <span class="badge badge-not-implemented">489</span>
+                        <span class="badge badge-not-implemented">490</span>
+                        <span class="badge badge-not-implemented">491</span>
+                        <span class="badge badge-not-implemented">492</span>
+                        <span class="badge badge-not-implemented">493</span>
+                        <span class="badge badge-not-implemented">494</span>
+                        <span class="badge badge-not-implemented">495</span>
+                        <span class="badge badge-not-implemented">496</span>
+                        <span class="badge badge-not-implemented">497</span>
+                        <span class="badge badge-not-implemented">498</span>
+                        <span class="badge badge-not-implemented">499</span>
+                        <span class="badge badge-not-implemented">500</span>
+                        <span class="badge badge-not-implemented">501</span>
+                        <span class="badge badge-not-implemented">502</span>
+                        <span class="badge badge-not-implemented">503</span>
+                        <span class="badge badge-not-implemented">504</span>
+                        <span class="badge badge-not-implemented">505</span>
+                        <span class="badge badge-not-implemented">506</span>
+                        <span class="badge badge-not-implemented">507</span>
+                        <span class="badge badge-not-implemented">508</span>
+                        <span class="badge badge-not-implemented">509</span>
+                        <span class="badge badge-not-implemented">510</span>
+                        <span class="badge badge-not-implemented">511</span>
+                        <span class="badge badge-not-implemented">512</span>
+                        <span class="badge badge-success">513</span>
+                        <span class="badge badge-not-implemented">514</span>
+                        <span class="badge badge-not-implemented">515</span>
+                        <span class="badge badge-not-implemented">516</span>
+                        <span class="badge badge-not-implemented">517</span>
+                        <span class="badge badge-success">518</span>
+                        <span class="badge badge-success">519</span>
+                        <span class="badge badge-not-implemented">520</span>
+                        <span class="badge badge-success">521</span>
+                        <span class="badge badge-success">522</span>
+                        <span class="badge badge-not-implemented">523</span>
+                        <span class="badge badge-not-implemented">524</span>
+                        <span class="badge badge-not-implemented">525</span>
+                        <span class="badge badge-not-implemented">526</span>
+                        <span class="badge badge-not-implemented">527</span>
+                        <span class="badge badge-not-implemented">528</span>
+                        <span class="badge badge-success">529</span>
+                        <span class="badge badge-success">530</span>
+                        <span class="badge badge-not-implemented">531</span>
+                        <span class="badge badge-not-implemented">532</span>
+                        <span class="badge badge-not-implemented">533</span>
+                        <span class="badge badge-not-implemented">534</span>
+                        <span class="badge badge-not-implemented">535</span>
+                        <span class="badge badge-not-implemented">536</span>
+                        <span class="badge badge-not-implemented">537</span>
+                        <span class="badge badge-not-implemented">538</span>
+                        <span class="badge badge-not-implemented">539</span>
+                        <span class="badge badge-not-implemented">540</span>
+                        <span class="badge badge-not-implemented">541</span>
+                        <span class="badge badge-not-implemented">542</span>
+                        <span class="badge badge-not-implemented">543</span>
+                        <span class="badge badge-not-implemented">544</span>
+                        <span class="badge badge-not-implemented">545</span>
+                        <span class="badge badge-not-implemented">546</span>
+                        <span class="badge badge-not-implemented">547</span>
+                        <span class="badge badge-not-implemented">548</span>
+                        <span class="badge badge-not-implemented">549</span>
+                        <span class="badge badge-not-implemented">550</span>
+                        <span class="badge badge-not-implemented">551</span>
+                        <span class="badge badge-not-implemented">552</span>
+                        <span class="badge badge-not-implemented">553</span>
+                        <span class="badge badge-not-implemented">554</span>
+                        <span class="badge badge-not-implemented">555</span>
+                        <span class="badge badge-not-implemented">556</span>
+                        <span class="badge badge-not-implemented">557</span>
+                        <span class="badge badge-not-implemented">558</span>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-12" style="font-size: small;">
+                    <h5>Legend</h5>
+                    <div><span class="badge badge-success">305</span> Supported</div>
+                    <div><span class="badge badge-not-implemented">260</span> Unknown or not implemented (yet) </div>
+                    <br>
+                </div>
+                <div class="col-lg-12 col-md-12 mb-4 text-center">
+                    <h5>UNIF</h5>
+                    <div class="unif grid">
+                        <span mapper="299" class="badge badge-success">11160</span>
+                        <span mapper="331" class="badge badge-success">12-IN-1</span>
+                        <span mapper="295" class="badge badge-success">13in1JY110</span>
+                        <span mapper="300" class="badge badge-success">190in1</span>
+                        <span mapper="132" class="badge badge-success">22211</span>
+                        <span mapper="287" class="badge badge-success">411120-C</span>
+                        <span mapper="233" class="badge badge-success">42in1ResetSwitch</span>
+                        <span mapper="227" class="badge badge-success">43272</span>
+                        <span mapper="238" class="badge badge-success">603-5052</span>
+                        <span mapper="314" class="badge badge-success">64in1NoRepeat</span>
+                        <span mapper="236" class="badge badge-success">70in1</span>
+                        <span mapper="236" class="badge badge-success">70in1B</span>
+                        <span mapper="261" class="badge badge-success">810544-C-A1</span>
+                        <span mapper="320" class="badge badge-success">830425C-4391T</span>
+                        <span mapper="301" class="badge badge-success">8157</span>
+                        <span mapper="215" class="badge badge-success">8237</span>
+                        <span mapper="348" class="badge badge-success">830118C</span>
+                        <span mapper="285" class="badge badge-success">A65AS</span>
+                        <span mapper="007" class="badge badge-success">ANROM</span>
+                        <span mapper="530" class="badge badge-success">AX5705</span>
+                        <span mapper="108" class="badge badge-success">BB</span>
+                        <span mapper="286" class="badge badge-success">BS-5</span>
+                        <span mapper="266" class="badge badge-success">CITYFIGHT</span>
+                        <span mapper="268" class="badge badge-success">COOLBOY</span>
+                        <span mapper="003" class="badge badge-success">CNROM</span>
+                        <span mapper="013" class="badge badge-success">CPROM</span>
+                        <span mapper="059" class="badge badge-success">D1038</span>
+                        <span mapper="518" class="badge badge-success">DANCE2000</span>
+                        <span mapper="521" class="badge badge-success">DREAMTECH01</span>
+                        <span mapper="329" class="badge badge-success">EDU2000</span>
+                        <span mapper="005" class="badge badge-success">EKROM</span>
+                        <span mapper="005" class="badge badge-success">ELROM</span>
+                        <span mapper="005" class="badge badge-success">ETROM</span>
+                        <span mapper="005" class="badge badge-success">EWROM</span>
+                        <span mapper="323" class="badge badge-success">FARID_SLROM_8-IN-1</span>
+                        <span mapper="324" class="badge badge-success">FARID_UNROM_8-IN-1</span>
+                        <span mapper="176" class="badge badge-success">FK23C</span>
+                        <span mapper="176" class="badge badge-success">FK23CA</span>
+                        <span mapper="162" class="badge badge-success">FS304</span>
+                        <span mapper="349" class="badge badge-success">G-146</span>
+                        <span mapper="058" class="badge badge-success">GK-192</span>
+                        <span mapper="283" class="badge badge-success">GS-2004</span>
+                        <span mapper="283" class="badge badge-success">GS-2013</span>
+                        <span mapper="226" class="badge badge-success">Ghostbusters63in1</span>
+                        <span mapper="123" class="badge badge-success">H2288</span>
+                        <span mapper="004" class="badge badge-success">HKROM</span>
+                        <span mapper="263" class="badge badge-success">KOF97</span>
+                        <span mapper="190" class="badge badge-success">KONAMI-QTAI</span>
+                        <span mapper="336" class="badge badge-success">K-3046</span>
+                        <span mapper="346" class="badge badge-success">KS7012</span>
+                        <span mapper="312" class="badge badge-success">KS7013B</span>
+                        <span mapper="306" class="badge badge-success">KS7016</span>
+                        <span mapper="303" class="badge badge-success">KS7017</span>
+                        <span mapper="347" class="badge badge-success">KS7030</span>
+                        <span mapper="305" class="badge badge-success">KS7031</span>
+                        <span mapper="142" class="badge badge-success">KS7032</span>
+                        <span mapper="307" class="badge badge-success">KS7037</span>
+                        <span mapper="302" class="badge badge-success">KS7057</span>
+                        <span mapper="522" class="badge badge-success">LH10</span>
+                        <span mapper="125" class="badge badge-success">LH32</span>
+                        <span mapper="309" class="badge badge-success">LH51</span>
+                        <span mapper="535" class="badge badge-success">LH53</span>
+                        <span mapper="325" class="badge badge-success">MALISB</span>
+                        <span mapper="055" class="badge badge-success">MARIO1-MALEE2</span>
+                        <span mapper="66" class="badge badge-success">MHROM</span>
+                        <span mapper="221" class="badge badge-success">N625092</span>
+                        <span mapper="000" class="badge badge-success">NROM</span>
+                        <span mapper="000" class="badge badge-success">NROM-128</span>
+                        <span mapper="000" class="badge badge-success">NROM-256</span>
+                        <span mapper="068" class="badge badge-success">NTBROM</span>
+                        <span mapper="290" class="badge badge-success">NTD-03</span>
+                        <span mapper="201" class="badge badge-success">NovelDiamond9999999in1</span>
+                        <span mapper="313" class="badge badge-success">RESET-TXROM</span>
+                        <span mapper="029" class="badge badge-success">RET-CUFROM</span>
+                        <span mapper="000" class="badge badge-success">RROM</span>
+                        <span mapper="000" class="badge badge-success">RROM-128</span>
+                        <span mapper="136" class="badge badge-success">SA-002</span>
+                        <span mapper="149" class="badge badge-success">SA-0036</span>
+                        <span mapper="148" class="badge badge-success">SA-0037</span>
+                        <span mapper="160" class="badge badge-success">SA-009</span>
+                        <span mapper="146" class="badge badge-success">SA-016-1M</span>
+                        <span mapper="145" class="badge badge-success">SA-72007</span>
+                        <span mapper="133" class="badge badge-success">SA-72008</span>
+                        <span mapper="513" class="badge badge-success">SA-9602B</span>
+                        <span mapper="143" class="badge badge-success">SA-NROM</span>
+                        <span mapper="001" class="badge badge-success">SAROM</span>
+                        <span mapper="001" class="badge badge-success">SBROM</span>
+                        <span mapper="35" class="badge badge-success">SC-127</span>
+                        <span mapper="001" class="badge badge-success">SCROM</span>
+                        <span mapper="001" class="badge badge-success">SEROM</span>
+                        <span mapper="001" class="badge badge-success">SGROM</span>
+                        <span mapper="262" class="badge badge-success">SHERO</span>
+                        <span mapper="001" class="badge badge-success">SKROM</span>
+                        <span mapper="116" class="badge badge-success">SL12</span>
+                        <span mapper="014" class="badge badge-success">SL1632</span>
+                        <span mapper="001" class="badge badge-success">SL1ROM</span>
+                        <span mapper="001" class="badge badge-success">SLROM</span>
+                        <span mapper="304" class="badge badge-success">SMB2J</span>
+                        <span mapper="001" class="badge badge-success">SNROM</span>
+                        <span mapper="001" class="badge badge-success">SOROM</span>
+                        <span mapper="093" class="badge badge-success">SUNSOFT_UNROM</span>
+                        <span mapper="150" class="badge badge-success">Sachen-74LS374N</span>
+                        <span mapper="243" class="badge badge-success">Sachen-74LS374NA</span>
+                        <span mapper="141" class="badge badge-success">Sachen-8259A</span>
+                        <span mapper="138" class="badge badge-success">Sachen-8259B</span>
+                        <span mapper="139" class="badge badge-success">Sachen-8259C</span>
+                        <span mapper="137" class="badge badge-success">Sachen-8259D</span>
+                        <span mapper="176" class="badge badge-success">Super24in1SC03</span>
+                        <span mapper="045" class="badge badge-success">SuperHIK8in1</span>
+                        <span mapper="053" class="badge badge-success">Supervision16in1</span>
+                        <span mapper="529" class="badge badge-success">T-230</span>
+                        <span mapper="265" class="badge badge-success">T-262</span>
+                        <span mapper="004" class="badge badge-success">TBROM</span>
+                        <span mapper="147" class="badge badge-success">TC-U01-1.5M</span>
+                        <span mapper="090" class="badge badge-success">TEK90</span>
+                        <span mapper="004" class="badge badge-success">TEROM</span>
+                        <span mapper="298" class="badge badge-success">TF1201</span>
+                        <span mapper="004" class="badge badge-success">TFROM</span>
+                        <span mapper="004" class="badge badge-success">TGROM</span>
+                        <span mapper="004" class="badge badge-success">TKROM</span>
+                        <span mapper="004" class="badge badge-success">TKSROM</span>
+                        <span mapper="004" class="badge badge-success">TLROM</span>
+                        <span mapper="004" class="badge badge-success">TLSROM</span>
+                        <span mapper="004" class="badge badge-success">TQROM</span>
+                        <span mapper="004" class="badge badge-success">TR1ROM</span>
+                        <span mapper="004" class="badge badge-success">TSROM</span>
+                        <span mapper="004" class="badge badge-success">TVROM</span>
+                        <span mapper="002" class="badge badge-success">UNROM</span>
+                        <span mapper="030" class="badge badge-success">UNROM-512-8</span>
+                        <span mapper="030" class="badge badge-success">UNROM-512-16</span>
+                        <span mapper="030" class="badge badge-success">UNROM-512-32</span>
+                        <span mapper="002" class="badge badge-success">UOROM</span>
+                        <span mapper="085" class="badge badge-success">VRC7</span>
+                        <span mapper="264" class="badge badge-success">YOKO</span>
+                        <span mapper="258" class="badge badge-success">158B</span>
+                        <span mapper="292" class="badge badge-success">DRAGONFIGHTER</span>
+                        <span mapper="519" class="badge badge-success">EH8813A</span>
+                        <span mapper="319" class="badge badge-success">HP898F</span>
+                        <span mapper="259" class="badge badge-success">F-15</span>
+                        <span mapper="328" class="badge badge-success">RT-01</span>
+                        <span mapper="333" class="badge badge-success">8-IN-1</span>
+                        <span mapper="332" class="badge badge-success">WS</span>
+                        <span mapper="274" class="badge badge-success">80013-B</span>
+                        <span mapper="227" class="badge badge-success">WAIXING-FW01</span>
+                        <span mapper="176" class="badge badge-success">WAIXING-FS005</span>
+                        <span mapper="260" class="badge badge-success">HPxx</span>
+                        <span mapper="260" class="badge badge-success">HP2018A</span>
+                        <span mapper="284" class="badge badge-success">DRIPGAME</span>
+                        <span mapper="289" class="badge badge-success">60311C</span>
+                        <span mapper="019" class="badge badge-success">CHINA_ER_SAN2</span>
+                        <span mapper="049" class="badge badge-success">STREETFIGTER-GAME4IN1</span>
+                        <span mapper="260" class="badge badge-success">HP2018-A</span>
+                        <span mapper="205" class="badge badge-success">JC-016-2</span>
+                        <span mapper="333" class="badge badge-success">NEWSTAR-GRM070-8IN1</span>
+                        <span mapper="434" class="badge badge-success">S-2009</span>
+                        <span mapper="327" class="badge badge-success">10-24-C-A1</span>
+                        <span mapper="315" class="badge badge-success">830134C</span>
+                        <span mapper="335" class="badge badge-success">CTC-09</span>
+                        <span mapper="344" class="badge badge-success">GN-26</span>
+                        <span mapper="339" class="badge badge-success">K-3006</span>
+                        <span mapper="322" class="badge badge-success">K-3033</span>
+                        <span mapper="340" class="badge badge-success">K-3036</span>
+                        <span mapper="345" class="badge badge-success">L6IN1</span>
+                        <span mapper="338" class="badge badge-success">SA005-A</span>
+                        <span mapper="341" class="badge badge-success">TJ-03</span>
+                        <span mapper="308" class="badge badge-success">TH2131-1</span>
+                        <span mapper="524" class="badge badge-success">900218</span>
+                        <span mapper="528" class="badge badge-success">831128C</span>
+                        <span mapper="526" class="badge badge-success">BJ-56</span>
+                        <span mapper="525" class="badge badge-success">KS7021A</span>
+                        <span mapper="268" class="badge badge-success">MINDKIDS</span>
+                        <span mapper="352" class="badge badge-success">KS106C</span>
+                        <span mapper="343" class="badge badge-success">RESETNROM-XIN1</span>
+                        <span mapper="134" class="badge badge-success">T4A54A</span>
+                        <span mapper="134" class="badge badge-success">WX-KB4K</span>
+                        <span mapper="134" class="badge badge-success">BS-5652</span>
+                        <span mapper="350" class="badge badge-success">891227</span>
+                        <span mapper="337" class="badge badge-success">CTC-12IN1</span>
+                        <span mapper="444" class="badge badge-success">BS-110</span>
+                        <span mapper="396" class="badge badge-success">830752C</span>
+                        <span mapper="359" class="badge badge-success">SB-5013</span>
+                        <span mapper="540" class="badge badge-success">82112C</span>
+                        <span mapper="271" class="badge badge-success">22026</span>
+                        <span mapper="369" class="badge badge-success">N49C-300</span>
+                        <span mapper="438" class="badge badge-success">K-3010</span>
+                        <span mapper="438" class="badge badge-success">K-3071</span>
+                        <span mapper="527" class="badge badge-success">AX-40G</span>
+                        <span mapper="439" class="badge badge-success">DS-07</span>
+                        <span mapper="439" class="badge badge-success">K86B</span>
+                        <span class="badge badge-success">255in1</span>
+                        <span class="badge badge-success">8237A</span>
+                        <span class="badge badge-success">AC08</span>
+                        <span class="badge badge-success">CC-21</span>
+                        <span class="badge badge-success">PUZZLE</span>
+                        <span class="badge badge-success">SSS-NROM-256</span>
                     </div>
                 </div>
             </div>
-            <div class="grid col-lg-4 col-md-12" style="font-size: small;">
-                <h5>Legend</h5>
-                <div><span class="badge badge-success">308</span> Supported mappers</div>
-                <div><span class="badge badge-success yet">1</span> Supported mappers (but not implemented yet)</div>
-                <div><span class="badge badge-danger">0</span> Unsupported mappers (Licensed games)</div>
-                <div><span class="badge badge-warning">15</span> Unsupported mappers (Bootlegs)</div>
-                <div><span class="badge badge-default unknown">5</span> Unknown mappers (no known games)</div>
-                <div><span class="badge badge-default unused">18</span> Unused mappers</div>
-                <br>
+        </div>
+
+        <div id="accuracy" class="container">
+            <h3>Accuracy Tests</h3>
+
+            Test ROMs are programs created to test and validate some of the NES' behavior. They are used by emulators to
+            ensure that the emulated console
+            behaves as much as possible like a NES. While they are not perfect for assessing an emulator's overall
+            accuracy, they still provide a decent
+            estimate. The following tables list the majority of existing test ROMs and whether or not Nestalgia passes
+            each test.
+            All the testing ROMs can be found at <a target="_blank"
+                href="https://www.nesdev.org/wiki/Emulator_tests">Nesdev Wiki</a>.
+
+            <div class="row p-3">
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <table>
+                        <tr>
+                            <th>CPU</th>
+                        </tr>
+                        <tr>
+                            <td>branch_timing/branch_basics</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>branch_timing/backward_branch</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>branch_timing/forward_branch</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>cpu_dummy_reads</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>cpu_dummy_writes_oam</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>cpu_dummy_writes_ppumem</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>cpu_exec_space_apu</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>cpu_exec_space_ppuio</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>cpu_flag_concurrency</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>cpu_interrupts_v2</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>cpu_reset/ram_after_reset</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>cpu_reset/registers</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>cpu_timing</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>instr_misc</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>instr_test_v5/all_instrs</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>instr_test_v5/official_only</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>dmc_dma_during_read4/dma_2007_read</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>dmc_dma_during_read4/dma_2007_write</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>dmc_dma_during_read4/dma_4016_read</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>dmc_dma_during_read4/double_2007_read</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>dmc_dma_during_read4/read_write_2007</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprdma_and_dmc_dma</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprdma_and_dmc_dma_512</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>instr_timing</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>nestest</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_cpu</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <table>
+                        <tr>
+                            <th>Video</th>
+                        </tr>
+                        <tr>
+                            <td>ppu_read_buffer</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>ppu_open_bus</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>ppu_vbl_nmi</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprite_overflow/basics</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprite_overflow/details</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprite_overflow/emulator</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprite_overflow/obscure</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprite_overflow/timing</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprite_hit/basics</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprite_hit/alignment</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprite_hit/corners</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprite_hit/flip</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprite_hit/left_clip</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprite_hit/right_edge</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprite_hit/screen_bottom</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprite_hit/double_height</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprite_hit/timing_basics</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprite_hit/timing_order</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>sprite_hit/edge_timing</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>nmi_sync/ntsc</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>nmi_sync/pal</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_ppu/palette_ram</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_ppu/power_up_palette</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_ppu/sprite_ram</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_ppu/vbl_clear_time</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_ppu/vram_access</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>palette</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>palette_pal</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>oam_read</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>oam_stress</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <table>
+                        <tr>
+                            <th>Audio</th>
+                        </tr>
+                        <tr>
+                            <td>apu_reset/4015_cleared</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>apu_reset/4017_timing</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>apu_reset/4017_written</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>apu_reset/irq_flag_cleared</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>apu_reset/len_ctrs_enabled</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>apu_reset/works_immediately</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/len_ctr</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/len_table</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/irq_flag</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/clock_jitter</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/len_timing_mode0</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/len_timing_mode1</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/irq_flag_timing</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/irq_timing</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/reset_timing</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/len_halt_timing</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/len_reload_timing</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>apu_test</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/pal/len_ctr</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/pal/len_table</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/pal/irq_flag</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/pal/clock_jitter</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/pal/len_timing_mode0</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/pal/len_timing_mode1</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/pal/irq_flag_timing</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/pal/irq_timing</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/pal/len_halt_timing</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>blargg_apu/pal/len_reload_timing</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>apu_phase_reset</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <table>
+                        <tr>
+                            <th>Mapper</th>
+                        </tr>
+                        <tr>
+                            <td>mmc3_irq/a12_clocking</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>mmc3_irq/clocking</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>mmc3_irq/details</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>mmc3_irq/rev_A</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>mmc3_irq/rev_B</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>mmc3_irq/scanline_timing</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>vrc6</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <table>
+                        <tr>
+                            <th>Input</th>
+                        </tr>
+                        <tr>
+                            <td>allpads/nes_controller_1P</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>allpads/nes_controller_2P</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>allpads/four_score</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>allpads/zapper_1P</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>allpads/zapper_2P</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td>allpads/none</td>
+                            <td><span class="ms-1 badge badge-success">Pass</span></td>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <div class="row mt-1 mb-1">
-            <div class="unif col-xs-12 text-center">
-                <h5>UNIF</h5>
-                <span class="badge badge-warning" title="BMC-10-24-C-A1">BMC-10-24-C-A1</span>
-                <span class="badge badge-success" title="BMC-11160">BMC-11160</span>
-                <span class="badge badge-success" title="BMC-12-IN-1">BMC-12-IN-1</span>
-                <span class="badge badge-warning" title="BMC-13in1JY110">BMC-13in1JY110</span>
-                <span class="badge badge-success" title="BMC-190in1">BMC-190in1</span>
-                <span class="badge badge-success" title="BMC-411120-C">BMC-411120-C</span>
-                <span class="badge badge-success" title="BMC-60311C">BMC-60311C</span>
-                <span class="badge badge-success" title="BMC-64in1NoRepeat">BMC-64in1NoRepeat</span>
-                <span class="badge badge-success" title="BMC-70in1">BMC-70in1</span>
-                <span class="badge badge-success" title="BMC-70in1B">BMC-70in1B</span>
-                <span class="badge badge-success" title="BMC-8-IN-1">BMC-8-IN-1</span>
-                <span class="badge badge-success" title="BMC-80013-B">BMC-80013-B</span>
-                <span class="badge badge-warning" title="BMC-81-01-31-C">BMC-81-01-31-C</span>
-                <span class="badge badge-success" title="BMC-810544-C-A1">BMC-810544-C-A1</span>
-                <span class="badge badge-success" title="BMC-8157">BMC-8157</span>
-                <span class="badge badge-success" title="BMC-830118C">BMC-830118C</span>
-                <span class="badge badge-success" title="BMC-A65AS">BMC-A65AS</span>
-                <span class="badge badge-success" title="BMC-BS-5">BMC-BS-5</span>
-                <span class="badge badge-success" title="BMC-D1038">BMC-D1038</span>
-                <span class="badge badge-success" title="BMC-F-15">BMC-F-15</span>
-                <span class="badge badge-success" title="BMC-F15">BMC-F15</span>
-                <span class="badge badge-success" title="BMC-FK23C">BMC-FK23C</span>
-                <span class="badge badge-success" title="BMC-FK23CA">BMC-FK23CA</span>
-                <span class="badge badge-success" title="BMC-G-146">BMC-G-146</span>
-                <span class="badge badge-success" title="BMC-GN-45">BMC-GN-45</span>
-                <span class="badge badge-success" title="BMC-GS-2004">BMC-GS-2004</span>
-                <span class="badge badge-success" title="BMC-GS-2013">BMC-GS-2013</span>
-                <span class="badge badge-success" title="BMC-Ghostbusters63in1">BMC-Ghostbusters63in1</span>
-                <span class="badge badge-success" title="BMC-HP898F">BMC-HP898F</span>
-                <span class="badge badge-success" title="BMC-HPxx">BMC-HPxx</span>
-                <span class="badge badge-success" title="BMC-K-3046">BMC-K-3046</span>
-                <span class="badge badge-success" title="BMC-NTD-03">BMC-NTD-03</span>
-                <span class="badge badge-success" title="BMC-RESETNROM-XIN1">BMC-RESETNROM-XIN1</span>
-                <span class="badge badge-success" title="BMC-NovelDiamond9999999in1">BMC-NovelDiamond9999999in1</span>
-                <span class="badge badge-success" title="BMC-Super24in1SC03">BMC-Super24in1SC03</span>
-                <span class="badge badge-success" title="BMC-S-2009">BMC-S-2009</span>
-                <span class="badge badge-warning" title="BMC-T-227-1">BMC-T-227-1</span>
-                <span class="badge badge-success" title="BMC-T-262">BMC-T-262</span>
-                <span class="badge badge-success" title="BMC-RESET-TXROM">BMC-RESET-TXROM</span>
-                <span class="badge badge-success" title="BMC-WS">BMC-WS</span>
-                <span class="badge badge-success" title="BTL-MARIO1-MALEE2">BTL-MARIO1-MALEE2</span>
-                <span class="badge badge-success" title="DREAMTECH01">DREAMTECH01</span>
-                <span class="badge badge-success" title="GKCX1">GKCX1</span>
-                <span class="badge badge-success" title="KS7030">KS7030</span>
-                <span class="badge badge-success" title="KS7031">KS7031</span>
-                <span class="badge badge-warning" title="LE05">LE05</span>
-                <span class="badge badge-warning" title="LH53">LH53</span>
-                <span class="badge badge-success" title="SSS-NROM-256">SSS-NROM-256</span>
-                <span class="badge badge-success" title="UNL-158B">UNL-158B</span>
-                <span class="badge badge-success" title="UNL-255-IN-1">UNL-255-IN-1</span>
-                <span class="badge badge-warning" title="UNL-3D-BLOCK">UNL-3D-BLOCK</span>
-                <span class="badge badge-success" title="UNL-43272">UNL-43272</span>
-                <span class="badge badge-success" title="UNL-8237A">UNL-8237A</span>
-                <span class="badge badge-success" title="UNL-AC08">UNL-AC08</span>
-                <span class="badge badge-success" title="UNL-AX5705">UNL-AX5705</span>
-                <span class="badge badge-success" title="UNL-BB">UNL-BB</span>
-                <span class="badge badge-success" title="UNL-CC-21">UNL-CC-21</span>
-                <span class="badge badge-success" title="UNL-CITYFIGHT">UNL-CITYFIGHT</span>
-                <span class="badge badge-success" title="UNL-Coolboy">UNL-Coolboy</span>
-                <span class="badge badge-success" title="UNL-DANCE2000">UNL-DANCE2000</span>
-                <span class="badge badge-success" title="UNL-DRAGONFIGHTER">UNL-DRAGONFIGHTER</span>
-                <span class="badge badge-success" title="UNL-DRIPGAME">UNL-DRIPGAME</span>
-                <span class="badge badge-success" title="UNL-EDU2000">UNL-EDU2000</span>
-                <span class="badge badge-success" title="UNL-EH8813A">UNL-EH8813A</span>
-                <span class="badge badge-success" title="UNL-KOF97">UNL-KOF97</span>
-                <span class="badge badge-warning" title="UNL-KS7010">UNL-KS7010</span>
-                <span class="badge badge-success" title="UNL-KS7012">UNL-KS7012</span>
-                <span class="badge badge-success" title="UNL-KS7013B">UNL-KS7013B</span>
-                <span class="badge badge-success" title="UNL-KS7016">UNL-KS7016</span>
-                <span class="badge badge-success" title="UNL-KS7017">UNL-KS7017</span>
-                <span class="badge badge-warning" title="UNL-KS7030">UNL-KS7030</span>
-                <span class="badge badge-success" title="UNL-KS7037">UNL-KS7037</span>
-                <span class="badge badge-success" title="UNL-KS7057">UNL-KS7057</span>
-                <span class="badge badge-success" title="UNL-LH10">UNL-LH10</span>
-                <span class="badge badge-success" title="UNL-LH51">UNL-LH51</span>
-                <span class="badge badge-success" title="UNL-MALISB">UNL-MALISB</span>
-                <span class="badge badge-warning" title="UNL-OneBus">UNL-OneBus</span>
-                <span class="badge badge-warning" title="UNL-PEC-586">UNL-PEC-586</span>
-                <span class="badge badge-success" title="UNL-RT-01">UNL-RT-01</span>
-                <span class="badge badge-success" title="UNL-SA-9602B">UNL-SA-9602B</span>
-                <span class="badge badge-warning" title="UNL-SB-2000">UNL-SB-2000</span>
-                <span class="badge badge-success" title="UNL-SHERO">UNL-SHERO</span>
-                <span class="badge badge-success" title="UNL-SMB2J">UNL-SMB2J</span>
-                <span class="badge badge-success" title="UNL-T-230">UNL-T-230</span>
-                <span class="badge badge-success" title="UNL-TC-U01-1.5M">UNL-TC-U01-1.5M</span>
-                <span class="badge badge-success" title="UNL-TF1201">UNL-TF1201</span>
-                <span class="badge badge-warning" title="UNL-Transformer">UNL-Transformer</span>
-                <span class="badge badge-success yet" title="UNL-VRC7">UNL-VRC7</span>
-                <span class="badge badge-success" title="UNL-YOKO">UNL-YOKO</span>
-                <span class="badge badge-warning" title="WAIXING-FS005">WAIXING-FS005</span>
-                <span class="badge badge-success" title="BMC-830425C-4391T">BMC-830425C-4391T</span>
-                <span class="badge badge-success" title="FARID_SLROM_8-IN-1">FARID_SLROM_8-IN-1</span>
-                <span class="badge badge-success" title="FARID_UNROM_8-IN-1">FARID_UNROM_8-IN-1</span>
+        <div id="gamepad" class="container">
+            <div class="row mt-4">
+                <div class="col-sm-12 bold">
+                    <p>Gamepad Support</p>
+                </div>
+                <div class="col-sm-12 text-justify light">
+                    <ul>
+                        <li>The first detected gamepad will be used as Standard Controller 1, and the second will be
+                            Standard Controller 2.</li>
+                        <li>Y Button will take a screenshot</li>
+                        <li>X Button will save the game's state</li>
+                        <li>LB/RB restore the previous/next saved game's state</li>
+                        <li>Left thumbstick can be used as D-Pad</li>
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div id="accuracy" class="container">
-        <h3>Accuracy Tests</h3>
+        <script>
+            function navigateToNesDevWiki(mapper) {
+                const a = document.createElement('a')
+                a.target = '_blank'
 
-        Test ROMs are programs created to test and validate some of the NES' behavior. They are used by emulators to ensure that the emulated console
-        behaves as much as possible like a NES. While they are not perfect for assessing an emulator's overall accuracy, they still provide a decent
-        estimate. The following tables list the majority of existing test ROMs and whether or not Nestalgia passes each test.
-        All the testing ROMs can be found at <a target="_blank" href="https://www.nesdev.org/wiki/Emulator_tests">Nesdev Wiki</a>.
+                if (parseInt(mapper) > 255) {
+                    a.href = 'https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_' + mapper
+                } else {
+                    a.href = 'https://wiki.nesdev.com/w/index.php/INES_Mapper_' + mapper
+                }
 
-        <div class="row p-3">
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <table>
-                    <tr>
-                        <th>CPU</th>
-                    </tr>
-                    <tr>
-                        <td>branch_timing/branch_basics</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>branch_timing/backward_branch</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>branch_timing/forward_branch</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>cpu_dummy_reads</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>cpu_dummy_writes_oam</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>cpu_dummy_writes_ppumem</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>cpu_exec_space_apu</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>cpu_exec_space_ppuio</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>cpu_flag_concurrency</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>cpu_interrupts_v2</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>cpu_reset/ram_after_reset</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>cpu_reset/registers</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>cpu_timing</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>instr_misc</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>instr_test_v5/all_instrs</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>instr_test_v5/official_only</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>dmc_dma_during_read4/dma_2007_read</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>dmc_dma_during_read4/dma_2007_write</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>dmc_dma_during_read4/dma_4016_read</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>dmc_dma_during_read4/double_2007_read</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>dmc_dma_during_read4/read_write_2007</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprdma_and_dmc_dma</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprdma_and_dmc_dma_512</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>instr_timing</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>nestest</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_cpu</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                </table>
-            </div>
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <table>
-                    <tr>
-                        <th>Video</th>
-                    </tr>
-                    <tr>
-                        <td>ppu_read_buffer</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>ppu_open_bus</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>ppu_vbl_nmi</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprite_overflow/basics</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprite_overflow/details</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprite_overflow/emulator</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprite_overflow/obscure</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprite_overflow/timing</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprite_hit/basics</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprite_hit/alignment</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprite_hit/corners</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprite_hit/flip</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprite_hit/left_clip</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprite_hit/right_edge</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprite_hit/screen_bottom</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprite_hit/double_height</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprite_hit/timing_basics</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprite_hit/timing_order</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>sprite_hit/edge_timing</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>nmi_sync/ntsc</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>nmi_sync/pal</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_ppu/palette_ram</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_ppu/power_up_palette</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_ppu/sprite_ram</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_ppu/vbl_clear_time</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_ppu/vram_access</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>palette</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>palette_pal</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>oam_read</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>oam_stress</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                </table>
-            </div>
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <table>
-                    <tr>
-                        <th>Audio</th>
-                    </tr>
-                    <tr>
-                        <td>apu_reset/4015_cleared</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>apu_reset/4017_timing</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>apu_reset/4017_written</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>apu_reset/irq_flag_cleared</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>apu_reset/len_ctrs_enabled</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>apu_reset/works_immediately</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/len_ctr</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/len_table</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/irq_flag</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/clock_jitter</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/len_timing_mode0</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/len_timing_mode1</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/irq_flag_timing</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/irq_timing</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/reset_timing</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/len_halt_timing</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/len_reload_timing</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>apu_test</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/pal/len_ctr</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/pal/len_table</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/pal/irq_flag</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/pal/clock_jitter</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/pal/len_timing_mode0</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/pal/len_timing_mode1</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/pal/irq_flag_timing</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/pal/irq_timing</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/pal/len_halt_timing</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>blargg_apu/pal/len_reload_timing</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>apu_phase_reset</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                </table>
-            </div>
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <table>
-                    <tr>
-                        <th>Mapper</th>
-                    </tr>
-                    <tr>
-                        <td>mmc3_irq/a12_clocking</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>mmc3_irq/clocking</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>mmc3_irq/details</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>mmc3_irq/rev_A</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>mmc3_irq/rev_B</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>mmc3_irq/scanline_timing</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>vrc6</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                </table>
-            </div>
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <table>
-                    <tr>
-                        <th>Input</th>
-                    </tr>
-                    <tr>
-                        <td>allpads/nes_controller_1P</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>allpads/nes_controller_2P</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>allpads/four_score</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>allpads/zapper_1P</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>allpads/zapper_2P</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                    <tr>
-                        <td>allpads/none</td>
-                        <td><span class="ms-1 badge badge-success">Pass</span></td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </div>
+                a.click()
+            }
 
-    <div id="gamepad" class="container">
-        <div class="row mt-4">
-            <div class="col-sm-12 bold">
-                <p>Gamepad Support</p>
-            </div>
-            <div class="col-sm-12 text-justify light">
-                <ul>
-                    <li>The first detected gamepad will be used as Standard Controller 1, and the second will be Standard Controller 2.</li>
-                    <li>Y Button will take a screenshot</li>
-                    <li>X Button will save the game's state</li>
-                    <li>LB/RB restore the previous/next saved game's state</li>
-                    <li>Left thumbstick can be used as D-Pad</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function navigateToNesDevWiki(mapper) {
-            const a = document.createElement('a')
-            a.target = '_blank'
-            a.href = 'https://wiki.nesdev.com/w/index.php/INES_Mapper_' + mapper
-            a.click()
-        }
-
-        document.querySelectorAll('.ines .badge').forEach(item => {
-            item.addEventListener('click', event => {
-                navigateToNesDevWiki(event.target.innerText)
+            document.querySelectorAll('.ines .badge').forEach(item => {
+                item.addEventListener('click', event => {
+                    navigateToNesDevWiki(event.target.innerText)
+                })
             })
-        })
-    </script>
-</body>
+
+            document.querySelectorAll('.unif .badge').forEach(item => {
+                const mapper = item.getAttribute('mapper')
+
+                if (mapper) {
+                    item.addEventListener('click', event => {
+                        navigateToNesDevWiki(mapper)
+                    })
+                }
+            })
+        </script>
+    </body>
 
 </html>
