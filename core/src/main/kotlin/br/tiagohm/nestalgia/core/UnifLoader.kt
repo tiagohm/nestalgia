@@ -369,6 +369,7 @@ object UnifLoader {
         "HP2018-A" to 260,
         "JC-016-2" to 205,
         "NEWSTAR-GRM070-8IN1" to 33,
+        "S-2009" to 434,
     )
 
     private val LOG = LoggerFactory.getLogger(UnifLoader::class.java)

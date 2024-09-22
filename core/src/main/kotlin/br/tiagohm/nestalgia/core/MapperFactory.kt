@@ -306,6 +306,7 @@ object MapperFactory {
             388 -> JyCompany(console)
             397 -> JyCompany(console)
             421 -> JyCompany(console)
+            434 -> BmcS2009(console)
             513 -> Sachen9602(console)
             518 -> Dance2000(console)
             519 -> Eh8813A(console)
