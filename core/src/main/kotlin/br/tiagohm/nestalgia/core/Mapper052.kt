@@ -19,9 +19,9 @@ class Mapper052(console: Console) : MMC3(console) {
 
     override fun selectChrPage(slot: Int, page: Int, memoryType: ChrMemoryType) {
         val p = if (extraReg.bit6)
-            (page and 0x7F) or (((extraReg and 0x04) or (extraReg shr 4 and 0x03)) shl 7)
+            (page and 0x7F) or (((extraReg and 0x20 shr 3) or (extraReg and 0x10 shr 4) or (extraReg and 0x04 shr 1)) shl 7)
         else
-            (page and 0xFF) or (((extraReg and 0x04) or (extraReg shr 4 and 0x02)) shl 7)
+            (page and 0xFF) or (((extraReg and 0x20 shr 3) or (extraReg and 0x10 shr 4)) shl 7)
 
         super.selectChrPage(slot, p, memoryType)
     }
