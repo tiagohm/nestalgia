@@ -63,9 +63,10 @@ class UNROM512(console: Console) : FlashSST39SF040Mapper(console) {
             addPpuMemoryMapping(0x2000, 0x3FFF, RAM, 0x6000, READ_WRITE)
         }
 
+        orgPrgRom = prgRom.copyOf()
+
         if (hasBattery) {
             addRegisterRange(0x8000, 0xFFFF, READ)
-            orgPrgRom = prgRom.copyOf()
             applySaveData()
         }
     }
