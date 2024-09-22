@@ -296,6 +296,7 @@ object MapperFactory {
             331 -> Bmc12in1(console)
             332 -> Super40in1Ws(console)
             333 -> Bmc8in1(console)
+            334 -> Mapper334(console)
             336 -> BmcK3046(console)
             343 -> BmcResetNromX1n1(console)
             346 -> Kaiser7012(console)
