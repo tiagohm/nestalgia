@@ -6,44 +6,44 @@ class ApuTest : NesTesterSpec() {
     init {
         "apu_reset/4015_cleared" {
             test {
-                delay(1500L)
+                delay(2000L)
                 softReset()
                 waitForFrame("08d296b72730dbc4181d380652e182ea")
             }
         }
         "apu_reset/4017_timing" {
             test {
-                delay(1500L)
+                delay(2000L)
                 softReset()
                 waitForFrame("5624e9cf1099eefafdd86c0991d019d1")
             }
         }
         "apu_reset/4017_written" {
             test {
-                delay(1500L)
+                delay(2000L)
                 softReset()
-                delay(1500L)
+                delay(2000L)
                 softReset()
                 waitForFrame("aa8cd2924d5f202bb450dc73ca9de803")
             }
         }
         "apu_reset/irq_flag_cleared" {
             test {
-                delay(1500L)
+                delay(2000L)
                 softReset()
                 waitForFrame("77d5714fecc758309ae2b79a8e8fef8c")
             }
         }
         "apu_reset/len_ctrs_enabled" {
             test {
-                delay(1500L)
+                delay(2000L)
                 softReset()
                 waitForFrame("0fa8870e0811f5ac472017faa7504ab4")
             }
         }
         "apu_reset/works_immediately" {
             test {
-                delay(1500L)
+                delay(2000L)
                 softReset()
                 waitForFrame("896c4400309eb62a524cdc0d0de1e6cb")
             }

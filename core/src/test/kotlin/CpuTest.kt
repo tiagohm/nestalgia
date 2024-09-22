@@ -117,14 +117,14 @@ class CpuTest : NesTesterSpec() {
         }
         "cpu_reset/ram_after_reset" {
             test {
-                delay(3000)
+                delay(3000L)
                 softReset()
                 waitForFrame("df699dbfd9bf60fc2aa185edf4ba78df")
             }
         }
         "cpu_reset/registers" {
             test {
-                delay(3000)
+                delay(3000L)
                 softReset()
                 waitForFrame("0d6c3522629676ad653242dc2a6b66c0")
             }
@@ -133,7 +133,7 @@ class CpuTest : NesTesterSpec() {
             test(autoStart = false) {
                 console.settings.port1.configureStandardControllerForThisPort()
                 start()
-                delay(1000)
+                delay(2000L)
                 pressAndRelease(START)
                 waitForFrame("fd3c95a9bc606c483b7922b58a5ee86c")
             }

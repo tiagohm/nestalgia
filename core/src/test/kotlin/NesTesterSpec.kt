@@ -57,7 +57,7 @@ abstract class NesTesterSpec : StringSpec() {
         }
 
         withTimeout(unit.toMillis(duration)) {
-            while (frameHash !in frameHashes) delay(500)
+            while (frameHash !in frameHashes) delay(500L)
         }
     }
 }
