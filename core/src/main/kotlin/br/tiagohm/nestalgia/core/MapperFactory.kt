@@ -259,6 +259,7 @@ object MapperFactory {
             266 -> CityFighter(console)
             268 -> MMC3Coolboy(console)
             274 -> Bmc80013B(console)
+            277 -> Mapper277(console)
             281 -> JyCompany(console)
             282 -> JyCompany(console)
             283 -> Gs2004(console)
