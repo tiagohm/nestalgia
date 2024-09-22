@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_329
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_329
 
 class Edu2000(console: Console) : Mapper(console) {
 

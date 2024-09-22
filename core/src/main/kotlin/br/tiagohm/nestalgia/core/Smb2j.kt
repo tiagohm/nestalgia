@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.PrgMemoryType.ROM
 
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_304
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_304
 
 class Smb2j(console: Console) : Mapper(console) {
 

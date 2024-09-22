@@ -4,7 +4,7 @@ import br.tiagohm.nestalgia.core.MemoryAccessType.READ_WRITE
 import br.tiagohm.nestalgia.core.PrgMemoryType.ROM
 import br.tiagohm.nestalgia.core.PrgMemoryType.WRAM
 
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_307
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_307
 
 class Kaiser7037(console: Console) : Mapper(console) {
 

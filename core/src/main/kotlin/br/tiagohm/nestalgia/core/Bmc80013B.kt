@@ -3,7 +3,7 @@ package br.tiagohm.nestalgia.core
 import br.tiagohm.nestalgia.core.MirroringType.HORIZONTAL
 import br.tiagohm.nestalgia.core.MirroringType.VERTICAL
 
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_274
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_274
 
 class Bmc80013B(console: Console) : Mapper(console) {
 

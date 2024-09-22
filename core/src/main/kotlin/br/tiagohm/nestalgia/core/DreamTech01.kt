@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_521
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_521
 
 class DreamTech01(console: Console) : Mapper(console) {
 

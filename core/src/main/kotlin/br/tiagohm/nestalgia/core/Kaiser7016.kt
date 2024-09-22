@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_306
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_306
 
 class Kaiser7016(console: Console) : Mapper(console) {
 

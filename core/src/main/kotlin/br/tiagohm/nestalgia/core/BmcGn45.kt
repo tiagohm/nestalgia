@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_366
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_366
 
 class BmcGn45(console: Console) : MMC3(console) {
 

@@ -2,7 +2,7 @@ package br.tiagohm.nestalgia.core
 
 import br.tiagohm.nestalgia.core.MirroringType.*
 
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_266
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_266
 
 class CityFighter(console: Console) : Mapper(console) {
 

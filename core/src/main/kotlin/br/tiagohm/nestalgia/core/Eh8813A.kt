@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_519
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_519
 
 class Eh8813A(console: Console) : Mapper(console) {
 

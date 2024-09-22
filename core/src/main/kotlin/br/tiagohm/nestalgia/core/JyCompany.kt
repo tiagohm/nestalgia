@@ -9,15 +9,15 @@ import br.tiagohm.nestalgia.core.PrgMemoryType.ROM
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_090
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_209
 // https://wiki.nesdev.com/w/index.php/INES_Mapper_211
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_281
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_282
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_295
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_358
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_386
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_387
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_388
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_397
-// https://wiki.nesdev.com/w/index.php/INES_Mapper_421
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_281
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_282
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_295
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_358
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_386
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_387
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_388
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_397
+// https://wiki.nesdev.com/w/index.php/NES_2.0_Mapper_421
 
 class JyCompany(console: Console) : Mapper(console) {
 
