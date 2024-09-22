@@ -285,7 +285,7 @@ object MapperFactory {
             312 -> Kaiser7013B(console)
             313 -> ResetTxrom(console)
             314 -> Bmc64in1NoRepeat(console)
-            319 -> Hp898f(console)
+            319 -> Mapper319(console)
             320 -> Bmc830425C4391T(console)
             323 -> FaridSlrom(console)
             324 -> FaridUnrom(console)
