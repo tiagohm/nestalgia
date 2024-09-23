@@ -7,6 +7,7 @@ dependencies {
     implementation(libs.compress)
     implementation(libs.xz)
     implementation(libs.logback)
+    testImplementation(libs.xml)
     testImplementation(libs.bundles.kotest)
 }
 
