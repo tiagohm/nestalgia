@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.ControllerType.*
+import br.tiagohm.nestalgia.core.ControllerType.DATACH_BARCODE_READER
 import java.nio.IntBuffer
 
 class DatachBarcodeReader(console: Console) : ControlDevice(console, DATACH_BARCODE_READER, MAPPER_INPUT_PORT), BarcodeReader {
@@ -21,9 +21,8 @@ class DatachBarcodeReader(console: Console) : ControlDevice(console, DATACH_BARC
 
     override fun setStateFromInput() {
         if (newBarcodeDigitCount > 0) {
-            var text = "$newBarcode"
             // Pad 8 or 13 character barcode with 0s at start.
-            text = text.padStart(newBarcodeDigitCount - barcodeText.length, '0')
+            val text = "$newBarcode".padStart(newBarcodeDigitCount, '0')
 
             newBarcode = 0
             newBarcodeDigitCount = 0

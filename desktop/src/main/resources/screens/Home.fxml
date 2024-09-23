@@ -231,6 +231,10 @@
                           disable="true"
                           userData="1"
                           onAction="#insertCoin"/>
+                <MenuItem fx:id="barcodeInputMenuItem"
+                          text="Barcode Input"
+                          disable="true"
+                          onAction="#showBarcodeInput"/>
             </Menu>
             <Menu text="Help">
                 <MenuItem fx:id="aboutMenuItem"

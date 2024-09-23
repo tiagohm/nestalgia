@@ -1,0 +1,24 @@
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<AnchorPane maxHeight="-Infinity"
+            maxWidth="-Infinity"
+            minHeight="-Infinity"
+            minWidth="-Infinity"
+            xmlns="http://javafx.com/javafx/22"
+            xmlns:fx="http://javafx.com/fxml/1">
+    <VBox spacing="4.0"
+          alignment="CENTER"
+          AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0">
+        <padding>
+            <Insets topRightBottomLeft="16.0"/>
+        </padding>
+        <TextField fx:id="barcodeTextField"/>
+        <Button text="Apply"
+                onAction="#apply"/>
+    </VBox>
+</AnchorPane>

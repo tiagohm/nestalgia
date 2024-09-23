@@ -1,5 +1,6 @@
 package br.tiagohm.nestalgia.core
 
+import br.tiagohm.nestalgia.core.ControlDevice.Companion.EXP_DEVICE_PORT
 import br.tiagohm.nestalgia.core.EmulationFlag.*
 import br.tiagohm.nestalgia.core.NotificationType.*
 import br.tiagohm.nestalgia.core.Region.*
@@ -548,6 +549,11 @@ data class Console(@JvmField val settings: EmulationSettings = EmulationSettings
         if (configChanged && sendNotification) {
             notificationManager.sendNotification(CONFIG_CHANGED)
         }
+    }
+
+    fun inputBarcode(barcode: Long, digitCount: Int) {
+        (mapper as? BarcodeReader)?.inputBarcode(barcode, digitCount)
+        (controlManager.controlDevice(EXP_DEVICE_PORT) as? BarcodeReader)?.inputBarcode(barcode, digitCount)
     }
 
     val frameDelay

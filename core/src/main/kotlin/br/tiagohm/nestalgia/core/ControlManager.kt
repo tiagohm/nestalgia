@@ -145,6 +145,7 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             JISSEN_MAHJONG -> JissenMahjong(console, keyMapping)
             SUBOR_MOUSE -> SuborMouse(console, port, keyMapping)
             SUBOR_KEYBOARD -> SuborKeyboard(console, keyMapping)
+            BARCODE_BATTLER -> BarcodeBattlerReader(console)
             else -> return null
         }
 
