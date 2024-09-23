@@ -324,6 +324,7 @@ object MapperFactory {
             533 -> Mapper533(console)
             534 -> Mapper534(console)
             535 -> Mapper535(console)
+            557 -> Mapper557(console)
             FDS_MAPPER_ID -> Fds(console)
             FAMICOM_NETWORK_SYSTEM -> FnsMmc1(console)
             UnifBoard.MALEE.id -> Malee(console)
