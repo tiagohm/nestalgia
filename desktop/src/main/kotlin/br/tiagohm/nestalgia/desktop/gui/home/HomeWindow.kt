@@ -373,7 +373,9 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
 
     override fun nativeMouseMoved(nativeEvent: NativeMouseEvent) {
         val point = television.screenToLocal(nativeEvent.x.toDouble(), nativeEvent.y.toDouble())
-        mouseKeyboard.onMouseMoved(point.x.toInt(), point.y.toInt())
+        val x = (point.x / television.width * Ppu.SCREEN_WIDTH).toInt()
+        val y = (point.y / television.height * Ppu.SCREEN_HEIGHT).toInt()
+        mouseKeyboard.onMouseMoved(x, y)
     }
 
     private fun loadConsolePreferences() {
