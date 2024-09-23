@@ -324,6 +324,7 @@ object MapperFactory {
             533 -> Mapper533(console)
             534 -> Mapper534(console)
             535 -> Mapper535(console)
+            548 -> Ctc15(console)
             554 -> Kaiser7010(console)
             557 -> Mapper557(console)
             FDS_MAPPER_ID -> Fds(console)
