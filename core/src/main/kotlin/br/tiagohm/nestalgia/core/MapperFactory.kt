@@ -311,6 +311,7 @@ object MapperFactory {
             387 -> JyCompany(console)
             388 -> JyCompany(console)
             397 -> JyCompany(console)
+            402 -> Mapper402(console)
             404 -> Mapper404(console)
             421 -> JyCompany(console)
             422 -> Mapper422(console)
