@@ -100,7 +100,7 @@ class Fds(console: Console) : Mapper(console) {
 
         audio = FdsAudio(console)
 
-        rawData = data.rawData
+        rawData = data.rawData.toIntArray()
 
         FdsLoader.loadDiskData(rawData, orgDiskSides, orgDiskHeaders)
         loadDiskData(console.batteryManager.loadBattery(".ips"))

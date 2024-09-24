@@ -53,7 +53,6 @@ class EmulationSettings : Snapshotable, Resetable {
     @JvmField val mapperPort = ControllerSettings()
     @Volatile private var needControllerUpdate = false
 
-    @JvmField var isKeyboardMode = true
     @JvmField var consoleType = ConsoleType.NES_001
 
     // CPU
@@ -131,7 +130,6 @@ class EmulationSettings : Snapshotable, Resetable {
         repeat(expansionSubPort.size) { s.write("expansionSubPort$it", expansionSubPort[it]) }
         s.write("mapperPort", mapperPort)
         s.write("needControllerUpdate", needControllerUpdate)
-        s.write("isKeyboardMode", isKeyboardMode)
         s.write("consoleType", consoleType)
         s.write("emulationSpeed", emulationSpeed)
         s.write("turboSpeed", turboSpeed)
@@ -162,7 +160,6 @@ class EmulationSettings : Snapshotable, Resetable {
         repeat(subPort1.size) { s.readSnapshotable("subPort1$it", subPort1[it]) }
         repeat(expansionSubPort.size) { s.readSnapshotable("expansionSubPort$it", expansionSubPort[it]) }
         s.readSnapshotable("mapperPort", mapperPort)
-        isKeyboardMode = s.readBoolean("isKeyboardMode")
         consoleType = s.readEnum("consoleType", ConsoleType.NES_001)
         emulationSpeed = s.readInt("emulationSpeed", 100)
         turboSpeed = s.readInt("turboSpeed", 300)

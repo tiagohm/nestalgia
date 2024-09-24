@@ -6,9 +6,9 @@ import java.util.*
 object RomLoader {
 
     fun load(
-        rom: IntArray,
+        rom: ByteArray,
         name: String,
-        fdsBios: IntArray = IntArray(0),
+        fdsBios: ByteArray = ByteArray(0),
     ): RomData {
         if (rom.isEmpty()) {
             throw IOException("Empty ROM")
@@ -23,7 +23,6 @@ object RomLoader {
             rom.startsWith("UNIF") -> UnifLoader.load(rom, name)
             rom.startsWith("FDS\u001A") ||
                 rom.startsWith("\u0001*NINTENDO-HVC*") -> FdsLoader.load(rom, name, fdsBios)
-
             else -> HeaderlessLoader.load(rom, name)
         }
 

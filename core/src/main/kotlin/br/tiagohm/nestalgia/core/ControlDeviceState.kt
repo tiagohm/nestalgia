@@ -2,22 +2,23 @@ package br.tiagohm.nestalgia.core
 
 import kotlin.math.min
 
-data class ControlDeviceState(private val state: IntArray) : Snapshotable {
+@Suppress("NOTHING_TO_INLINE")
+class ControlDeviceState(@PublishedApi @JvmField internal val state: IntArray) : Snapshotable {
 
     constructor(size: Int = 32) : this(IntArray(size))
 
-    val size
+    inline val size
         get() = state.size
 
-    fun clear() {
+    inline fun clear() {
         state.fill(0)
     }
 
-    operator fun get(index: Int): Int {
+    inline operator fun get(index: Int): Int {
         return state[index]
     }
 
-    operator fun set(index: Int, value: Int) {
+    inline operator fun set(index: Int, value: Int) {
         state[index] = value
     }
 

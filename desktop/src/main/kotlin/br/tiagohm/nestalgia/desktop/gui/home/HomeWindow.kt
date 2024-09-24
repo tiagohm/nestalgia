@@ -1,13 +1,15 @@
 package br.tiagohm.nestalgia.desktop.gui.home
 
 import br.tiagohm.nestalgia.core.*
-import br.tiagohm.nestalgia.core.ControllerType.FOUR_SCORE
-import br.tiagohm.nestalgia.core.ControllerType.NES_CONTROLLER
+import br.tiagohm.nestalgia.core.ControllerType.*
 import br.tiagohm.nestalgia.core.MouseButton.LEFT
 import br.tiagohm.nestalgia.core.MouseButton.RIGHT
+import br.tiagohm.nestalgia.core.Ppu.Companion.SCREEN_HEIGHT
+import br.tiagohm.nestalgia.core.Ppu.Companion.SCREEN_WIDTH
 import br.tiagohm.nestalgia.desktop.*
 import br.tiagohm.nestalgia.desktop.audio.Speaker
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
+import br.tiagohm.nestalgia.desktop.gui.barcode.BarcodeInputWindow
 import br.tiagohm.nestalgia.desktop.helper.resource
 import br.tiagohm.nestalgia.desktop.input.GamepadInputAction
 import br.tiagohm.nestalgia.desktop.input.GamepadInputListener
@@ -43,6 +45,8 @@ import java.time.format.DateTimeFormatter
 import java.util.concurrent.Executors
 import javax.imageio.ImageIO
 import kotlin.io.path.*
+import kotlin.math.max
+import kotlin.math.min
 
 data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInputListener, NotificationListener, BatteryProvider, ControlManagerListener,
     NativeMouseInputListener {
@@ -57,6 +61,7 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
     @FXML private lateinit var speedToggleGroup: ToggleGroup
     @FXML private lateinit var insertCoin1MenuItem: MenuItem
     @FXML private lateinit var insertCoin2MenuItem: MenuItem
+    @FXML private lateinit var barcodeInputMenuItem: MenuItem
     @FXML private lateinit var television: Television
 
     private val speaker = Speaker(console)
@@ -123,11 +128,16 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
     }
 
     private fun showOrHideCursor() {
-        television.cursor = if (console.hasControllerType(ControllerType.SUBOR_MOUSE)) {
+        television.cursor = if (console.hasControllerType(SUBOR_MOUSE)) {
             Cursor.NONE
         } else {
             Cursor.DEFAULT
         }
+    }
+
+    private fun enableOrDisableBarcodeInput() {
+        val hasBarcode = console.hasControllerType(BARCODE_BATTLER) || console.hasControllerType(DATACH_BARCODE_READER)
+        barcodeInputMenuItem.disableProperty().value = !hasBarcode
     }
 
     @FXML
@@ -174,8 +184,9 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
         }
     }
 
-    override fun onControlDeviceChange(console: Console, device: ControlDevice, port: Int) {
+    override fun onControlDeviceChange(console: Console, device: ControlDevice) {
         showOrHideCursor()
+        enableOrDisableBarcodeInput()
     }
 
     @FXML
@@ -188,10 +199,11 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
             ?.takeIf { it.exists() && it.isDirectory() }
 
         if (loadRomDir != null) chooser.initialDirectory = loadRomDir.toFile()
-        chooser.extensionFilters.add(ExtensionFilter("All ROM files", "*.nes", "*.fds", "*.unf"))
+        chooser.extensionFilters.add(ExtensionFilter("All ROM files", "*.nes", "*.fds", "*.unf", "*.7z"))
         chooser.extensionFilters.add(ExtensionFilter("NES ROM files", "*.nes"))
         chooser.extensionFilters.add(ExtensionFilter("Famicom ROM files", "*.fds"))
         chooser.extensionFilters.add(ExtensionFilter("UNIF ROM files", "*.unf"))
+        chooser.extensionFilters.add(ExtensionFilter("Compressed ROM files", "*.7z"))
 
         openROM(chooser.showOpenDialog(window)?.toPath() ?: return)
     }
@@ -203,9 +215,10 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
 
         loadConsolePreferences()
 
-        if (emulator.load(path.readBytes().toIntArray(), name, FDS_BIOS)) {
+        if (emulator.load(path.readBytes(), name, FDS_BIOS)) {
             console.controlManager.registerControlManagerListener(this)
             showOrHideCursor()
+            enableOrDisableBarcodeInput()
             preferences.loadRomDir = "${path.parent}"
             preferences.save()
             loadSavedStates()
@@ -302,6 +315,13 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
     }
 
     @FXML
+    private fun showBarcodeInput() {
+        val window = BarcodeInputWindow()
+        window.setUp()
+        window.showAndWait(this)
+    }
+
+    @FXML
     private fun debugContinue() {
         emulator.debugRun()
     }
@@ -340,8 +360,8 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
     }
 
     private fun onMousePressed(event: MouseEvent) {
-        val x = (event.x / television.width * Ppu.SCREEN_WIDTH).toInt()
-        val y = (event.y / television.height * Ppu.SCREEN_HEIGHT).toInt()
+        val x = (event.x / television.width * SCREEN_WIDTH).toInt()
+        val y = (event.y / television.height * SCREEN_HEIGHT).toInt()
         mouseKeyboard.onMousePressed(event.mouseButton, x, y)
     }
 
@@ -350,14 +370,20 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
     }
 
     private fun onMouseMoved(event: MouseEvent) {
-        val x = (event.x / television.width * Ppu.SCREEN_WIDTH).toInt()
-        val y = (event.y / television.height * Ppu.SCREEN_HEIGHT).toInt()
+        val x = (event.x / television.width * SCREEN_WIDTH).toInt()
+        val y = (event.y / television.height * SCREEN_HEIGHT).toInt()
         mouseKeyboard.onMouseMoved(x, y)
     }
 
     override fun nativeMouseMoved(nativeEvent: NativeMouseEvent) {
         val point = television.screenToLocal(nativeEvent.x.toDouble(), nativeEvent.y.toDouble())
-        mouseKeyboard.onMouseMoved(point.x.toInt(), point.y.toInt())
+        val x = (point.x / television.width * SCREEN_WIDTH).toInt()
+        val y = (point.y / television.height * SCREEN_HEIGHT).toInt()
+        mouseKeyboard.onMouseMoved(max(0, min(x, SCREEN_WIDTH)), max(0, min(y, SCREEN_HEIGHT)))
+    }
+
+    override fun nativeMouseDragged(nativeEvent: NativeMouseEvent) {
+        nativeMouseMoved(nativeEvent)
     }
 
     private fun loadConsolePreferences() {
@@ -366,12 +392,12 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
 
         var markAsNeedControllerUpdate = false
 
-        if (console.settings.port1.type == ControllerType.NONE) {
+        if (console.settings.port1.type == NONE) {
             console.settings.port1.type = NES_CONTROLLER
             markAsNeedControllerUpdate = true
         }
         if (console.settings.port1.type != FOUR_SCORE &&
-            console.settings.port2.type == ControllerType.NONE
+            console.settings.port2.type == NONE
         ) {
             console.settings.port2.type = NES_CONTROLLER
             markAsNeedControllerUpdate = true
@@ -478,8 +504,8 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
 
         internal val FDS_BIOS by lazy {
             resource(FdsBios.NINTENDO_FDS_FILENAME)
-                ?.use { it.readBytes().toIntArray() }
-                ?: IntArray(0)
+                ?.use { it.readBytes() }
+                ?: ByteArray(0)
         }
     }
 }

@@ -101,7 +101,8 @@ open class MMC3(console: Console) : Mapper(console) {
         mmc3UpdateMirroring()
     }
 
-    protected fun mmc3UpdateMirroring() {
+    @Suppress("NOTHING_TO_INLINE")
+    protected inline fun mmc3UpdateMirroring() {
         if (mirroringType != FOUR_SCREENS) {
             mirroringType = if (state.regA000.bit0) HORIZONTAL else VERTICAL
         }

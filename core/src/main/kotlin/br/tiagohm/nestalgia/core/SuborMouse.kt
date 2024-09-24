@@ -33,8 +33,8 @@ class SuborMouse(console: Console, port: Int, keyMapping: KeyMapping) : ControlD
 
         x = console.keyManager.mouseX
         y = console.keyManager.mouseY
-        dx = (console.keyManager.mouseDx * 0.45f).toInt()
-        dy = (console.keyManager.mouseDy * 0.45f).toInt()
+        dx = console.keyManager.mouseDx
+        dy = console.keyManager.mouseDy
     }
 
     override fun refreshStateBuffer() {

@@ -2,6 +2,7 @@ package br.tiagohm.nestalgia.core
 
 import org.slf4j.LoggerFactory
 
+@Suppress("NOTHING_TO_INLINE")
 abstract class ControlDevice(
     @JvmField protected val console: Console,
     @JvmField val type: ControllerType,
@@ -10,23 +11,20 @@ abstract class ControlDevice(
 
     @JvmField @Volatile protected var strobe = false
 
-    val isExpansionDevice
+    inline val isExpansionDevice
         get() = port == EXP_DEVICE_PORT
 
-    @JvmField internal val state = ControlDeviceState()
-
-    open val keyboard = false
+    @JvmField @PublishedApi internal val state = ControlDeviceState()
 
     override fun reset(softReset: Boolean) = Unit
 
-    @Suppress("NOTHING_TO_INLINE")
     protected inline fun isCurrentPort(addr: Int): Boolean {
         return port == (addr - 0x4016)
     }
 
     protected open fun refreshStateBuffer() = Unit
 
-    protected fun strobeOnRead() {
+    protected inline fun strobeOnRead() {
         if (strobe) refreshStateBuffer()
     }
 
@@ -40,14 +38,12 @@ abstract class ControlDevice(
         }
     }
 
-    fun clearState() {
+    inline fun clearState() {
         state.clear()
     }
 
-    protected fun isPressed(button: ControllerButton): Boolean {
-        val bit = button.bit
-        val bitMask = 1 shl (bit % 8)
-        return (state[bit / 8] and bitMask) != 0
+    protected inline fun isPressed(button: ControllerButton): Boolean {
+        return isPressed(button.bit)
     }
 
     protected fun isPressed(bit: Int): Boolean {
@@ -55,7 +51,6 @@ abstract class ControlDevice(
         return (state[bit / 8] and bitMask) != 0
     }
 
-    @Suppress("NOTHING_TO_INLINE")
     inline fun setBit(button: ControllerButton) {
         setBit(button.bit)
     }
@@ -68,7 +63,6 @@ abstract class ControlDevice(
         state[byteIndex] = value or bitMask
     }
 
-    @Suppress("NOTHING_TO_INLINE")
     inline fun clearBit(button: ControllerButton) {
         clearBit(button.bit)
     }
@@ -82,17 +76,7 @@ abstract class ControlDevice(
     }
 
     protected fun setPressedState(button: ControllerButton, key: Key) {
-        val keyCode = key.code
-
-        if (keyboard && keyCode < 0x200 && !console.settings.isKeyboardMode) {
-            // Prevent keyboard device input when keyboard mode is off
-            return
-        }
-
-        if (console.settings.isInputEnabled &&
-            (!console.settings.isKeyboardMode || keyCode >= 0x200 || keyboard) &&
-            console.keyManager.isKeyPressed(key)
-        ) {
+        if (console.settings.isInputEnabled && console.keyManager.isKeyPressed(key)) {
             setBit(button)
         }
     }

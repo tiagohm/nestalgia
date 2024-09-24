@@ -73,7 +73,6 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
 
     protected fun clearDevices() {
         controlDevices.clear()
-
         systemDevices.forEach(::registerControlDevice)
     }
 
@@ -83,8 +82,6 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
         if (!force && !settings.needControllerUpdate()) {
             return
         }
-
-        val hadKeyboard = hasKeyboard
 
         saveBattery()
 
@@ -102,14 +99,6 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             //     // TODO: Automatically connect the data recorder if the family basic keyboard is connected
             //     RegisterControlDevice(shared_ptr<FamilyBasicDataRecorder>(new FamilyBasicDataRecorder (_emu)));
             // }
-        }
-
-        val hasKeyboard = this.hasKeyboard
-
-        if (!hasKeyboard) {
-            settings.isKeyboardMode = false
-        } else if (!hadKeyboard) {
-            settings.isKeyboardMode = true
         }
     }
 
@@ -145,10 +134,10 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             JISSEN_MAHJONG -> JissenMahjong(console, keyMapping)
             SUBOR_MOUSE -> SuborMouse(console, port, keyMapping)
             SUBOR_KEYBOARD -> SuborKeyboard(console, keyMapping)
+            BARCODE_BATTLER -> BarcodeBattlerReader(console)
+            OEKA_KIDS_TABLET -> OekaKidsTablet(console)
             else -> return null
         }
-
-        controlManagerListeners.forEach { it.onControlDeviceChange(console, device, port) }
 
         LOG.info("{} connected. type={}, port={}", device::class.simpleName, device.type, device.port)
 
@@ -187,9 +176,6 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
     }
 
     protected open fun remapControllerButtons() = Unit
-
-    val hasKeyboard
-        get() = controlDevice(EXP_DEVICE_PORT)?.keyboard == true
 
     open fun openBusMask(port: Int): Int {
         // In the NES and Famicom, the top three (or five) bits are not driven,
@@ -242,6 +228,7 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
 
     fun registerControlDevice(device: ControlDevice) {
         controlDevices.add(device)
+        controlManagerListeners.forEach { it.onControlDeviceChange(console, device) }
     }
 
     fun hasControlDevice(type: ControllerType): Boolean {

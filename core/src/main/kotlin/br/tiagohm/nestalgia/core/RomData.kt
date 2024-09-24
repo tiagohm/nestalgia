@@ -10,9 +10,9 @@ data class RomData(
     @JvmField val chrRom: IntArray = IntArray(0),
     @JvmField val treinerData: IntArray = IntArray(0),
     @JvmField val studyBox: StudyBoxData = StudyBoxData.EMPTY,
-    @JvmField val rawData: IntArray = IntArray(0),
+    @JvmField val rawData: ByteArray = ByteArray(0),
     @JvmField val biosMissing: Boolean = false,
-    @JvmField val fdsBios: IntArray = IntArray(0),
+    @JvmField val fdsBios: ByteArray = ByteArray(0),
 ) {
 
     companion object {

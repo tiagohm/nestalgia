@@ -41,7 +41,7 @@ data class Emulator(
 
     override fun processNotification(type: NotificationType, vararg data: Any?) = Unit
 
-    fun load(rom: IntArray, name: String, fdsBios: IntArray = IntArray(0)): Boolean {
+    fun load(rom: ByteArray, name: String, fdsBios: ByteArray = ByteArray(0)): Boolean {
         return if (console.initialize(rom, name, true, fdsBios)) {
             emuThread.compareAndSet(null, threadExecutor.submit(console))
 
