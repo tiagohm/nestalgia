@@ -4,6 +4,8 @@ import br.tiagohm.nestalgia.core.*
 import br.tiagohm.nestalgia.core.ControllerType.*
 import br.tiagohm.nestalgia.core.MouseButton.LEFT
 import br.tiagohm.nestalgia.core.MouseButton.RIGHT
+import br.tiagohm.nestalgia.core.Ppu.Companion.SCREEN_HEIGHT
+import br.tiagohm.nestalgia.core.Ppu.Companion.SCREEN_WIDTH
 import br.tiagohm.nestalgia.desktop.*
 import br.tiagohm.nestalgia.desktop.audio.Speaker
 import br.tiagohm.nestalgia.desktop.gui.AbstractWindow
@@ -43,6 +45,8 @@ import java.time.format.DateTimeFormatter
 import java.util.concurrent.Executors
 import javax.imageio.ImageIO
 import kotlin.io.path.*
+import kotlin.math.max
+import kotlin.math.min
 
 data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInputListener, NotificationListener, BatteryProvider, ControlManagerListener,
     NativeMouseInputListener {
@@ -180,7 +184,7 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
         }
     }
 
-    override fun onControlDeviceChange(console: Console, device: ControlDevice, port: Int) {
+    override fun onControlDeviceChange(console: Console, device: ControlDevice) {
         showOrHideCursor()
         enableOrDisableBarcodeInput()
     }
@@ -356,8 +360,8 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
     }
 
     private fun onMousePressed(event: MouseEvent) {
-        val x = (event.x / television.width * Ppu.SCREEN_WIDTH).toInt()
-        val y = (event.y / television.height * Ppu.SCREEN_HEIGHT).toInt()
+        val x = (event.x / television.width * SCREEN_WIDTH).toInt()
+        val y = (event.y / television.height * SCREEN_HEIGHT).toInt()
         mouseKeyboard.onMousePressed(event.mouseButton, x, y)
     }
 
@@ -366,16 +370,16 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
     }
 
     private fun onMouseMoved(event: MouseEvent) {
-        val x = (event.x / television.width * Ppu.SCREEN_WIDTH).toInt()
-        val y = (event.y / television.height * Ppu.SCREEN_HEIGHT).toInt()
+        val x = (event.x / television.width * SCREEN_WIDTH).toInt()
+        val y = (event.y / television.height * SCREEN_HEIGHT).toInt()
         mouseKeyboard.onMouseMoved(x, y)
     }
 
     override fun nativeMouseMoved(nativeEvent: NativeMouseEvent) {
         val point = television.screenToLocal(nativeEvent.x.toDouble(), nativeEvent.y.toDouble())
-        val x = (point.x / television.width * Ppu.SCREEN_WIDTH).toInt()
-        val y = (point.y / television.height * Ppu.SCREEN_HEIGHT).toInt()
-        mouseKeyboard.onMouseMoved(x, y)
+        val x = (point.x / television.width * SCREEN_WIDTH).toInt()
+        val y = (point.y / television.height * SCREEN_HEIGHT).toInt()
+        mouseKeyboard.onMouseMoved(max(0, min(x, SCREEN_WIDTH)), max(0, min(y, SCREEN_HEIGHT)))
     }
 
     private fun loadConsolePreferences() {
