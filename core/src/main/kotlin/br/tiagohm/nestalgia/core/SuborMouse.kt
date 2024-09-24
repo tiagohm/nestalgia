@@ -75,12 +75,6 @@ class SuborMouse(console: Console, port: Int, keyMapping: KeyMapping) : ControlD
 
         packetPos = 0
         stateBuffer = packetBytes[0]
-
-        if (dx > 31) dx -= 31
-        else if (dx < -31) dx += 31
-
-        if (dy > 31) dy -= 31
-        else if (dy < -31) dy += 31
     }
 
     override fun reset(softReset: Boolean) {
