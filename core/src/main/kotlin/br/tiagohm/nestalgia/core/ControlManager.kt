@@ -73,7 +73,6 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
 
     protected fun clearDevices() {
         controlDevices.clear()
-
         systemDevices.forEach(::registerControlDevice)
     }
 
@@ -138,8 +137,6 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             BARCODE_BATTLER -> BarcodeBattlerReader(console)
             else -> return null
         }
-
-        controlManagerListeners.forEach { it.onControlDeviceChange(console, device, port) }
 
         LOG.info("{} connected. type={}, port={}", device::class.simpleName, device.type, device.port)
 
@@ -230,6 +227,7 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
 
     fun registerControlDevice(device: ControlDevice) {
         controlDevices.add(device)
+        controlManagerListeners.forEach { it.onControlDeviceChange(console, device) }
     }
 
     fun hasControlDevice(type: ControllerType): Boolean {
