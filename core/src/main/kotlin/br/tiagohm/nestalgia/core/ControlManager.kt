@@ -84,8 +84,6 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             return
         }
 
-        val hadKeyboard = hasKeyboard
-
         saveBattery()
 
         clearDevices()
@@ -102,14 +100,6 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             //     // TODO: Automatically connect the data recorder if the family basic keyboard is connected
             //     RegisterControlDevice(shared_ptr<FamilyBasicDataRecorder>(new FamilyBasicDataRecorder (_emu)));
             // }
-        }
-
-        val hasKeyboard = this.hasKeyboard
-
-        if (!hasKeyboard) {
-            settings.isKeyboardMode = false
-        } else if (!hadKeyboard) {
-            settings.isKeyboardMode = true
         }
     }
 
@@ -188,9 +178,6 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
     }
 
     protected open fun remapControllerButtons() = Unit
-
-    val hasKeyboard
-        get() = controlDevice(EXP_DEVICE_PORT)?.keyboard == true
 
     open fun openBusMask(port: Int): Int {
         // In the NES and Famicom, the top three (or five) bits are not driven,
