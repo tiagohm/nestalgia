@@ -382,6 +382,10 @@ data class HomeWindow(override val window: Stage) : AbstractWindow(), GamepadInp
         mouseKeyboard.onMouseMoved(max(0, min(x, SCREEN_WIDTH)), max(0, min(y, SCREEN_HEIGHT)))
     }
 
+    override fun nativeMouseDragged(nativeEvent: NativeMouseEvent) {
+        nativeMouseMoved(nativeEvent)
+    }
+
     private fun loadConsolePreferences() {
         // Copy global settings to console settings.
         preferences.settings.copyTo(console.settings)

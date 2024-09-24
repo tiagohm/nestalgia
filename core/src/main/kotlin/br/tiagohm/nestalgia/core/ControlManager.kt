@@ -135,6 +135,7 @@ open class ControlManager(protected val console: Console) : MemoryHandler, Reset
             SUBOR_MOUSE -> SuborMouse(console, port, keyMapping)
             SUBOR_KEYBOARD -> SuborKeyboard(console, keyMapping)
             BARCODE_BATTLER -> BarcodeBattlerReader(console)
+            OEKA_KIDS_TABLET -> OekaKidsTablet(console)
             else -> return null
         }
 
