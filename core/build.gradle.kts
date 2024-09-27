@@ -8,6 +8,8 @@ dependencies {
     implementation(libs.xz)
     implementation(libs.logback)
     testImplementation(libs.xml)
+    testImplementation(libs.sqlite)
+    testImplementation(libs.bundles.exposed)
     testImplementation(libs.bundles.kotest)
 }
 

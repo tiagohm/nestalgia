@@ -8,6 +8,8 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.security.MessageDigest
@@ -17,13 +19,14 @@ import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.*
 
-// find . -type f -name "*.unf" -execdir 7z a '{}.7z' '{}' \;
+// find . -type f -name "*.nes" -execdir 7z a '{}.7z' '{}' \;
 // find . -name "*.nes.7z" -type f | while read file; do mv "$file" "${file//.nes/}"; done
+// cat nes_urls.txt | shuf | xargs -n1 -P4 wget --continue
 
 class NesRomDatabase : Runnable {
 
     @JacksonXmlRootElement(localName = "nes20db")
-    class Database(
+    class NesDatabase(
         @JvmField @field:JacksonXmlProperty val date: String = "",
         @JvmField @field:JacksonXmlElementWrapper(useWrapping = false) @field:JsonProperty("game") val games: List<Game> = ArrayList(11000),
     )
@@ -78,24 +81,29 @@ class NesRomDatabase : Runnable {
         @JvmField @field:JacksonXmlProperty val ppu: Int = 0,
     )
 
+    object Nes : Table("nes") {
+        val id: Column<String> = text("id")
+        val name: Column<String> = text("name").index()
+        val type: Column<String> = text("type").index()
+        val mapper: Column<Int> = integer("mapper").index()
+        val subMapper: Column<Int> = integer("subMapper").index()
+        val board: Column<String?> = text("board").nullable().index()
+        val matched: Column<Boolean> = bool("matched")
+
+        override val primaryKey = PrimaryKey(id, name = "pk_nes_id")
+    }
+
     private val inputDir = Path(requireNotNull(System.getenv("INPUT_DIR")))
     private val outputDir = Path(requireNotNull(System.getenv("OUTPUT_DIR")))
 
     init {
         require(inputDir.exists() && inputDir.isDirectory())
         require(outputDir.exists() && outputDir.isDirectory())
+
+        Database.connect("jdbc:sqlite:$outputDir/nes.db", driver = "org.sqlite.JDBC")
     }
 
-    private val errorDir = Path("$outputDir", "error").createDirectories()
     private val nesDir = Path("$outputDir", "nes").createDirectories()
-    private val nesOkDir = Path("$nesDir", "ok").createDirectories()
-    private val nesUnknownDir = Path("$nesDir", "unknown").createDirectories()
-    private val unifDir = Path("$outputDir", "unif").createDirectories()
-    private val unifOkDir = Path("$unifDir", "ok").createDirectories()
-    private val unifUnknownDir = Path("$unifDir", "unknown").createDirectories()
-    private val fdsDir = Path("$outputDir", "fds").createDirectories()
-    private val nsfDir = Path("$outputDir", "nsf").createDirectories()
-    private val studyBoxDir = Path("$outputDir", "studyBox").createDirectories()
     private val binDir = Path("$outputDir", "bin").createDirectories()
 
     private val gameDatabase = HashMap<String, Game>(12000)
@@ -111,7 +119,7 @@ class NesRomDatabase : Runnable {
     }
 
     private fun loadNesDatabase() {
-        val db = Path("core/nes20db.xml").inputStream().use { XML.readValue(it, Database::class.java) }
+        val db = Path("core/nes20db.xml").inputStream().use { XML.readValue(it, NesDatabase::class.java) }
 
         LOG.info("NES Database loaded. date={}, size={}", db.date, db.games.size)
 
@@ -121,36 +129,36 @@ class NesRomDatabase : Runnable {
     }
 
     override fun run() {
+        transaction {
+            SchemaUtils.create(Nes)
+        }
+
         loadNesDatabase()
 
         val tasks = LinkedList<Future<*>>()
 
         LOG.info("starting. path={}", inputDir)
 
-        inputDir.findRoms {
-            val ext = it.extension
+        inputDir.findRoms { path ->
+            val ext = path.extension
 
-            if (ext == "7z") {
+            if (ext == "7z" || ext == "nes" || ext == "unf") {
                 try {
-                    val rom = CompressedRomLoader.load(it.readBytes(), it.nameWithoutExtension)
-                    val processor = RomProcessor(rom, it)
-                    tasks.add(EXECUTOR.submit(processor))
-                } catch (e: Throwable) {
-                    LOG.error("failed to load ROM. name={}, message={}", it.name, e.message)
+                    val rom = CompressedRomLoader.load(path.readBytes(), path.nameWithoutExtension)
 
-                    val outputPath = Path("$errorDir", it.name)
-                    it.copyToWithDuplicate(outputPath)
+                    if (rom.info.format == RomFormat.INES || rom.info.format == RomFormat.UNIF) {
+                        val processor = RomProcessor(rom, path)
+                        tasks.add(EXECUTOR.submit(processor))
+                        return@findRoms true
+                    }
+                } catch (e: Throwable) {
+                    LOG.error("failed to load ROM. name={}, message={}", path.name, e.message)
+                    return@findRoms true
                 }
-            } else if (ext == "fds") {
-                val outputPath = Path("$fdsDir", it.name)
-                it.copyToWithDuplicate(outputPath)
-            } else if (ext == "nsf") {
-                val outputPath = Path("$nsfDir", it.name)
-                it.copyToWithDuplicate(outputPath)
-            } else if (ext != "nes" && ext != "unf") {
-                val outputPath = Path("$binDir", it.name)
-                it.copyToWithDuplicate(outputPath)
             }
+
+            val outputPath = Path("$binDir", path.name)
+            path.copyToWithDuplicate(outputPath)
 
             return@findRoms true
         }
@@ -166,49 +174,59 @@ class NesRomDatabase : Runnable {
     ) : Runnable {
 
         override fun run() {
-            val game = gameDatabase[rom.info.hash.sha1]
-            val format = rom.info.format
-            var duplicate = true
+            try {
+                val sha1 = rom.info.hash.sha1
+                val game = gameDatabase[sha1]
+                val format = rom.info.format
 
-            val outputPath = if (format == RomFormat.FDS) {
-                Path("$fdsDir", path.name)
-            } else if (format == RomFormat.NSF) {
-                Path("$nsfDir", path.name)
-            } else if (format == RomFormat.STUDY_BOX) {
-                Path("$studyBoxDir", path.name)
-            } else if (game?.pcb != null) {
-                val name = Path(game.name.replace('\\', '/')).nameWithoutExtension
+                val outputPath = if (game?.pcb != null) {
+                    val name = Path(game.name.replace('\\', '/')).nameWithoutExtension
+                    val mapper = "%03d".format(game.pcb.mapper)
+                    val subMapper = game.pcb.subMapper.let { if (it > 0) ".$it" else "" }
+                    val board = rom.info.unifBoard
 
-                duplicate = false
-
-                when (format) {
-                    RomFormat.INES -> {
-                        val mapper = "%03d".format(game.pcb.mapper)
-                        val subMapper = game.pcb.subMapper.let { if (it > 0) ".$it" else "" }
-                        Path("$nesOkDir", "$mapper$subMapper.$name.${path.extension}")
+                    when (format) {
+                        RomFormat.INES -> Path("$nesDir", "$mapper$subMapper.$name.${path.extension}")
+                        RomFormat.UNIF -> Path("$nesDir", "$mapper.$board.$name.${path.extension}")
+                        else -> return
                     }
-                    RomFormat.UNIF -> {
-                        val mapper = "%03d".format(game.pcb.mapper)
-                        val board = rom.info.unifBoard
-                        Path("$unifOkDir", "$mapper.$board.$name.${path.extension}")
-                    }
-                    else -> return
-                }
-            } else {
-                val mapper = "%03d".format(rom.info.mapperId)
-                val subMapper = rom.info.subMapperId.let { if (it > 0) "-$it" else "" }
+                } else {
+                    val mapper = "%03d".format(rom.info.mapperId)
+                    val subMapper = rom.info.subMapperId.let { if (it > 0) ".$it" else "" }
+                    val board = rom.info.unifBoard
 
-                val baseDir = when (format) {
-                    RomFormat.INES -> nesUnknownDir
-                    RomFormat.UNIF -> unifUnknownDir
-                    else -> return
+                    when (format) {
+                        RomFormat.INES -> Path("$nesDir", "$mapper$subMapper.${path.name}")
+                        RomFormat.UNIF -> Path("$nesDir", "$mapper.$board.${path.name}")
+                        else -> return
+                    }
                 }
 
-                Path("$baseDir", "$mapper$subMapper.${path.name}")
-            }
+                synchronized(EXECUTOR) {
+                    transaction {
+                        if (Nes.select(Nes.id).where { Nes.id eq sha1 }.count() == 0L) {
+                            val newPath = path.copyToWithDuplicate(outputPath)
 
-            if (!path.copyToWithDuplicate(outputPath, duplicate)) {
-                LOG.warn("file already exists! name={}", outputPath.nameWithoutExtension)
+                            if (newPath != null) {
+                                LOG.info("added. path={}", newPath.nameWithoutExtension)
+
+                                Nes.insert {
+                                    it[id] = sha1
+                                    it[name] = newPath.nameWithoutExtension
+                                    it[type] = rom.info.format.name
+                                    it[mapper] = game?.pcb?.mapper ?: rom.info.mapperId
+                                    it[subMapper] = game?.pcb?.subMapper ?: rom.info.subMapperId
+                                    it[board] = rom.info.unifBoard.ifBlank { null }
+                                    it[matched] = game != null
+                                }
+                            }
+                        } else {
+                            LOG.warn("already exists. path={}", path.nameWithoutExtension)
+                        }
+                    }
+                }
+            } catch (e: Throwable) {
+                LOG.error("error", e)
             }
         }
     }
@@ -249,15 +267,15 @@ class NesRomDatabase : Runnable {
             return digest.digest().hex()
         }
 
-        private fun Path.copyToWithDuplicate(output: Path, duplicate: Boolean = true): Boolean {
+        private fun Path.copyToWithDuplicate(output: Path): Path? {
             var newPath = output
             var index = 1
 
             while (true) {
                 if (!newPath.exists()) {
                     copyTo(newPath, true)
-                    return true
-                } else if (duplicate) {
+                    return newPath
+                } else {
                     val sha1 = sha1()
 
                     if (sha1 != newPath.sha1()) {
@@ -265,12 +283,10 @@ class NesRomDatabase : Runnable {
                     } else {
                         break
                     }
-                } else {
-                    break
                 }
             }
 
-            return false
+            return null
         }
     }
 }
