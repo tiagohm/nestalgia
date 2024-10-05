@@ -319,6 +319,7 @@ object MapperFactory {
             422 -> Mapper422(console)
             434 -> BmcS2009(console)
             437 -> Mapper437(console)
+            438 -> Mapper438(console)
             513 -> Sachen9602(console)
             518 -> Dance2000(console)
             519 -> Eh8813A(console)
