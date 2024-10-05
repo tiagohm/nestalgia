@@ -307,6 +307,7 @@ object MapperFactory {
             356 -> Mapper356(console)
             358 -> JyCompany(console)
             366 -> BmcGn45(console)
+            385 -> Mapper385(console)
             386 -> JyCompany(console)
             387 -> JyCompany(console)
             388 -> JyCompany(console)
