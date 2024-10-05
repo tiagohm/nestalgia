@@ -73,7 +73,7 @@ object INesLoader {
         if (prgSize + chrSize > dataSize) {
             LOG.warn("{} file length does not match header information. {} > {}", name, prgSize + chrSize, dataSize)
         } else if (prgSize + chrSize < dataSize) {
-            LOG.warn("{} file is larger than excepted. {} < {}", name, prgSize + chrSize, dataSize)
+            LOG.warn("{} file is larger than expected. {} < {}", name, prgSize + chrSize, dataSize)
         }
 
         val prgRom = IntArray(prgSize) { i -> if (offset + i < rom.size) rom[offset + i].toUnsignedInt() else 0 }
