@@ -22,7 +22,7 @@ dependencies {
     // implementation("uk.co.electronstudio.sdl2gdx:sdl2gdx:1.0.4")
     implementation(files("$projectDir/libs/sdl2gdx-1.0.4.jar"))
     // sdl2gdx's dependencies.
-    implementation("com.badlogicgames.gdx:gdx:1.12.1") // 1.9.9
+    implementation("com.badlogicgames.gdx:gdx:1.13.0") // 1.9.9
     implementation("com.badlogicgames.gdx:gdx-controllers:1.9.13") // 1.9.9
     implementation("com.badlogicgames.gdx:gdx-jnigen:2.5.2") // 1.9.10
     implementation("com.github.kwhat:jnativehook:2.2.2")
