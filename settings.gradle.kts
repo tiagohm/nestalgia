@@ -18,7 +18,7 @@ dependencyResolutionManagement {
             library("oshi", "com.github.oshi:oshi-core:6.6.5")
             library("compress", "org.apache.commons:commons-compress:1.27.1")
             library("xz", "org.tukaani:xz:1.10")
-            library("xml", "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.18.1")
+            library("xml", "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.18.2")
             library("exposed-core", "org.jetbrains.exposed:exposed-core:0.56.0")
             library("exposed-jdbc", "org.jetbrains.exposed:exposed-jdbc:0.56.0")
             library("sqlite", "org.xerial:sqlite-jdbc:3.47.0.0")
