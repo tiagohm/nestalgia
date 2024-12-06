@@ -20,7 +20,7 @@ dependencyResolutionManagement {
             library("xz", "org.tukaani:xz:1.10")
             library("xml", "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.18.2")
             library("exposed-core", "org.jetbrains.exposed:exposed-core:0.57.0")
-            library("exposed-jdbc", "org.jetbrains.exposed:exposed-jdbc:0.56.0")
+            library("exposed-jdbc", "org.jetbrains.exposed:exposed-jdbc:0.57.0")
             library("sqlite", "org.xerial:sqlite-jdbc:3.47.1.0")
             library("logback", "ch.qos.logback:logback-classic:1.5.12")
             library("kotest-assertions-core", "io.kotest:kotest-assertions-core:5.9.1")
