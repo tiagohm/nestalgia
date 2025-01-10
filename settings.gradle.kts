@@ -12,7 +12,7 @@ buildCache {
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            library("okio", "com.squareup.okio:okio:3.9.1")
+            library("okio", "com.squareup.okio:okio:3.10.2")
             library("jackson", "com.fasterxml.jackson.core:jackson-databind:2.18.2")
             library("csv", "de.siegmar:fastcsv:3.4.0")
             library("oshi", "com.github.oshi:oshi-core:6.6.5")
