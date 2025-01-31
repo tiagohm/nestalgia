@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.10")
         classpath("com.adarshr:gradle-test-logger-plugin:4.0.0")
         classpath("com.github.gmazzo:gradle-buildconfig-plugin:3.1.0")
         classpath("org.jetbrains.kotlin:kotlin-allopen:2.1.10")
