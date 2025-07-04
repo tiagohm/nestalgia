@@ -21,7 +21,7 @@ dependencyResolutionManagement {
             library("xml", "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.19.1")
             library("exposed-core", "org.jetbrains.exposed:exposed-core:0.61.0")
             library("exposed-jdbc", "org.jetbrains.exposed:exposed-jdbc:0.61.0")
-            library("sqlite", "org.xerial:sqlite-jdbc:3.50.1.0")
+            library("sqlite", "org.xerial:sqlite-jdbc:3.50.2.0")
             library("logback", "ch.qos.logback:logback-classic:1.5.18")
             library("kotest-assertions-core", "io.kotest:kotest-assertions-core:5.9.1")
             library("kotest-runner-junit5", "io.kotest:kotest-runner-junit5:5.9.1")
