@@ -336,6 +336,7 @@ object MapperFactory {
             548 -> Ctc15(console)
             549 -> Mapper549(console)
             550 -> Mapper550(console)
+            552 -> TaitoX1017(console)
             554 -> Kaiser7010(console)
             557 -> Mapper557(console)
             FDS_MAPPER_ID -> Fds(console)
