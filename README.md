@@ -54,7 +54,7 @@ dependencies {
 * [Windows](https://github.com/tiagohm/nestalgia/releases/download/0.31.0/nestalgia-0.31.0-windows.jar)
 * [Linux](https://github.com/tiagohm/nestalgia/releases/download/0.31.0/nestalgia-0.31.0-linux.jar)
 
-> Before running, check if you have [Java 17](https://www.azul.com/downloads/?package=jdk#zulu) or newer installed.
+> Before running, check if you have [Java 21](https://www.azul.com/downloads/?package=jdk#zulu) or newer installed.
 
 ## Gamepad Support
 
