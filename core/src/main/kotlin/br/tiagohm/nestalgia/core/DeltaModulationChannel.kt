@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryAccessType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.WRITE
 import kotlin.math.abs
 
 class DeltaModulationChannel(
@@ -22,7 +22,8 @@ class DeltaModulationChannel(
     @Volatile private var bitsRemaining = 0
     @Volatile private var silence = true
     @Volatile private var needToRun = false
-    @Volatile private var needInit = 0
+    @Volatile private var transferStartDelay = 0
+    @Volatile private var disableDelay = 0
 
     @Volatile private var lastValue4011 = 0
 
@@ -67,6 +68,8 @@ class DeltaModulationChannel(
         bitsRemaining = 8
         silence = true
         needToRun = false
+        transferStartDelay = 0
+        disableDelay = 0
 
         lastValue4011 = 0
 
@@ -105,14 +108,35 @@ class DeltaModulationChannel(
             bytesRemaining--
 
             if (bytesRemaining <= 0) {
-                needToRun = false
-
                 if (loop) {
                     // Looped sample should never set IRQ flag
                     initSample()
                 } else if (irqEnabled) {
                     console.cpu.setIRQSource(IRQSource.DMC)
                 }
+            }
+        }
+
+        if (sampleLength == 1 && !loop) {
+            // When DMA ends around the time the bit counter resets, a CPU glitch sometimes causes another DMA to be requested immediately.
+            if (bitsRemaining == 8 && timer == period && console.settings.enableDmcSampleDuplicationGlitch) {
+                // When the DMA ends on the same cycle as the bit counter resets
+                // This glitch exists on all H CPUs and some G CPUs (those from around 1990 and later)
+                // In this case, a full DMA is performed on the same address, and the same sample byte
+                // is played twice in a row by the DMC
+                shiftRegister = readBuffer
+                silence = false
+                bufferEmpty = true
+                initSample()
+                startDmcTransfer()
+            } else if (bitsRemaining == 1 && timer < 2) {
+                // When the DMA ends on the APU cycle before the bit counter resets
+                // If it this happens right before the bit counter resets,
+                // a DMA is triggered and aborted 1 cycle later (causing one halted CPU cycle)
+                shiftRegister = readBuffer
+                bufferEmpty = false
+                initSample()
+                disableDelay = 3
             }
         }
     }
@@ -145,7 +169,14 @@ class DeltaModulationChannel(
                 silence = false
                 shiftRegister = readBuffer
                 bufferEmpty = true
-                startDmcTransfer()
+                needToRun = true
+
+                if (transferStartDelay == 0) {
+                    // Don't trigger the DMA if the channel was just enabled by a 4015 write
+                    // The DMA will be triggered later (see ProcessClock)
+                    // Based on AccuracyCoin's "Delta Modulation Channel" test result
+                    startDmcTransfer()
+                }
             }
         }
 
@@ -172,27 +203,46 @@ class DeltaModulationChannel(
     }
 
     fun needToRun(): Boolean {
-        if (needInit > 0) {
-            needInit--
+        if (disableDelay > 0) {
+            disableDelay--
 
-            if (needInit == 0) {
+            if (disableDelay == 0) {
+                bytesRemaining = 0
+
+                // Abort any on-going transfer that hasn't fully started
+                console.cpu.stopDmcTransfer()
+            }
+        }
+
+        if (transferStartDelay > 0) {
+            transferStartDelay--
+
+            if (transferStartDelay == 0) {
                 startDmcTransfer()
             }
         }
+
+        needToRun = bytesRemaining > 0 || transferStartDelay > 0
 
         return needToRun
     }
 
     fun enable(enabled: Boolean) {
         if (!enabled) {
-            bytesRemaining = 0
-            needToRun = false
+            if (disableDelay == 0) {
+                //Disabling takes effect with a 1 apu cycle delay
+                //If a DMA starts during this time, it gets cancelled
+                //but this will still cause the CPU to be halted for 1 cycle
+                disableDelay = if (console.cpu.cycleCount.bit0) 3 else 2
+            }
+
+            needToRun = true
         } else if (bytesRemaining <= 0) {
             initSample()
 
             // Delay a number of cycles based on odd/even cycles
             // Allows behavior to match dmc_dma_start_test.
-            needInit = if (console.cpu.cycleCount.bit0) 3 else 2
+            transferStartDelay = if (console.cpu.cycleCount.bit0) 3 else 2
         }
     }
 

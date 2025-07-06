@@ -62,6 +62,7 @@ class EmulationSettings : Snapshotable, Resetable {
 
     // APU
     @Volatile private var needAudioSettingsUpdate = false
+    @Volatile var enableDmcSampleDuplicationGlitch = false
 
     var sampleRate = 48000
         set(value) {
