@@ -117,7 +117,7 @@ class Apu(@JvmField internal val console: Console) : MemoryHandler, Resetable, I
             status = status or (if (triangleChannel.status) 0x04 else 0x00)
             status = status or (if (noiseChannel.status) 0x08 else 0x00)
             status = status or (if (deltaModulationChannel.status) 0x10 else 0x00)
-            status = status or (if (console.cpu.hasIRQSource(IRQSource.FRAME_COUNTER)) 0x40 else 0x00)
+            status = status or (if (frameCounter.hasIrqFlag()) 0x40 else 0x00)
             status = status or (if (console.cpu.hasIRQSource(IRQSource.DMC)) 0x80 else 0x00)
 
             return status

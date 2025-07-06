@@ -1,6 +1,6 @@
 package br.tiagohm.nestalgia.core
 
-import br.tiagohm.nestalgia.core.MemoryAccessType.*
+import br.tiagohm.nestalgia.core.MemoryAccessType.WRITE
 
 class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, Snapshotable {
 
@@ -12,6 +12,8 @@ class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, 
     @Volatile private var blockFrameCounterTick = 0
     @Volatile private var newValue = 0
     @Volatile private var writeDelayCounter = 0
+    @Volatile private var irqFlag = false
+    @Volatile private var irqFlagClearClock = 0L
 
     init {
         reset(false)
@@ -21,6 +23,22 @@ class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, 
         if (region != Region.AUTO) {
             updateStepCycles(region)
         }
+    }
+
+    fun hasIrqFlag(): Boolean {
+        if (irqFlag) {
+            val clock = console.masterClock
+
+            if (irqFlagClearClock == 0L) {
+                // The flag will be cleared at the start of the next APU cycle (see AccuracyCoin test)
+                irqFlagClearClock = clock + if (clock.bit0) 2L else 1L
+            } else if (clock >= irqFlagClearClock) {
+                irqFlagClearClock = 0
+                irqFlag = false
+            }
+        }
+
+        return irqFlag
     }
 
     private fun updateStepCycles(region: Region) {
@@ -42,6 +60,8 @@ class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, 
 
     override fun reset(softReset: Boolean) {
         previousCycle = 0
+        irqFlag = false
+        irqFlagClearClock = 0L
 
         // After reset: APU mode in $4017 was unchanged, so we need to keep whatever value _stepMode has for soft resets
         if (!softReset) {
@@ -65,9 +85,17 @@ class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, 
         val cyclesRan: Int
 
         if (previousCycle + cyclesToRun >= stepCycles[stepMode.toInt()][currentStep]) {
-            if (!inhibitIRQ && !stepMode && currentStep >= 3) {
-                // Set IRQ on the last 3 cycles for 4-step mode
-                console.cpu.setIRQSource(IRQSource.FRAME_COUNTER)
+            if (!stepMode && currentStep >= 3) {
+                // Set irq on the last 3 cycles for 4-step mode
+                irqFlag = true
+                irqFlagClearClock = 0L
+
+                if (!inhibitIRQ) {
+                    console.cpu.setIRQSource(IRQSource.FRAME_COUNTER)
+                } else if (currentStep == 5) {
+                    irqFlag = false
+                    irqFlagClearClock = 0
+                }
             }
 
             val type = FRAME_TYPE[stepMode.toInt()][currentStep]
@@ -161,11 +189,15 @@ class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, 
 
         if (inhibitIRQ) {
             console.cpu.clearIRQSource(IRQSource.FRAME_COUNTER)
+            irqFlag = false
+            irqFlagClearClock = 0
         }
     }
 
     override fun saveState(s: Snapshot) {
         s.write("previousCycle", previousCycle)
+        s.write("irqFlag", irqFlag)
+        s.write("irqFlagClearClock", irqFlagClearClock)
         s.write("currentStep", currentStep)
         s.write("stepMode", stepMode)
         s.write("inhibitIRQ", inhibitIRQ)
@@ -176,6 +208,8 @@ class ApuFrameCounter(private val console: Console) : MemoryHandler, Resetable, 
 
     override fun restoreState(s: Snapshot) {
         previousCycle = s.readInt("previousCycle")
+        irqFlag = s.readBoolean("irqFlag")
+        irqFlagClearClock = s.readLong("irqFlagClearClock")
         currentStep = s.readInt("currentStep")
         stepMode = s.readBoolean("stepMode")
         inhibitIRQ = s.readBoolean("inhibitIRQ")

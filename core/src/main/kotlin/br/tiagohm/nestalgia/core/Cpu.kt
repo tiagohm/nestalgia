@@ -17,6 +17,7 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
 
     @JvmField internal var isCpuWrite = false
     @Volatile private var needHalt = false
+    @Volatile private var abortDmcDma = false
 
     @Volatile private var needDummyRead = false
 
@@ -744,6 +745,7 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
         spriteDmaOffset = 0
         needHalt = false
         dmcDmaRunning = false
+        abortDmcDma = false
 
         // Use _memoryManager->Read() directly to prevent clocking the PPU/APU
         // when setting PC at reset.
@@ -865,7 +867,12 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
     private inline fun processCycle() {
         // Sprite DMA cycles count as halt/dummy cycles for the DMC DMA when both
         // run at the same time.
-        if (needHalt) {
+        if (abortDmcDma) {
+            dmcDmaRunning = false
+            abortDmcDma = false
+            needDummyRead = false
+            needHalt = false
+        } else if (needHalt) {
             needHalt = false
         } else if (needDummyRead) {
             needDummyRead = false
@@ -899,11 +906,29 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
         // If this cycle is a read, hijack the read, discard the value, and prevent all other actions that occur on this cycle (PC not incremented, etc)
         startCpuCycle(true)
 
-        if (isNtscInputBehavior && !skipFirstInputClock) {
+        if (abortDmcDma && (addr == 0x4016 || addr == 0x4017)) {
+            // Skip halt cycle dummy read on 4016/4017
+            // The DMA was aborted, and the CPU will read 4016/4017 next
+            // If 4016/4017 is read here, the controllers will see 2 separate reads
+            // even though they would only see a single read on hardware (except the original Famicom)
+        } else if (isNtscInputBehavior && !skipFirstInputClock) {
             console.memoryManager.read(addr, DUMMY_READ)
         }
 
         endCpuCycle(true)
+
+        if (abortDmcDma) {
+            dmcDmaRunning = false
+            abortDmcDma = false
+
+            if (!spriteDmaTransfer) {
+                // If DMC DMA was cancelled and OAM DMA isn't about to start,
+                // stop processing DMA entirely. Otherwise, OAM DMA needs to run,
+                // so the DMA process has to continue.
+                needDummyRead = false
+                return
+            }
+        }
 
         needHalt = false
 
@@ -929,6 +954,7 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
                     endCpuCycle(true)
                     console.apu.dmcReadBuffer(readValue)
                     dmcDmaRunning = false
+                    abortDmcDma = false
                 } else if (spriteDmaTransfer) {
                     // DMC DMA is not running, or not ready, run sprite DMA.
                     processCycle()
@@ -1044,6 +1070,21 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
             prevReadAddress[0] = internalAddr
 
             return value
+        }
+    }
+
+    fun stopDmcTransfer() {
+        if (dmcDmaRunning) {
+            if (needHalt) {
+                // If interrupted before the halt cycle starts, cancel DMA completely
+                // This can happen when a write prevents the DMA from starting after being queued
+                dmcDmaRunning = false
+                needDummyRead = false
+                needHalt = false
+            } else {
+                // Abort DMA if possible (this only appears to be possible if done within the first cycle of DMA)
+                abortDmcDma = true
+            }
         }
     }
 
@@ -1317,6 +1358,7 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
         s.write("prevNeedNmi", prevNeedNmi)
         s.write("prevNmiFlag", prevNmiFlag)
         s.write("needNmi", needNmi)
+        s.write("abortDmcDma", abortDmcDma)
     }
 
     override fun restoreState(s: Snapshot) {
@@ -1336,6 +1378,7 @@ class Cpu(private val console: Console) : Memory, Resetable, Initializable, Snap
         prevNeedNmi = s.readBoolean("prevNeedNmi")
         prevNmiFlag = s.readBoolean("prevNmiFlag")
         needNmi = s.readBoolean("needNmi")
+        abortDmcDma = s.readBoolean("abortDmcDma")
 
         console.settings.extraScanlinesAfterNmi = extraScanlinesAfterNmi
         console.settings.extraScanlinesBeforeNmi = extraScanlinesBeforeNmi
