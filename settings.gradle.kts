@@ -16,7 +16,7 @@ dependencyResolutionManagement {
             library("jackson", "com.fasterxml.jackson.core:jackson-databind:2.19.2")
             library("csv", "de.siegmar:fastcsv:4.0.0")
             library("oshi", "com.github.oshi:oshi-core:6.8.2")
-            library("compress", "org.apache.commons:commons-compress:1.27.1")
+            library("compress", "org.apache.commons:commons-compress:1.28.0")
             library("xz", "org.tukaani:xz:1.10")
             library("xml", "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.19.2")
             library("exposed-core", "org.jetbrains.exposed:exposed-core:0.61.0")
