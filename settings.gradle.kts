@@ -23,8 +23,8 @@ dependencyResolutionManagement {
             library("exposed-jdbc", "org.jetbrains.exposed:exposed-jdbc:0.61.0")
             library("sqlite", "org.xerial:sqlite-jdbc:3.50.3.0")
             library("logback", "ch.qos.logback:logback-classic:1.5.18")
-            library("kotest-assertions-core", "io.kotest:kotest-assertions-core:5.9.1")
-            library("kotest-runner-junit5", "io.kotest:kotest-runner-junit5:5.9.1")
+            library("kotest-assertions-core", "io.kotest:kotest-assertions-core:6.0.0")
+            library("kotest-runner-junit5", "io.kotest:kotest-runner-junit5:6.0.0")
             bundle("kotest", listOf("kotest-assertions-core", "kotest-runner-junit5"))
             bundle("exposed", listOf("exposed-core", "exposed-jdbc"))
         }
