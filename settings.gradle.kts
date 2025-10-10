@@ -14,7 +14,7 @@ dependencyResolutionManagement {
         create("libs") {
             library("okio", "com.squareup.okio:okio:3.16.0")
             library("jackson", "com.fasterxml.jackson.core:jackson-databind:2.20.0")
-            library("csv", "de.siegmar:fastcsv:4.0.0")
+            library("csv", "de.siegmar:fastcsv:4.1.0")
             library("oshi", "com.github.oshi:oshi-core:6.9.0")
             library("compress", "org.apache.commons:commons-compress:1.28.0")
             library("xz", "org.tukaani:xz:1.10")
