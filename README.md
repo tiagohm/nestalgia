@@ -7,6 +7,8 @@
 [![Active Development](https://img.shields.io/badge/Maintenance%20Level-Actively%20Developed-brightgreen.svg)](https://gist.github.com/cheerfulstoic/d107229326a01ff0f333a1d3476e068d)
 [![CI](https://github.com/tiagohm/nestalgia/actions/workflows/ci.yml/badge.svg)](https://github.com/tiagohm/nestalgia/actions/workflows/ci.yml)
 [![Version](https://img.shields.io/badge/version-0.31.0-blue)](https://github.com/tiagohm/nestalgia/releases/latest)
+[![Emulation General Wiki](https://img.shields.io/badge/Emulation_General_Wiki-Nestalgia-red)](https://emulation.gametechwiki.com/index.php/Nestalgia)
+
 
 Nestalgia is a cross-platform and high-accuracy NES/Famicom emulator built in Kotlin. It's being ported from
 discontinued [Mesen](https://github.com/SourMesen/Mesen) NES/Famicom emulator built in C++ and C#.
